@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33627.172
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TOPDER.API", "TOPDER.API\TOPDER.API.csproj", "{A6F38EB2-AD0D-4599-847E-36D433ABE249}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TOPDER.Repository", "TOPDER.Repository\TOPDER.Repository.csproj", "{492FBB56-D7DF-4ED6-8F42-48E7079836F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TOPDER.Service", "TOPDER.Service\TOPDER.Service.csproj", "{49CE8005-03E8-4586-8728-61DD7AFB3E88}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A6F38EB2-AD0D-4599-847E-36D433ABE249}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6F38EB2-AD0D-4599-847E-36D433ABE249}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6F38EB2-AD0D-4599-847E-36D433ABE249}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6F38EB2-AD0D-4599-847E-36D433ABE249}.Release|Any CPU.Build.0 = Release|Any CPU
+		{492FBB56-D7DF-4ED6-8F42-48E7079836F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{492FBB56-D7DF-4ED6-8F42-48E7079836F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{492FBB56-D7DF-4ED6-8F42-48E7079836F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{492FBB56-D7DF-4ED6-8F42-48E7079836F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49CE8005-03E8-4586-8728-61DD7AFB3E88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49CE8005-03E8-4586-8728-61DD7AFB3E88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49CE8005-03E8-4586-8728-61DD7AFB3E88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49CE8005-03E8-4586-8728-61DD7AFB3E88}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B3380077-A615-4948-AFBF-E60D183D2B52}
+	EndGlobalSection
+EndGlobal
