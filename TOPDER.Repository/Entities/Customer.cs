@@ -20,8 +20,6 @@ namespace TOPDER.Repository.Entities
         public string? Image { get; set; }
         public DateTime? Dob { get; set; }
         public string? Gender { get; set; }
-        public string? OtpCode { get; set; }
-        public bool IsVerify { get; set; }
         public decimal WalletBalance { get; set; }
 
         public virtual User UidNavigation { get; set; } = null!;

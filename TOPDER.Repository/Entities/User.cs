@@ -19,6 +19,8 @@ namespace TOPDER.Repository.Entities
         public int RoleId { get; set; }
         public string Email { get; set; } = null!;
         public string? Password { get; set; }
+        public string? OtpCode { get; set; }
+        public bool IsVerify { get; set; }
         public int Status { get; set; }
         public DateTime? CreatedDate { get; set; }
         public bool IsExternalLogin { get; set; }
