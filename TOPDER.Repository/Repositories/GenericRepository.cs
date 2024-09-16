@@ -23,11 +23,14 @@ namespace TOPDER.Repository.Repositories
             return await Task.FromResult(_dbContext.Set<T>().AsQueryable()); 
         }
 
-        public async Task<T> CreateAsync(T entity)
+        public async Task<bool> CreateAsync(T entity)
         {
+            if (entity == null)
+                return false;
+
             await _dbContext.Set<T>().AddAsync(entity);
-            await _dbContext.SaveChangesAsync();
-            return entity;
+            int result = await _dbContext.SaveChangesAsync();
+            return result > 0; 
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -37,8 +40,8 @@ namespace TOPDER.Repository.Repositories
                 return false;
 
             _dbContext.Set<T>().Remove(entity);
-            await _dbContext.SaveChangesAsync();
-            return true;
+            int result = await _dbContext.SaveChangesAsync();
+            return result > 0;
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
@@ -60,8 +63,8 @@ namespace TOPDER.Repository.Repositories
         public async Task<bool> UpdateAsync(T entity)
         {
             _dbContext.Set<T>().Update(entity);
-            await _dbContext.SaveChangesAsync();
-            return true;
+            int result = await _dbContext.SaveChangesAsync();
+            return result > 0;
         }
 
         public async Task<bool> CreateRangeAsync(List<T> entities)
@@ -70,8 +73,8 @@ namespace TOPDER.Repository.Repositories
                 return false;
 
             await _dbContext.Set<T>().AddRangeAsync(entities);
-            await _dbContext.SaveChangesAsync();
-            return true;
+            int result = await _dbContext.SaveChangesAsync();
+            return result > 0;
         }
 
     }

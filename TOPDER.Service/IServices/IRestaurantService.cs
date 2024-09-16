@@ -11,7 +11,7 @@ namespace TOPDER.Service.IServices
 {
     public interface IRestaurantService
     {
-        Task<Restaurant> AddAsync(CreateRestaurantRequest restaurant);
+        Task<bool> AddAsync(CreateRestaurantRequest restaurant);
         Task<bool> UpdateItemAsync(Restaurant restaurant);
         Task<bool> RemoveItemAsync(int id);
         Task<PaginatedList<RestaurantHomeDto>> GetPagingAsync(int pageNumber, int pageSize);

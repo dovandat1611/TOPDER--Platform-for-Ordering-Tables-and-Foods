@@ -24,7 +24,7 @@ namespace TOPDER.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<Restaurant> AddAsync(CreateRestaurantRequest restaurantRequest)
+        public async Task<bool> AddAsync(CreateRestaurantRequest restaurantRequest)
         {
             var restaurant = _mapper.Map<Restaurant>(restaurantRequest);
             return await _restaurantRepository.CreateAsync(restaurant);
@@ -37,7 +37,7 @@ namespace TOPDER.Service.Services
             var queryDTO = query.Select(r => _mapper.Map<RestaurantHomeDto>(r));
 
             var paginatedDTOs = await PaginatedList<RestaurantHomeDto>.CreateAsync(
-                queryDTO,
+                queryDTO.AsNoTracking(),
                 pageNumber > 0 ? pageNumber : 1,
                 pageSize > 0 ? pageSize : 10
             );

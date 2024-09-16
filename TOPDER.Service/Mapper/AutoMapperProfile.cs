@@ -3,6 +3,7 @@ using TOPDER.Repository.Entities;
 using TOPDER.Service.Dtos.Restaurant;
 using System.Linq;
 using TOPDER.Service.Dtos.Customer;
+using TOPDER.Service.Dtos.BlogGroup;
 
 namespace TOPDER.Service.Mapper
 {
@@ -25,6 +26,9 @@ namespace TOPDER.Service.Mapper
                 ));
 
             CreateMap<CreateRestaurantRequest, Restaurant>();
+
+            CreateMap<BlogGroupDto, Blog>().ReverseMap();
+
 
             CreateMap<Customer, CustomerInfoDto>()
                 .ForMember(dest => dest.Email, otp => otp.MapFrom(src => src.UidNavigation.Email));

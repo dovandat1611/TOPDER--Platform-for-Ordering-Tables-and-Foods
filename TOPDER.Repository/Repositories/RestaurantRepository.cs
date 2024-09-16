@@ -9,6 +9,5 @@ namespace TOPDER.Repository.Repositories
     public class RestaurantRepository : GenericRepository<Restaurant>, IRestaurantRepository
     {
         public RestaurantRepository(TopderDBContext dbContext) : base(dbContext) {}
-        
     }
 }
