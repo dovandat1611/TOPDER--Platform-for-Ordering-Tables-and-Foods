@@ -44,21 +44,23 @@ namespace Service.Services
             }
             return uploadResults;
         }
-        public async Task<ImageUploadResult> UploadImageAsync(IFormFile file)
+        public async Task<ImageUploadResult?> UploadImageAsync(IFormFile file)
         {
-            if (file.Length > 0)
+            if (file == null || file.Length == 0)
             {
-                using (var stream = file.OpenReadStream())
-                {
-                    var uploadParams = new ImageUploadParams()
-                    {
-                        File = new FileDescription(file.FileName, stream)
-                    };
-                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-                    return uploadResult;
-                }
+                return null; 
             }
-            return null;
+
+            using (var stream = file.OpenReadStream())
+            {
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(file.FileName, stream)
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                return uploadResult;
+            }
         }
     }
 }

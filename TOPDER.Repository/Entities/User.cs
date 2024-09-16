@@ -22,7 +22,7 @@ namespace TOPDER.Repository.Entities
         public string? OtpCode { get; set; }
         public bool IsVerify { get; set; }
         public int Status { get; set; }
-        public DateTime? CreatedDate { get; set; }
+        public DateTime? CreatedAt { get; set; }
         public bool IsExternalLogin { get; set; }
 
         public virtual Role Role { get; set; } = null!;

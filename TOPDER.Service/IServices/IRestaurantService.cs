@@ -19,6 +19,5 @@ namespace TOPDER.Service.IServices
         Task<RestaurantHomeDTO> GetItemAsync(int id);
         Task<IEnumerable<RestaurantHomeDTO>> SearchItemsByNameAsync(string name);
         Task<IEnumerable<RestaurantHomeDTO>> SearchItemsByAddressAsync(string address);
-        Task<IEnumerable<RestaurantHomeDTO>> SearchItemsByPriceAsync(int min, int max);
     }
 }

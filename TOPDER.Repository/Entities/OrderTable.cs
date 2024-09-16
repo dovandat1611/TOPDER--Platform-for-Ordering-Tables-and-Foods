@@ -3,15 +3,14 @@ using System.Collections.Generic;
 
 namespace TOPDER.Repository.Entities
 {
-    public partial class OrderDetail
+    public partial class OrderTable
     {
-        public int OrderDetailId { get; set; }
+        public int OrderTableId { get; set; }
         public int OrderId { get; set; }
-        public int MenuId { get; set; }
-        public int? Quantity { get; set; }
+        public int TableId { get; set; }
         public decimal Price { get; set; }
 
-        public virtual Menu Menu { get; set; } = null!;
         public virtual Order Order { get; set; } = null!;
+        public virtual RestaurantTable Table { get; set; } = null!;
     }
 }

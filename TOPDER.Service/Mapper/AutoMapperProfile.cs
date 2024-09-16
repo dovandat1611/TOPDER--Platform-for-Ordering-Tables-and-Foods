@@ -15,7 +15,7 @@ namespace TOPDER.Service.Mapper
             //    .ForMember(dest => dest.Star, opt => opt.MapFrom(src => src.Reviews != null && src.Reviews.Any() ? (int)src.Reviews.Average(r => r.Star) : 0));
             
             CreateMap<Restaurant, RestaurantHomeDTO>()
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : "Unknown"))
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.CategoryRestaurant != null ? src.CategoryRestaurant.CategoryRestaurantName : "Unknown"))
                 .ForMember(dest => dest.TotalReviews, opt => opt.MapFrom(src => src.Reviews != null ? src.Reviews.Count() : 0))
                 .ForMember(dest => dest.Star, opt => opt.MapFrom(src =>
                     src.Reviews != null && src.Reviews.Any()

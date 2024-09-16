@@ -13,12 +13,13 @@ namespace TOPDER.Repository.Entities
             Logs = new HashSet<Log>();
             Menus = new HashSet<Menu>();
             Orders = new HashSet<Order>();
+            RestaurantTables = new HashSet<RestaurantTable>();
             Reviews = new HashSet<Review>();
             Wishlists = new HashSet<Wishlist>();
         }
 
         public int Uid { get; set; }
-        public int? CategoryId { get; set; }
+        public int? CategoryRestaurantId { get; set; }
         public string NameOwner { get; set; } = null!;
         public string NameRes { get; set; } = null!;
         public string? Logo { get; set; }
@@ -29,14 +30,13 @@ namespace TOPDER.Repository.Entities
         public string? Description { get; set; }
         public string? Subdescription { get; set; }
         public string Location { get; set; } = null!;
-        public decimal? Price { get; set; }
         public string? Discount { get; set; }
         public bool? IsBookingEnabled { get; set; }
         public decimal? FirstFeePercent { get; set; }
         public decimal? ReturningFeePercent { get; set; }
         public decimal? CancellationFeePercent { get; set; }
 
-        public virtual Category? Category { get; set; }
+        public virtual CategoryRestaurant? CategoryRestaurant { get; set; }
         public virtual User UidNavigation { get; set; } = null!;
         public virtual ICollection<ChatBox> ChatBoxes { get; set; }
         public virtual ICollection<Discount> Discounts { get; set; }
@@ -44,6 +44,7 @@ namespace TOPDER.Repository.Entities
         public virtual ICollection<Log> Logs { get; set; }
         public virtual ICollection<Menu> Menus { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<RestaurantTable> RestaurantTables { get; set; }
         public virtual ICollection<Review> Reviews { get; set; }
         public virtual ICollection<Wishlist> Wishlists { get; set; }
     }

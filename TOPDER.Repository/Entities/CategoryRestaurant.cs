@@ -3,15 +3,15 @@ using System.Collections.Generic;
 
 namespace TOPDER.Repository.Entities
 {
-    public partial class Category
+    public partial class CategoryRestaurant
     {
-        public Category()
+        public CategoryRestaurant()
         {
             Restaurants = new HashSet<Restaurant>();
         }
 
-        public int CategoryId { get; set; }
-        public string? CategoryName { get; set; }
+        public int CategoryRestaurantId { get; set; }
+        public string? CategoryRestaurantName { get; set; }
 
         public virtual ICollection<Restaurant> Restaurants { get; set; }
     }

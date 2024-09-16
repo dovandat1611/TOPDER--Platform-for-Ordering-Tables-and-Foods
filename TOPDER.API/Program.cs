@@ -19,7 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<TopderDBContext>(options =>
-  options.UseSqlServer(builder.Configuration.GetConnectionString("MyCnn"))
+  options.UseSqlServer(builder.Configuration.GetConnectionString("Dat_Connection"))
 );
 
 builder.Services.AddDistributedMemoryCache();

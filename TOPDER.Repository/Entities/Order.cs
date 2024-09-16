@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TOPDER.Repository.Entities;
 
 namespace TOPDER.Repository.Entities
 {
@@ -7,7 +8,8 @@ namespace TOPDER.Repository.Entities
     {
         public Order()
         {
-            OrderDetails = new HashSet<OrderDetail>();
+            OrderMenus = new HashSet<OrderMenu>();
+            OrderTables = new HashSet<OrderTable>();
         }
 
         public int OrderId { get; set; }
@@ -22,19 +24,20 @@ namespace TOPDER.Repository.Entities
         public int NumberChild { get; set; }
         public string? ContentReservation { get; set; }
         public string? TypeOrder { get; set; }
-        public decimal? TotalPrice { get; set; }
+        public decimal TotalAmount { get; set; }
         public string? ContentPayment { get; set; }
         public string? StatusPayment { get; set; }
         public string? StatusOrder { get; set; }
-        public DateTime? CreatedDate { get; set; }
-        public DateTime? ConfirmedDate { get; set; }
-        public DateTime? PaidDate { get; set; }
-        public DateTime? CompletedDate { get; set; }
-        public DateTime? CancelledDate { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? ConfirmedAt { get; set; }
+        public DateTime? PaidAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
+        public DateTime? CancelledAt { get; set; }
 
         public virtual Customer? Customer { get; set; }
         public virtual Discount? Discount { get; set; }
         public virtual Restaurant? Restaurant { get; set; }
-        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+        public virtual ICollection<OrderMenu> OrderMenus { get; set; }
+        public virtual ICollection<OrderTable> OrderTables { get; set; }
     }
 }

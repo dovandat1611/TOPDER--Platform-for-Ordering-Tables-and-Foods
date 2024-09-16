@@ -93,16 +93,6 @@ namespace TOPDER.Service.Services
             return _mapper.Map<IEnumerable<RestaurantHomeDTO>>(restaurants);
         }
 
-        public async Task<IEnumerable<RestaurantHomeDTO>> SearchItemsByPriceAsync(int min, int max)
-        {
-            var restaurants = await _context.Restaurants
-                                    .Where(r => r.Price >= min && r.Price <= max)  
-                                    .Include(r => r.Reviews) 
-                                    .ToListAsync();
-
-            return _mapper.Map<IEnumerable<RestaurantHomeDTO>>(restaurants);
-        }
-
         public async Task<bool> UpdateItemAsync(Restaurant restaurant)
         {
             var existingRestaurant = await _context.Restaurants.FindAsync(restaurant.Uid);
