@@ -14,10 +14,10 @@ namespace TOPDER.Service.IServices
         Task<Restaurant> AddAsync(CreateRestaurantRequest restaurant);
         Task<bool> UpdateItemAsync(Restaurant restaurant);
         Task<bool> RemoveItemAsync(int id);
-        Task<PaginatedList<RestaurantHomeDTO>> GetAllItemsPagingAsync(int pageNumber, int pageSize);
-        Task<IEnumerable<RestaurantHomeDTO>> GetAllItemsAsync();
-        Task<RestaurantHomeDTO> GetItemAsync(int id);
-        Task<IEnumerable<RestaurantHomeDTO>> SearchItemsByNameAsync(string name);
-        Task<IEnumerable<RestaurantHomeDTO>> SearchItemsByAddressAsync(string address);
+        Task<PaginatedList<RestaurantHomeDto>> GetPagingAsync(int pageNumber, int pageSize);
+        Task<IEnumerable<RestaurantHomeDto>> GetAllItemsAsync();
+        Task<RestaurantHomeDto> GetItemAsync(int id);
+        Task<IEnumerable<RestaurantHomeDto>> SearchItemsByNameAsync(string name);
+        Task<IEnumerable<RestaurantHomeDto>> SearchItemsByAddressAsync(string address);
     }
 }

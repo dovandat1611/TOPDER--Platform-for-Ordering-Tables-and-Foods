@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TOPDER.Service.Dtos.Restaurant
 {
-    public class RestaurantHomeDTO
+    public class RestaurantHomeDto
     {
         public int ResId { get; set; }
         public string Image { get; set; } = string.Empty;

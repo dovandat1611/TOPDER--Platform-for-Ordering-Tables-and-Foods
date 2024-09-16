@@ -2,6 +2,7 @@
 using TOPDER.Repository.Entities;
 using TOPDER.Service.Dtos.Restaurant;
 using System.Linq;
+using TOPDER.Service.Dtos.Customer;
 
 namespace TOPDER.Service.Mapper
 {
@@ -14,7 +15,7 @@ namespace TOPDER.Service.Mapper
             //    .ForMember(dest => dest.TotalReviews, opt => opt.MapFrom(src => src.Reviews != null ? src.Reviews.Count() : 0))
             //    .ForMember(dest => dest.Star, opt => opt.MapFrom(src => src.Reviews != null && src.Reviews.Any() ? (int)src.Reviews.Average(r => r.Star) : 0));
             
-            CreateMap<Restaurant, RestaurantHomeDTO>()
+            CreateMap<Restaurant, RestaurantHomeDto>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.CategoryRestaurant != null ? src.CategoryRestaurant.CategoryRestaurantName : "Unknown"))
                 .ForMember(dest => dest.TotalReviews, opt => opt.MapFrom(src => src.Reviews != null ? src.Reviews.Count() : 0))
                 .ForMember(dest => dest.Star, opt => opt.MapFrom(src =>
@@ -24,6 +25,11 @@ namespace TOPDER.Service.Mapper
                 ));
 
             CreateMap<CreateRestaurantRequest, Restaurant>();
+
+            CreateMap<Customer, CustomerInfoDto>()
+                .ForMember(dest => dest.Email, otp => otp.MapFrom(src => src.UidNavigation.Email));
+
+
         }
     }
 }

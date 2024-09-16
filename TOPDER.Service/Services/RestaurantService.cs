@@ -17,13 +17,11 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly IRestaurantRepository _restaurantRepository;
-        private readonly TopderDBContext _context;
 
-        public RestaurantService(IRestaurantRepository restaurantRepository, IMapper mapper, TopderDBContext context)
+        public RestaurantService(IRestaurantRepository restaurantRepository, IMapper mapper)
         {
             _restaurantRepository = restaurantRepository;
             _mapper = mapper;
-            _context = context;
         }
 
         public async Task<Restaurant> AddAsync(CreateRestaurantRequest restaurantRequest)
@@ -32,13 +30,13 @@ namespace TOPDER.Service.Services
             return await _restaurantRepository.CreateAsync(restaurant);
         }
 
-        public async Task<PaginatedList<RestaurantHomeDTO>> GetAllItemsPagingAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedList<RestaurantHomeDto>> GetPagingAsync(int pageNumber, int pageSize)
         {
-            var query = _restaurantRepository.GetAllItems();
+            var query = await _restaurantRepository.QueryableAsync();
 
-            var queryDTO = query.Select(r => _mapper.Map<RestaurantHomeDTO>(r));
+            var queryDTO = query.Select(r => _mapper.Map<RestaurantHomeDto>(r));
 
-            var paginatedDTOs = await PaginatedList<RestaurantHomeDTO>.CreateAsync(
+            var paginatedDTOs = await PaginatedList<RestaurantHomeDto>.CreateAsync(
                 queryDTO,
                 pageNumber > 0 ? pageNumber : 1,
                 pageSize > 0 ? pageSize : 10
@@ -47,25 +45,27 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
-        public async Task<IEnumerable<RestaurantHomeDTO>> GetAllItemsAsync()
+        public async Task<IEnumerable<RestaurantHomeDto>> GetAllItemsAsync()
         {
-            var restaurants = await _restaurantRepository.GetAllItemsAsync();
-            var restaurantsDTO = _mapper.Map<IEnumerable<RestaurantHomeDTO>>(restaurants);
+            var restaurants = await _restaurantRepository.GetAllAsync();
+            var restaurantsDTO = _mapper.Map<IEnumerable<RestaurantHomeDto>>(restaurants);
             return restaurantsDTO;
         }
 
-        public async Task<RestaurantHomeDTO> GetItemAsync(int id)
+        public async Task<RestaurantHomeDto> GetItemAsync(int id)
         {
-            var restaurant = await _context.Restaurants
-                                        .Include(r => r.Reviews)
-                                        .FirstOrDefaultAsync(r => r.Uid == id);
+            var queryableRestaurants = await _restaurantRepository.QueryableAsync();
+
+            var restaurant = await queryableRestaurants
+                .Include(r => r.Reviews) 
+                .FirstOrDefaultAsync(r => r.Uid == id);
 
             if (restaurant == null)
             {
-                throw new KeyNotFoundException($"Restaurant with ID {id} not found.");
+                throw new KeyNotFoundException($"Restaurant with ID {id} not found."); 
             }
 
-            return _mapper.Map<RestaurantHomeDTO>(restaurant);
+            return _mapper.Map<RestaurantHomeDto>(restaurant);
         }
 
         public async Task<bool> RemoveItemAsync(int id)
@@ -73,34 +73,39 @@ namespace TOPDER.Service.Services
             return await _restaurantRepository.DeleteAsync(id);
         }
 
-        public async Task<IEnumerable<RestaurantHomeDTO>> SearchItemsByAddressAsync(string address)
+        public async Task<IEnumerable<RestaurantHomeDto>> SearchItemsByAddressAsync(string address)
         {
-            var restaurants = await _context.Restaurants
-                                    .Where(r => r.Address.Contains(address))
-                                    .Include(r => r.Reviews)
-                                    .ToListAsync();
+            var queryableRestaurants = await _restaurantRepository.QueryableAsync();
 
-            return _mapper.Map<IEnumerable<RestaurantHomeDTO>>(restaurants);
+            var restaurants = await queryableRestaurants
+                .Where(r => r.Address.Contains(address))
+                .Include(r => r.Reviews)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<RestaurantHomeDto>>(restaurants);
         }
 
-        public async Task<IEnumerable<RestaurantHomeDTO>> SearchItemsByNameAsync(string name)
+        public async Task<IEnumerable<RestaurantHomeDto>> SearchItemsByNameAsync(string name)
         {
-            var restaurants = await _context.Restaurants
-                                    .Where(r => r.NameRes.Contains(name))
-                                    .Include(r => r.Reviews)
-                                    .ToListAsync();
+            var queryableRestaurants = await _restaurantRepository.QueryableAsync();
 
-            return _mapper.Map<IEnumerable<RestaurantHomeDTO>>(restaurants);
+            var restaurants = await queryableRestaurants
+                .Where(r => r.NameRes.Contains(name))
+                .Include(r => r.Reviews)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<RestaurantHomeDto>>(restaurants);
         }
 
         public async Task<bool> UpdateItemAsync(Restaurant restaurant)
         {
-            var existingRestaurant = await _context.Restaurants.FindAsync(restaurant.Uid);
+            var existingRestaurant = await _restaurantRepository.GetByIdAsync(restaurant.Uid);
             if (existingRestaurant == null)
             {
                 return false;
             }
             return await _restaurantRepository.UpdateAsync(restaurant);
         }
+
     }
 }

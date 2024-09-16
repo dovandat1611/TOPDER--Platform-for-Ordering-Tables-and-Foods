@@ -52,9 +52,6 @@ namespace TOPDER.Service.Dtos.Restaurant
         [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be between 6 and 100 characters.")]
         public string Password { get; set; } = null!;
 
-        [Range(0, double.MaxValue, ErrorMessage = "Price must be a non-negative value.")]
-        public decimal? Price { get; set; }
-
         [StringLength(50, ErrorMessage = "Status cannot be longer than 50 characters.")]
         public string? Status { get; set; }
     }

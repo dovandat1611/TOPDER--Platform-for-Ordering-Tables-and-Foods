@@ -7,7 +7,7 @@ using TOPDER.Repository.Entities;
 
 namespace TOPDER.Repository.IRepositories
 {
-    public interface IRestaurantRepository : IGenericRepository<Restaurant>
+    public interface ICustomerRepository : IGenericRepository<Customer>
     {
     }
 }

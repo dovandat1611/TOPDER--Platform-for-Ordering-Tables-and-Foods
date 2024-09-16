@@ -25,9 +25,9 @@ namespace TOPDER.API.Controllers
         [HttpGet("restaurant-home")]
         public async Task<IActionResult> RestaurantHome(int pageNumber, int pageSize)
         {
-            var paginatedDTOs = await _restaurantService.GetAllItemsPagingAsync(pageNumber, pageSize);
+            var paginatedDTOs = await _restaurantService.GetPagingAsync(pageNumber, pageSize);
 
-            var response = new PaginatedResponseDto<RestaurantHomeDTO>(
+            var response = new PaginatedResponseDto<RestaurantHomeDto>(
                 paginatedDTOs,
                 paginatedDTOs.PageIndex,
                 paginatedDTOs.TotalPages,

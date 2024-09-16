@@ -11,6 +11,7 @@ namespace TOPDER.Repository.IRepositories
         Task<T> CreateAsync(T entity);
         Task<T> GetByIdAsync(int id);
         Task<IEnumerable<T>> GetAllAsync();
+        Task<IQueryable<T>> QueryableAsync();
         Task<bool> UpdateAsync(T entity);
         Task<bool> DeleteAsync(int id);
         Task<bool> CreateRangeAsync(List<T> entities);

@@ -18,6 +18,11 @@ namespace TOPDER.Repository.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task<IQueryable<T>> QueryableAsync()
+        {
+            return await Task.FromResult(_dbContext.Set<T>().AsQueryable()); 
+        }
+
         public async Task<T> CreateAsync(T entity)
         {
             await _dbContext.Set<T>().AddAsync(entity);
