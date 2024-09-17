@@ -12,6 +12,7 @@ using TOPDER.Service.Dtos.Blog;
 using TOPDER.Service.Dtos.BlogGroup;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
 {
@@ -32,11 +33,55 @@ namespace TOPDER.Service.Services
             return await _blogRepository.CreateAsync(blog);
         }
 
+        public async Task<BlogDetailCustomerDto> GetBlogByIdAsync(int blogId)
+        {
+            var existingBlog = await _blogRepository.GetByIdAsync(blogId);
+            if (existingBlog == null)
+            {
+                throw new KeyNotFoundException($"Blog với ID {blogId} không tồn tại.");
+            }
+            return _mapper.Map<BlogDetailCustomerDto>(existingBlog);
+        }
+
+
+        public async Task<PaginatedList<BlogListCustomerDto>> GetBlogCustomerPagingAsync(int pageNumber, int pageSize)
+        {
+            var query = await _blogRepository.QueryableAsync();
+
+            var blogs = query.Where(x => x.Status != null && x.Status.Equals(Common_Status.ACTIVE))
+                             .OrderByDescending(x => x.BlogId);
+
+            var queryDTO = blogs.Select(r => _mapper.Map<BlogListCustomerDto>(r));
+
+            var paginatedDTOs = await PaginatedList<BlogListCustomerDto>.CreateAsync(
+                queryDTO.AsNoTracking(),
+                pageNumber > 0 ? pageNumber : 1,
+                pageSize > 0 ? pageSize : 10
+            );
+
+            return paginatedDTOs;
+        }
+
+
+        public async Task<List<NewBlogCustomerDto>> GetNewBlogAsync()
+        {
+            var query = await _blogRepository.QueryableAsync();
+
+            var blogs = query.Where(x => x.Status != null && x.Status.Equals(Common_Status.ACTIVE))
+                .OrderByDescending(x => x.BlogId).Take(3);
+
+            var queryDTO = blogs.Select(r => _mapper.Map<NewBlogCustomerDto>(r));
+
+            return await queryDTO.ToListAsync();
+        }
+
         public async Task<PaginatedList<BlogAdminDto>> GetPagingAsync(int pageNumber, int pageSize)
         {
             var query = await _blogRepository.QueryableAsync();
 
-            var queryDTO = query.Select(r => _mapper.Map<BlogAdminDto>(r));
+            var blogs = query.OrderByDescending(x => x.BlogId);
+
+            var queryDTO = blogs.Select(r => _mapper.Map<BlogAdminDto>(r));
 
             var paginatedDTOs = await PaginatedList<BlogAdminDto>.CreateAsync(
                 queryDTO.AsNoTracking(),
@@ -49,6 +94,24 @@ namespace TOPDER.Service.Services
         public Task<bool> RemoveAsync(int id)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<PaginatedList<BlogListCustomerDto>> SearchBlogByGroupPagingAsync(int pageNumber, int pageSize, int blogGroupId)
+        {
+            var query = await _blogRepository.QueryableAsync();
+
+            var blogs = query.Where(x => x.Status != null && x.Status.Equals(Common_Status.ACTIVE) && x.BloggroupId == blogGroupId)
+                             .OrderByDescending(x => x.BlogId);
+
+            var queryDTO = blogs.Select(r => _mapper.Map<BlogListCustomerDto>(r));
+
+            var paginatedDTOs = await PaginatedList<BlogListCustomerDto>.CreateAsync(
+                queryDTO.AsNoTracking(),
+                pageNumber > 0 ? pageNumber : 1,
+                pageSize > 0 ? pageSize : 10
+            );
+
+            return paginatedDTOs;
         }
 
         public async Task<PaginatedList<BlogAdminDto>> SearchPagingAsync(int pageNumber, int pageSize, int blogGroupId, string blogGroupName)

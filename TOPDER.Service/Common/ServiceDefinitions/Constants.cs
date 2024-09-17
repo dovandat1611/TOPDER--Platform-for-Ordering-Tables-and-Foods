@@ -8,7 +8,7 @@ namespace TOPDER.Service.Common.ServiceDefinitions
 {
     public class Constants
     {
-        public class User_Status
+        public class Common_Status
         {
             public static string ACTIVE = "Active";
             public static string INACTIVE = "In-Active";

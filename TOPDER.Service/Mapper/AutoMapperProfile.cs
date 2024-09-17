@@ -32,9 +32,25 @@ namespace TOPDER.Service.Mapper
 
             CreateMap<UpdateBlogModel, Blog>().ReverseMap();
 
+            CreateMap<Blog, NewBlogCustomerDto>();
+
             CreateMap<Blog, BlogAdminDto>()
                 .ForMember(dest => dest.BloggroupName,
                            otp => otp.MapFrom(src => src.Bloggroup != null ? src.Bloggroup.BloggroupName : "N/A"));
+
+            CreateMap<Blog, BlogDetailCustomerDto>()
+                .ForMember(dest => dest.BloggroupName,
+                           otp => otp.MapFrom(src => src.Bloggroup != null ? src.Bloggroup.BloggroupName : "N/A"))
+                .ForMember(dest => dest.CreatBy_Name,
+                           otp => otp.MapFrom(src => src.Admin != null ? src.Admin.Name : "TOPDER"));
+
+            CreateMap<Blog, BlogListCustomerDto>()
+                .ForMember(dest => dest.BloggroupName,
+                           otp => otp.MapFrom(src => src.Bloggroup != null ? src.Bloggroup.BloggroupName : "N/A"))
+                .ForMember(dest => dest.CreatBy_Name,
+                           otp => otp.MapFrom(src => src.Admin != null ? src.Admin.Name : "TOPDER"))
+                .ForMember(dest => dest.CreatBy_Image,
+                           otp => otp.MapFrom(src => src.Admin != null ? src.Admin.Image : "TOPDER"));
 
             // CUSTOMER
             CreateMap<Customer, CustomerInfoDto>()
