@@ -15,7 +15,7 @@ namespace TOPDER.Repository.Entities
             Menus = new HashSet<Menu>();
             Orders = new HashSet<Order>();
             RestaurantTables = new HashSet<RestaurantTable>();
-            Reviews = new HashSet<Review>();
+            Feedbacks = new HashSet<Feedback>();
             Wishlists = new HashSet<Wishlist>();
         }
 
@@ -47,7 +47,7 @@ namespace TOPDER.Repository.Entities
         public virtual ICollection<Menu> Menus { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
         public virtual ICollection<RestaurantTable> RestaurantTables { get; set; }
-        public virtual ICollection<Review> Reviews { get; set; }
+        public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<Wishlist> Wishlists { get; set; }
     }
 }

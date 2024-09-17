@@ -9,7 +9,7 @@ namespace TOPDER.Repository.Entities
         {
             ChatBoxes = new HashSet<ChatBox>();
             Orders = new HashSet<Order>();
-            Reviews = new HashSet<Review>();
+            Feedbacks = new HashSet<Feedback>();
             WalletTransactions = new HashSet<WalletTransaction>();
             Wishlists = new HashSet<Wishlist>();
         }
@@ -25,7 +25,7 @@ namespace TOPDER.Repository.Entities
         public virtual User UidNavigation { get; set; } = null!;
         public virtual ICollection<ChatBox> ChatBoxes { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
-        public virtual ICollection<Review> Reviews { get; set; }
+        public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<WalletTransaction> WalletTransactions { get; set; }
         public virtual ICollection<Wishlist> Wishlists { get; set; }
     }

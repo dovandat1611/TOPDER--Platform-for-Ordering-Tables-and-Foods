@@ -12,7 +12,7 @@ namespace TOPDER.Service.Dtos.Restaurant
         public string Image { get; set; } = string.Empty;
         public string NameRes { get; set; } = string.Empty;
         public string CategoryName { get; set; } = string.Empty;
-        public int TotalReviews { get; set; }
+        public int TotalFeedbacks { get; set; }
         public int Star { get; set; }
     }
 }

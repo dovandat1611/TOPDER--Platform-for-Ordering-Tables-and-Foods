@@ -57,7 +57,7 @@ namespace TOPDER.Service.Services
             var queryableRestaurants = await _restaurantRepository.QueryableAsync();
 
             var restaurant = await queryableRestaurants
-                .Include(r => r.Reviews) 
+                .Include(r => r.Feedbacks) 
                 .FirstOrDefaultAsync(r => r.Uid == id);
 
             if (restaurant == null)
@@ -79,7 +79,7 @@ namespace TOPDER.Service.Services
 
             var restaurants = await queryableRestaurants
                 .Where(r => r.Address.Contains(address))
-                .Include(r => r.Reviews)
+                .Include(r => r.Feedbacks)
                 .ToListAsync();
 
             return _mapper.Map<IEnumerable<RestaurantHomeDto>>(restaurants);
@@ -91,7 +91,7 @@ namespace TOPDER.Service.Services
 
             var restaurants = await queryableRestaurants
                 .Where(r => r.NameRes.Contains(name))
-                .Include(r => r.Reviews)
+                .Include(r => r.Feedbacks)
                 .ToListAsync();
 
             return _mapper.Map<IEnumerable<RestaurantHomeDto>>(restaurants);
