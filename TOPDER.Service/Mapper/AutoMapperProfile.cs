@@ -9,6 +9,7 @@ using TOPDER.Service.Dtos.CategoryMenu;
 using TOPDER.Service.Dtos.Menu;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 using TOPDER.Service.Dtos.RestaurantTable;
+using TOPDER.Service.Dtos.CategoryRestaurant;
 
 namespace TOPDER.Service.Mapper
 {
@@ -30,6 +31,10 @@ namespace TOPDER.Service.Mapper
 
             // CATEGORY MENU
             CreateMap<CategoryMenuDto, CategoryMenu>().ReverseMap();
+
+            // CATEGORY RESTAURANT
+            CreateMap<CategoryRestaurantDto, CategoryRestaurant>().ReverseMap();
+
 
             CreateMap<CreateCategoryMenuDto, CategoryMenu>().ReverseMap();
 
