@@ -8,6 +8,7 @@ using TOPDER.Service.Dtos.Blog;
 using TOPDER.Service.Dtos.CategoryMenu;
 using TOPDER.Service.Dtos.Menu;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
+using TOPDER.Service.Dtos.RestaurantTable;
 
 namespace TOPDER.Service.Mapper
 {
@@ -42,6 +43,13 @@ namespace TOPDER.Service.Mapper
                            otp => otp.MapFrom(src => src.CategoryMenu != null ? src.CategoryMenu.CategoryMenuName : Is_Null.ISNULL));
 
             CreateMap<MenuDto, Menu>().ReverseMap();
+
+            // RESTAURANT TABLE
+
+            CreateMap<RestaurantTable, RestaurantTableCustomerDto>();
+            CreateMap<RestaurantTable, RestaurantTableRestaurantDto>();
+            CreateMap<RestaurantTableDto, RestaurantTable>().ReverseMap();
+
 
             // BLOG GROUP
             CreateMap<BlogGroupDto, BlogGroup>().ReverseMap();

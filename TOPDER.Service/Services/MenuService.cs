@@ -12,6 +12,7 @@ using TOPDER.Service.Dtos.BlogGroup;
 using TOPDER.Service.Dtos.Menu;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
 {
@@ -35,7 +36,10 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _menuRepository.QueryableAsync();
 
-            var query = queryable.Where(x => x.RestaurantId == restaurantId);
+            var query = queryable.Where(x =>
+                x.RestaurantId == restaurantId &&
+                x.Status != null &&
+                x.Status.Equals(Common_Status.ACTIVE));
 
             var queryDTO = query.Select(r => _mapper.Map<MenuCustomerDto>(r));
 
