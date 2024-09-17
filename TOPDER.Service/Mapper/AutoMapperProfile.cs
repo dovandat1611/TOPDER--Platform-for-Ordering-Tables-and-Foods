@@ -30,6 +30,7 @@ namespace TOPDER.Service.Mapper
             // CATEGORY MENU
             CreateMap<CategoryMenuDto, CategoryMenu>().ReverseMap();
 
+            CreateMap<CreateCategoryMenuDto, CategoryMenu>().ReverseMap();
 
             // MENU
             CreateMap<Menu, MenuRestaurantDto>()

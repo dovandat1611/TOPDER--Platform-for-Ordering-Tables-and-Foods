@@ -7,6 +7,7 @@ namespace TOPDER.Repository.Entities
     {
         public Restaurant()
         {
+            CategoryMenus = new HashSet<CategoryMenu>();
             ChatBoxes = new HashSet<ChatBox>();
             Discounts = new HashSet<Discount>();
             Images = new HashSet<Image>();
@@ -38,6 +39,7 @@ namespace TOPDER.Repository.Entities
 
         public virtual CategoryRestaurant? CategoryRestaurant { get; set; }
         public virtual User UidNavigation { get; set; } = null!;
+        public virtual ICollection<CategoryMenu> CategoryMenus { get; set; }
         public virtual ICollection<ChatBox> ChatBoxes { get; set; }
         public virtual ICollection<Discount> Discounts { get; set; }
         public virtual ICollection<Image> Images { get; set; }

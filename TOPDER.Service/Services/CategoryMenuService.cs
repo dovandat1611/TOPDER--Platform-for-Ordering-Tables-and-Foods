@@ -25,7 +25,7 @@ namespace TOPDER.Service.Services
             _categoryMenuRepository = categoryMenuRepository;
             _mapper = mapper;
         }
-        public async Task<bool> AddAsync(CategoryMenuDto categoryMenuDto)
+        public async Task<bool> AddAsync(CreateCategoryMenuDto categoryMenuDto)
         {
             var categoryMenu = _mapper.Map<CategoryMenu>(categoryMenuDto);
             return await _categoryMenuRepository.CreateAsync(categoryMenu);
@@ -33,7 +33,9 @@ namespace TOPDER.Service.Services
 
         public async Task<PaginatedList<CategoryMenuDto>> GetPagingAsync(int pageNumber, int pageSize, int restaurantId)
         {
-            var query = await _categoryMenuRepository.QueryableAsync();
+            var queryable = await _categoryMenuRepository.QueryableAsync();
+
+            var query = queryable.Where(x => x.RestaurantId == restaurantId);
 
             var queryDTO = query.Select(r => _mapper.Map<CategoryMenuDto>(r));
 
@@ -56,7 +58,7 @@ namespace TOPDER.Service.Services
             var queryable = await _categoryMenuRepository.QueryableAsync();
 
             var query = queryable.Where(x =>
-                x.CategoryMenuName != null && x.CategoryMenuName.Contains(categoryMenuName));
+                x.CategoryMenuName != null && x.CategoryMenuName.Contains(categoryMenuName) && x.RestaurantId == restaurantId);
 
             var queryDTO = query.Select(r => _mapper.Map<CategoryMenuDto>(r));
 
