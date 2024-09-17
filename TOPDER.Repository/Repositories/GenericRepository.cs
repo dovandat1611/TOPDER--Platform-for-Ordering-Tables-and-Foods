@@ -77,5 +77,23 @@ namespace TOPDER.Repository.Repositories
             return result > 0;
         }
 
+        public async Task<bool> ChangeStatusAsync(int id, string status)
+        {
+            var entity = await GetByIdAsync(id);
+            if (entity == null)
+            {
+                return false; 
+            }
+
+            var property = typeof(T).GetProperty("Status");
+            if (property != null && property.CanWrite)
+            {
+                property.SetValue(entity, status);
+            }
+
+            await UpdateAsync(entity);
+            return true;
+        }
+
     }
 }

@@ -15,5 +15,6 @@ namespace TOPDER.Repository.IRepositories
         Task<bool> UpdateAsync(T entity);
         Task<bool> DeleteAsync(int id);
         Task<bool> CreateRangeAsync(List<T> entities);
+        Task<bool> ChangeStatusAsync(int id, string status);
     }
 }

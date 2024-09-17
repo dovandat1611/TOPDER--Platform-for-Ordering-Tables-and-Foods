@@ -26,12 +26,9 @@ namespace TOPDER.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<bool> AddAsync(string blogGroupName)
+        public async Task<bool> AddAsync(BlogGroupDto blogGroupDto)
         {
-            BlogGroup blogGroup = new BlogGroup()
-            {
-                BloggroupName = blogGroupName,
-            };
+            var blogGroup = _mapper.Map<BlogGroup>(blogGroupDto);
             return await _blogGroupRepository.CreateAsync(blogGroup);
         }
 
@@ -70,13 +67,14 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
-        public async Task<bool> UpdateAsync(BlogGroup blogGroup)
-        {
-            var existingBlogGroup = await _blogGroupRepository.GetByIdAsync(blogGroup.BloggroupId);
+        public async Task<bool> UpdateAsync(BlogGroupDto blogGroupDto)
+        {   
+            var existingBlogGroup = await _blogGroupRepository.GetByIdAsync(blogGroupDto.BloggroupId);
             if (existingBlogGroup == null)
             {
                 return false;
             }
+            var blogGroup = _mapper.Map<BlogGroup>(blogGroupDto);
             return await _blogGroupRepository.UpdateAsync(blogGroup);
         }
     }
