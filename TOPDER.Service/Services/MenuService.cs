@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Service.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +12,7 @@ using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Repository.Repositories;
 using TOPDER.Service.Dtos.BlogGroup;
+using TOPDER.Service.Dtos.Excel;
 using TOPDER.Service.Dtos.Menu;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
@@ -20,17 +24,67 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly IMenuRepository _menuRepository;
+        private readonly IExcelService _excelService;
+        private readonly CloudinaryService _cloudinaryService;
 
-        public MenuService(IMenuRepository menuRepository, IMapper mapper)
+
+
+        public MenuService(IMenuRepository menuRepository, IMapper mapper, IExcelService excelService, CloudinaryService cloudinaryService)
         {
             _menuRepository = menuRepository;
             _mapper = mapper;
+            _excelService = excelService;
+            _cloudinaryService = cloudinaryService;
         }
         public async Task<bool> AddAsync(MenuDto menuDto)
         {
             var menu = _mapper.Map<Menu>(menuDto);
             return await _menuRepository.CreateAsync(menu);
         }
+        public async Task<bool> AddRangeExcelAsync(CreateExcelMenuDto createExcelMenuDto)
+        {
+            if (createExcelMenuDto.File == null || createExcelMenuDto.File.Length == 0)
+            {
+                return false;
+            }
+
+            try
+            {
+                var columnConfigurations = new List<ExcelColumnConfiguration>
+                    {
+                        new ExcelColumnConfiguration { ColumnName = "DishName", Position = 1, IsRequired = true },
+                        new ExcelColumnConfiguration { ColumnName = "Price", Position = 2, IsRequired = true },
+                        new ExcelColumnConfiguration { ColumnName = "Description", Position = 3, IsRequired = false },
+                    };
+
+                var data = await _excelService.ReadFromExcelAsync(createExcelMenuDto.File, columnConfigurations);
+
+                var menuItems = data
+                    .Where(row => row != null && row.ContainsKey("DishName") && row.ContainsKey("Price"))
+                    .Select(row => new Menu
+                    {
+                        RestaurantId = createExcelMenuDto.RestaurantId,
+                        DishName = row["DishName"],
+                        Price = Convert.ToDecimal(row["Price"]),
+                        Description = row.TryGetValue("Description", out var description) ? description : null,
+                        Status = Common_Status.ACTIVE
+                    })
+                    .ToList();
+
+                if (menuItems.Count > 0)
+                {
+                    await _menuRepository.CreateRangeAsync(menuItems);
+                }
+
+                return true;
+            }
+            catch (Exception)
+            {   
+                return false;
+            }
+        }
+
+
 
         public async Task<PaginatedList<MenuCustomerDto>> GetCustomerPagingAsync(int pageNumber, int pageSize, int restaurantId)
         {

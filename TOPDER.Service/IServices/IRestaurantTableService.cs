@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ namespace TOPDER.Service.IServices
     public interface IRestaurantTableService
     {
         Task<bool> AddAsync(RestaurantTableDto restaurantTableDto);
+        Task<bool> AddRangeExcelAsync(CreateExcelRestaurantTableDto createExcelRestaurantTableDto);
         Task<bool> UpdateAsync(RestaurantTableDto restaurantTableDto);
         Task<bool> RemoveAsync(int id);
         Task<PaginatedList<RestaurantTableRestaurantDto>> GetPagingAsync(int pageNumber, int pageSize, int restaurantId);

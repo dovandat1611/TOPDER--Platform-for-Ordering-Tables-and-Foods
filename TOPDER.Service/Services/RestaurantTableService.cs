@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Service.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,26 +12,84 @@ using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Repository.Repositories;
 using TOPDER.Service.Dtos.BlogGroup;
+using TOPDER.Service.Dtos.Excel;
 using TOPDER.Service.Dtos.RestaurantTable;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
 {
     public class RestaurantTableService : IRestaurantTableService
     {
         private readonly IMapper _mapper;
+        private readonly IExcelService _excelService;
         private readonly IRestaurantTableRepository _restaurantTableRepository;
 
-        public RestaurantTableService(IRestaurantTableRepository restaurantTableRepository, IMapper mapper)
+        public RestaurantTableService(IRestaurantTableRepository restaurantTableRepository, IMapper mapper, IExcelService excelService)
         {
             _restaurantTableRepository = restaurantTableRepository;
             _mapper = mapper;
+            _excelService = excelService;
         }
         public async Task<bool> AddAsync(RestaurantTableDto restaurantTableDto)
         {
             var restaurantTable = _mapper.Map<RestaurantTable>(restaurantTableDto);
             return await _restaurantTableRepository.CreateAsync(restaurantTable);
+        }
+
+        public async Task<bool> AddRangeExcelAsync(CreateExcelRestaurantTableDto createExcelRestaurantTableDto)
+        {
+            if (createExcelRestaurantTableDto.File == null || createExcelRestaurantTableDto.File.Length == 0)
+            {
+                return false;
+            }
+            try
+            {
+                var columnConfigurations = new List<ExcelColumnConfiguration>
+                {
+                    new ExcelColumnConfiguration { ColumnName = "TableName", Position = 1, IsRequired = true },
+                    new ExcelColumnConfiguration { ColumnName = "MaxCapacity", Position = 2, IsRequired = true },
+                    new ExcelColumnConfiguration { ColumnName = "Price", Position = 3, IsRequired = false },
+                    new ExcelColumnConfiguration { ColumnName = "Description", Position = 4, IsRequired = false }
+                };
+
+                var data = await _excelService.ReadFromExcelAsync(createExcelRestaurantTableDto.File, columnConfigurations);
+
+                var restaurantTables = new List<RestaurantTable>();
+                foreach (var row in data)
+                {
+                    if (row == null ||
+                        !row.ContainsKey("TableName") ||
+                        !row.ContainsKey("MaxCapacity"))
+                    {
+                        continue; 
+                    }
+
+                    var restaurantTable = new RestaurantTable
+                    {
+                        RestaurantId = createExcelRestaurantTableDto.RestaurantId,
+                        TableName = row["TableName"],
+                        MaxCapacity = Convert.ToInt32(row["MaxCapacity"]),
+                        Price = row.ContainsKey("Price") ? Convert.ToDecimal(row["Price"]) : 0,
+                        Description = row.ContainsKey("Description") ? row["Description"] : null,
+                        IsBookingEnabled = true,
+                    };
+
+                    restaurantTables.Add(restaurantTable);
+                }
+
+                if (restaurantTables.Any())
+                {
+                    await _restaurantTableRepository.CreateRangeAsync(restaurantTables);
+                }
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public async Task<PaginatedList<RestaurantTableCustomerDto>> GetAvailableTablesAsync(

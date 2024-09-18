@@ -11,6 +11,7 @@ namespace TOPDER.Service.IServices
     public interface IMenuService
     {
         Task<bool> AddAsync(MenuDto menuDto);
+        Task<bool> AddRangeExcelAsync(CreateExcelMenuDto createExcelMenuDto);
         Task<bool> UpdateAsync(MenuDto menuDto);
         Task<bool> RemoveAsync(int id);
         Task<PaginatedList<MenuRestaurantDto>> GetPagingAsync(int pageNumber, int pageSize, int restaurantId);
