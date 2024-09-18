@@ -25,16 +25,12 @@ namespace TOPDER.Service.Services
         private readonly IMapper _mapper;
         private readonly IMenuRepository _menuRepository;
         private readonly IExcelService _excelService;
-        private readonly CloudinaryService _cloudinaryService;
 
-
-
-        public MenuService(IMenuRepository menuRepository, IMapper mapper, IExcelService excelService, CloudinaryService cloudinaryService)
+        public MenuService(IMenuRepository menuRepository, IMapper mapper, IExcelService excelService)
         {
             _menuRepository = menuRepository;
             _mapper = mapper;
             _excelService = excelService;
-            _cloudinaryService = cloudinaryService;
         }
         public async Task<bool> AddAsync(MenuDto menuDto)
         {
@@ -106,6 +102,19 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
+        public async Task<MenuRestaurantDto> GetItemAsync(int id, int restaurantId)
+        {
+            var menu = await _menuRepository.GetByIdAsync(id);
+
+            if (menu == null || menu.RestaurantId != restaurantId)
+            {
+                throw new KeyNotFoundException($"No menu with Id {id} found for RestaurantId {restaurantId}.");
+            }
+
+            return _mapper.Map<MenuRestaurantDto>(menu);
+        }
+
+
         public async Task<PaginatedList<MenuRestaurantDto>> GetPagingAsync(int pageNumber, int pageSize, int restaurantId)
         {
             var queryable = await _menuRepository.QueryableAsync();
@@ -122,10 +131,17 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
-        public Task<bool> RemoveAsync(int id)
+        public async Task<bool> RemoveAsync(int id, int restaurantId)
         {
-            throw new NotImplementedException();
+            var menu = await _menuRepository.GetByIdAsync(id);
+            if (menu == null || menu.RestaurantId != restaurantId)
+            {
+                return false;
+            }
+            var result = await _menuRepository.DeleteAsync(id);
+            return result;
         }
+
 
         public async Task<PaginatedList<MenuRestaurantDto>> SearchPagingAsync(int pageNumber, int pageSize, int restaurantId, int categoryMenuId, string menuName)
         {
@@ -157,7 +173,7 @@ namespace TOPDER.Service.Services
         public async Task<bool> UpdateAsync(MenuDto menuDto)
         {
             var existingMenu = await _menuRepository.GetByIdAsync(menuDto.MenuId);
-            if (existingMenu == null)
+            if (existingMenu == null || existingMenu.RestaurantId != menuDto.RestaurantId)
             {
                 return false;
             }

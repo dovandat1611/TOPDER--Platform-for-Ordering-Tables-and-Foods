@@ -10,6 +10,7 @@ using TOPDER.Service.Dtos.Menu;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 using TOPDER.Service.Dtos.RestaurantTable;
 using TOPDER.Service.Dtos.CategoryRestaurant;
+using TOPDER.Service.Dtos.Image;
 
 namespace TOPDER.Service.Mapper
 {
@@ -55,6 +56,8 @@ namespace TOPDER.Service.Mapper
             CreateMap<RestaurantTable, RestaurantTableRestaurantDto>();
             CreateMap<RestaurantTableDto, RestaurantTable>().ReverseMap();
 
+            // RESTAURANT IMAGE 
+            CreateMap<ImageDto, Image>().ReverseMap();
 
             // BLOG GROUP
             CreateMap<BlogGroupDto, BlogGroup>().ReverseMap();

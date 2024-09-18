@@ -119,6 +119,19 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
+        public async Task<RestaurantTableRestaurantDto> GetItemAsync(int id, int restaurantId)
+        {
+            var table = await _restaurantTableRepository.GetByIdAsync(id);
+
+            if (table == null || table.RestaurantId != restaurantId)
+            {
+                throw new KeyNotFoundException($"No table with Id {id} found for RestaurantId {restaurantId}.");
+            }
+
+            return _mapper.Map<RestaurantTableRestaurantDto>(table);
+        }
+
+
         public async Task<PaginatedList<RestaurantTableRestaurantDto>> GetPagingAsync(int pageNumber, int pageSize, int restaurantId)
         {
             var queryable = await _restaurantTableRepository.QueryableAsync();
@@ -135,10 +148,17 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
-        public Task<bool> RemoveAsync(int id)
+        public async Task<bool> RemoveAsync(int id, int restaurantId)
         {
-            throw new NotImplementedException();
+            var table = await _restaurantTableRepository.GetByIdAsync(id);
+
+            if (table == null || table.RestaurantId != restaurantId)
+            {
+                return false;
+            }
+            return await _restaurantTableRepository.DeleteAsync(id);
         }
+
 
         public async Task<PaginatedList<RestaurantTableRestaurantDto>> SearchPagingAsync(int pageNumber, int pageSize, int restaurantId, string tableName)
         {
@@ -159,7 +179,7 @@ namespace TOPDER.Service.Services
         public async Task<bool> UpdateAsync(RestaurantTableDto restaurantTableDto)
         {
             var existingRestaurantTable = await _restaurantTableRepository.GetByIdAsync(restaurantTableDto.TableId);
-            if (existingRestaurantTable == null)
+            if (existingRestaurantTable == null || existingRestaurantTable.RestaurantId != restaurantTableDto.RestaurantId)
             {
                 return false;
             }
