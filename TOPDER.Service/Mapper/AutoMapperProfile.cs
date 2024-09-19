@@ -11,6 +11,7 @@ using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 using TOPDER.Service.Dtos.RestaurantTable;
 using TOPDER.Service.Dtos.CategoryRestaurant;
 using TOPDER.Service.Dtos.Image;
+using TOPDER.Service.Dtos.Contact;
 
 namespace TOPDER.Service.Mapper
 {
@@ -90,6 +91,9 @@ namespace TOPDER.Service.Mapper
             // CUSTOMER
             CreateMap<Customer, CustomerInfoDto>()
                 .ForMember(dest => dest.Email, otp => otp.MapFrom(src => src.UidNavigation.Email));
+
+            // CONTACT
+            CreateMap<ContactDto, Contact>().ReverseMap();
 
         }
     }
