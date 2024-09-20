@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Repository.Repositories;
+using TOPDER.Service.Dtos.Blog;
 using TOPDER.Service.Dtos.CategoryMenu;
 using TOPDER.Service.Dtos.CategoryRestaurant;
 using TOPDER.Service.IServices;
@@ -29,6 +30,13 @@ namespace TOPDER.Service.Services
         {
             var categoryRestaurant = _mapper.Map<CategoryRestaurant>(categoryRestaurantDto);
             return await _categoryRestaurantRepository.CreateAsync(categoryRestaurant);
+        }
+
+        public async Task<CategoryRestaurantDto> GetItemAsync(int id)
+        {
+            var query = await _categoryRestaurantRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException($"Category Restaurant với id {id} không tồn tại.");
+            var categoryRestaurantDto = _mapper.Map<CategoryRestaurantDto>(query);
+            return categoryRestaurantDto;
         }
 
         public async Task<PaginatedList<CategoryRestaurantDto>> GetPagingAsync(int pageNumber, int pageSize)

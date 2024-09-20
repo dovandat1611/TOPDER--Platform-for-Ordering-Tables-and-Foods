@@ -32,6 +32,13 @@ namespace TOPDER.Service.Services
             return await _blogGroupRepository.CreateAsync(blogGroup);
         }
 
+        public async Task<BlogGroupDto> GetItemAsync(int id)
+        {
+            var query = await _blogGroupRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException($"BlogGroup với id {id} không tồn tại.");
+            var blogGroupDto = _mapper.Map<BlogGroupDto>(query);
+            return blogGroupDto;
+        }
+
         public async Task<PaginatedList<BlogGroupDto>> GetPagingAsync(int pageNumber, int pageSize)
         {
             var query = await _blogGroupRepository.QueryableAsync();

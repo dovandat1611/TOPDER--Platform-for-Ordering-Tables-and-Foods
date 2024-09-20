@@ -17,6 +17,7 @@ using TOPDER.Service.Dtos.Menu;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TOPDER.Service.Services
 {
@@ -106,9 +107,14 @@ namespace TOPDER.Service.Services
         {
             var menu = await _menuRepository.GetByIdAsync(id);
 
-            if (menu == null || menu.RestaurantId != restaurantId)
+            if (menu == null)
             {
-                throw new KeyNotFoundException($"No menu with Id {id} found for RestaurantId {restaurantId}.");
+                throw new KeyNotFoundException($"Menu với id {id} không tồn tại.");
+            }
+
+            if (menu.RestaurantId != restaurantId)
+            {
+                throw new UnauthorizedAccessException($"Menu với id {id} không thuộc nhà hàng với id {restaurantId}.");
             }
 
             return _mapper.Map<MenuRestaurantDto>(menu);

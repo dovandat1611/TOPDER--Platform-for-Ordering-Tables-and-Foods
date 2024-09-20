@@ -62,6 +62,12 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
+        public async Task<BlogAdminDto> GetItemAsync(int id)
+        {
+            var query = await _blogRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException($"Blog với id {id} không tồn tại.");
+            var blogAdminDto = _mapper.Map<BlogAdminDto>(query);
+            return blogAdminDto;
+        }
 
         public async Task<List<NewBlogCustomerDto>> GetNewBlogAsync()
         {

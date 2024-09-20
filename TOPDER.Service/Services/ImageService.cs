@@ -38,7 +38,7 @@ namespace TOPDER.Service.Services
 
             if (check == null || check.RestaurantId != restaurantId)
             {
-                throw new KeyNotFoundException($"No image with ImageId {imageId} found for RestaurantId {restaurantId}.");
+                throw new KeyNotFoundException($"Không tìm thấy hình ảnh với Id {imageId} cho nhà hàng với Id {restaurantId}.");
             }
             var image = _mapper.Map<ImageDto>(check);
             return image;

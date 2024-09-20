@@ -123,13 +123,19 @@ namespace TOPDER.Service.Services
         {
             var table = await _restaurantTableRepository.GetByIdAsync(id);
 
-            if (table == null || table.RestaurantId != restaurantId)
+            if (table == null)
             {
-                throw new KeyNotFoundException($"No table with Id {id} found for RestaurantId {restaurantId}.");
+                throw new KeyNotFoundException($"Không tìm thấy bàn với Id {id}.");
+            }
+
+            if (table.RestaurantId != restaurantId)
+            {
+                throw new UnauthorizedAccessException($"Bàn với Id {id} không thuộc về nhà hàng với Id {restaurantId}.");
             }
 
             return _mapper.Map<RestaurantTableRestaurantDto>(table);
         }
+
 
 
         public async Task<PaginatedList<RestaurantTableRestaurantDto>> GetPagingAsync(int pageNumber, int pageSize, int restaurantId)
