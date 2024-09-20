@@ -10,12 +10,11 @@ namespace TOPDER.Repository.Entities
             CategoryMenus = new HashSet<CategoryMenu>();
             ChatBoxes = new HashSet<ChatBox>();
             Discounts = new HashSet<Discount>();
+            Feedbacks = new HashSet<Feedback>();
             Images = new HashSet<Image>();
-            Logs = new HashSet<Log>();
             Menus = new HashSet<Menu>();
             Orders = new HashSet<Order>();
             RestaurantTables = new HashSet<RestaurantTable>();
-            Feedbacks = new HashSet<Feedback>();
             Wishlists = new HashSet<Wishlist>();
         }
 
@@ -42,12 +41,11 @@ namespace TOPDER.Repository.Entities
         public virtual ICollection<CategoryMenu> CategoryMenus { get; set; }
         public virtual ICollection<ChatBox> ChatBoxes { get; set; }
         public virtual ICollection<Discount> Discounts { get; set; }
+        public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<Image> Images { get; set; }
-        public virtual ICollection<Log> Logs { get; set; }
         public virtual ICollection<Menu> Menus { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
         public virtual ICollection<RestaurantTable> RestaurantTables { get; set; }
-        public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<Wishlist> Wishlists { get; set; }
     }
 }

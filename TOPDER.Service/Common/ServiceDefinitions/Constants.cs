@@ -20,6 +20,10 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string ISNULL = "N/A";
         }
 
+        public class Log_Type
+        {
+            public static string FEE_PERCENT = "Fee-Percent";
+        }
 
         public class User_Role
         {
