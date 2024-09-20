@@ -13,6 +13,6 @@ namespace TOPDER.Service.IServices
     {
         Task<bool> AddAsync(ReportDto reportDto);
         Task<bool> RemoveAsync(int id);
-        Task<PaginatedList<ReportDto>> GetPagingAsync(int pageNumber, int pageSize);
+        Task<PaginatedList<ReportListDto>> GetPagingAsync(int pageNumber, int pageSize);
     }
 }

@@ -15,6 +15,7 @@ using TOPDER.Service.Dtos.Contact;
 using TOPDER.Service.Dtos.Feedback;
 using TOPDER.Service.Dtos.Discount;
 using TOPDER.Service.Dtos.Report;
+using TOPDER.Service.Dtos.Notification;
 
 namespace TOPDER.Service.Mapper
 {
@@ -123,6 +124,14 @@ namespace TOPDER.Service.Mapper
 
             // REPORT
             CreateMap<ReportDto, Report>().ReverseMap();
+
+            CreateMap<Report, ReportListDto>()
+                .ForMember(dest => dest.ReportedByEmail,
+                           opt => opt.MapFrom(src => src.ReportedByNavigation != null ? src.ReportedByNavigation.Email : Is_Null.ISNULL))
+                .ForMember(dest => dest.ReportedOnEmail,
+                           opt => opt.MapFrom(src => src.ReportedOnNavigation != null ? src.ReportedOnNavigation.Email : Is_Null.ISNULL));
+            // NOTIFICATION
+            CreateMap<NotificationDto, Notification>().ReverseMap();
 
 
         }

@@ -31,15 +31,15 @@ namespace TOPDER.Service.Services
             return await _reportRepository.CreateAsync(report);
         }
 
-        public async Task<PaginatedList<ReportDto>> GetPagingAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedList<ReportListDto>> GetPagingAsync(int pageNumber, int pageSize)
         {
             var query = await _reportRepository.QueryableAsync();
 
             var blogs = query.OrderByDescending(x => x.ReportId);
 
-            var queryDTO = blogs.Select(r => _mapper.Map<ReportDto>(r));
+            var queryDTO = blogs.Select(r => _mapper.Map<ReportListDto>(r));
 
-            var paginatedDTOs = await PaginatedList<ReportDto>.CreateAsync(
+            var paginatedDTOs = await PaginatedList<ReportListDto>.CreateAsync(
                 queryDTO.AsNoTracking(),
                 pageNumber > 0 ? pageNumber : 1,
                 pageSize > 0 ? pageSize : 10
