@@ -97,6 +97,8 @@ namespace TOPDER.Service.Mapper
             CreateMap<ContactDto, Contact>().ReverseMap();
 
             // FEEDBACK
+            CreateMap<FeedbackDto, Feedback>().ReverseMap();
+
             CreateMap<Feedback, FeedbackCustomerDto>()
                 .ForMember(dest => dest.CustomerImage, otp => otp.MapFrom(src => src.Customer != null ? src.Customer.Image : Is_Null.ISNULL))
                 .ForMember(dest => dest.CustomerName, otp => otp.MapFrom(src => src.Customer != null ? src.Customer.Name : Is_Null.ISNULL));

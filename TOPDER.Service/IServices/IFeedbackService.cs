@@ -19,7 +19,7 @@ namespace TOPDER.Service.IServices
         Task<PaginatedList<FeedbackRestaurantDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId);
         Task<PaginatedList<FeedbackRestaurantDto>> SearchRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId, int star);
         Task<PaginatedList<FeedbackCustomerDto>> GetCustomerPagingAsync(int pageNumber, int pageSize, int restaurantId);
-        Task<PaginatedList<FeedbackCustomerDto>> GetSearchCustomerPagingAsync(int pageNumber, int pageSize, int restaurantId, int star);
+        Task<PaginatedList<FeedbackCustomerDto>> SearchCustomerPagingAsync(int pageNumber, int pageSize, int restaurantId, int star);
         Task<PaginatedList<FeedbackHistoryDto>> GetHistoryCustomerPagingAsync(int pageNumber, int pageSize, int customerId);
     }
 }
