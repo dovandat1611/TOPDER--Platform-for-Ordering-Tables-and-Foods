@@ -16,6 +16,7 @@ using TOPDER.Service.Dtos.Feedback;
 using TOPDER.Service.Dtos.Discount;
 using TOPDER.Service.Dtos.Report;
 using TOPDER.Service.Dtos.Notification;
+using TOPDER.Service.Dtos.Wishlist;
 
 namespace TOPDER.Service.Mapper
 {
@@ -133,6 +134,29 @@ namespace TOPDER.Service.Mapper
             // NOTIFICATION
             CreateMap<NotificationDto, Notification>().ReverseMap();
 
+            // WHISTLIST
+            CreateMap<WishlistDto, Wishlist>().ReverseMap();
+            CreateMap<Wishlist, UserWishlistDto>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src =>
+                    src.Restaurant != null && src.Restaurant.CategoryRestaurant != null
+                    ? src.Restaurant.CategoryRestaurant.CategoryRestaurantName
+                    : Is_Null.ISNULL))
+                .ForMember(dest => dest.NameRes, opt => opt.MapFrom(src =>
+                    src.Restaurant != null
+                    ? src.Restaurant.NameRes
+                    : Is_Null.ISNULL))
+                .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src =>
+                    src.Restaurant != null && src.Restaurant.CategoryRestaurantId != null
+                    ? src.Restaurant.CategoryRestaurantId.Value
+                    : 0))
+                .ForMember(dest => dest.TotalFeedbacks, opt => opt.MapFrom(src =>
+                    src.Restaurant != null && src.Restaurant.Feedbacks != null
+                    ? src.Restaurant.Feedbacks.Count()
+                    : 0))
+                .ForMember(dest => dest.Star, opt => opt.MapFrom(src =>
+                    src.Restaurant != null && src.Restaurant.Feedbacks != null && src.Restaurant.Feedbacks.Any()
+                    ? (int)Math.Round(src.Restaurant.Feedbacks.Average(r => r.Star.HasValue ? r.Star.Value : 0))
+                    : 0));
 
         }
     }
