@@ -13,6 +13,8 @@ using TOPDER.Service.Dtos.CategoryRestaurant;
 using TOPDER.Service.Dtos.Image;
 using TOPDER.Service.Dtos.Contact;
 using TOPDER.Service.Dtos.Feedback;
+using TOPDER.Service.Dtos.Discount;
+using TOPDER.Service.Dtos.Report;
 
 namespace TOPDER.Service.Mapper
 {
@@ -115,6 +117,13 @@ namespace TOPDER.Service.Mapper
                            opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.NameRes : Is_Null.ISNULL))
                 .ForMember(dest => dest.RestaurantImage,
                            opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.Logo : Is_Null.ISNULL));
+
+            // DISCOUNT
+            CreateMap<DiscountDto, Discount>().ReverseMap();
+
+            // REPORT
+            CreateMap<ReportDto, Report>().ReverseMap();
+
 
         }
     }
