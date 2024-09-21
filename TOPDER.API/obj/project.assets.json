@@ -6161,24 +6161,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Lenovo\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\minhd\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Lenovo\\Documents\\C#\\CAPSTONE\\TOPDER\\TOPDER.API\\TOPDER.API.csproj",
+      "projectUniqueName": "C:\\Users\\minhd\\OneDrive\\Desktop\\TOPDER-SEP\\TOPDER.API\\TOPDER.API.csproj",
       "projectName": "TOPDER.API",
-      "projectPath": "C:\\Users\\Lenovo\\Documents\\C#\\CAPSTONE\\TOPDER\\TOPDER.API\\TOPDER.API.csproj",
-      "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Lenovo\\Documents\\C#\\CAPSTONE\\TOPDER\\TOPDER.API\\obj\\",
+      "projectPath": "C:\\Users\\minhd\\OneDrive\\Desktop\\TOPDER-SEP\\TOPDER.API\\TOPDER.API.csproj",
+      "packagesPath": "C:\\Users\\minhd\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\minhd\\OneDrive\\Desktop\\TOPDER-SEP\\TOPDER.API\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Users\\minhd\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -6192,11 +6187,11 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "C:\\Users\\Lenovo\\Documents\\C#\\CAPSTONE\\TOPDER\\TOPDER.Repository\\TOPDER.Repository.csproj": {
-              "projectPath": "C:\\Users\\Lenovo\\Documents\\C#\\CAPSTONE\\TOPDER\\TOPDER.Repository\\TOPDER.Repository.csproj"
+            "C:\\Users\\minhd\\OneDrive\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj": {
+              "projectPath": "C:\\Users\\minhd\\OneDrive\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj"
             },
-            "C:\\Users\\Lenovo\\Documents\\C#\\CAPSTONE\\TOPDER\\TOPDER.Service\\TOPDER.Service.csproj": {
-              "projectPath": "C:\\Users\\Lenovo\\Documents\\C#\\CAPSTONE\\TOPDER\\TOPDER.Service\\TOPDER.Service.csproj"
+            "C:\\Users\\minhd\\OneDrive\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj": {
+              "projectPath": "C:\\Users\\minhd\\OneDrive\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj"
             }
           }
         }
@@ -6235,7 +6230,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.203\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101\\RuntimeIdentifierGraph.json"
       }
     }
   }
