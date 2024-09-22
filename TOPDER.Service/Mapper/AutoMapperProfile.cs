@@ -11,6 +11,7 @@ using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 using TOPDER.Service.Dtos.RestaurantTable;
 using TOPDER.Service.Dtos.CategoryRestaurant;
 using TOPDER.Service.Dtos.Image;
+using TOPDER.Service.Dtos.User;
 
 namespace TOPDER.Service.Mapper
 {
@@ -68,6 +69,9 @@ namespace TOPDER.Service.Mapper
             CreateMap<UpdateBlogModel, Blog>().ReverseMap();
 
             CreateMap<Blog, NewBlogCustomerDto>();
+
+            CreateMap<User, UserLoginDTO>()
+    .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
 
             CreateMap<Blog, BlogAdminDto>()
                 .ForMember(dest => dest.BloggroupName,

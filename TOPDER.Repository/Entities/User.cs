@@ -20,9 +20,9 @@ namespace TOPDER.Repository.Entities
         public string Email { get; set; } = null!;
         public string? Password { get; set; }
         public string? OtpCode { get; set; }
-        public bool IsVerify { get; set; }
+        public bool IsVerify { get; set; } 
         public string Status { get; set; } = null!;
-        public DateTime? CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; } 
         public bool IsExternalLogin { get; set; }
 
         public virtual Role Role { get; set; } = null!;

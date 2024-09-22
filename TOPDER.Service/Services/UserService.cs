@@ -26,15 +26,15 @@ namespace TOPDER.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<UserLoginDTO> GetItemAsync(string username, string password)
+        public async Task<UserLoginDTO> GetUserByEmailAndPassword(string email, string password)
         {
-            var user = await _userRepository.GetByUsernameAndPasswordAsync(username, password);
+            var users = await _userRepository.QueryableAsync();
 
-            
+            var user = users.FirstOrDefault(u => u.Email == email && u.Password == password);
 
             if (user == null)
             {
-                throw new KeyNotFoundException($"User not found.");
+                return null;
             }
 
             return _mapper.Map<UserLoginDTO>(user);

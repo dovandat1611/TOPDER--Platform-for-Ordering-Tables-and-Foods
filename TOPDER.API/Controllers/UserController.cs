@@ -24,13 +24,13 @@ namespace TOPDER.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest user)
         {
-            var u = await _userService.GetItemAsync(user.Username, user.Password);
-            if (u == null) // Kiểm tra người dùng
+            var u = await _userService.GetUserByEmailAndPassword(user.Email, user.Password);
+            if (u == null) 
             {
                 return Ok(new ApiResponse
                 {
                     Success = false,
-                    Message = "Invalid username/password"
+                    Message = "User not found"
                 });
             }
 

@@ -22,7 +22,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<TopderDBContext>(options =>
-  options.UseSqlServer(builder.Configuration.GetConnectionString("Dat_Connection"))
+  options.UseSqlServer(builder.Configuration.GetConnectionString("Minh_Connection"))
 );
 
 builder.Services.AddDistributedMemoryCache();
@@ -34,9 +34,13 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 // REPO: Scoped
 builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>(); 
+
 
 // Service: Transient
 builder.Services.AddTransient<IRestaurantService, RestaurantService>();
+builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<JwtService>();
 
 // Other: ASK CHAT GPT
 builder.Services.AddTransient<CloudinaryService>();

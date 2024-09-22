@@ -152,7 +152,6 @@ C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\TOPDER.AP
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\TOPDER.API.AssemblyInfoInputs.cache
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\TOPDER.API.AssemblyInfo.cs
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\TOPDER.API.csproj.CoreCompileInputs.cache
-C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\TOPDER.API.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\TOPDER.API.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\TOPDER.API.sourcelink.json
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\staticwebassets.build.json
@@ -169,3 +168,5 @@ C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\refint\TO
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\TOPDER.API.pdb
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\TOPDER.API.genruntimeconfig.cache
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\ref\TOPDER.API.dll
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\bin\Debug\net6.0\Microsoft.IdentityModel.Abstractions.dll
