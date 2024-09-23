@@ -13,7 +13,9 @@ namespace TOPDER.Repository.Entities
 
         public int CategoryRoomId { get; set; }
         public string CategoryName { get; set; } = null!;
+        public int RestaurantId { get; set; }
 
+        public virtual Restaurant Restaurant { get; set; } = null!;
         public virtual ICollection<Order> Orders { get; set; }
         public virtual ICollection<RestaurantRoom> RestaurantRooms { get; set; }
     }

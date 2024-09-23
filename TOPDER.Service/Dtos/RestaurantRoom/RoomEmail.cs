@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TOPDER.Service.Dtos.Room
+namespace TOPDER.Service.Dtos.RestaurantRoom
 {
     public class RoomEmail
     {

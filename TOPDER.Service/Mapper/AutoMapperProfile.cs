@@ -22,6 +22,7 @@ using TOPDER.Service.Dtos.Chat;
 using TOPDER.Service.Dtos.OrderMenu;
 using TOPDER.Service.Dtos.Log;
 using TOPDER.Service.Dtos.OrderTable;
+using TOPDER.Service.Dtos.CategoryRoom;
 
 namespace TOPDER.Service.Mapper
 {
@@ -219,6 +220,11 @@ namespace TOPDER.Service.Mapper
 
             // LOG
             CreateMap<LogDto, Log>().ReverseMap();
+
+            // CATEGORY ROOM 
+            CreateMap<CategoryRoomDto, CategoryRoom>().ReverseMap();
+
+            // RESTAURANT ROOM 
 
 
 

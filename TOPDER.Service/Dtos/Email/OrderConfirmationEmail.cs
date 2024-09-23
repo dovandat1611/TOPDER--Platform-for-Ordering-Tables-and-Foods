@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TOPDER.Service.Dtos.Room;
+using TOPDER.Service.Dtos.RestaurantRoom;
 
 namespace TOPDER.Service.Dtos.Email
 {
