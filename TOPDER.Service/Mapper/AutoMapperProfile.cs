@@ -20,6 +20,8 @@ using TOPDER.Service.Dtos.Wishlist;
 using TOPDER.Service.Dtos.ChatBox;
 using TOPDER.Service.Dtos.Chat;
 using TOPDER.Service.Dtos.OrderMenu;
+using TOPDER.Service.Dtos.Log;
+using TOPDER.Service.Dtos.OrderTable;
 
 namespace TOPDER.Service.Mapper
 {
@@ -190,13 +192,27 @@ namespace TOPDER.Service.Mapper
                                                         src.ChatByNavigation.Admin != null ? src.ChatByNavigation.Admin.Image : Is_Null.ISNULL)
                                                      : Is_Null.ISNULL));
 
-            // OrderMenu
+            // ORDER MENU
             CreateMap<CreateOrUpdateOrderMenuDto, OrderMenu>().ReverseMap();
             CreateMap<OrderMenu, OrderMenuDto>()
                 .ForMember(dest => dest.MenuName,
                            opt => opt.MapFrom(src => src.Menu != null ? src.Menu.DishName : Is_Null.ISNULL))
                 .ForMember(dest => dest.MenuImage,
                            opt => opt.MapFrom(src => src.Menu != null ? src.Menu.Image : Is_Null.ISNULL));
+
+            // ORDER TABLE
+            CreateMap<CreateOrUpdateOrderTableDto, OrderTable>().ReverseMap();
+            CreateMap<OrderTable, OrderTableDto>()
+                .ForMember(dest => dest.TableName,
+                           opt => opt.MapFrom(src => src.Table != null ? src.Table.TableName : Is_Null.ISNULL))
+                .ForMember(dest => dest.MaxCapacity,
+                           opt => opt.MapFrom(src => src.Table.MaxCapacity));
+
+            // LOG
+            CreateMap<LogDto, Log>().ReverseMap();
+
+
+
         }
     }
 }
