@@ -21,12 +21,14 @@ namespace TOPDER.Repository.Entities
         public virtual DbSet<BlogGroup> BlogGroups { get; set; } = null!;
         public virtual DbSet<CategoryMenu> CategoryMenus { get; set; } = null!;
         public virtual DbSet<CategoryRestaurant> CategoryRestaurants { get; set; } = null!;
+        public virtual DbSet<CategoryRoom> CategoryRooms { get; set; } = null!;
         public virtual DbSet<Chat> Chats { get; set; } = null!;
         public virtual DbSet<ChatBox> ChatBoxes { get; set; } = null!;
         public virtual DbSet<Contact> Contacts { get; set; } = null!;
         public virtual DbSet<Customer> Customers { get; set; } = null!;
         public virtual DbSet<Discount> Discounts { get; set; } = null!;
         public virtual DbSet<ExternalLogin> ExternalLogins { get; set; } = null!;
+        public virtual DbSet<Feedback> Feedbacks { get; set; } = null!;
         public virtual DbSet<Image> Images { get; set; } = null!;
         public virtual DbSet<Log> Logs { get; set; } = null!;
         public virtual DbSet<Menu> Menus { get; set; } = null!;
@@ -36,28 +38,29 @@ namespace TOPDER.Repository.Entities
         public virtual DbSet<OrderTable> OrderTables { get; set; } = null!;
         public virtual DbSet<Report> Reports { get; set; } = null!;
         public virtual DbSet<Restaurant> Restaurants { get; set; } = null!;
+        public virtual DbSet<RestaurantRoom> RestaurantRooms { get; set; } = null!;
         public virtual DbSet<RestaurantTable> RestaurantTables { get; set; } = null!;
-        public virtual DbSet<Feedback> Feedbacks { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
+        public virtual DbSet<Wallet> Wallets { get; set; } = null!;
         public virtual DbSet<WalletTransaction> WalletTransactions { get; set; } = null!;
         public virtual DbSet<Wishlist> Wishlists { get; set; } = null!;
 
-        //        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //        {
-        //            if (!optionsBuilder.IsConfigured)
-        //            {
-        //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        //                optionsBuilder.UseSqlServer("Server=localhost;Database=TopderDB;user = sa; password = 123456;trustservercertificate=true");
-        //            }
-        //        }
+//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//        {
+//            if (!optionsBuilder.IsConfigured)
+//            {
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+//                optionsBuilder.UseSqlServer("Server=localhost;Database=TopderDB;user = sa; password = 123456;trustservercertificate=true");
+//            }
+//        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Admin>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Admin__DD701264FF2AA72E");
+                    .HasName("PK__Admin__DD70126403AAA4E0");
 
                 entity.ToTable("Admin");
 
@@ -119,12 +122,12 @@ namespace TOPDER.Repository.Entities
                 entity.HasOne(d => d.Admin)
                     .WithMany(p => p.Blogs)
                     .HasForeignKey(d => d.AdminId)
-                    .HasConstraintName("FK__Blog__admin_id__5812160E");
+                    .HasConstraintName("FK__Blog__admin_id__6477ECF3");
 
                 entity.HasOne(d => d.Bloggroup)
                     .WithMany(p => p.Blogs)
                     .HasForeignKey(d => d.BloggroupId)
-                    .HasConstraintName("FK__Blog__bloggroup___571DF1D5");
+                    .HasConstraintName("FK__Blog__bloggroup___6383C8BA");
             });
 
             modelBuilder.Entity<BlogGroup>(entity =>
@@ -154,7 +157,7 @@ namespace TOPDER.Repository.Entities
                     .WithMany(p => p.CategoryMenus)
                     .HasForeignKey(d => d.RestaurantId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Category___resta__4BAC3F29");
+                    .HasConstraintName("FK__Category___resta__5812160E");
             });
 
             modelBuilder.Entity<CategoryRestaurant>(entity =>
@@ -166,6 +169,17 @@ namespace TOPDER.Repository.Entities
                 entity.Property(e => e.CategoryRestaurantName)
                     .HasMaxLength(255)
                     .HasColumnName("category_restaurant_name");
+            });
+
+            modelBuilder.Entity<CategoryRoom>(entity =>
+            {
+                entity.ToTable("Category_Room");
+
+                entity.Property(e => e.CategoryRoomId).HasColumnName("category_room_id");
+
+                entity.Property(e => e.CategoryName)
+                    .HasMaxLength(255)
+                    .HasColumnName("category_name");
             });
 
             modelBuilder.Entity<Chat>(entity =>
@@ -189,13 +203,13 @@ namespace TOPDER.Repository.Entities
                     .WithMany(p => p.Chats)
                     .HasForeignKey(d => d.ChatBoxId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Chat__chat_box_i__76969D2E");
+                    .HasConstraintName("FK__Chat__chat_box_i__0B91BA14");
 
                 entity.HasOne(d => d.ChatByNavigation)
                     .WithMany(p => p.Chats)
                     .HasForeignKey(d => d.ChatBy)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Chat__chat_by__778AC167");
+                    .HasConstraintName("FK__Chat__chat_by__0C85DE4D");
             });
 
             modelBuilder.Entity<ChatBox>(entity =>
@@ -212,13 +226,13 @@ namespace TOPDER.Repository.Entities
                     .WithMany(p => p.ChatBoxes)
                     .HasForeignKey(d => d.CustomerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__ChatBox__custome__71D1E811");
+                    .HasConstraintName("FK__ChatBox__custome__06CD04F7");
 
                 entity.HasOne(d => d.Restaurant)
                     .WithMany(p => p.ChatBoxes)
                     .HasForeignKey(d => d.RestaurantId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__ChatBox__restaur__72C60C4A");
+                    .HasConstraintName("FK__ChatBox__restaur__07C12930");
             });
 
             modelBuilder.Entity<Contact>(entity =>
@@ -258,13 +272,13 @@ namespace TOPDER.Repository.Entities
                 entity.HasOne(d => d.UidNavigation)
                     .WithMany(p => p.Contacts)
                     .HasForeignKey(d => d.Uid)
-                    .HasConstraintName("FK__Contact__uid__5AEE82B9");
+                    .HasConstraintName("FK__Contact__uid__6754599E");
             });
 
             modelBuilder.Entity<Customer>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Customer__DD701264B00C23FE");
+                    .HasName("PK__Customer__DD701264A361876C");
 
                 entity.ToTable("Customer");
 
@@ -336,7 +350,7 @@ namespace TOPDER.Repository.Entities
                     .WithMany(p => p.Discounts)
                     .HasForeignKey(d => d.RestaurantId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Discount__restau__60A75C0F");
+                    .HasConstraintName("FK__Discount__restau__6D0D32F4");
             });
 
             modelBuilder.Entity<ExternalLogin>(entity =>
@@ -392,12 +406,12 @@ namespace TOPDER.Repository.Entities
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.Feedbacks)
                     .HasForeignKey(d => d.CustomerId)
-                    .HasConstraintName("FK__Feedback__custom__6A30C649");
+                    .HasConstraintName("FK__Feedback__custom__7F2BE32F");
 
                 entity.HasOne(d => d.Restaurant)
                     .WithMany(p => p.Feedbacks)
                     .HasForeignKey(d => d.RestaurantId)
-                    .HasConstraintName("FK__Feedback__restau__6B24EA82");
+                    .HasConstraintName("FK__Feedback__restau__00200768");
             });
 
             modelBuilder.Entity<Image>(entity =>
@@ -415,7 +429,7 @@ namespace TOPDER.Repository.Entities
                 entity.HasOne(d => d.Restaurant)
                     .WithMany(p => p.Images)
                     .HasForeignKey(d => d.RestaurantId)
-                    .HasConstraintName("FK__Image__restauran__52593CB8");
+                    .HasConstraintName("FK__Image__restauran__5EBF139D");
             });
 
             modelBuilder.Entity<Log>(entity =>
@@ -445,7 +459,7 @@ namespace TOPDER.Repository.Entities
                     .WithMany(p => p.Logs)
                     .HasForeignKey(d => d.Uid)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Log__uid__48CFD27E");
+                    .HasConstraintName("FK__Log__uid__5535A963");
             });
 
             modelBuilder.Entity<Menu>(entity =>
@@ -479,13 +493,13 @@ namespace TOPDER.Repository.Entities
                 entity.HasOne(d => d.CategoryMenu)
                     .WithMany(p => p.Menus)
                     .HasForeignKey(d => d.CategoryMenuId)
-                    .HasConstraintName("FK__Menu__category_m__4E88ABD4");
+                    .HasConstraintName("FK__Menu__category_m__5AEE82B9");
 
                 entity.HasOne(d => d.Restaurant)
                     .WithMany(p => p.Menus)
                     .HasForeignKey(d => d.RestaurantId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Menu__restaurant__4F7CD00D");
+                    .HasConstraintName("FK__Menu__restaurant__5BE2A6F2");
             });
 
             modelBuilder.Entity<Notification>(entity =>
@@ -515,7 +529,7 @@ namespace TOPDER.Repository.Entities
                     .WithMany(p => p.Notifications)
                     .HasForeignKey(d => d.Uid)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Notificatio__uid__01142BA1");
+                    .HasConstraintName("FK__Notificatio__uid__160F4887");
             });
 
             modelBuilder.Entity<Order>(entity =>
@@ -527,6 +541,8 @@ namespace TOPDER.Repository.Entities
                 entity.Property(e => e.CancelledAt)
                     .HasColumnType("datetime")
                     .HasColumnName("cancelled_at");
+
+                entity.Property(e => e.CategoryRoomId).HasColumnName("category_room_id");
 
                 entity.Property(e => e.CompletedAt)
                     .HasColumnType("datetime")
@@ -588,20 +604,25 @@ namespace TOPDER.Repository.Entities
                     .HasMaxLength(50)
                     .HasColumnName("type_order");
 
+                entity.HasOne(d => d.CategoryRoom)
+                    .WithMany(p => p.Orders)
+                    .HasForeignKey(d => d.CategoryRoomId)
+                    .HasConstraintName("FK__Order__category___72C60C4A");
+
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.CustomerId)
-                    .HasConstraintName("FK__Order__customer___6383C8BA");
+                    .HasConstraintName("FK__Order__customer___6FE99F9F");
 
                 entity.HasOne(d => d.Discount)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.DiscountId)
-                    .HasConstraintName("FK__Order__discount___656C112C");
+                    .HasConstraintName("FK__Order__discount___71D1E811");
 
                 entity.HasOne(d => d.Restaurant)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.RestaurantId)
-                    .HasConstraintName("FK__Order__restauran__6477ECF3");
+                    .HasConstraintName("FK__Order__restauran__70DDC3D8");
             });
 
             modelBuilder.Entity<OrderMenu>(entity =>
@@ -624,13 +645,13 @@ namespace TOPDER.Repository.Entities
                     .WithMany(p => p.OrderMenus)
                     .HasForeignKey(d => d.MenuId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Order_Men__menu___0D7A0286");
+                    .HasConstraintName("FK__Order_Men__menu___7A672E12");
 
                 entity.HasOne(d => d.Order)
                     .WithMany(p => p.OrderMenus)
                     .HasForeignKey(d => d.OrderId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Order_Men__order__0C85DE4D");
+                    .HasConstraintName("FK__Order_Men__order__797309D9");
             });
 
             modelBuilder.Entity<OrderTable>(entity =>
@@ -641,23 +662,19 @@ namespace TOPDER.Repository.Entities
 
                 entity.Property(e => e.OrderId).HasColumnName("order_id");
 
-                entity.Property(e => e.Price)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("price");
-
                 entity.Property(e => e.TableId).HasColumnName("table_id");
 
                 entity.HasOne(d => d.Order)
                     .WithMany(p => p.OrderTables)
                     .HasForeignKey(d => d.OrderId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Order_Tab__order__08B54D69");
+                    .HasConstraintName("FK__Order_Tab__order__75A278F5");
 
                 entity.HasOne(d => d.Table)
                     .WithMany(p => p.OrderTables)
                     .HasForeignKey(d => d.TableId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Order_Tab__table__09A971A2");
+                    .HasConstraintName("FK__Order_Tab__table__76969D2E");
             });
 
             modelBuilder.Entity<Report>(entity =>
@@ -689,19 +706,19 @@ namespace TOPDER.Repository.Entities
                     .WithMany(p => p.ReportReportedByNavigations)
                     .HasForeignKey(d => d.ReportedBy)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Report__reported__7B5B524B");
+                    .HasConstraintName("FK__Report__reported__10566F31");
 
                 entity.HasOne(d => d.ReportedOnNavigation)
                     .WithMany(p => p.ReportReportedOnNavigations)
                     .HasForeignKey(d => d.ReportedOn)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Report__reported__7C4F7684");
+                    .HasConstraintName("FK__Report__reported__114A936A");
             });
 
             modelBuilder.Entity<Restaurant>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Restaura__DD70126489D62B56");
+                    .HasName("PK__Restaura__DD70126446BF8CAC");
 
                 entity.ToTable("Restaurant");
 
@@ -743,6 +760,8 @@ namespace TOPDER.Repository.Entities
                     .HasMaxLength(255)
                     .HasColumnName("logo");
 
+                entity.Property(e => e.MaxCapacity).HasColumnName("max_capacity");
+
                 entity.Property(e => e.NameOwner)
                     .HasMaxLength(255)
                     .HasColumnName("name_owner");
@@ -757,6 +776,10 @@ namespace TOPDER.Repository.Entities
                     .HasMaxLength(20)
                     .HasColumnName("phone");
 
+                entity.Property(e => e.Price)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("price");
+
                 entity.Property(e => e.ReturningFeePercent)
                     .HasColumnType("decimal(5, 2)")
                     .HasColumnName("returning_fee_percent");
@@ -766,19 +789,57 @@ namespace TOPDER.Repository.Entities
                 entity.HasOne(d => d.CategoryRestaurant)
                     .WithMany(p => p.Restaurants)
                     .HasForeignKey(d => d.CategoryRestaurantId)
-                    .HasConstraintName("FK__Restauran__categ__3C69FB99");
+                    .HasConstraintName("FK__Restauran__categ__3D5E1FD2");
 
                 entity.HasOne(d => d.UidNavigation)
                     .WithOne(p => p.Restaurant)
                     .HasForeignKey<Restaurant>(d => d.Uid)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Restaurant__uid__3D5E1FD2");
+                    .HasConstraintName("FK__Restaurant__uid__3E52440B");
+            });
+
+            modelBuilder.Entity<RestaurantRoom>(entity =>
+            {
+                entity.HasKey(e => e.RoomId)
+                    .HasName("PK__Restaura__19675A8A00451625");
+
+                entity.ToTable("Restaurant_Room");
+
+                entity.Property(e => e.RoomId).HasColumnName("room_id");
+
+                entity.Property(e => e.CategoryRoomId).HasColumnName("category_room_id");
+
+                entity.Property(e => e.Description).HasColumnName("description");
+
+                entity.Property(e => e.IsBookingEnabled)
+                    .HasColumnName("is_booking_enabled")
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.MaxCapacity).HasColumnName("max_capacity");
+
+                entity.Property(e => e.RestaurantId).HasColumnName("restaurant_id");
+
+                entity.Property(e => e.RoomName)
+                    .HasMaxLength(255)
+                    .HasColumnName("room_name");
+
+                entity.HasOne(d => d.CategoryRoom)
+                    .WithMany(p => p.RestaurantRooms)
+                    .HasForeignKey(d => d.CategoryRoomId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Restauran__categ__44FF419A");
+
+                entity.HasOne(d => d.Restaurant)
+                    .WithMany(p => p.RestaurantRooms)
+                    .HasForeignKey(d => d.RestaurantId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Restauran__resta__440B1D61");
             });
 
             modelBuilder.Entity<RestaurantTable>(entity =>
             {
                 entity.HasKey(e => e.TableId)
-                    .HasName("PK__Restaura__B21E8F24B99A051B");
+                    .HasName("PK__Restaura__B21E8F24DEA1D7C8");
 
                 entity.ToTable("Restaurant_Table");
 
@@ -792,11 +853,9 @@ namespace TOPDER.Repository.Entities
 
                 entity.Property(e => e.MaxCapacity).HasColumnName("max_capacity");
 
-                entity.Property(e => e.Price)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("price");
-
                 entity.Property(e => e.RestaurantId).HasColumnName("restaurant_id");
+
+                entity.Property(e => e.RoomId).HasColumnName("room_id");
 
                 entity.Property(e => e.TableName)
                     .HasMaxLength(255)
@@ -806,7 +865,12 @@ namespace TOPDER.Repository.Entities
                     .WithMany(p => p.RestaurantTables)
                     .HasForeignKey(d => d.RestaurantId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Restauran__resta__05D8E0BE");
+                    .HasConstraintName("FK__Restauran__resta__48CFD27E");
+
+                entity.HasOne(d => d.Room)
+                    .WithMany(p => p.RestaurantTables)
+                    .HasForeignKey(d => d.RoomId)
+                    .HasConstraintName("FK__Restauran__room___49C3F6B7");
             });
 
             modelBuilder.Entity<Role>(entity =>
@@ -823,11 +887,11 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__User__DD7012640A89D98D");
+                    .HasName("PK__User__DD701264BC8B4E2C");
 
                 entity.ToTable("User");
 
-                entity.HasIndex(e => e.Email, "UQ__User__AB6E6164C9FC5DBD")
+                entity.HasIndex(e => e.Email, "UQ__User__AB6E6164E017E74A")
                     .IsUnique();
 
                 entity.Property(e => e.Uid).HasColumnName("uid");
@@ -906,15 +970,15 @@ namespace TOPDER.Repository.Entities
                     .WithMany(p => p.Wallets)
                     .HasForeignKey(d => d.Uid)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Wallet__uid__412EB0B6");
+                    .HasConstraintName("FK__Wallet__uid__4D94879B");
             });
 
             modelBuilder.Entity<WalletTransaction>(entity =>
             {
                 entity.HasKey(e => e.TransactionId)
-                    .HasName("PK__WalletTr__85C600AF58184BB9");
+                    .HasName("PK__Wallet_T__85C600AFA6DF4BE3");
 
-                entity.ToTable("WalletTransaction");
+                entity.ToTable("Wallet_Transaction");
 
                 entity.Property(e => e.TransactionId).HasColumnName("transaction_id");
 
@@ -945,7 +1009,7 @@ namespace TOPDER.Repository.Entities
                     .WithMany(p => p.WalletTransactions)
                     .HasForeignKey(d => d.WalletId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__WalletTra__walle__44FF419A");
+                    .HasConstraintName("FK__Wallet_Tr__walle__5165187F");
             });
 
             modelBuilder.Entity<Wishlist>(entity =>
@@ -961,12 +1025,12 @@ namespace TOPDER.Repository.Entities
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.Wishlists)
                     .HasForeignKey(d => d.CustomerId)
-                    .HasConstraintName("FK__Wishlist__custom__6E01572D");
+                    .HasConstraintName("FK__Wishlist__custom__02FC7413");
 
                 entity.HasOne(d => d.Restaurant)
                     .WithMany(p => p.Wishlists)
                     .HasForeignKey(d => d.RestaurantId)
-                    .HasConstraintName("FK__Wishlist__restau__6EF57B66");
+                    .HasConstraintName("FK__Wishlist__restau__03F0984C");
             });
 
             OnModelCreatingPartial(modelBuilder);

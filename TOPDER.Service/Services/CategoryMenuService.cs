@@ -60,7 +60,6 @@ namespace TOPDER.Service.Services
                 pageNumber > 0 ? pageNumber : 1,
                 pageSize > 0 ? pageSize : 10
             );
-
             return paginatedDTOs;
         }
 

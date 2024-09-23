@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TOPDER.Service.Dtos.Room;
 
 namespace TOPDER.Service.Dtos.Email
 {
@@ -15,6 +16,7 @@ namespace TOPDER.Service.Dtos.Email
         public DateTime ReservationDate { get; set; }
         public TimeSpan ReservationTime { get; set; }
         public decimal TotalAmount { get; set; }
+        public List<RoomEmail> Rooms { get; set; } = new List<RoomEmail>();
         public List<string> TableName { get; set; } = new List<string>();
     }
 }

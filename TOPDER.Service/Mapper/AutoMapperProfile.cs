@@ -17,6 +17,8 @@ using TOPDER.Service.Dtos.Discount;
 using TOPDER.Service.Dtos.Report;
 using TOPDER.Service.Dtos.Notification;
 using TOPDER.Service.Dtos.Wishlist;
+using TOPDER.Service.Dtos.ChatBox;
+using TOPDER.Service.Dtos.Chat;
 
 namespace TOPDER.Service.Mapper
 {
@@ -157,6 +159,35 @@ namespace TOPDER.Service.Mapper
                     src.Restaurant != null && src.Restaurant.Feedbacks != null && src.Restaurant.Feedbacks.Any()
                     ? (int)Math.Round(src.Restaurant.Feedbacks.Average(r => r.Star.HasValue ? r.Star.Value : 0))
                     : 0));
+
+            //CHATBOX
+            CreateMap<CreateChatBoxDto, ChatBox>().ReverseMap();
+            CreateMap<ChatBox, ChatBoxDto>()
+                .ForMember(dest => dest.RestaurantName,
+                           opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.NameRes : Is_Null.ISNULL))
+                .ForMember(dest => dest.RestaurantImage,
+                           opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.Logo : Is_Null.ISNULL))
+                .ForMember(dest => dest.CustomerName,
+                           opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Name : Is_Null.ISNULL))
+                .ForMember(dest => dest.CustomerImage,
+                           opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Image : Is_Null.ISNULL));
+
+            //CHAT
+            CreateMap<CreateorUpdateChatDto, Chat>().ReverseMap();
+
+            CreateMap<Chat, ChatDto>()
+                .ForMember(dest => dest.ChatByName,
+                           opt => opt.MapFrom(src => src.ChatByNavigation != null
+                                                     ? (src.ChatByNavigation.Customer != null ? src.ChatByNavigation.Customer.Name :
+                                                        src.ChatByNavigation.Restaurant != null ? src.ChatByNavigation.Restaurant.NameRes :
+                                                        src.ChatByNavigation.Admin != null ? src.ChatByNavigation.Admin.Name : Is_Null.ISNULL)
+                                                     : Is_Null.ISNULL))
+                .ForMember(dest => dest.ChatByImage,
+                           opt => opt.MapFrom(src => src.ChatByNavigation != null
+                                                     ? (src.ChatByNavigation.Customer != null ? src.ChatByNavigation.Customer.Image :
+                                                        src.ChatByNavigation.Restaurant != null ? src.ChatByNavigation.Restaurant.Logo :
+                                                        src.ChatByNavigation.Admin != null ? src.ChatByNavigation.Admin.Image : Is_Null.ISNULL)
+                                                     : Is_Null.ISNULL));
 
         }
     }

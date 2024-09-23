@@ -14,6 +14,7 @@ namespace TOPDER.Repository.Entities
             Images = new HashSet<Image>();
             Menus = new HashSet<Menu>();
             Orders = new HashSet<Order>();
+            RestaurantRooms = new HashSet<RestaurantRoom>();
             RestaurantTables = new HashSet<RestaurantTable>();
             Wishlists = new HashSet<Wishlist>();
         }
@@ -31,6 +32,8 @@ namespace TOPDER.Repository.Entities
         public string? Subdescription { get; set; }
         public string Location { get; set; } = null!;
         public string? Discount { get; set; }
+        public int MaxCapacity { get; set; }
+        public decimal Price { get; set; }
         public bool? IsBookingEnabled { get; set; }
         public decimal? FirstFeePercent { get; set; }
         public decimal? ReturningFeePercent { get; set; }
@@ -45,6 +48,7 @@ namespace TOPDER.Repository.Entities
         public virtual ICollection<Image> Images { get; set; }
         public virtual ICollection<Menu> Menus { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<RestaurantRoom> RestaurantRooms { get; set; }
         public virtual ICollection<RestaurantTable> RestaurantTables { get; set; }
         public virtual ICollection<Wishlist> Wishlists { get; set; }
     }

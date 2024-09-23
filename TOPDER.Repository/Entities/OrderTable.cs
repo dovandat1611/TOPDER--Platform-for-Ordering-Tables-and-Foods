@@ -8,7 +8,6 @@ namespace TOPDER.Repository.Entities
         public int OrderTableId { get; set; }
         public int OrderId { get; set; }
         public int TableId { get; set; }
-        public decimal Price { get; set; }
 
         public virtual Order Order { get; set; } = null!;
         public virtual RestaurantTable Table { get; set; } = null!;

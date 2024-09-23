@@ -16,6 +16,7 @@ namespace TOPDER.Repository.Entities
         public int? CustomerId { get; set; }
         public int? RestaurantId { get; set; }
         public int? DiscountId { get; set; }
+        public int? CategoryRoomId { get; set; }
         public string NameReceiver { get; set; } = null!;
         public string PhoneReceiver { get; set; } = null!;
         public TimeSpan TimeReservation { get; set; }
@@ -34,6 +35,7 @@ namespace TOPDER.Repository.Entities
         public DateTime? CompletedAt { get; set; }
         public DateTime? CancelledAt { get; set; }
 
+        public virtual CategoryRoom? CategoryRoom { get; set; }
         public virtual Customer? Customer { get; set; }
         public virtual Discount? Discount { get; set; }
         public virtual Restaurant? Restaurant { get; set; }

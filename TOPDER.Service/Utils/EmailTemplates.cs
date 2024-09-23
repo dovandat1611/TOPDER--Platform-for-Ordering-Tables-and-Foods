@@ -108,60 +108,140 @@ namespace TOPDER.Service.Utils
             </html>";
         }
 
+
         public static string Order(OrderConfirmationEmail orderConfirmationEmail)
         {
             string formattedDate = orderConfirmationEmail.ReservationDate.ToString("dd/MM/yyyy");
             string formattedTime = orderConfirmationEmail.ReservationTime.ToString(@"hh\:mm");
 
             var tablesHtml = "<ul>";
-            foreach (var table in orderConfirmationEmail.TableName)
+
+            if (orderConfirmationEmail.Rooms != null && orderConfirmationEmail.Rooms.Any())
             {
-                tablesHtml += $"<li>{table}</li>";
+                foreach (var room in orderConfirmationEmail.Rooms)
+                {
+                    tablesHtml += $"<li>Phòng: {room.RoomName}</li>";
+                    if (room.Tables != null && room.Tables.Any())
+                    {
+                        tablesHtml += "<ul>";
+                        foreach (var table in room.Tables)
+                        {
+                            tablesHtml += $"<li>{table}</li>";
+                        }
+                        tablesHtml += "</ul>";
+                    }
+                }
             }
+
+            if (orderConfirmationEmail.TableName != null && orderConfirmationEmail.TableName.Any())
+            {
+                foreach (var table in orderConfirmationEmail.TableName)
+                {
+                    tablesHtml += $"<li>{table}</li>";
+                }
+            }
+
             tablesHtml += "</ul>";
 
             return $@"
-            <!DOCTYPE html>
-            <html lang='vi'>
-            <head>
-              <meta charset='UTF-8'>
-              <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-            </head>
-            <body style='font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;'>
-              <div style='width: 100%; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); overflow: hidden;'>
-                <div style='background-color: #f29034; color: #ffffff; text-align: center; padding: 20px; font-size: 1.5rem; font-weight: bold;'>
-                  Xác nhận đặt bàn thành công
-                </div>
+                    <!DOCTYPE html>
+                    <html lang='vi'>
+                    <head>
+                      <meta charset='UTF-8'>
+                      <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                    </head>
+                    <body style='font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;'>
+                      <div style='width: 100%; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); overflow: hidden;'>
+                        <div style='background-color: #f29034; color: #ffffff; text-align: center; padding: 20px; font-size: 1.5rem; font-weight: bold;'>
+                          Xác nhận đặt bàn thành công
+                        </div>
 
-                <div style='padding: 20px;'>
-                  <img src='https://res.cloudinary.com/do9iyczi3/image/upload/v1726643328/LOGO-TOPDER_qonl9l.png' alt='Logo TOPDER' style='display: block; margin: 20px auto; width: 120px;' />
-                  <p style='color: #f29034; font-weight: bold; font-size: 1.1rem; margin: 15px 0;'>Cảm ơn bạn đã đặt bàn tại TOPDER!</p>
-                  <p style='font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; color: #333333;'>Thông tin đặt bàn của bạn như sau:</p>
-                  <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Mã đơn hàng: <span style='font-weight: bold; color: #333333;'>#{orderConfirmationEmail.OrderId}</span></p>
-                  <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Tên khách hàng: <span style='font-weight: bold; color: #333333;'>{orderConfirmationEmail.Name}</span></p>
-                  <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Nhà hàng: <span style='font-weight: bold; color: #333333;'>{orderConfirmationEmail.RestaurantName}</span></p>
-                  <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Số lượng khách: <span style='font-weight: bold; color: #333333;'>{orderConfirmationEmail.NumberOfGuests} người</span></p>
-                  <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Ngày đặt bàn: <span style='font-weight: bold; color: #333333;'>{formattedDate}</span></p>
-                  <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Thời gian: <span style='font-weight: bold; color: #333333;'>{formattedTime}</span></p>
-                  <p style='font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; color: #333333;'>Danh sách bàn đã đặt:</p>
-                  <div style='margin: 10px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>
-                    {tablesHtml}
-                  </div>
-                </div>
+                        <div style='padding: 20px;'>
+                          <img src='https://res.cloudinary.com/do9iyczi3/image/upload/v1726643328/LOGO-TOPDER_qonl9l.png' alt='Logo TOPDER' style='display: block; margin: 20px auto; width: 120px;' />
+                          <p style='color: #f29034; font-weight: bold; font-size: 1.1rem; margin: 15px 0;'>Cảm ơn bạn đã đặt bàn tại TOPDER!</p>
+                          <p style='font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; color: #333333;'>Thông tin đặt bàn của bạn như sau:</p>
+                          <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Mã đơn hàng: <span style='font-weight: bold; color: #333333;'>#{orderConfirmationEmail.OrderId}</span></p>
+                          <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Tên khách hàng: <span style='font-weight: bold; color: #333333;'>{orderConfirmationEmail.Name}</span></p>
+                          <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Nhà hàng: <span style='font-weight: bold; color: #333333;'>{orderConfirmationEmail.RestaurantName}</span></p>
+                          <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Số lượng khách: <span style='font-weight: bold; color: #333333;'>{orderConfirmationEmail.NumberOfGuests} người</span></p>
+                          <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Ngày đặt bàn: <span style='font-weight: bold; color: #333333;'>{formattedDate}</span></p>
+                          <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Thời gian: <span style='font-weight: bold; color: #333333;'>{formattedTime}</span></p>
+                          <p style='font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; color: #333333;'>Danh sách phòng và bàn đã đặt:</p>
+                          <div style='margin: 10px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>
+                            {tablesHtml}
+                          </div>
+                        </div>
 
-                <div style='background-color: #f29034; padding: 20px; color: #ffffff; text-align: center;'>
-                  <h1 style='margin: 0;'>Tổng hóa đơn</h1>
-                  <div style='font-size: 1.2rem; font-weight: bold; margin-top: 10px;'>{orderConfirmationEmail.TotalAmount.ToString("N0")} đ</div>
-                  <div style='margin: 20px auto; width: 120px; height: 120px;'>
-                    <img src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=OrderID{orderConfirmationEmail.OrderId}' alt='QR Code' style='width: 100%; height: 100%;' />
-                  </div>
-                  <p>Vui lòng mang theo mã QR này khi đến nhà hàng.</p>
-                  <p>Chúc bạn có một bữa ăn ngon miệng!</p>
-                </div>
-              </div>
-            </body>
-            </html>";
+                        <div style='background-color: #f29034; padding: 20px; color: #ffffff; text-align: center;'>
+                          <h1 style='margin: 0;'>Tổng hóa đơn</h1>
+                          <div style='font-size: 1.2rem; font-weight: bold; margin-top: 10px;'>{orderConfirmationEmail.TotalAmount.ToString("N0")} đ</div>
+                          <div style='margin: 20px auto; width: 120px; height: 120px;'>
+                            <img src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=OrderID{orderConfirmationEmail.OrderId}' alt='QR Code' style='width: 100%; height: 100%;' />
+                          </div>
+                          <p>Vui lòng mang theo mã QR này khi đến nhà hàng.</p>
+                          <p>Chúc bạn có một bữa ăn ngon miệng!</p>
+                        </div>
+                      </div>
+                    </body>
+                    </html>";
         }
+
+
+
+        //public static string Order(OrderConfirmationEmail orderConfirmationEmail)
+        //{
+        //    string formattedDate = orderConfirmationEmail.ReservationDate.ToString("dd/MM/yyyy");
+        //    string formattedTime = orderConfirmationEmail.ReservationTime.ToString(@"hh\:mm");
+
+        //    var tablesHtml = "<ul>";
+        //    foreach (var table in orderConfirmationEmail.TableName)
+        //    {
+        //        tablesHtml += $"<li>{table}</li>";
+        //    }
+        //    tablesHtml += "</ul>";
+
+        //    return $@"
+        //    <!DOCTYPE html>
+        //    <html lang='vi'>
+        //    <head>
+        //      <meta charset='UTF-8'>
+        //      <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        //    </head>
+        //    <body style='font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;'>
+        //      <div style='width: 100%; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); overflow: hidden;'>
+        //        <div style='background-color: #f29034; color: #ffffff; text-align: center; padding: 20px; font-size: 1.5rem; font-weight: bold;'>
+        //          Xác nhận đặt bàn thành công
+        //        </div>
+
+        //        <div style='padding: 20px;'>
+        //          <img src='https://res.cloudinary.com/do9iyczi3/image/upload/v1726643328/LOGO-TOPDER_qonl9l.png' alt='Logo TOPDER' style='display: block; margin: 20px auto; width: 120px;' />
+        //          <p style='color: #f29034; font-weight: bold; font-size: 1.1rem; margin: 15px 0;'>Cảm ơn bạn đã đặt bàn tại TOPDER!</p>
+        //          <p style='font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; color: #333333;'>Thông tin đặt bàn của bạn như sau:</p>
+        //          <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Mã đơn hàng: <span style='font-weight: bold; color: #333333;'>#{orderConfirmationEmail.OrderId}</span></p>
+        //          <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Tên khách hàng: <span style='font-weight: bold; color: #333333;'>{orderConfirmationEmail.Name}</span></p>
+        //          <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Nhà hàng: <span style='font-weight: bold; color: #333333;'>{orderConfirmationEmail.RestaurantName}</span></p>
+        //          <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Số lượng khách: <span style='font-weight: bold; color: #333333;'>{orderConfirmationEmail.NumberOfGuests} người</span></p>
+        //          <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Ngày đặt bàn: <span style='font-weight: bold; color: #333333;'>{formattedDate}</span></p>
+        //          <p style='margin: 8px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>Thời gian: <span style='font-weight: bold; color: #333333;'>{formattedTime}</span></p>
+        //          <p style='font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; color: #333333;'>Danh sách bàn đã đặt:</p>
+        //          <div style='margin: 10px 0; font-size: 1rem; line-height: 1.5; color: #555555; padding: 10px; background-color: #f9f9f9; border-radius: 5px;'>
+        //            {tablesHtml}
+        //          </div>
+        //        </div>
+
+        //        <div style='background-color: #f29034; padding: 20px; color: #ffffff; text-align: center;'>
+        //          <h1 style='margin: 0;'>Tổng hóa đơn</h1>
+        //          <div style='font-size: 1.2rem; font-weight: bold; margin-top: 10px;'>{orderConfirmationEmail.TotalAmount.ToString("N0")} đ</div>
+        //          <div style='margin: 20px auto; width: 120px; height: 120px;'>
+        //            <img src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=OrderID{orderConfirmationEmail.OrderId}' alt='QR Code' style='width: 100%; height: 100%;' />
+        //          </div>
+        //          <p>Vui lòng mang theo mã QR này khi đến nhà hàng.</p>
+        //          <p>Chúc bạn có một bữa ăn ngon miệng!</p>
+        //        </div>
+        //      </div>
+        //    </body>
+        //    </html>";
+        //}
 
 
     }
