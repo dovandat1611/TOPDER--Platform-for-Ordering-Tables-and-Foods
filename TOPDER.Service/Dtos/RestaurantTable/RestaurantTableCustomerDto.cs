@@ -9,6 +9,8 @@ namespace TOPDER.Service.Dtos.RestaurantTable
     public class RestaurantTableCustomerDto
     {
         public int TableId { get; set; }
+        public int? RoomId { get; set; }
+        public string? RoomName { get; set; }
         public string TableName { get; set; } = null!;
         public int MaxCapacity { get; set; }
         public string? Description { get; set; }

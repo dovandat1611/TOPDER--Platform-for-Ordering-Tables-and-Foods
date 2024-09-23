@@ -63,8 +63,13 @@ namespace TOPDER.Service.Mapper
 
             // RESTAURANT TABLE
 
-            CreateMap<RestaurantTable, RestaurantTableCustomerDto>();
-            CreateMap<RestaurantTable, RestaurantTableRestaurantDto>();
+            CreateMap<RestaurantTable, RestaurantTableCustomerDto>()
+                .ForMember(dest => dest.RoomName,
+                           opt => opt.MapFrom(src => src.Room != null ? src.Room.RoomName : null));
+
+            CreateMap<RestaurantTable, RestaurantTableRestaurantDto>()
+                .ForMember(dest => dest.RoomName,
+                           opt => opt.MapFrom(src => src.Room != null ? src.Room.RoomName : null));
             CreateMap<RestaurantTableDto, RestaurantTable>().ReverseMap();
 
             // RESTAURANT IMAGE 
