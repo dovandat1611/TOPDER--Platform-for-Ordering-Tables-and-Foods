@@ -1,23 +1,48 @@
-﻿using System;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TOPDER.Repository.Entities;
+using TOPDER.Repository.IRepositories;
+using TOPDER.Repository.Repositories;
+using TOPDER.Service.Dtos.Notification;
 using TOPDER.Service.Dtos.OrderMenu;
 using TOPDER.Service.IServices;
+using TOPDER.Service.Utils;
 
 namespace TOPDER.Service.Services
 {
     public class OrderMenuService : IOrderMenuService
     {
-        public Task<bool> AddAsync(List<CreateOrUpdateOrderMenuDto> orderMenuDtos)
+        private readonly IMapper _mapper;
+        private readonly IOrderMenuRepository _orderMenuRepository;
+
+        public OrderMenuService(IOrderMenuRepository orderMenuRepository, IMapper mapper)
         {
-            throw new NotImplementedException();
+            _orderMenuRepository = orderMenuRepository;
+            _mapper = mapper;
+        }
+        public async Task<bool> AddAsync(List<CreateOrUpdateOrderMenuDto> orderMenuDtos)
+        {
+            var orderMenuDtoList = _mapper.Map<List<OrderMenu>>(orderMenuDtos);
+            return await _orderMenuRepository.CreateRangeAsync(orderMenuDtoList);
         }
 
-        public Task<List<OrderMenuDto>> GetItemsByOrderAsync(int id)
+
+        public async Task<List<OrderMenuDto>> GetItemsByOrderAsync(int id)
         {
-            throw new NotImplementedException();
+            var queryable = await _orderMenuRepository.QueryableAsync();
+
+            var query = queryable.Where(x => x.OrderId == id);
+
+            var queryDTO = await query.Select(r => _mapper.Map<OrderMenuDto>(r)).ToListAsync();
+
+            return queryDTO;
         }
+
     }
 }
