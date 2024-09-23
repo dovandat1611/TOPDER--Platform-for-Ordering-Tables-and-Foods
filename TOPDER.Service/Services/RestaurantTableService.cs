@@ -50,8 +50,7 @@ namespace TOPDER.Service.Services
                 {
                     new ExcelColumnConfiguration { ColumnName = "TableName", Position = 1, IsRequired = true },
                     new ExcelColumnConfiguration { ColumnName = "MaxCapacity", Position = 2, IsRequired = true },
-                    new ExcelColumnConfiguration { ColumnName = "Price", Position = 3, IsRequired = false },
-                    new ExcelColumnConfiguration { ColumnName = "Description", Position = 4, IsRequired = false }
+                    new ExcelColumnConfiguration { ColumnName = "Description", Position = 3, IsRequired = false }
                 };
 
                 var data = await _excelService.ReadFromExcelAsync(createExcelRestaurantTableDto.File, columnConfigurations);
@@ -71,7 +70,6 @@ namespace TOPDER.Service.Services
                         RestaurantId = createExcelRestaurantTableDto.RestaurantId,
                         TableName = row["TableName"],
                         MaxCapacity = Convert.ToInt32(row["MaxCapacity"]),
-                        Price = row.ContainsKey("Price") ? Convert.ToDecimal(row["Price"]) : 0,
                         Description = row.ContainsKey("Description") ? row["Description"] : null,
                         IsBookingEnabled = true,
                     };
