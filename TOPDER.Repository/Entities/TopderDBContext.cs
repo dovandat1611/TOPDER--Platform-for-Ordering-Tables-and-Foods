@@ -46,21 +46,21 @@ namespace TOPDER.Repository.Entities
         public virtual DbSet<WalletTransaction> WalletTransactions { get; set; } = null!;
         public virtual DbSet<Wishlist> Wishlists { get; set; } = null!;
 
-//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//        {
-//            if (!optionsBuilder.IsConfigured)
-//            {
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-//                optionsBuilder.UseSqlServer("Server=localhost;Database=TopderDB;user = sa; password = 123456;trustservercertificate=true");
-//            }
-//        }
+        //        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //        {
+        //            if (!optionsBuilder.IsConfigured)
+        //            {
+        //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        //                optionsBuilder.UseSqlServer("Server=localhost;Database=TopderDB;user = sa; password = 123456;trustservercertificate=true");
+        //            }
+        //        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Admin>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Admin__DD70126433B9DFB3");
+                    .HasName("PK__Admin__DD701264EBCD43DD");
 
                 entity.ToTable("Admin");
 
@@ -286,7 +286,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<Customer>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Customer__DD701264B35593A7");
+                    .HasName("PK__Customer__DD701264360EE23F");
 
                 entity.ToTable("Customer");
 
@@ -726,7 +726,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<Restaurant>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Restaura__DD70126466720E41");
+                    .HasName("PK__Restaura__DD701264B81FA6CE");
 
                 entity.ToTable("Restaurant");
 
@@ -809,7 +809,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<RestaurantRoom>(entity =>
             {
                 entity.HasKey(e => e.RoomId)
-                    .HasName("PK__Restaura__19675A8A25560A0B");
+                    .HasName("PK__Restaura__19675A8A84EC082A");
 
                 entity.ToTable("Restaurant_Room");
 
@@ -834,7 +834,6 @@ namespace TOPDER.Repository.Entities
                 entity.HasOne(d => d.CategoryRoom)
                     .WithMany(p => p.RestaurantRooms)
                     .HasForeignKey(d => d.CategoryRoomId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__Restauran__categ__45F365D3");
 
                 entity.HasOne(d => d.Restaurant)
@@ -847,7 +846,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<RestaurantTable>(entity =>
             {
                 entity.HasKey(e => e.TableId)
-                    .HasName("PK__Restaura__B21E8F24E56E0F40");
+                    .HasName("PK__Restaura__B21E8F244D9BD0F2");
 
                 entity.ToTable("Restaurant_Table");
 
@@ -895,11 +894,11 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__User__DD701264E9697079");
+                    .HasName("PK__User__DD7012641C9B4A11");
 
                 entity.ToTable("User");
 
-                entity.HasIndex(e => e.Email, "UQ__User__AB6E6164C4CEF37D")
+                entity.HasIndex(e => e.Email, "UQ__User__AB6E616487A61945")
                     .IsUnique();
 
                 entity.Property(e => e.Uid).HasColumnName("uid");
@@ -984,7 +983,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<WalletTransaction>(entity =>
             {
                 entity.HasKey(e => e.TransactionId)
-                    .HasName("PK__Wallet_T__85C600AF635F27D4");
+                    .HasName("PK__Wallet_T__85C600AF3B0596A5");
 
                 entity.ToTable("Wallet_Transaction");
 

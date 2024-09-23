@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,14 +31,35 @@ namespace TOPDER.Service.Services
             return await _categoryRoomRepository.CreateAsync(category);
         }
 
-        public Task<CategoryRoomDto> GetItemAsync(int id, int restaurantId)
+        public async Task<CategoryRoomDto> GetItemAsync(int id, int restaurantId)
         {
-            throw new NotImplementedException();
+            var query = await _categoryRoomRepository.GetByIdAsync(id);
+            if (query == null)
+            {
+                throw new KeyNotFoundException($"Category Room với id {id} không tồn tại.");
+            }
+            if (query.RestaurantId != restaurantId)
+            {
+                throw new UnauthorizedAccessException($"Category Room với id {id} không thuộc về nhà hàng với id {restaurantId}.");
+            }
+            var categoryRoomDto = _mapper.Map<CategoryRoomDto>(query);
+            return categoryRoomDto;
         }
 
-        public Task<PaginatedList<CategoryRoomDto>> GetPagingAsync(int pageNumber, int pageSize, int restaurantId)
+        public async Task<PaginatedList<CategoryRoomDto>> GetPagingAsync(int pageNumber, int pageSize, int restaurantId)
         {
-            throw new NotImplementedException();
+            var queryable = await _categoryRoomRepository.QueryableAsync();
+
+            var query = queryable.Where(x => x.RestaurantId == restaurantId);
+
+            var queryDTO = query.Select(r => _mapper.Map<CategoryRoomDto>(r));
+
+            var paginatedDTOs = await PaginatedList<CategoryRoomDto>.CreateAsync(
+                queryDTO.AsNoTracking(),
+                pageNumber > 0 ? pageNumber : 1,
+                pageSize > 0 ? pageSize : 10
+            );
+            return paginatedDTOs;
         }
 
         public Task<bool> RemoveAsync(int id)
@@ -45,14 +67,33 @@ namespace TOPDER.Service.Services
             throw new NotImplementedException();
         }
 
-        public Task<PaginatedList<CategoryRoomDto>> SearchPagingAsync(int pageNumber, int pageSize, int restaurantId, string categoryRoomName)
+        public async Task<PaginatedList<CategoryRoomDto>> SearchPagingAsync(int pageNumber, int pageSize, int restaurantId, string categoryRoomName)
         {
-            throw new NotImplementedException();
+            var queryable = await _categoryRoomRepository.QueryableAsync();
+
+            var query = queryable.Where(x =>
+                x.CategoryName != null && x.CategoryName.Contains(categoryRoomName) && x.RestaurantId == restaurantId);
+
+            var queryDTO = query.Select(r => _mapper.Map<CategoryRoomDto>(r));
+
+            var paginatedDTOs = await PaginatedList<CategoryRoomDto>.CreateAsync(
+                queryDTO.AsNoTracking(),
+                pageNumber > 0 ? pageNumber : 1,
+                pageSize > 0 ? pageSize : 10
+            );
+
+            return paginatedDTOs;
         }
 
-        public Task<bool> UpdateAsync(CategoryRoomDto categoryRoom)
+        public async Task<bool> UpdateAsync(CategoryRoomDto categoryRoom)
         {
-            throw new NotImplementedException();
+            var existingCategoryRoom = await _categoryRoomRepository.GetByIdAsync(categoryRoom.CategoryRoomId);
+            if (existingCategoryRoom == null)
+            {
+                return false;
+            }
+            var category = _mapper.Map<CategoryRoom>(categoryRoom);
+            return await _categoryRoomRepository.UpdateAsync(category);
         }
     }
 }
