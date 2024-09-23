@@ -19,6 +19,7 @@ using TOPDER.Service.Dtos.Notification;
 using TOPDER.Service.Dtos.Wishlist;
 using TOPDER.Service.Dtos.ChatBox;
 using TOPDER.Service.Dtos.Chat;
+using TOPDER.Service.Dtos.OrderMenu;
 
 namespace TOPDER.Service.Mapper
 {
@@ -189,6 +190,13 @@ namespace TOPDER.Service.Mapper
                                                         src.ChatByNavigation.Admin != null ? src.ChatByNavigation.Admin.Image : Is_Null.ISNULL)
                                                      : Is_Null.ISNULL));
 
+            // OrderMenu
+            CreateMap<CreateOrUpdateOrderMenuDto, OrderMenu>().ReverseMap();
+            CreateMap<OrderMenu, OrderMenuDto>()
+                .ForMember(dest => dest.MenuName,
+                           opt => opt.MapFrom(src => src.Menu != null ? src.Menu.DishName : Is_Null.ISNULL))
+                .ForMember(dest => dest.MenuImage,
+                           opt => opt.MapFrom(src => src.Menu != null ? src.Menu.Image : Is_Null.ISNULL));
         }
     }
 }
