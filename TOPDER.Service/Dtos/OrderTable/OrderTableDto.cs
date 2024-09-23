@@ -11,8 +11,9 @@ namespace TOPDER.Service.Dtos.OrderTable
         public int OrderTableId { get; set; }
         public int OrderId { get; set; }
         public int TableId { get; set; }
+        public int? RoomId { get; set; }
+        public string? RoomName { get; set; }
         public string TableName { get; set; } = null!;
         public int MaxCapacity { get; set; }
-
     }
 }

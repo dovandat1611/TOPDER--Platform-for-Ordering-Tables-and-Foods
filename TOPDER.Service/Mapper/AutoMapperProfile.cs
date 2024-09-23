@@ -203,6 +203,10 @@ namespace TOPDER.Service.Mapper
             // ORDER TABLE
             CreateMap<CreateOrUpdateOrderTableDto, OrderTable>().ReverseMap();
             CreateMap<OrderTable, OrderTableDto>()
+                .ForMember(dest => dest.RoomId,
+                           opt => opt.MapFrom(src => src.Table.RoomId))
+                .ForMember(dest => dest.RoomName,
+                           opt => opt.MapFrom(src => src.Table != null && src.Table.Room != null ? src.Table.Room.RoomName : null))
                 .ForMember(dest => dest.TableName,
                            opt => opt.MapFrom(src => src.Table != null ? src.Table.TableName : Is_Null.ISNULL))
                 .ForMember(dest => dest.MaxCapacity,
