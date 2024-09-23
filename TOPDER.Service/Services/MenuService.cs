@@ -52,6 +52,8 @@ namespace TOPDER.Service.Services
                         new ExcelColumnConfiguration { ColumnName = "DishName", Position = 1, IsRequired = true },
                         new ExcelColumnConfiguration { ColumnName = "Price", Position = 2, IsRequired = true },
                         new ExcelColumnConfiguration { ColumnName = "Description", Position = 3, IsRequired = false },
+                        new ExcelColumnConfiguration { ColumnName = "CategoryMenuId", Position = 4, IsRequired = false },
+
                     };
 
                 var data = await _excelService.ReadFromExcelAsync(createExcelMenuDto.File, columnConfigurations);
@@ -64,6 +66,7 @@ namespace TOPDER.Service.Services
                         DishName = row["DishName"],
                         Price = Convert.ToDecimal(row["Price"]),
                         Description = row.TryGetValue("Description", out var description) ? description : null,
+                        CategoryMenuId = row.ContainsKey("CategoryMenuId") && !string.IsNullOrEmpty(row["CategoryMenuId"]) ? (int?)Convert.ToInt32(row["CategoryMenuId"]) : null, 
                         Status = Common_Status.ACTIVE
                     })
                     .ToList();
