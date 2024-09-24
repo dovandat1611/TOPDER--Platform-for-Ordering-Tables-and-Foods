@@ -27,6 +27,8 @@ using TOPDER.Service.Dtos.RestaurantRoom;
 using TOPDER.Service.Dtos.ExternalLogin;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.Dtos.WalletTransaction;
+using TOPDER.Service.Dtos.Admin;
+using TOPDER.Service.Dtos.Order;
 
 namespace TOPDER.Service.Mapper
 {
@@ -250,8 +252,11 @@ namespace TOPDER.Service.Mapper
                 .ForMember(dest => dest.BankCode,
                            opt => opt.MapFrom(src => src.Wallet != null ? src.Wallet.BankCode : Is_Null.ISNULL));
 
+            // ADMIN 
+            CreateMap<AdminDto, Admin>().ReverseMap();
 
-
+            // ORDER 
+            CreateMap<OrderDto, Order>().ReverseMap();
 
         }
     }

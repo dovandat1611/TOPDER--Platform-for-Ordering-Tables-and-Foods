@@ -46,5 +46,11 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string RESTAURANT = "Restaurant";
         }
 
+        public class Order_Type
+        {
+            public static string RESERVATION = "Reservation";
+            public static string DELIVERY = "Delivery ";
+        }
+
     }
 }
