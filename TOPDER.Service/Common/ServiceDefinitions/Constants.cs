@@ -20,6 +20,20 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string ISNULL = "N/A";
         }
 
+        public class Transaction_Type
+        {
+            public static string DEPOSIT = "Deposit";
+            public static string WITHDRAW = "Withdraw";
+            public static string SYSTEMADD = "SystemAdd";
+            public static string SYSTEMSUBTRACT = "SystemSubtract";
+        }
+
+        public class Transaction_Status
+        {
+            public static string PENDING = "Pending";
+            public static string COMPLETE = "Complete";
+        }
+
         public class Log_Type
         {
             public static string FEE_PERCENT = "Fee-Percent";
