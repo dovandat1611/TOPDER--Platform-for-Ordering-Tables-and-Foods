@@ -32,7 +32,7 @@ namespace TOPDER.Repository.Entities
         public string? Description { get; set; }
         public string? Subdescription { get; set; }
         public string Location { get; set; } = null!;
-        public string? Discount { get; set; }
+        public decimal? Discount { get; set; }
         public int MaxCapacity { get; set; }
         public decimal Price { get; set; }
         public bool? IsBookingEnabled { get; set; }

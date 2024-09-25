@@ -48,6 +48,30 @@ namespace TOPDER.Service.Mapper
 
             CreateMap<CreateRestaurantRequest, Restaurant>();
 
+            CreateMap<Restaurant, RestaurantDetailDto>()
+                .ForMember(dest => dest.CategoryName,
+                           opt => opt.MapFrom(src => src.CategoryRestaurant != null ? src.CategoryRestaurant.CategoryRestaurantName : string.Empty))
+                .ForMember(dest => dest.TotalFeedbacks,
+                           opt => opt.MapFrom(src => src.Feedbacks != null ? src.Feedbacks.Count() : 0))
+                .ForMember(dest => dest.Star,
+                           opt => opt.MapFrom(src => src.Feedbacks != null && src.Feedbacks.Any()
+                                ? (int)Math.Round(src.Feedbacks.Average(r => r.Star ?? 0))
+                                : 0))
+                .ForMember(dest => dest.Images,
+                           opt => opt.MapFrom(src => src.Images)) 
+                .ForMember(dest => dest.RelateRestaurant,
+                           opt => opt.Ignore())
+                .ForMember(dest => dest.MinPriceMenu,
+                           opt => opt.MapFrom(src => src.Menus != null && src.Menus.Any()
+                                ? src.Menus.Min(m => m.Price)
+                                : 0))
+                .ForMember(dest => dest.MaxPriceMenu,
+                           opt => opt.MapFrom(src => src.Menus != null && src.Menus.Any()
+                                ? src.Menus.Max(m => m.Price)
+                                : 0));
+
+
+
             // CATEGORY MENU
             CreateMap<CategoryMenuDto, CategoryMenu>().ReverseMap();
 

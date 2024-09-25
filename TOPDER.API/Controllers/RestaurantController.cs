@@ -22,20 +22,20 @@ namespace TOPDER.API.Controllers
             _sendMailService = sendMailService;
         }
 
-        [HttpGet("restaurant-home")]
-        public async Task<IActionResult> RestaurantHome(int pageNumber, int pageSize)
-        {
-            var paginatedDTOs = await _restaurantService.GetPagingAsync(pageNumber, pageSize);
+        //[HttpGet("restaurant-home")]
+        //public async Task<IActionResult> RestaurantHome(int pageNumber, int pageSize)
+        //{
+        //    var paginatedDTOs = await _restaurantService.GetItemsAsync(pageNumber, pageSize);
 
-            var response = new PaginatedResponseDto<RestaurantHomeDto>(
-                paginatedDTOs,
-                paginatedDTOs.PageIndex,
-                paginatedDTOs.TotalPages,
-                paginatedDTOs.HasPreviousPage,
-                paginatedDTOs.HasNextPage
-            );
-            return Ok(response);
-        }
+        //    var response = new PaginatedResponseDto<RestaurantHomeDto>(
+        //        paginatedDTOs,
+        //        paginatedDTOs.PageIndex,
+        //        paginatedDTOs.TotalPages,
+        //        paginatedDTOs.HasPreviousPage,
+        //        paginatedDTOs.HasNextPage
+        //    );
+        //    return Ok(response);
+        //}
 
 
         [HttpGet("send-mail")]

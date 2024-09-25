@@ -39,6 +39,15 @@ namespace TOPDER.Service.Dtos.Restaurant
         [EmailAddress(ErrorMessage = "Email must be a valid email address.")]
         public string Email { get; set; } = null!;
 
+        [Required(ErrorMessage = "Price is required.")]
+        [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "Price must be greater than zero.")]
+        public decimal Price { get; set; }
+
+        [Required(ErrorMessage = "Maximum capacity is required.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Maximum capacity must be at least 1.")]
+        public int MaxCapacity { get; set; }
+
+
         [Required(ErrorMessage = "Location is required.")]
         [StringLength(100, ErrorMessage = "Location cannot be longer than 100 characters.")]
         public string Location { get; set; } = null!;

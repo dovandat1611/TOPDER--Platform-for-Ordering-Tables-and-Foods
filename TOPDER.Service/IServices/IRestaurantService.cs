@@ -14,10 +14,8 @@ namespace TOPDER.Service.IServices
         Task<bool> AddAsync(CreateRestaurantRequest restaurant);
         Task<bool> UpdateItemAsync(Restaurant restaurant);
         Task<bool> RemoveItemAsync(int id);
-        Task<PaginatedList<RestaurantHomeDto>> GetPagingAsync(int pageNumber, int pageSize);
-        Task<IEnumerable<RestaurantHomeDto>> GetAllItemsAsync();
-        Task<RestaurantHomeDto> GetItemAsync(int id);
-        Task<IEnumerable<RestaurantHomeDto>> SearchItemsByNameAsync(string name);
-        Task<IEnumerable<RestaurantHomeDto>> SearchItemsByAddressAsync(string address);
+        Task<RestaurantDetailDto> GetItemAsync(int id);
+        Task<PaginatedList<RestaurantHomeDto>> GetItemsAsync(int pageNumber, int pageSize, string? name, string? address,
+            string? location, int? restaurantCategory, decimal? minPrice, decimal? maxPrice, int? maxCapacity);
     }
 }
