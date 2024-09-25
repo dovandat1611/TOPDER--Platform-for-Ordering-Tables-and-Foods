@@ -58,7 +58,7 @@ namespace TOPDER.API.Controllers
                     Uid = 0,
                     Email = restaurantRequest.Email,
                     RoleId = 2,
-                    Password = restaurantRequest.Password,
+                    Password = BCrypt.Net.BCrypt.HashPassword(restaurantRequest.Password),
                     OtpCode = string.Empty,
                     IsVerify = false,
                     Status = Common_Status.INACTIVE,

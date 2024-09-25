@@ -92,12 +92,16 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IWalletService, WalletService>();
 builder.Services.AddTransient<IWalletTransactionService, WalletTransactionService>();
 builder.Services.AddTransient<IWishlistService, WishlistService>();
+builder.Services.AddTransient<IWishlistService, WishlistService>();
+
 
 
 // Other: ASK CHAT GPT
-builder.Services.AddTransient<CloudinaryService>();
-builder.Services.AddTransient<ISendMailService, SendMailService>();
-builder.Services.AddScoped<IExcelService, ExcelService>();
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+builder.Services.AddScoped<ISendMailService, SendMailService>();
+builder.Services.AddTransient<IExcelService, ExcelService>();
+builder.Services.AddScoped<IPaymentGatewayService, PaymentGatewayService>();
+
 
 // Configure MailSettings
 var mailSettingsSection = builder.Configuration.GetSection("MailSettings");

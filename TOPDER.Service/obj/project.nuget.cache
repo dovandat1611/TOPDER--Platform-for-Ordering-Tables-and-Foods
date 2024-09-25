@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "dq+dK6RR+jqPHUm8pWSE1mYBIth3JLdOWoVH2SkwdV1X7RRQnmiYQ9aeh1yPcUt+D7GAGJPaHEI9yP4f0cyi2w==",
+  "dgSpecHash": "3t1JzV3qvOuh2zSIbv7hWLQTSMpM/RvwBGZORGs5u8h00PVvw+ICfekM65CXSQMrydvYBIh9ci7J7pK6s3v0Zw==",
   "success": true,
   "projectFilePath": "C:\\Users\\Lenovo\\Documents\\C#\\CAPSTONE\\TOPDER\\TOPDER.Service\\TOPDER.Service.csproj",
   "expectedPackageFiles": [
@@ -54,6 +54,7 @@
     "C:\\Users\\Lenovo\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\mimekit\\4.7.1\\mimekit.4.7.1.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\Lenovo\\.nuget\\packages\\payos\\1.0.6\\payos.1.0.6.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl\\4.3.2\\runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl\\4.3.2\\runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl\\4.3.2\\runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
