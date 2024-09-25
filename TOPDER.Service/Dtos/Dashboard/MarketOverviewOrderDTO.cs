@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TOPDER.Service.Dtos.DashboardRestaurant;
 
-namespace TOPDER.Service.Dtos.DashboardAdmin
+namespace TOPDER.Service.Dtos.Dashboard
 {
-    public class MarketOverviewOrderAdminDTO
+    public class MarketOverviewOrderDTO
     {
         public int OrderForYear { get; set; }
         public double OrderGrowthRateForYear { get; set; }

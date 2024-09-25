@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TOPDER.Service.Dtos.DashboardAdmin
+namespace TOPDER.Service.Dtos.Dashboard
 {
     public class ChartCategoryRestaurantDTO
     {

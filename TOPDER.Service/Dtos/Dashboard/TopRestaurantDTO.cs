@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TOPDER.Service.Dtos.DashboardAdmin
+namespace TOPDER.Service.Dtos.Dashboard
 {
     public class TopRestaurantDTO
     {
@@ -14,5 +14,4 @@ namespace TOPDER.Service.Dtos.DashboardAdmin
         public int TotalOrder { get; set; }
         public double TotalInCome { get; set; }
     }
-
 }

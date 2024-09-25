@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TOPDER.Service.Dtos.Dashboard;
 
-namespace TOPDER.Service.Dtos.DashboardRestaurant
+namespace TOPDER.Service.Dtos.Dashboard
 {
-    public class MarketOverviewTotalInComeRestaurantDTO
+    public class MarketOverviewTotalInComeDTO
     {
         public double TotalInComeForYear { get; set; }
         public double TotalInComeGrowthRateForYear { get; set; }
-        public List<ChartTotalInComeRestaurantDTO> MonthlyTotalInComeData { get; set; } = null!;
+        public List<ChartTotalInComeDTO> MonthlyTotalInComeData { get; set; } = null!;
     }
 }

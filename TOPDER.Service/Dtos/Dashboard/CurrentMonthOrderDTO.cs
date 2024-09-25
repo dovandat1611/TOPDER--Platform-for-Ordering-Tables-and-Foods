@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TOPDER.Service.Dtos.DashboardRestaurant
+namespace TOPDER.Service.Dtos.Dashboard
 {
-    public class RestaurantCurrentMonthOrder
+    public class CurrentMonthOrderDTO
     {
         public int CurrentMonthOrder { get; set; }
         public double OrderGrowthRate { get; set; }

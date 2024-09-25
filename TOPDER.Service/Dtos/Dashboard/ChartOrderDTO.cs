@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TOPDER.Service.Dtos.DashboardRestaurant
+namespace TOPDER.Service.Dtos.Dashboard
 {
-    public class ChartOrderRestaurantDTO
+    public class ChartOrderDTO
     {
         public int Month { get; set; }
-        public int TotalOrder { get; set; }
+        public int TotalOrders { get; set; }
     }
 }

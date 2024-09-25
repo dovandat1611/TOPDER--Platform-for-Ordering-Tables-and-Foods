@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TOPDER.Service.Dtos.DashboardAdmin
+namespace TOPDER.Service.Dtos.Dashboard
 {
-    public class TaskBarDTO
+    public class TaskBarAdminDTO
     {
         // Tổng từ database
         public int TotalOrder { get; set; }
@@ -14,8 +14,8 @@ namespace TOPDER.Service.Dtos.DashboardAdmin
         public int TotalRestaurant { get; set; }
         public double TotalIncome { get; set; }
 
-        public AdminCurrentMonthIncome CurrentMonthIncome { get; set; } = null!;
-        public AdminCurrentMonthOrder CurrentMonthOrder { get; set; } = null!;
+        public CurrentMonthIncomeDTO CurrentMonthIncome { get; set; } = null!;
+        public CurrentMonthOrderDTO CurrentMonthOrder { get; set; } = null!;
 
 
     }
