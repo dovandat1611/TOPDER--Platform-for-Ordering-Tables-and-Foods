@@ -28,6 +28,6 @@ namespace TOPDER.Service.Dtos.Restaurant
         public decimal? ReturningFeePercent { get; set; }
         public decimal? CancellationFeePercent { get; set; }
         public List<ImageDto> Images { get; set; } = null!;
-        public List<RestaurantHomeDto> RelateRestaurant { get; set; } = null!;
+        public List<RestaurantDto> RelateRestaurant { get; set; } = null!;
     }
 }

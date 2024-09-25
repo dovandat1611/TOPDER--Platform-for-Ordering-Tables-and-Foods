@@ -8,7 +8,7 @@ using TOPDER.Repository.IRepositories;
 
 namespace TOPDER.Repository.Repositories
 {
-    internal class OrderMenuRepository : GenericRepository<OrderMenu>, IOrderMenuRepository
+    public class OrderMenuRepository : GenericRepository<OrderMenu>, IOrderMenuRepository
     {
         public OrderMenuRepository(TopderDBContext dbContext) : base(dbContext) { }
     }

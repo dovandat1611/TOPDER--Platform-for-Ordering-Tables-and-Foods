@@ -5,6 +5,8 @@ namespace TOPDER.Service.Dtos.Restaurant
 {
     public class CreateRestaurantRequest
     {
+        public int Uid { get; set; }
+
         [Required(ErrorMessage = "CategoryId is required.")]
         public int? CategoryId { get; set; }
 
@@ -15,7 +17,6 @@ namespace TOPDER.Service.Dtos.Restaurant
         [Required(ErrorMessage = "NameRes is required.")]
         [StringLength(150, ErrorMessage = "NameRes cannot be longer than 150 characters.")]
         public string NameRes { get; set; } = null!;
-
         public string? Image { get; set; }
 
         [Required(ErrorMessage = "File is required.")]
@@ -47,7 +48,6 @@ namespace TOPDER.Service.Dtos.Restaurant
         [Range(1, int.MaxValue, ErrorMessage = "Maximum capacity must be at least 1.")]
         public int MaxCapacity { get; set; }
 
-
         [Required(ErrorMessage = "Location is required.")]
         [StringLength(100, ErrorMessage = "Location cannot be longer than 100 characters.")]
         public string Location { get; set; } = null!;
@@ -60,8 +60,5 @@ namespace TOPDER.Service.Dtos.Restaurant
         [DataType(DataType.Password)]
         [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be between 6 and 100 characters.")]
         public string Password { get; set; } = null!;
-
-        [StringLength(50, ErrorMessage = "Status cannot be longer than 50 characters.")]
-        public string? Status { get; set; }
     }
 }

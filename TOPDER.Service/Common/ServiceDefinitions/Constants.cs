@@ -15,6 +15,13 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string INACTIVE = "In-Active";
         }
 
+        public class Email_Subject
+        {
+            public static string REGISTER = "Chào Mừng Bạn Đến Với TOPDER";
+            public static string VERIFY = "Xác Thực Email - TOPDER";
+            public static string OTP = "Mã Xác Nhận OTP - TOPDER";
+        }
+
         public class Is_Null
         {
             public static string ISNULL = "N/A";

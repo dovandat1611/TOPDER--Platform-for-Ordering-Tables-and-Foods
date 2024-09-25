@@ -11,11 +11,12 @@ namespace TOPDER.Service.IServices
 {
     public interface IRestaurantService
     {
-        Task<bool> AddAsync(CreateRestaurantRequest restaurant);
+        Task<Restaurant> AddAsync(CreateRestaurantRequest restaurant);
         Task<bool> UpdateItemAsync(Restaurant restaurant);
         Task<bool> RemoveItemAsync(int id);
         Task<RestaurantDetailDto> GetItemAsync(int id);
-        Task<PaginatedList<RestaurantHomeDto>> GetItemsAsync(int pageNumber, int pageSize, string? name, string? address,
+        Task<RestaurantHomeDto> GetHomeItemsAsync();
+        Task<PaginatedList<RestaurantDto>> GetItemsAsync(int pageNumber, int pageSize, string? name, string? address,
             string? location, int? restaurantCategory, decimal? minPrice, decimal? maxPrice, int? maxCapacity);
     }
 }

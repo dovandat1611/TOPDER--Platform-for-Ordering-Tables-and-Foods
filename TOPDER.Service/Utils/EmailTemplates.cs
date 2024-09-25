@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using TOPDER.Service.Dtos.Email;
@@ -9,6 +10,47 @@ namespace TOPDER.Service.Utils
 {
     public class EmailTemplates
     {
+
+        public static string Verify(string name, int uid)
+        {
+            return $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta name='viewport' content='width=device-width, initial-scale=1'>
+            </head>
+            <body style='font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;'>
+                <div style='margin: 20px auto; max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); overflow: hidden;'>
+                    <div style='background-color: #f29034; padding: 20px; text-align: center; color: #ffffff; font-size: 1.5rem; font-weight: bold;'>
+                        Xác Thực Email - <span style='color: #ffffff;'>TOPDER!</span>
+                    </div>
+                    <div style='padding: 20px; text-align: center; color: #272241;'>
+                        <img src='https://res.cloudinary.com/do9iyczi3/image/upload/v1726643328/LOGO-TOPDER_qonl9l.png' alt='Logo TOPDER' width='150' style='display: block; margin: 0 auto;' />
+                        <div style='background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 8px rgba(8, 120, 211, 0.1); text-align: left;'>
+                            <p>Xin chào, <span style='font-weight: bold; color: #272241;'>{name}</span></p>
+                            <p>Chúng tôi thấy bạn đang gửi yêu cầu xác thực địa chỉ email này để tạo tài khoản trên <span style='font-weight: bold; color: #272241;'>TOPDER</span>.</p>
+                            <p>Để xác nhận email đăng ký, bạn vui lòng click vào nút &quot;Xác thực&quot; bên dưới.</p>
+                            <br><br>
+                            <div style='text-align: center;'>
+                                <a href='/api/verify-email/uid={uid}' style='display: inline-block; background-color: #f29034; color: #ffffff; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;'>
+                                  Xác Thực
+                                </a>
+                            </div>
+                            <br><br>
+                            <p>Để biết thêm thông tin, vui lòng truy cập <a href='https://www.topder.vn' style='color: #f29034; text-decoration: none;'>website</a> của chúng tôi.</p>
+                            <p>Xin chân thành cảm ơn!</p>
+                            <p>Hân hạnh,</p>
+                            <p style='font-weight: 700; color: #272241;'>Đội ngũ TOPDER</p>
+                        </div>
+                    </div>
+                    <div style='background-color: #f29034; padding: 10px; text-align: center; color: #ffffff; font-size: 0.875rem; font-weight: bold;'>
+                        © 2024 | Bản quyền thuộc về TOPDER.
+                    </div>
+                </div>
+            </body>
+            </html>";
+        }
+
         public static string OTP(string name, int otp)
         {
             return $@"

@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Common.ServiceDefinitions;
-
+using TOPDER.Repository.Entities;
+using TOPDER.Service.Dtos.Restaurant;
+using TOPDER.Service.Dtos.User;
+using TOPDER.Repository.Repositories;
+using TOPDER.Service.Dtos.Contact;
 
 namespace TOPDER.Service.Services
 {
@@ -22,5 +26,10 @@ namespace TOPDER.Service.Services
             _mapper = mapper;
         }
 
+        public async Task<User> AddAsync(UserDto userDto)
+        {
+            var user = _mapper.Map<User>(userDto);
+            return await _userRepository.CreateAndReturnAsync(user);
+        }
     }
 }

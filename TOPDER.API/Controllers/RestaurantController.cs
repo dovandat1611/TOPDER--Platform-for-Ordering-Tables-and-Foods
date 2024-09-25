@@ -4,6 +4,8 @@ using Service.Services;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Restaurant;
 using TOPDER.Service.IServices;
+using TOPDER.Service.Utils;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.API.Controllers
 {
@@ -22,70 +24,49 @@ namespace TOPDER.API.Controllers
             _sendMailService = sendMailService;
         }
 
-        //[HttpGet("restaurant-home")]
-        //public async Task<IActionResult> RestaurantHome(int pageNumber, int pageSize)
-        //{
-        //    var paginatedDTOs = await _restaurantService.GetItemsAsync(pageNumber, pageSize);
-
-        //    var response = new PaginatedResponseDto<RestaurantHomeDto>(
-        //        paginatedDTOs,
-        //        paginatedDTOs.PageIndex,
-        //        paginatedDTOs.TotalPages,
-        //        paginatedDTOs.HasPreviousPage,
-        //        paginatedDTOs.HasNextPage
-        //    );
-        //    return Ok(response);
-        //}
-
-
-        [HttpGet("send-mail")]
-        public async Task<IActionResult> SendMail(string to, string subject, string body)
+        // GET api/restaurant/items
+        [HttpGet("customer/items")]
+        public async Task<IActionResult> GetItems([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10,
+            [FromQuery] string? name = null, [FromQuery] string? address = null,
+            [FromQuery] string? location = null, [FromQuery] int? restaurantCategory = null,
+            [FromQuery] decimal? minPrice = null, [FromQuery] decimal? maxPrice = null,
+            [FromQuery] int? maxCapacity = null)
         {
-            if (string.IsNullOrEmpty(to) || string.IsNullOrEmpty(subject) || string.IsNullOrEmpty(body))
-            {
-                return BadRequest("To, Subject, and Body are required.");
-            }
-            try
-            {
-                await _sendMailService.SendEmailAsync(to, subject, body);
-                return Ok("Email sent successfully.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            var result = await _restaurantService.GetItemsAsync(pageNumber, pageSize, name, address, location,
+                restaurantCategory, minPrice, maxPrice, maxCapacity);
+
+            var response = new PaginatedResponseDto<RestaurantDto>(
+                result,
+                result.PageIndex,
+                result.TotalPages,
+                result.HasPreviousPage,
+                result.HasNextPage
+            );
+            return Ok(response);
         }
 
-        [HttpPost("register-restaurant")]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> Register([FromForm] CreateRestaurantRequest restaurantRequest)
+        [HttpGet("customer/home")]
+        public async Task<IActionResult> GetHomeItems()
         {
-            if (restaurantRequest.File == null || restaurantRequest.File.Length == 0)
-            {
-                return BadRequest("No file was uploaded.");
-            }
+            var result = await _restaurantService.GetHomeItemsAsync();
+            return Ok(result);
+        }
 
-            var uploadResult = await _cloudinaryService.UploadImageAsync(restaurantRequest.File);
-
-            if (uploadResult == null)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Image upload failed.");
-            }
-
-            restaurantRequest.Image = uploadResult.SecureUrl?.ToString();
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        [HttpGet("customer/detail/{id}")]
+        public async Task<IActionResult> GetItem(int id)
+        {
             try
             {
-                var addedRestaurant = await _restaurantService.AddAsync(restaurantRequest);
-                return Ok(addedRestaurant);
+                var result = await _restaurantService.GetItemAsync(id);
+                return Ok(result);
             }
-            catch (Exception ex)
+            catch (KeyNotFoundException ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Failed to create restaurant: {ex.Message}");
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 

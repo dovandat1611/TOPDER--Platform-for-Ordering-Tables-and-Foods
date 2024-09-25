@@ -32,6 +32,12 @@ namespace TOPDER.Repository.Repositories
             int result = await _dbContext.SaveChangesAsync();
             return result > 0; 
         }
+        public async Task<T> CreateAndReturnAsync(T entity)
+        {
+            await _dbContext.Set<T>().AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
+            return entity;
+        }
 
         public async Task<bool> DeleteAsync(int id)
         {
@@ -94,6 +100,7 @@ namespace TOPDER.Repository.Repositories
             await UpdateAsync(entity);
             return true;
         }
+
 
     }
 }
