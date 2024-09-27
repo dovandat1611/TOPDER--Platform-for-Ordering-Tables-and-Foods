@@ -7,6 +7,7 @@ using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 using TOPDER.Service.Utils;
 using TOPDER.Service.Dtos.User;
 using TOPDER.Repository.Entities;
+using TOPDER.Service.Dtos.Wallet;
 
 namespace TOPDER.API.Controllers
 {
@@ -18,15 +19,17 @@ namespace TOPDER.API.Controllers
         private readonly IUserService _userService;
         private readonly ICustomerService _customerService;
         private readonly CloudinaryService _cloudinaryService;
+        private readonly IWalletService _walletService;
         private readonly ISendMailService _sendMailService;
 
-        public UserController(IRestaurantService restaurantService, CloudinaryService cloudinaryService, ISendMailService sendMailService, IUserService userService, ICustomerService customerService)
+        public UserController(IRestaurantService restaurantService, CloudinaryService cloudinaryService, ISendMailService sendMailService, IUserService userService, ICustomerService customerService, IWalletService walletService)
         {
             _restaurantService = restaurantService;
             _cloudinaryService = cloudinaryService;
             _sendMailService = sendMailService;
             _userService = userService;
             _customerService = customerService;
+            _walletService = walletService;
         }
 
         [HttpPost("restaurant/register")]
@@ -65,10 +68,27 @@ namespace TOPDER.API.Controllers
                     IsExternalLogin = false,
                     CreatedAt = DateTime.Now,
                 };
+
+                //ADD USER
                 var user = await _userService.AddAsync(userDto);
+
+                // ADD WALLET
+                WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
+                {
+                    WalletId = 0,
+                    Uid = user.Uid,
+                    WalletBalance = 0
+                };
+                
+                var wallet = await _walletService.AddWalletBalanceAsync(walletBalanceDto);
+                
+                // ADD RESTAURANT
                 restaurantRequest.Uid = user.Uid; 
                 var addedRestaurant = await _restaurantService.AddAsync(restaurantRequest);
+                
+                // SEND EMAIL
                 await _sendMailService.SendEmailAsync(user.Email, Email_Subject.VERIFY, EmailTemplates.Verify(addedRestaurant.NameRes, user.Uid));
+                
                 return Ok(addedRestaurant);
             }
             catch (Exception ex)
@@ -77,6 +97,17 @@ namespace TOPDER.API.Controllers
             }
         }
 
+
+        [HttpGet("verify/{id}")]
+        public async Task<IActionResult> VerifyUser(int id)
+        {
+            var isVerified = await _userService.Verify(id);
+            if (!isVerified)
+            {
+                return NotFound("User not found or already verified.");
+            }
+            return Ok("User successfully verified.");
+        }
 
     }
 }

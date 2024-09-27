@@ -56,7 +56,6 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
-
         public async Task<bool> RemoveAsync(int id)
         {
             var chatBox = await _chatBoxRepository.GetByIdAsync(id);

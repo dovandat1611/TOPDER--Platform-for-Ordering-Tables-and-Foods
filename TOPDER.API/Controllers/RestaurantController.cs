@@ -24,8 +24,7 @@ namespace TOPDER.API.Controllers
             _sendMailService = sendMailService;
         }
 
-        // GET api/restaurant/items
-        [HttpGet("customer/items")]
+        [HttpGet("customer/service")]
         public async Task<IActionResult> GetItems([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10,
             [FromQuery] string? name = null, [FromQuery] string? address = null,
             [FromQuery] string? location = null, [FromQuery] int? restaurantCategory = null,

@@ -31,5 +31,17 @@ namespace TOPDER.Service.Services
             var user = _mapper.Map<User>(userDto);
             return await _userRepository.CreateAndReturnAsync(user);
         }
+
+        public async Task<bool> Verify(int id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null || user.IsVerify)
+            {
+                return user != null; 
+            }
+            user.IsVerify = true;
+            return await _userRepository.UpdateAsync(user);
+        }
+
     }
 }

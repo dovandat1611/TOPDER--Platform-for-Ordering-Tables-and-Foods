@@ -20,6 +20,7 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string REGISTER = "Chào Mừng Bạn Đến Với TOPDER";
             public static string VERIFY = "Xác Thực Email - TOPDER";
             public static string OTP = "Mã Xác Nhận OTP - TOPDER";
+            public static string CONTACT = "Liên Hệ Với TOPDER";
         }
 
         public class Is_Null
