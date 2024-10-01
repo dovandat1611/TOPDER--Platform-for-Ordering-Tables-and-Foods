@@ -73,7 +73,7 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _discountRepository.QueryableAsync();
 
-            var query = queryable.Where(x => x.RestaurantId == restaurantId);
+            var query = queryable.Where(x => x.RestaurantId == restaurantId).OrderByDescending(x => x.DiscountId);
 
             var queryDTO = query.Select(r => _mapper.Map<DiscountDto>(r));
 

@@ -18,7 +18,7 @@ namespace TOPDER.API.Controllers
             _chatBoxService = chatBoxService;
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> CreateChatBox([FromBody] CreateChatBoxDto chatBoxDto)
         {
             if (!ModelState.IsValid)
@@ -33,7 +33,7 @@ namespace TOPDER.API.Controllers
             return BadRequest("Tạo Chat Box thất bại.");
         }
 
-        [HttpGet("detail/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetChatBox(int id)
         {
             try
@@ -47,10 +47,10 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpGet("list/{userId}")]
-        public async Task<IActionResult> GetChatBoxPaging(int pageNumber, int pageSize, int userId)
+        [HttpGet("list/{id}")]
+        public async Task<IActionResult> GetChatBoxPaging(int pageNumber, int pageSize, int id)
         {
-            var result = await _chatBoxService.GetPagingAsync(pageNumber, pageSize, userId);
+            var result = await _chatBoxService.GetPagingAsync(pageNumber, pageSize, id);
 
             var response = new PaginatedResponseDto<ChatBoxDto>(
                 result,

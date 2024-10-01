@@ -16,8 +16,7 @@ namespace TOPDER.Service.IServices
         Task<bool> UpdateAsync(MenuDto menuDto);
         Task<bool> RemoveAsync(int id, int restaurantId);
         Task<MenuRestaurantDto> GetItemAsync(int id, int restaurantId);
-        Task<PaginatedList<MenuRestaurantDto>> GetPagingAsync(int pageNumber, int pageSize, int restaurantId);
-        Task<PaginatedList<MenuRestaurantDto>> SearchPagingAsync(int pageNumber, int pageSize, int restaurantId, int categoryMenuId, string menuName);
-        Task<PaginatedList<MenuCustomerDto>> GetCustomerPagingAsync(int pageNumber, int pageSize, int restaurantId);
+        Task<PaginatedList<MenuRestaurantDto>> ListRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId, int? categoryMenuId, string? menuName);
+        Task<PaginatedList<MenuCustomerDto>> ListCustomerPagingAsync(int pageNumber, int pageSize, int restaurantId);
     }
 }

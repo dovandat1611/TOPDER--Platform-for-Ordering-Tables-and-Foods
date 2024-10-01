@@ -19,7 +19,7 @@ namespace TOPDER.API.Controllers
             _discountService = discountService;
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<ActionResult> AddDiscount([FromBody] DiscountDto discountDto)
         {
             if (!ModelState.IsValid)
@@ -34,7 +34,7 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpGet("customer/available/{restaurantId}")]
+        [HttpGet("available/{restaurantId}")]
         public async Task<ActionResult> GetAvailableDiscounts(int pageNumber, int pageSize, int restaurantId)
         {
             var result = await _discountService.GetAvailableDiscountsAsync(pageNumber, pageSize, restaurantId);
@@ -48,7 +48,7 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("detail/{id}/{restaurantId}")]
+        [HttpGet("{restaurantId}/{id}")]
         public async Task<ActionResult> GetItem(int id, int restaurantId)
         {
             try
@@ -66,7 +66,7 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpGet("restaurant/{restaurantId}")]
+        [HttpGet("list/{restaurantId}")]
         public async Task<ActionResult> GetRestaurantPaging(int pageNumber, int pageSize, int restaurantId)
         {
             var result = await _discountService.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId);
@@ -78,7 +78,6 @@ namespace TOPDER.API.Controllers
                 result.HasPreviousPage,
                 result.HasNextPage
             );
-
             return Ok(response);
         }
 
@@ -93,7 +92,7 @@ namespace TOPDER.API.Controllers
             return NotFound("Giảm giá không tồn tại hoặc không thuộc về nhà hàng.");
         }
 
-        [HttpPut("update")]
+        [HttpPut]
         public async Task<ActionResult> UpdateDiscount([FromBody] DiscountDto discountDto)
         {
             if (!ModelState.IsValid)

@@ -30,6 +30,7 @@ using TOPDER.Service.Dtos.WalletTransaction;
 using TOPDER.Service.Dtos.Admin;
 using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.User;
+using TOPDER.Service.Dtos.Role;
 
 namespace TOPDER.Service.Mapper
 {
@@ -51,7 +52,7 @@ namespace TOPDER.Service.Mapper
 
             CreateMap<Restaurant, RestaurantDetailDto>()
                 .ForMember(dest => dest.CategoryName,
-                           opt => opt.MapFrom(src => src.CategoryRestaurant != null ? src.CategoryRestaurant.CategoryRestaurantName : string.Empty))
+                           opt => opt.MapFrom(src => src.CategoryRestaurant != null ? src.CategoryRestaurant.CategoryRestaurantName : Is_Null.ISNULL))
                 .ForMember(dest => dest.TotalFeedbacks,
                            opt => opt.MapFrom(src => src.Feedbacks != null ? src.Feedbacks.Count() : 0))
                 .ForMember(dest => dest.Star,
@@ -285,6 +286,10 @@ namespace TOPDER.Service.Mapper
 
             // USER 
             CreateMap<UserDto, User>().ReverseMap();
+
+            //ROLE
+            CreateMap<RoleDto, Role>().ReverseMap();
+
 
 
         }

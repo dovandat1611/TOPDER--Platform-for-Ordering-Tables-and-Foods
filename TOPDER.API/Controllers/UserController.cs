@@ -18,11 +18,11 @@ namespace TOPDER.API.Controllers
         private readonly IRestaurantService _restaurantService;
         private readonly IUserService _userService;
         private readonly ICustomerService _customerService;
-        private readonly CloudinaryService _cloudinaryService;
+        private readonly ICloudinaryService _cloudinaryService;
         private readonly IWalletService _walletService;
         private readonly ISendMailService _sendMailService;
 
-        public UserController(IRestaurantService restaurantService, CloudinaryService cloudinaryService, ISendMailService sendMailService, IUserService userService, ICustomerService customerService, IWalletService walletService)
+        public UserController(IRestaurantService restaurantService, ICloudinaryService cloudinaryService, ISendMailService sendMailService, IUserService userService, ICustomerService customerService, IWalletService walletService)
         {
             _restaurantService = restaurantService;
             _cloudinaryService = cloudinaryService;
@@ -48,7 +48,7 @@ namespace TOPDER.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Image upload failed.");
             }
 
-            restaurantRequest.Image = uploadResult.SecureUrl?.ToString();
+            restaurantRequest.Logo = uploadResult.SecureUrl?.ToString();
 
             if (!ModelState.IsValid)
             {
@@ -93,7 +93,8 @@ namespace TOPDER.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Failed to create restaurant: {ex.Message}");
+                var errorMessage = ex.InnerException?.Message ?? ex.Message;
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Failed to create restaurant: {errorMessage}");
             }
         }
 

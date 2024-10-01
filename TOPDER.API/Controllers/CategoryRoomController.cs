@@ -18,7 +18,7 @@ namespace TOPDER.API.Controllers
             _categoryRoomService = categoryRoomService;
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> CreateCategoryRoom([FromBody] CategoryRoomDto categoryRoomDto)
         {
             if (!ModelState.IsValid)
@@ -52,38 +52,39 @@ namespace TOPDER.API.Controllers
         }
 
         [HttpGet("list/{restaurantId}")]
-        public async Task<IActionResult> GetCategoryRoomPaging(int pageNumber, int pageSize, int restaurantId)
+        public async Task<IActionResult> GetCategoryRoomPaging(
+            int restaurantId,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? categoryRoomName = null)
         {
-            var result = await _categoryRoomService.GetPagingAsync(pageNumber, pageSize, restaurantId);
-            
-            var response = new PaginatedResponseDto<CategoryRoomDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
+            if (restaurantId <= 0)
+            {
+                return BadRequest(new { message = "ID nhà hàng không hợp lệ." });
+            }
 
-            return Ok(response);
+            try
+            {
+                var result = await _categoryRoomService.ListPagingAsync(pageNumber, pageSize, restaurantId, categoryRoomName);
+
+                var response = new PaginatedResponseDto<CategoryRoomDto>(
+                    result,
+                    result.PageIndex,
+                    result.TotalPages,
+                    result.HasPreviousPage,
+                    result.HasNextPage
+                );
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Đã xảy ra lỗi trong quá trình xử lý yêu cầu của bạn: {ex.Message}" });
+            }
         }
 
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchCategoryRoom(int pageNumber, int pageSize, int restaurantId, string categoryRoomName)
-        {
-            var result = await _categoryRoomService.SearchPagingAsync(pageNumber, pageSize, restaurantId, categoryRoomName);
-           
-            var response = new PaginatedResponseDto<CategoryRoomDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
 
-            return Ok(response);
-        }
-
-        [HttpPut("update")]
+        [HttpPut]
         public async Task<IActionResult> UpdateCategoryRoom([FromBody] CategoryRoomDto categoryRoomDto)
         {
             if (!ModelState.IsValid)
@@ -98,14 +99,27 @@ namespace TOPDER.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategoryRoom(int id)
+        public async Task<IActionResult> Remove(int id)
         {
-            var result = await _categoryRoomService.RemoveAsync(id);
-            if (result)
+            if (id <= 0)
             {
-                return Ok($"Xóa Category Room với ID {id} thành công.");
+                return BadRequest(new { message = "ID không hợp lệ." });
             }
-            return NotFound($"Category Room với ID {id} không tồn tại.");
+
+            try
+            {
+                var result = await _categoryRoomService.RemoveAsync(id);
+                if (result)
+                {
+                    return Ok(new { message = "Xóa CategoryRoom thành công." });
+                }
+                return NotFound(new { message = "CategoryRoom không tìm thấy." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Đã xảy ra lỗi trong quá trình xử lý yêu cầu: {ex.Message}" });
+            }
         }
+
     }
 }

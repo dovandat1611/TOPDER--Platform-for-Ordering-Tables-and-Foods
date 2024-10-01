@@ -18,7 +18,7 @@ namespace TOPDER.API.Controllers
             _categoryMenuService = categoryMenuService;
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> CreateCategoryMenu([FromBody] CreateCategoryMenuDto categoryMenuDto)
         {
             if (!ModelState.IsValid)
@@ -33,11 +33,16 @@ namespace TOPDER.API.Controllers
             return BadRequest("Tạo Category Menu thất bại.");
         }
 
-        [HttpGet("{id}/{restaurantId}")]
-        public async Task<IActionResult> GetCategoryMenu(int id, int restaurantId)
+        [HttpGet("{restaurantId}/{id}")]
+        public async Task<IActionResult> GetCategoryMenu(int restaurantId, int id)
         {
-            try
+            if (restaurantId <= 0)
             {
+                return BadRequest("Restaurant ID must be greater than zero.");
+            }
+
+            try
+            {   
                 var categoryMenu = await _categoryMenuService.GetItemAsync(id, restaurantId);
                 return Ok(categoryMenu);
             }
@@ -51,39 +56,38 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpGet("paging/{restaurantId}")]
-        public async Task<IActionResult> GetCategoryMenuPaging(int pageNumber, int pageSize, int restaurantId)
+
+        [HttpGet("list/{restaurantId}")]
+        public async Task<IActionResult> ListPaging(
+            int restaurantId,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? categoryMenuName = null)
         {
-            var result = await _categoryMenuService.GetPagingAsync(pageNumber, pageSize, restaurantId);
+            if (restaurantId <= 0)
+            {
+                return BadRequest("Restaurant ID must be greater than zero.");
+            }
 
-            var response = new PaginatedResponseDto<CategoryMenuDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-
-            return Ok(response);
+            try
+            {
+                var result = await _categoryMenuService.ListPagingAsync(pageNumber, pageSize, restaurantId, categoryMenuName);
+                var response = new PaginatedResponseDto<CategoryMenuDto>(
+                    result,
+                    result.PageIndex,
+                    result.TotalPages,
+                    result.HasPreviousPage,
+                    result.HasNextPage
+                );
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Đã xảy ra lỗi trong quá trình xử lý: {ex.Message}");
+            }
         }
 
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchCategoryMenu(int pageNumber, int pageSize, int restaurantId, string categoryMenuName)
-        {
-            var result = await _categoryMenuService.SearchPagingAsync(pageNumber, pageSize, restaurantId, categoryMenuName);
-            
-            var response = new PaginatedResponseDto<CategoryMenuDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-
-            return Ok(response);
-        }
-
-        [HttpPut("update")]
+        [HttpPut]
         public async Task<IActionResult> UpdateCategoryMenu([FromBody] CategoryMenuDto categoryMenuDto)
         {
             if (!ModelState.IsValid)
@@ -98,14 +102,21 @@ namespace TOPDER.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategoryMenu(int id)
+        public async Task<IActionResult> RemoveCategoryMenu(int id)
         {
-            var result = await _categoryMenuService.RemoveAsync(id);
-            if (result)
+            try
             {
-                return Ok($"Xóa Category Menu với ID {id} thành công.");
+                var result = await _categoryMenuService.RemoveAsync(id);
+                if (result)
+                {
+                    return Ok($"Xóa Category Menu với ID {id} thành công.");
+                }
+                return NotFound($"Category Menu với ID {id} không tồn tại.");
             }
-            return NotFound($"Category Menu với ID {id} không tồn tại.");
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Đã xảy ra lỗi trong quá trình xử lý: {ex.Message}");
+            }
         }
     }
 }

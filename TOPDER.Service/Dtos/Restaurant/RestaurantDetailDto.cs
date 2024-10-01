@@ -10,8 +10,8 @@ namespace TOPDER.Service.Dtos.Restaurant
 {
     public class RestaurantDetailDto
     {
-        public int ResId { get; set; }
-        public string Image { get; set; } = null!;
+        public int Uid { get; set; }
+        public string? Logo { get; set; }
         public string NameRes { get; set; } = null!;
         public int? CategoryRestaurantId { get; set; }
         public string CategoryName { get; set; } = null!;

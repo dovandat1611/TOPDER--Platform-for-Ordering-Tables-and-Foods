@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,11 +20,13 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly IBlogGroupRepository _blogGroupRepository;
+        private readonly IBlogRepository _blogRepository;
 
-        public BlogGroupService(IBlogGroupRepository blogGroupRepository, IMapper mapper)
+        public BlogGroupService(IBlogGroupRepository blogGroupRepository, IMapper mapper, IBlogRepository blogRepository)
         {
             _blogGroupRepository = blogGroupRepository;
             _mapper = mapper;
+            _blogRepository = blogRepository;
         }
 
         public async Task<bool> AddAsync(BlogGroupDto blogGroupDto)
@@ -39,30 +42,39 @@ namespace TOPDER.Service.Services
             return blogGroupDto;
         }
 
-        public async Task<PaginatedList<BlogGroupDto>> GetPagingAsync(int pageNumber, int pageSize)
+        public async Task<bool> RemoveAsync(int id)
         {
-            var query = await _blogGroupRepository.QueryableAsync();
+            var blogGroup = await _blogGroupRepository.GetByIdAsync(id);
+            if (blogGroup == null)
+            {
+                return false; 
+            }
 
-            var queryDTO = query.Select(r => _mapper.Map<BlogGroupDto>(r));
+            var blogs = await _blogRepository.QueryableAsync();
+            var relatedBlogs = await blogs
+                .Where(b => b.BloggroupId == id)
+                .ToListAsync();
 
-            var paginatedDTOs = await PaginatedList<BlogGroupDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-            return paginatedDTOs;
+            if (relatedBlogs.Any())
+            {
+                foreach (var blog in relatedBlogs)
+                {
+                    await _blogRepository.DeleteAsync(blog.BlogId);
+                }
+            }
+
+            var result = await _blogGroupRepository.DeleteAsync(id);
+            return result;
         }
 
-        public Task<bool> RemoveAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
 
-        public async Task<PaginatedList<BlogGroupDto>> SearchPagingAsync(int pageNumber, int pageSize, string blogGroupName)
+        public async Task<PaginatedList<BlogGroupDto>> ListPagingAsync(int pageNumber, int pageSize, string? blogGroupName)
         {
             var queryable = await _blogGroupRepository.QueryableAsync();
 
-            var query = queryable.Where(x => x.BloggroupName.Contains(blogGroupName));
+            var query = string.IsNullOrEmpty(blogGroupName)
+                ? queryable 
+                : queryable.Where(x => x.BloggroupName.Contains(blogGroupName));
 
             var queryDTO = query.Select(r => _mapper.Map<BlogGroupDto>(r));
 
@@ -71,8 +83,10 @@ namespace TOPDER.Service.Services
                 pageNumber > 0 ? pageNumber : 1,
                 pageSize > 0 ? pageSize : 10
             );
+
             return paginatedDTOs;
         }
+
 
         public async Task<bool> UpdateAsync(BlogGroupDto blogGroupDto)
         {   
@@ -83,6 +97,25 @@ namespace TOPDER.Service.Services
             }
             var blogGroup = _mapper.Map<BlogGroup>(blogGroupDto);
             return await _blogGroupRepository.UpdateAsync(blogGroup);
+        }
+
+        public async Task<List<BlogGroupDto>> BlogGroupExistAsync()
+        {
+                var queryBlog = await _blogRepository.QueryableAsync();
+
+                var existingBlogGroupIds = await queryBlog
+                    .Select(r => r.BloggroupId)
+                    .Distinct()
+                    .ToListAsync();
+
+                var queryBlogGroup = await _blogGroupRepository.QueryableAsync();
+
+                var existingBlogGroups = await queryBlogGroup
+                    .Where(bg => existingBlogGroupIds.Contains(bg.BloggroupId))
+                    .ToListAsync();
+
+                var queryDTO = existingBlogGroups.Select(bg => _mapper.Map<BlogGroupDto>(bg)).ToList();
+                return queryDTO;
         }
     }
 }

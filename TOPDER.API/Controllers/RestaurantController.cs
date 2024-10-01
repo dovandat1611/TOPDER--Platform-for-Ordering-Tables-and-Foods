@@ -14,10 +14,10 @@ namespace TOPDER.API.Controllers
     public class RestaurantController : ControllerBase
     {
         private readonly IRestaurantService _restaurantService;
-        private readonly CloudinaryService _cloudinaryService;
+        private readonly ICloudinaryService _cloudinaryService;
         private readonly ISendMailService _sendMailService;
 
-        public RestaurantController(IRestaurantService restaurantService, CloudinaryService cloudinaryService, ISendMailService sendMailService)
+        public RestaurantController(IRestaurantService restaurantService, ICloudinaryService cloudinaryService, ISendMailService sendMailService)
         {
             _restaurantService = restaurantService;
             _cloudinaryService = cloudinaryService;

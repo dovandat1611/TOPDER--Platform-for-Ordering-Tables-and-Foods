@@ -18,7 +18,7 @@ namespace TOPDER.API.Controllers
             _feedbackService = feedbackService;
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> AddFeedback([FromBody] FeedbackDto feedbackDto)
         {
             if (!ModelState.IsValid)
@@ -32,33 +32,13 @@ namespace TOPDER.API.Controllers
             return BadRequest("Failed to create feedback.");
         }
 
-        [HttpGet("list/admin")]
-        public async Task<IActionResult> GetAdminPaging([FromQuery] int pageNumber, [FromQuery] int pageSize)
-        {
-            var result = await _feedbackService.GetAdminPagingAsync(pageNumber, pageSize);
-            return Ok(result);
-        }
-
-        [HttpGet("list/customer")]
-        public async Task<IActionResult> GetCustomerPaging([FromQuery] int pageNumber , [FromQuery] int pageSize, [FromQuery] int restaurantId)
-        {
-            var result = await _feedbackService.GetCustomerPagingAsync(pageNumber, pageSize, restaurantId);
-            return Ok(result);
-        }
-
-        [HttpGet("list/history")]
+        [HttpGet("history")]
         public async Task<IActionResult> GetHistoryCustomerPaging([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int customerId)
         {
             var result = await _feedbackService.GetHistoryCustomerPagingAsync(pageNumber, pageSize, customerId);
             return Ok(result);
         }
 
-        [HttpGet("list/restaurant")]
-        public async Task<IActionResult> GetRestaurantPaging([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int restaurantId)
-        {
-            var result = await _feedbackService.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId);
-            return Ok(result);
-        }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFeedback(int id)
@@ -71,7 +51,7 @@ namespace TOPDER.API.Controllers
             return NotFound($"Feedback with ID {id} not found.");
         }
 
-        [HttpPut("update")]
+        [HttpPut]
         public async Task<IActionResult> UpdateFeedback([FromBody] FeedbackDto feedbackDto)
         {
             if (!ModelState.IsValid)
@@ -85,10 +65,10 @@ namespace TOPDER.API.Controllers
             return NotFound("Feedback not found.");
         }
 
-        [HttpGet("search/customer")]
-        public async Task<IActionResult> SearchCustomerPaging([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int restaurantId, [FromQuery] int star)
+        [HttpGet("customer/{restaurantId}")]
+        public async Task<IActionResult> GetCustomerFeedbacks(int restaurantId,[FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int? star = null)
         {
-            var result = await _feedbackService.SearchCustomerPagingAsync(pageNumber, pageSize, restaurantId, star);
+            var result = await _feedbackService.ListCustomerPagingAsync(pageNumber, pageSize, restaurantId, star);
             var response = new PaginatedResponseDto<FeedbackCustomerDto>(
                 result,
                 result.PageIndex,
@@ -99,10 +79,10 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("search/admin")]
-        public async Task<IActionResult> SearchAdminPaging([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int star)
+        [HttpGet("admin")]
+        public async Task<IActionResult> GetAdminFeedbacks([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int? star = null, [FromQuery] string? content = null)
         {
-            var result = await _feedbackService.SearchAdminPagingAsync(pageNumber, pageSize, star);
+            var result = await _feedbackService.ListAdminPagingAsync(pageNumber, pageSize, star, content);
 
             var response = new PaginatedResponseDto<FeedbackAdminDto>(
                 result,
@@ -115,19 +95,11 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("search/restaurant")]
-        public async Task<IActionResult> SearchRestaurantPaging([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int restaurantId, [FromQuery] int star)
+        [HttpGet("restaurant/{restaurantId}")]
+        public async Task<IActionResult> GetRestaurantFeedbacks(int restaurantId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int? star = null, [FromQuery] string? content = null)
         {
-            var result = await _feedbackService.SearchRestaurantPagingAsync(pageNumber, pageSize, restaurantId, star);
-
-            var response = new PaginatedResponseDto<FeedbackRestaurantDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-
+            var result = await _feedbackService.ListRestaurantPagingAsync(pageNumber, pageSize, restaurantId, star, content);
+            var response = new PaginatedResponseDto<FeedbackRestaurantDto>(result, result.PageIndex, result.TotalPages, result.HasPreviousPage, result.HasNextPage);
             return Ok(response);
         }
 

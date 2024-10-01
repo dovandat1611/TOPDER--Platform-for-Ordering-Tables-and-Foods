@@ -26,12 +26,15 @@ namespace TOPDER.Service.Services
         private readonly IMapper _mapper;
         private readonly IMenuRepository _menuRepository;
         private readonly IExcelService _excelService;
+        private readonly IOrderMenuRepository _orderMenuRepository;
 
-        public MenuService(IMenuRepository menuRepository, IMapper mapper, IExcelService excelService)
+
+        public MenuService(IMenuRepository menuRepository, IMapper mapper, IExcelService excelService, IOrderMenuRepository orderMenuRepository)
         {
             _menuRepository = menuRepository;
             _mapper = mapper;
             _excelService = excelService;
+            _orderMenuRepository = orderMenuRepository;
         }
         public async Task<bool> AddAsync(MenuDto menuDto)
         {
@@ -86,25 +89,6 @@ namespace TOPDER.Service.Services
 
 
 
-        public async Task<PaginatedList<MenuCustomerDto>> GetCustomerPagingAsync(int pageNumber, int pageSize, int restaurantId)
-        {
-            var queryable = await _menuRepository.QueryableAsync();
-
-            var query = queryable.Where(x =>
-                x.RestaurantId == restaurantId &&
-                x.Status != null &&
-                x.Status.Equals(Common_Status.ACTIVE));
-
-            var queryDTO = query.Select(r => _mapper.Map<MenuCustomerDto>(r));
-
-            var paginatedDTOs = await PaginatedList<MenuCustomerDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-
-            return paginatedDTOs;
-        }
 
         public async Task<MenuRestaurantDto> GetItemAsync(int id, int restaurantId)
         {
@@ -124,22 +108,6 @@ namespace TOPDER.Service.Services
         }
 
 
-        public async Task<PaginatedList<MenuRestaurantDto>> GetPagingAsync(int pageNumber, int pageSize, int restaurantId)
-        {
-            var queryable = await _menuRepository.QueryableAsync();
-
-            var query = queryable.Where(x => x.RestaurantId == restaurantId);
-
-            var queryDTO = query.Select(r => _mapper.Map<MenuRestaurantDto>(r));
-
-            var paginatedDTOs = await PaginatedList<MenuRestaurantDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-            return paginatedDTOs;
-        }
-
         public async Task<bool> RemoveAsync(int id, int restaurantId)
         {
             var menu = await _menuRepository.GetByIdAsync(id);
@@ -147,20 +115,52 @@ namespace TOPDER.Service.Services
             {
                 return false;
             }
+
+            var orders = await _orderMenuRepository.GetAllAsync(); 
+            var isUsedInOrders = orders.Any(o => o.MenuId == id);
+            if (isUsedInOrders)
+            {
+                return false; 
+            }
+
             var result = await _menuRepository.DeleteAsync(id);
-            return result;
+            return result; 
         }
 
+        public async Task<PaginatedList<MenuCustomerDto>> ListCustomerPagingAsync(int pageNumber, int pageSize, int restaurantId)
+        {
+            var queryable = await _menuRepository.QueryableAsync();
 
-        public async Task<PaginatedList<MenuRestaurantDto>> SearchPagingAsync(int pageNumber, int pageSize, int restaurantId, int categoryMenuId, string menuName)
+            var query = queryable.Where(x =>
+                x.RestaurantId == restaurantId &&
+                x.Status != null &&
+                x.Status.Equals(Common_Status.ACTIVE));
+
+            var queryDTO = query.Select(r => _mapper.Map<MenuCustomerDto>(r));
+
+            var paginatedDTOs = await PaginatedList<MenuCustomerDto>.CreateAsync(
+                queryDTO.AsNoTracking(),
+                pageNumber > 0 ? pageNumber : 1,
+                pageSize > 0 ? pageSize : 10
+            );
+
+            return paginatedDTOs;
+        }
+
+        public async Task<PaginatedList<MenuRestaurantDto>> ListRestaurantPagingAsync(
+            int pageNumber,
+            int pageSize,
+            int restaurantId,
+            int? categoryMenuId,
+            string? menuName)
         {
             var queryable = await _menuRepository.QueryableAsync();
 
             var query = queryable.Where(x => x.RestaurantId == restaurantId);
 
-            if (categoryMenuId > 0)
+            if (categoryMenuId.HasValue && categoryMenuId.Value > 0)
             {
-                query = query.Where(x => x.CategoryMenuId == categoryMenuId);
+                query = query.Where(x => x.CategoryMenuId == categoryMenuId.Value);
             }
 
             if (!string.IsNullOrEmpty(menuName))

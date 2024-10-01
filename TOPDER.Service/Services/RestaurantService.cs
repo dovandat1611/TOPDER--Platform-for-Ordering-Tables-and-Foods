@@ -39,9 +39,15 @@ namespace TOPDER.Service.Services
             var queryable = await _restaurantRepository.QueryableAsync();
             var queryableBlog = await _blogRepository.QueryableAsync();
 
-            var activeBlogs = queryableBlog.Where(x => x.Status == Common_Status.ACTIVE);
+            var activeBlogs = queryableBlog
+                .Include(x => x.Bloggroup)
+                .Include(x => x.Admin)
+                .Where(x => x.Status == Common_Status.ACTIVE);
 
-            var enabledRestaurants = queryable.Where(r => r.IsBookingEnabled == true);
+            var enabledRestaurants = queryable
+                .Include(x => x.CategoryRestaurant)
+                .Include(x => x.Feedbacks)
+                .Where(r => r.IsBookingEnabled == true);
 
             var restaurantDtos = enabledRestaurants.Select(r => _mapper.Map<RestaurantDto>(r)).ToList();
             var blogDtos = activeBlogs.Select(b => _mapper.Map<BlogListCustomerDto>(b)).ToList();
@@ -50,7 +56,7 @@ namespace TOPDER.Service.Services
             var topStarRestaurants = restaurantDtos.OrderByDescending(x => x.Star)
                                                    .ThenByDescending(x => x.TotalFeedbacks)
                                                    .Take(6).ToList();
-            var newRestaurants = restaurantDtos.OrderByDescending(x => x.ResId).Take(6).ToList();
+            var newRestaurants = restaurantDtos.OrderByDescending(x => x.Uid).Take(6).ToList();
             var topBlogs = blogDtos.OrderByDescending(x => x.BlogId).Take(6).ToList();
 
             return new RestaurantHomeDto
@@ -67,7 +73,12 @@ namespace TOPDER.Service.Services
         {
             var query = await _restaurantRepository.QueryableAsync();
 
-            var restaurant = await query.FirstOrDefaultAsync(x => x.Uid == id);
+            var restaurant = await query
+                .Include(x => x.CategoryRestaurant)
+                .Include(x => x.Feedbacks)
+                .Include(x => x.Images)
+                .Include(x => x.Menus)
+                .FirstOrDefaultAsync(x => x.Uid == id);
 
             if (restaurant == null)
             {
@@ -82,6 +93,8 @@ namespace TOPDER.Service.Services
             var restaurantDto = _mapper.Map<RestaurantDetailDto>(restaurant);
 
             var relateRestaurants = await query
+                .Include(x => x.CategoryRestaurant)
+                .Include(x => x.Feedbacks)
                 .Where(x => x.CategoryRestaurantId == restaurant.CategoryRestaurantId
                 && x.Uid != id && x.IsBookingEnabled == true)
                 .Take(10) 
@@ -99,7 +112,10 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _restaurantRepository.QueryableAsync();
 
-            queryable = queryable.Where(r => r.IsBookingEnabled == true);
+            queryable = queryable
+                .Include(x => x.CategoryRestaurant)
+                .Include(x => x.Feedbacks)
+                .Where(r => r.IsBookingEnabled == true);
 
             if (!string.IsNullOrEmpty(name))
             {
@@ -133,7 +149,7 @@ namespace TOPDER.Service.Services
 
             if (maxCapacity.HasValue)
             {
-                queryable = queryable.Where(r => r.MaxCapacity <= maxCapacity.Value);
+                queryable = queryable.Where(r => r.MaxCapacity >= maxCapacity.Value);
             }
 
             var queryDTO = queryable.Select(r => _mapper.Map<RestaurantDto>(r));

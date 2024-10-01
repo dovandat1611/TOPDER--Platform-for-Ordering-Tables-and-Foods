@@ -32,7 +32,7 @@ namespace TOPDER.Service.Utils
                             <p>Để xác nhận email đăng ký, bạn vui lòng click vào nút &quot;Xác thực&quot; bên dưới.</p>
                             <br><br>
                             <div style='text-align: center;'>
-                                <a href='/api/verify-email/uid={uid}' style='display: inline-block; background-color: #f29034; color: #ffffff; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;'>
+                                <a href='https://localhost:7134/api/User/verify/{uid}' style='display: inline-block; background-color: #f29034; color: #ffffff; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;'>
                                   Xác Thực
                                 </a>
                             </div>

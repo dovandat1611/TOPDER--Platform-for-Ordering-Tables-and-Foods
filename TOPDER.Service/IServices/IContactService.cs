@@ -15,6 +15,6 @@ namespace TOPDER.Service.IServices
         Task<bool> AddAsync(ContactDto contactDto);
         Task<bool> RemoveAsync(int id);
         Task<PaginatedList<ContactDto>> GetPagingAsync(int pageNumber, int pageSize);
-        Task<PaginatedList<ContactDto>> SearchPagingAsync(int pageNumber, int pageSize, string contactContent);
+        Task<PaginatedList<ContactDto>> SearchPagingAsync(int pageNumber, int pageSize, string contactContent, string topicContent);
     }
 }

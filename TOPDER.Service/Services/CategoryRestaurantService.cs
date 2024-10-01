@@ -20,11 +20,14 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly ICategoryRestaurantRepository _categoryRestaurantRepository;
+        private readonly IRestaurantRepository _restaurantRepository;
 
-        public CategoryRestaurantService(ICategoryRestaurantRepository categoryRestaurantRepository, IMapper mapper)
+
+        public CategoryRestaurantService(ICategoryRestaurantRepository categoryRestaurantRepository, IMapper mapper, IRestaurantRepository restaurantRepository)
         {
             _categoryRestaurantRepository = categoryRestaurantRepository;
             _mapper = mapper;
+            _restaurantRepository = restaurantRepository;
         }
         public async Task<bool> AddAsync(CategoryRestaurantDto categoryRestaurantDto)
         {
@@ -32,48 +35,34 @@ namespace TOPDER.Service.Services
             return await _categoryRestaurantRepository.CreateAsync(categoryRestaurant);
         }
 
-        public async Task<CategoryRestaurantDto> GetItemAsync(int id)
+        public async Task<CategoryRestaurantDto> UpdateItemAsync(int id)
         {
             var query = await _categoryRestaurantRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException($"Category Restaurant với id {id} không tồn tại.");
             var categoryRestaurantDto = _mapper.Map<CategoryRestaurantDto>(query);
             return categoryRestaurantDto;
         }
 
-        public async Task<PaginatedList<CategoryRestaurantDto>> GetPagingAsync(int pageNumber, int pageSize)
-        {
-            var query = await _categoryRestaurantRepository.QueryableAsync();
-
-            var queryDTO = query.Select(r => _mapper.Map<CategoryRestaurantDto>(r));
-
-            var paginatedDTOs = await PaginatedList<CategoryRestaurantDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-
-            return paginatedDTOs;
-        }
-
-        public Task<bool> RemoveAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<PaginatedList<CategoryRestaurantDto>> SearchPagingAsync(int pageNumber, int pageSize, string categoryRestaurantName)
+        public async Task<PaginatedList<CategoryRestaurantDto>> ListPagingAsync(int pageNumber, int pageSize, string? categoryRestaurantName)
         {
             var queryable = await _categoryRestaurantRepository.QueryableAsync();
 
-            var query = queryable.Where(x => x.CategoryRestaurantName != null && x.CategoryRestaurantName.Contains(categoryRestaurantName));
+            if (!string.IsNullOrEmpty(categoryRestaurantName))
+            {
+                queryable = queryable.Where(x => x.CategoryRestaurantName != null && x.CategoryRestaurantName.Contains(categoryRestaurantName));
+            }
 
-            var queryDTO = query.Select(r => _mapper.Map<CategoryRestaurantDto>(r));
+            var queryDTO = queryable.Select(r => _mapper.Map<CategoryRestaurantDto>(r));
 
             var paginatedDTOs = await PaginatedList<CategoryRestaurantDto>.CreateAsync(
                 queryDTO.AsNoTracking(),
                 pageNumber > 0 ? pageNumber : 1,
                 pageSize > 0 ? pageSize : 10
             );
+
             return paginatedDTOs;
         }
+
+
 
         public async Task<bool> UpdateAsync(CategoryRestaurantDto categoryRestaurantDto)
         {
@@ -85,5 +74,36 @@ namespace TOPDER.Service.Services
             var categoryRestaurant = _mapper.Map<CategoryRestaurant>(categoryRestaurantDto);
             return await _categoryRestaurantRepository.UpdateAsync(categoryRestaurant);
         }
+
+        public async Task<List<CategoryRestaurantDto>> CategoryExistAsync()
+        {
+            try
+            {
+                var restaurants = await _restaurantRepository.QueryableAsync();
+                var existingCategoryIds = await restaurants
+                    .Select(r => r.CategoryRestaurantId)
+                    .Distinct()
+                    .ToListAsync();
+
+                if (!existingCategoryIds.Any())
+                {
+                    return new List<CategoryRestaurantDto>(); 
+                }
+
+                var categories = await _categoryRestaurantRepository.QueryableAsync();
+                var existingCategories = categories
+                    .Where(c => existingCategoryIds.Contains(c.CategoryRestaurantId))
+                    .ToList();
+
+                var categoryDtos = existingCategories.Select(c => _mapper.Map<CategoryRestaurantDto>(c)).ToList();
+
+                return categoryDtos;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while retrieving categories.", ex);
+            }
+        }
+
     }
 }

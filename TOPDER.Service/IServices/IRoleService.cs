@@ -14,6 +14,6 @@ namespace TOPDER.Service.IServices
         Task<bool> AddAsync(RoleDto roleDto);
         Task<bool> UpdateAsync(RoleDto roleDto);
         Task<PaginatedList<RoleDto>> GetPagingAsync(int pageNumber, int pageSize);
-
+        Task<RoleDto> GetByIdAsync(int id);
     }
 }

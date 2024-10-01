@@ -14,12 +14,9 @@ namespace TOPDER.Service.IServices
         Task<bool> AddAsync(FeedbackDto feedbackDto);
         Task<bool> UpdateAsync(FeedbackDto feedbackDto);
         Task<bool> RemoveAsync(int id);
-        Task<PaginatedList<FeedbackAdminDto>> GetAdminPagingAsync(int pageNumber, int pageSize);
-        Task<PaginatedList<FeedbackAdminDto>> SearchAdminPagingAsync(int pageNumber, int pageSize, int star);
-        Task<PaginatedList<FeedbackRestaurantDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId);
-        Task<PaginatedList<FeedbackRestaurantDto>> SearchRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId, int star);
-        Task<PaginatedList<FeedbackCustomerDto>> GetCustomerPagingAsync(int pageNumber, int pageSize, int restaurantId);
-        Task<PaginatedList<FeedbackCustomerDto>> SearchCustomerPagingAsync(int pageNumber, int pageSize, int restaurantId, int star);
+        Task<PaginatedList<FeedbackAdminDto>> ListAdminPagingAsync(int pageNumber, int pageSize, int? star, string? content);
+        Task<PaginatedList<FeedbackRestaurantDto>> ListRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId, int? star, string? content);
+        Task<PaginatedList<FeedbackCustomerDto>> ListCustomerPagingAsync(int pageNumber, int pageSize, int restaurantId, int? star);
         Task<PaginatedList<FeedbackHistoryDto>> GetHistoryCustomerPagingAsync(int pageNumber, int pageSize, int customerId);
     }
 }

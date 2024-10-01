@@ -8,7 +8,7 @@ namespace TOPDER.Service.Dtos.Restaurant
         public int Uid { get; set; }
 
         [Required(ErrorMessage = "CategoryId is required.")]
-        public int? CategoryId { get; set; }
+        public int? CategoryRestaurantId { get; set; }
 
         [Required(ErrorMessage = "NameOwner is required.")]
         [StringLength(100, ErrorMessage = "NameOwner cannot be longer than 100 characters.")]
@@ -17,7 +17,7 @@ namespace TOPDER.Service.Dtos.Restaurant
         [Required(ErrorMessage = "NameRes is required.")]
         [StringLength(150, ErrorMessage = "NameRes cannot be longer than 150 characters.")]
         public string NameRes { get; set; } = null!;
-        public string? Image { get; set; }
+        public string? Logo { get; set; }
 
         [Required(ErrorMessage = "File is required.")]
         public IFormFile? File { get; set; }
@@ -51,10 +51,6 @@ namespace TOPDER.Service.Dtos.Restaurant
         [Required(ErrorMessage = "Location is required.")]
         [StringLength(100, ErrorMessage = "Location cannot be longer than 100 characters.")]
         public string Location { get; set; } = null!;
-
-        [Required(ErrorMessage = "Username is required.")]
-        [StringLength(50, MinimumLength = 5, ErrorMessage = "Username must be between 5 and 50 characters.")]
-        public string Username { get; set; } = null!;
 
         [Required(ErrorMessage = "Password is required.")]
         [DataType(DataType.Password)]

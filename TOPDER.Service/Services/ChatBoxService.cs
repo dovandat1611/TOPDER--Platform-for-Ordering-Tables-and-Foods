@@ -20,11 +20,14 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly IChatBoxRepository _chatBoxRepository;
+        private readonly IChatRepository _chatRepository;
 
-        public ChatBoxService(IChatBoxRepository chatBoxRepository, IMapper mapper)
+
+        public ChatBoxService(IChatBoxRepository chatBoxRepository, IMapper mapper, IChatRepository chatRepository)
         {
             _chatBoxRepository = chatBoxRepository;
             _mapper = mapper;
+            _chatRepository = chatRepository;
         }
         public async Task<bool> AddAsync(CreateChatBoxDto chatBoxDto)
         {
@@ -61,10 +64,24 @@ namespace TOPDER.Service.Services
             var chatBox = await _chatBoxRepository.GetByIdAsync(id);
             if (chatBox == null)
             {
-                return false;
+                return false; 
             }
+
+            var queryAssociatedChats = await _chatRepository.QueryableAsync(); 
+
+            var associatedChats = await queryAssociatedChats
+                .Where(c => c.ChatBoxId == id) 
+                .ToListAsync(); 
+
+            foreach (var chat in associatedChats)
+            {
+                await _chatRepository.DeleteAsync(chat.ChatId); 
+            }
+
             var result = await _chatBoxRepository.DeleteAsync(id);
-            return result;
+            return result; 
         }
+
+
     }
 }

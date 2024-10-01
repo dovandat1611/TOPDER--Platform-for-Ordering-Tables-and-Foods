@@ -18,21 +18,25 @@ namespace TOPDER.API.Controllers
             _blogGroupService = blogGroupService;
         }
 
-        [HttpGet("detail/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetBlogGroup(int id)
         {
             try
             {
-                var blogGroup = await _blogGroupService.GetItemAsync(id);
-                return Ok(blogGroup);
+                var blogGroupDto = await _blogGroupService.GetItemAsync(id);
+                return Ok(blogGroupDto); 
             }
-            catch (KeyNotFoundException)
+            catch (KeyNotFoundException ex)
             {
-                return NotFound();
+                return NotFound(ex.Message); 
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Đã xảy ra lỗi trong quá trình xử lý: {ex.Message}"); 
             }
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> CreateBlogGroup([FromBody] BlogGroupDto blogGroupDto)
         {
             if (!ModelState.IsValid)
@@ -47,7 +51,22 @@ namespace TOPDER.API.Controllers
             return BadRequest("Tạo Blog Group thất bại.");
         }
 
-        [HttpPut("update")]
+        [HttpGet("exist")]
+        public async Task<IActionResult> GetExistingBlogGroups()
+        {
+            try
+            {
+                var blogGroups = await _blogGroupService.BlogGroupExistAsync();
+                return Ok(blogGroups);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Đã xảy ra lỗi trong quá trình xử lý."); 
+            }
+        }
+
+
+        [HttpPut]
         public async Task<IActionResult> UpdateBlogGroup([FromBody] BlogGroupDto blogGroupDto)
         {
             if (!ModelState.IsValid)
@@ -69,29 +88,14 @@ namespace TOPDER.API.Controllers
             {
                 return Ok($"Xóa Blog group với ID {id} thành công.");
             }
-            return NotFound($"Blog group với ID {id} không tồn tại.");
+            return NotFound($"BlogGroup với ID {id} không tồn tại hoặc không thể xóa.");
         }
+
 
         [HttpGet("list")]
-        public async Task<IActionResult> GetBlogGroups([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> SearchBlogGroups([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? blogGroupName = null)
         {
-            var result = await _blogGroupService.GetPagingAsync(pageNumber, pageSize);
-
-            var response = new PaginatedResponseDto<BlogGroupDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-
-            return Ok(response);
-        }
-
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchBlogGroups([FromQuery] string blogGroupName, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-        {
-            var result = await _blogGroupService.SearchPagingAsync(pageNumber, pageSize, blogGroupName);
+            var result = await _blogGroupService.ListPagingAsync(pageNumber, pageSize, blogGroupName);
 
             var response = new PaginatedResponseDto<BlogGroupDto>(
                 result,

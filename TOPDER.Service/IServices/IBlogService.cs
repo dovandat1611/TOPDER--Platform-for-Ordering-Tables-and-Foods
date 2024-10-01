@@ -15,13 +15,9 @@ namespace TOPDER.Service.IServices
         Task<bool> AddAsync(CreateBlogModel createBlogModel);
         Task<bool> UpdateAsync(UpdateBlogModel updateBlogModel);
         Task<bool> RemoveAsync(int id);
-        Task<UpdateBlogModel> GetItemAsync(int id);
-        Task<PaginatedList<BlogAdminDto>> GetPagingAsync(int pageNumber, int pageSize);
-        Task<PaginatedList<BlogAdminDto>> SearchPagingAsync(int pageNumber, int pageSize, int blogGroupId, string blogGroupName);
-        Task<PaginatedList<BlogListCustomerDto>> GetBlogCustomerPagingAsync(int pageNumber, int pageSize);
-        Task<PaginatedList<BlogListCustomerDto>> SearchBlogByGroupPagingAsync(int pageNumber, int pageSize, int blogGroupId);
-        Task<BlogDetailCustomerDto> GetBlogByIdAsync(int blogId);
-        Task<List<NewBlogCustomerDto>> GetNewBlogAsync();
-
+        Task<UpdateBlogModel> GetUpdateItemAsync(int id);
+        Task<PaginatedList<BlogAdminDto>> AdminBlogListAsync(int pageNumber, int pageSize, int? blogGroupId, string? title);
+        Task<PaginatedList<BlogListCustomerDto>> CustomerBlogListAsync(int pageNumber, int pageSize, int? blogGroupId, string? title);
+        Task<BlogDetailDto> GetBlogByIdAsync(int blogId);
     }
 }

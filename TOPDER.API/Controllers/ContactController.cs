@@ -65,9 +65,9 @@ namespace TOPDER.API.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> Search([FromQuery] string content, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> Search([FromQuery] string content, [FromQuery] string topic, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _contactService.SearchPagingAsync(pageNumber, pageSize, content);
+            var result = await _contactService.SearchPagingAsync(pageNumber, pageSize, content, topic);
 
             var response = new PaginatedResponseDto<ContactDto>(
                 result,

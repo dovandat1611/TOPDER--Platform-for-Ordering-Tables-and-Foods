@@ -60,20 +60,23 @@ namespace TOPDER.Service.Services
             var result = await _contactRepository.DeleteAsync(id);
             return result;
         }
-
-        public async Task<PaginatedList<ContactDto>> SearchPagingAsync(int pageNumber, int pageSize, string contactContent)
+        public async Task<PaginatedList<ContactDto>> SearchPagingAsync(int pageNumber, int pageSize, string contactContent, string topicContent)
         {
             var query = await _contactRepository.QueryableAsync();
 
-            var blogs = query.Where(x => x.Content.Contains(contactContent) || x.Topic.Contains(contactContent));
+            var filteredContacts = query.Where(x =>
+                (string.IsNullOrEmpty(contactContent) || x.Content.Contains(contactContent)) &&
+                (string.IsNullOrEmpty(topicContent) || x.Topic.Contains(topicContent))
+            );
 
-            var queryDTO = blogs.Select(r => _mapper.Map<ContactDto>(r));
+            var queryDTO = filteredContacts.Select(r => _mapper.Map<ContactDto>(r));
 
             var paginatedDTOs = await PaginatedList<ContactDto>.CreateAsync(
                 queryDTO.AsNoTracking(),
                 pageNumber > 0 ? pageNumber : 1,
                 pageSize > 0 ? pageSize : 10
             );
+
             return paginatedDTOs;
         }
 

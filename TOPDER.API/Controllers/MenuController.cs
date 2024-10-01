@@ -14,16 +14,16 @@ namespace TOPDER.API.Controllers
     public class MenuController : ControllerBase
     {
         private readonly IMenuService _menuService;
-        private readonly CloudinaryService _cloudinaryService;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public MenuController(IMenuService menuService, CloudinaryService cloudinaryService)
+        public MenuController(IMenuService menuService, ICloudinaryService cloudinaryService)
         {
             _menuService = menuService;
             _cloudinaryService = cloudinaryService;
         }
 
 
-        [HttpPost("add")]
+        [HttpPost]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Create([FromForm] MenuDto menuDto, IFormFile File)
         {
@@ -56,7 +56,7 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpPut("update")]
+        [HttpPut]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Update([FromForm] MenuDto menuDto, IFormFile File)
         {
@@ -99,53 +99,55 @@ namespace TOPDER.API.Controllers
             return Ok("Menu items added successfully from Excel.");
         }
 
-        [HttpGet("restaurant-list")]
-        public async Task<IActionResult> GetMenuList([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int restaurantId = 0)
-        {
-            var result = await _menuService.GetPagingAsync(pageNumber, pageSize, restaurantId);
-
-            var response = new PaginatedResponseDto<MenuRestaurantDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-
-            return Ok(response);
-        }
-
-        [HttpGet("restaurant-search")]
-        public async Task<IActionResult> SearchMenus([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int restaurantId = 0, [FromQuery] int categoryMenuId = 0, [FromQuery] string menuName = "")
-        {
-            var result = await _menuService.SearchPagingAsync(pageNumber, pageSize, restaurantId, categoryMenuId, menuName);
-            var response = new PaginatedResponseDto<MenuRestaurantDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-            return Ok(response);
-        }
-
-        [HttpDelete("remove/{id}/{restaurantId}")]
-        public async Task<IActionResult> RemoveMenu(int id, int restaurantId)
+        [HttpDelete("remove/{restaurantId}/{id}")]
+        public async Task<IActionResult> RemoveMenu(int restaurantId, int id)
         {
             var result = await _menuService.RemoveAsync(id, restaurantId);
             if (!result)
             {
-                return NotFound("Menu item not found or does not belong to the specified restaurant.");
+                return NotFound("Món ăn không được tìm thấy, không thuộc về nhà hàng đã chỉ định, hoặc đang được sử dụng trong một đơn hàng.");
             }
-
-            return Ok("Menu item removed successfully.");
+            return Ok("Món ăn đã được xóa thành công.");
         }
 
-
-        [HttpGet("customer-list")]
-        public async Task<IActionResult> GetCustomerMenuList([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int restaurantId = 0)
+        [HttpGet("restaurant/{restaurantId}")]
+        public async Task<IActionResult> GetMenuList(
+            int restaurantId,
+            [FromQuery] int pageNumber,
+            [FromQuery] int pageSize,
+            [FromQuery] int? categoryMenuId = null,
+            [FromQuery] string? menuName = null)
         {
-            var result = await _menuService.GetCustomerPagingAsync(pageNumber, pageSize, restaurantId);
+            var result = await _menuService.ListRestaurantPagingAsync(pageNumber, pageSize, restaurantId, categoryMenuId, menuName);
+
+            if (result == null || !result.Any())
+            {
+                return NotFound("Không tìm thấy món ăn nào cho nhà hàng được chỉ định.");
+            }
+
+            var response = new PaginatedResponseDto<MenuRestaurantDto>(
+                result,
+                result.PageIndex,
+                result.TotalPages,
+                result.HasPreviousPage,
+                result.HasNextPage
+            );
+
+            return Ok(response);
+        }
+
+        [HttpGet("customer/{restaurantId}")]
+        public async Task<IActionResult> GetCustomerMenuList(
+            int restaurantId,
+            [FromQuery] int pageNumber,
+            [FromQuery] int pageSize)
+        {
+            var result = await _menuService.ListCustomerPagingAsync(pageNumber, pageSize, restaurantId);
+
+            if (result == null || !result.Any())
+            {
+                return NotFound("Không tìm thấy món ăn nào cho nhà hàng được chỉ định.");
+            }
 
             var response = new PaginatedResponseDto<MenuCustomerDto>(
                 result,
@@ -157,7 +159,6 @@ namespace TOPDER.API.Controllers
 
             return Ok(response);
         }
-
 
 
     }

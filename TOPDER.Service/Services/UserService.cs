@@ -37,7 +37,7 @@ namespace TOPDER.Service.Services
             var user = await _userRepository.GetByIdAsync(id);
             if (user == null || user.IsVerify)
             {
-                return user != null; 
+                return false; 
             }
             user.IsVerify = true;
             return await _userRepository.UpdateAsync(user);

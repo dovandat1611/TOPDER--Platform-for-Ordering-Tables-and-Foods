@@ -46,6 +46,19 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
+        public async Task<RoleDto> GetByIdAsync(int id)
+        {
+            var role = await _roleRepository.GetByIdAsync(id);
+
+            if (role == null)
+            {
+                throw new KeyNotFoundException($"Role with ID {id} not found.");
+            }
+            var roleDto = _mapper.Map<RoleDto>(role);
+            return roleDto;
+        }
+
+
         public async Task<bool> UpdateAsync(RoleDto roleDto)
         {
             var existingRole = await _roleRepository.GetByIdAsync(roleDto.RoleId);
