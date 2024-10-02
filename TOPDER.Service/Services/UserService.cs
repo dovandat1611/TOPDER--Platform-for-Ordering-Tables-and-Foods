@@ -12,6 +12,8 @@ using TOPDER.Service.Dtos.Restaurant;
 using TOPDER.Service.Dtos.User;
 using TOPDER.Repository.Repositories;
 using TOPDER.Service.Dtos.Contact;
+using Microsoft.EntityFrameworkCore;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
 {
@@ -31,6 +33,46 @@ namespace TOPDER.Service.Services
             var user = _mapper.Map<User>(userDto);
             return await _userRepository.CreateAndReturnAsync(user);
         }
+
+        public async Task<UserPayment> GetInformationUserToPayment(int id)
+        {
+            var query = await _userRepository.QueryableAsync();
+
+            var user = await query
+                .Include(u => u.Customer)  
+                .Include(u => u.Restaurant) 
+                .FirstOrDefaultAsync(u => u.Uid == id);
+
+            if (user == null)
+            {
+                throw new KeyNotFoundException($"Người dùng với ID {id} không tìm thấy.");
+            }
+
+            string name;
+            if (user.Customer != null)
+            {
+                name = user.Customer.Name; 
+            }
+            else if (user.Restaurant != null)
+            {
+                name = user.Restaurant.NameRes; 
+            }
+            else
+            {
+                name = Is_Null.ISNULL; 
+            }
+
+            var userPayment = new UserPayment
+            {
+                Id = user.Uid, 
+                Name = name 
+            };
+
+            return userPayment;
+        }
+
+
+
 
         public async Task<bool> Verify(int id)
         {

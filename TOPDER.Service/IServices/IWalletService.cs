@@ -16,6 +16,7 @@ namespace TOPDER.Service.IServices
         Task<bool> UpdateWalletBalanceAsync(WalletBalanceDto walletBalanceDto);
         Task<bool> AddWalletBankAsync(WalletBankDto walletBankDto);
         Task<bool> UpdateWalletBankAsync(WalletBankDto walletBankDto);
+        Task<decimal> GetBalanceAsync(int walletId, int Uid);
         Task<bool> AddOTPAsync(WalletOtpDto walletOtpDto);
         Task<bool> CheckExistWalletBalance(int Uid);
         Task<bool> CheckExistOTP(int Uid);

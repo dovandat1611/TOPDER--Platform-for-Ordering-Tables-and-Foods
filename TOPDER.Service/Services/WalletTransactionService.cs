@@ -27,12 +27,19 @@ namespace TOPDER.Service.Services
             _mapper = mapper;
         }
         public async Task<bool> AddAsync(WalletTransactionDto walletTransactionDto)
-        {
+        {   
             var walletTransaction = _mapper.Map<WalletTransaction>(walletTransactionDto);
             return await _walletTransactionRepository.CreateAsync(walletTransaction);
         }
 
-        public async Task<PaginatedList<WalletTransactionAdminDto>> GetPagingAsync(int pageNumber, int pageSize, string status)
+        public async Task<WalletTransaction> AddRechargeAsync(WalletTransactionDto walletTransactionDto)
+        {
+            var walletTransaction = _mapper.Map<WalletTransaction>(walletTransactionDto);
+            return await _walletTransactionRepository.CreateAndReturnAsync(walletTransaction);
+        }
+
+
+        public async Task<PaginatedList<WalletTransactionAdminDto>> GetAdminPagingAsync(int pageNumber, int pageSize, string? status)
         {
             var queryable = await _walletTransactionRepository.QueryableAsync();
 
@@ -50,6 +57,54 @@ namespace TOPDER.Service.Services
             );
             return paginatedDTOs;
         }
+
+        public async Task<PaginatedList<WalletTransactionDto>> GetPagingAsync(int pageNumber, int pageSize, int uid, string? status)
+        {
+            var queryable = await _walletTransactionRepository.QueryableAsync();
+
+            var query = queryable.Include(x => x.Wallet)
+                .Where(x => x.Wallet.Uid == uid);
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(x => x.Status.Equals(status));
+            }
+
+            var paginatedDTOs = await PaginatedList<WalletTransactionDto>.CreateAsync(
+                query.Select(r => _mapper.Map<WalletTransactionDto>(r)).AsNoTracking(),
+                pageNumber > 0 ? pageNumber : 1,
+                pageSize > 0 ? pageSize : 10
+            );
+
+            return paginatedDTOs;
+        }
+
+
+        public async Task<WalletBalanceDto> GetWalletBalanceAsync(int transactionId)
+        {
+            var queryable = await _walletTransactionRepository.QueryableAsync();
+
+            var queryDTO = await queryable.Include(x => x.Wallet)
+                .ThenInclude(x => x.UidNavigation)
+                .FirstOrDefaultAsync(x => x.TransactionId == transactionId);
+
+            if (queryDTO == null)
+            {
+                throw new KeyNotFoundException("Transaction not found.");
+            }
+
+            var totalBalance = queryDTO.Wallet.WalletBalance + queryDTO.TransactionAmount;
+
+            WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
+            {
+                Uid = queryDTO.Wallet.UidNavigation.Uid, 
+                WalletId = queryDTO.WalletId,
+                WalletBalance = totalBalance 
+            };
+
+            return walletBalanceDto;
+        }
+
 
 
         public async Task<bool> UpdateStatus(int TransactionId, string status)

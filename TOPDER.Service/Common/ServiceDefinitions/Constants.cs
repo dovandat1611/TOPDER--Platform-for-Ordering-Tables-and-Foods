@@ -28,19 +28,47 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string ISNULL = "N/A";
         }
 
-        public class Transaction_Type
-        {
-            public static string DEPOSIT = "Deposit";
-            public static string WITHDRAW = "Withdraw";
-            public static string SYSTEMADD = "SystemAdd";
-            public static string SYSTEMSUBTRACT = "SystemSubtract";
-        }
-
         public class Transaction_Status
         {
             public static string PENDING = "Pending";
             public static string COMPLETE = "Complete";
         }
+
+        public class Transaction_Type
+        {
+            public static string RECHARGE = "Recharge";
+            public static string WITHDRAW = "Withdraw";
+            public static string SYSTEMADD = "SystemAdd";
+            public static string SYSTEMSUBTRACT = "SystemSubtract";
+        }
+
+        public class PaymentGateway
+        {
+            public static string VNPAY = "VNPAY";
+            public static string VIETQR = "VIETQR";
+        }
+
+        public class Payment_Status
+        {
+            public static string PENDING = "Pending";      
+            public static string CANCELLED = "Cancelled";    
+            public static string SUCCESSFUL = "Successful";   
+        }
+
+        public class Payment_Descriptions
+        {
+            public static string WithdrawalDescription(string name, int id)
+            {
+                return $"Tài khoản có tên {name} mang ID {id} rút tiền.";
+            }
+
+            public static string RechargeDescription(string name, int id)
+            {
+                return $"Tài khoản có tên {name} mang ID {id} nạp tiền.";
+            }
+        }
+
+
 
         public class Log_Type
         {

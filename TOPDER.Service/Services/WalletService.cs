@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using TOPDER.Repository.Entities;
@@ -72,6 +73,18 @@ namespace TOPDER.Service.Services
                 return true;
             }
             return false;
+        }
+
+        public async Task<decimal> GetBalanceAsync(int walletId, int Uid)
+        {
+            var query = await _walletRepository.QueryableAsync();
+            var wallet = query.FirstOrDefault(x => x.Uid == Uid && x.WalletId == walletId);
+
+            if (wallet != null && wallet.WalletBalance.HasValue)
+            {
+                return wallet.WalletBalance.Value; 
+            }
+            return 0; 
         }
 
         public async Task<bool> UpdateWalletBalanceAsync(WalletBalanceDto walletBalanceDto)

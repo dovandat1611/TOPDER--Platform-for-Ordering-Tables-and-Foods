@@ -6,15 +6,11 @@ using System.Threading.Tasks;
 
 namespace TOPDER.Service.Dtos.WalletTransaction
 {
-    public class WalletTransactionDto
+    public class RechargeWalletTransaction
     {
-        public int TransactionId { get; set; }
         public int Uid { get; set; }
         public int WalletId { get; set; }
         public decimal TransactionAmount { get; set; }
-        public string TransactionType { get; set; } = null!;
-        public DateTime TransactionDate { get; set; }
-        public string? Description { get; set; }
-        public string Status { get; set; } = null!;
+        public string PaymentGateway { get; set; } = string.Empty;
     }
 }
