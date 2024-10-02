@@ -34,6 +34,35 @@ namespace TOPDER.Service.Services
             return await _userRepository.CreateAndReturnAsync(user);
         }
 
+        public async Task<UserOrderIsBalance> GetInformationUserOrderIsBalance(int id)
+        {
+            var query = await _userRepository.QueryableAsync();
+
+            var user = await query
+                .Include(u => u.Customer)
+                .Include(u => u.Wallets) 
+                .FirstOrDefaultAsync(u => u.Uid == id);
+
+            if (user == null)
+            {
+                throw new KeyNotFoundException($"Người dùng với ID {id} không tìm thấy.");
+            }
+
+            string name = user.Customer?.Name ?? Is_Null.ISNULL; 
+
+            var walletId = user.Wallets?.Select(x => x.WalletId).FirstOrDefault() ?? 0; 
+
+            var userOrderIsBalance = new UserOrderIsBalance
+            {
+                Id = user.Uid,
+                WalletId = walletId,
+                Name = name
+            };
+
+            return userOrderIsBalance;
+        }
+
+
         public async Task<UserPayment> GetInformationUserToPayment(int id)
         {
             var query = await _userRepository.QueryableAsync();

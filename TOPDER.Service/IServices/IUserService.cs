@@ -16,5 +16,6 @@ namespace TOPDER.Service.IServices
         Task<User> AddAsync(UserDto userDto);
         Task<bool> Verify(int id);
         Task<UserPayment> GetInformationUserToPayment(int id);
+        Task<UserOrderIsBalance> GetInformationUserOrderIsBalance(int id);
     }
 }

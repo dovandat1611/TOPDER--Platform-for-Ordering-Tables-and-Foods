@@ -66,6 +66,14 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             {
                 return $"Tài khoản có tên {name} mang ID {id} nạp tiền.";
             }
+            public static string SystemSubtractDescription(string name, int id)
+            {
+                return $"Hệ thống trừ tiền tài khoản có tên {name} mang ID {id}.";
+            }
+            public static string SystemAddtractDescription(string name, int id)
+            {
+                return $"Hệ thống cộng tiền tài khoản có tên {name} mang ID {id}.";
+            }
         }
 
 
@@ -87,6 +95,24 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string RESERVATION = "Reservation";
             public static string DELIVERY = "Delivery ";
         }
+
+        public class Order_Status
+        {
+            public static string PENDING = "Pending";
+            public static string CONFIRM = "Confirm";
+            public static string PAID = "Paid";
+            public static string COMPLETE = "Complete"; 
+            public static string CANCEL = "Cancel"; 
+        }
+
+        public class Order_PaymentContent
+        {
+            public static string PaymentContent (int id, int restaurantID)
+            {
+                return $"Tài khoản mang ID {id} đặt bàn ở nhà hàng có ID {restaurantID}.";
+            }
+        }
+
 
     }
 }

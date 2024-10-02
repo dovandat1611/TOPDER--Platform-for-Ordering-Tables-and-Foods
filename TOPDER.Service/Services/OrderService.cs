@@ -28,11 +28,19 @@ namespace TOPDER.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<bool> AddAsync(OrderDto orderDto)
+        public async Task<Order> AddAsync(OrderDto orderDto)
         {
             var order = _mapper.Map<Order>(orderDto);
-            return await _orderRepository.CreateAsync(order);
+            return await _orderRepository.CreateAndReturnAsync(order);
         }
+
+        public async Task<bool> CheckIsFirstOrderAsync(int customerId, int restaurantId)
+        {
+            var queryable = await _orderRepository.QueryableAsync();
+            var isFirstOrder = !await queryable.AnyAsync(x => x.CustomerId == customerId && x.RestaurantId == restaurantId);
+            return isFirstOrder;
+        }
+
 
         public async Task<PaginatedList<OrderCustomerDto>> GetCustomerPagingAsync(int pageNumber, int pageSize, int customerId)
         {

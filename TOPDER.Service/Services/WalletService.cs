@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,11 +88,38 @@ namespace TOPDER.Service.Services
             return 0; 
         }
 
+        public async Task<decimal> GetBalanceOrderAsync(int Uid)
+        {
+            var query = await _walletRepository.QueryableAsync();
+            var wallet = query.FirstOrDefault(x => x.Uid == Uid);
+
+            if (wallet != null && wallet.WalletBalance.HasValue)
+            {
+                return wallet.WalletBalance.Value;
+            }
+
+            return 0;
+        }
+
         public async Task<bool> UpdateWalletBalanceAsync(WalletBalanceDto walletBalanceDto)
         {
             var wallet = _mapper.Map<Wallet>(walletBalanceDto);
             return await _walletRepository.UpdateAsync(wallet);
         }
+
+        public async Task<bool> UpdateWalletBalanceOrderAsync(WalletBalanceOrderDto walletBalanceOrder)
+        {
+            var query = await _walletRepository.QueryableAsync();
+            var wallet = await query.FirstOrDefaultAsync(x => x.Uid == walletBalanceOrder.Uid);
+            if (wallet == null)
+            {
+                return false;
+            }
+            wallet.WalletBalance = walletBalanceOrder.WalletBalance;
+            var result = await _walletRepository.UpdateAsync(wallet);
+            return result;
+        }
+
 
         public async Task<bool> UpdateWalletBankAsync(WalletBankDto walletBankDto)
         {
