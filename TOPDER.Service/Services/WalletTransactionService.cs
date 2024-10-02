@@ -45,7 +45,9 @@ namespace TOPDER.Service.Services
 
             if (!string.IsNullOrEmpty(status))
             {
-                queryable = queryable.Where(x => x.Status.Equals(status));
+                queryable = queryable
+                    .Include(x => x.Wallet)
+                    .Where(x => x.Status.Equals(status));
             }
 
             var queryDTO = queryable.Select(r => _mapper.Map<WalletTransactionAdminDto>(r));

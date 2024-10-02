@@ -131,7 +131,9 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _menuRepository.QueryableAsync();
 
-            var query = queryable.Where(x =>
+            var query = queryable
+                .Include(o => o.CategoryMenu)
+                .Where(x =>
                 x.RestaurantId == restaurantId &&
                 x.Status != null &&
                 x.Status.Equals(Common_Status.ACTIVE));
@@ -156,7 +158,9 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _menuRepository.QueryableAsync();
 
-            var query = queryable.Where(x => x.RestaurantId == restaurantId);
+            var query = queryable
+                .Include (o => o.CategoryMenu)
+                .Where(x => x.RestaurantId == restaurantId);
 
             if (categoryMenuId.HasValue && categoryMenuId.Value > 0)
             {

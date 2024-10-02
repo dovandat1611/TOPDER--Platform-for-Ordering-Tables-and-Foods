@@ -33,7 +33,10 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _orderTableRepository.QueryableAsync();
 
-            var query = queryable.Where(x => x.OrderId == id);
+            var query = queryable
+                .Include(x => x.Table)
+                .ThenInclude(x => x.Room)
+                .Where(x => x.OrderId == id);
 
             var queryDTO = await query.Select(r => _mapper.Map<OrderTableDto>(r)).ToListAsync();
 

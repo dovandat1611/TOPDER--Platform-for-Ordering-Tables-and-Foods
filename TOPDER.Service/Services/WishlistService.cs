@@ -44,8 +44,11 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _wishlistRepository.QueryableAsync();
 
-            var query = queryable.Include(x => x.Restaurant)
-                .ThenInclude(x => x.Feedbacks)
+            var query = queryable
+                .Include(x => x.Restaurant)
+                .ThenInclude(r => r.Feedbacks)
+                .Include(x => x.Restaurant)
+                .ThenInclude(r => r.CategoryRestaurant)
                 .Where(x => x.CustomerId == customerId);
 
             var queryDTO = query.Select(r => _mapper.Map<UserWishlistDto>(r));

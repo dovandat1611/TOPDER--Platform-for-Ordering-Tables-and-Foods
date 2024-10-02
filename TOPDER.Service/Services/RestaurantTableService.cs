@@ -102,6 +102,7 @@ namespace TOPDER.Service.Services
             var queryable = await _restaurantTableRepository.QueryableAsync();
 
             var availableTables = queryable
+                .Include(x => x.Room)
                 .Where(table => table.RestaurantId == restaurantId &&
                                 table.IsBookingEnabled == true &&
                                 !table.OrderTables.Any(orderTable =>
@@ -142,7 +143,9 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _restaurantTableRepository.QueryableAsync();
 
-            var query = queryable.Where(x => x.RestaurantId == restaurantId);
+            var query = queryable
+                .Include(x => x.Room)
+                .Where(x => x.RestaurantId == restaurantId);
 
             var queryDTO = query.Select(r => _mapper.Map<RestaurantTableRestaurantDto>(r));
 
@@ -170,7 +173,9 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _restaurantTableRepository.QueryableAsync();
 
-            var query = queryable.Where(x => x.RestaurantId == restaurantId && x.TableName.Contains(tableName));
+            var query = queryable
+                .Include(x => x.Room)
+                .Where(x => x.RestaurantId == restaurantId && x.TableName.Contains(tableName));
 
             var queryDTO = query.Select(r => _mapper.Map<RestaurantTableRestaurantDto>(r));
 

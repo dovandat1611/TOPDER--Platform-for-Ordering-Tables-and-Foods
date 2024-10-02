@@ -37,7 +37,9 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _orderMenuRepository.QueryableAsync();
 
-            var query = queryable.Where(x => x.OrderId == id);
+            var query = queryable
+                .Include(x => x.Menu)
+                .Where(x => x.OrderId == id);
 
             var queryDTO = await query.Select(r => _mapper.Map<OrderMenuDto>(r)).ToListAsync();
 

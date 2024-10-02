@@ -46,7 +46,11 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _chatBoxRepository.QueryableAsync();
 
-            var filteredQuery = queryable.Where(x => x.CustomerId == userId || x.RestaurantId == userId);
+            var filteredQuery = queryable
+                .Include(x => x.Restaurant)
+                .Include(x => x.Customer)
+                .Where(x => x.CustomerId == userId || x.RestaurantId == userId);
+
 
             var queryDTO = filteredQuery.Select(r => _mapper.Map<ChatBoxDto>(r));
 

@@ -36,7 +36,9 @@ namespace TOPDER.Service.Services
         {
             var query = await _feedbackRepository.QueryableAsync();
 
-            var feedbacks = query.OrderByDescending(x => x.FeedbackId);
+            var feedbacks = query
+                .Include(x => x.Restaurant)
+                .OrderByDescending(x => x.FeedbackId);
 
             var queryDTO = feedbacks.Select(r => _mapper.Map<FeedbackHistoryDto>(r));
 
@@ -67,7 +69,9 @@ namespace TOPDER.Service.Services
         {
             var query = await _feedbackRepository.QueryableAsync();
 
-            var feedbacks = query.Where(x => x.RestaurantId == restaurantId);
+            var feedbacks = query
+                .Include(x => x.Customer)
+                .Where(x => x.RestaurantId == restaurantId);
 
             if (star.HasValue)
             {
@@ -109,6 +113,8 @@ namespace TOPDER.Service.Services
             }
 
             var queryDTO = feedbacks
+                .Include(x => x.Customer)
+                .Include(x => x.Restaurant)
                 .OrderByDescending(x => x.FeedbackId)
                 .Select(r => _mapper.Map<FeedbackAdminDto>(r));
 
@@ -142,7 +148,7 @@ namespace TOPDER.Service.Services
                 feedbacks = feedbacks.Where(x => x.Content != null && x.Content.Contains(content));
             }
 
-            var queryDTO = feedbacks
+            var queryDTO = feedbacks.Include(x => x.Customer)
                 .OrderByDescending(x => x.FeedbackId)
                 .Select(r => _mapper.Map<FeedbackRestaurantDto>(r));
 

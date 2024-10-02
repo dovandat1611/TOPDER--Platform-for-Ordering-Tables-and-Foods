@@ -35,7 +35,10 @@ namespace TOPDER.Service.Services
         {
             var query = await _reportRepository.QueryableAsync();
 
-            var blogs = query.OrderByDescending(x => x.ReportId);
+            var blogs = query
+                .Include(x => x.ReportedByNavigation)
+                .Include(x => x.ReportedOnNavigation)
+                .OrderByDescending(x => x.ReportId);
 
             var queryDTO = blogs.Select(r => _mapper.Map<ReportListDto>(r));
 

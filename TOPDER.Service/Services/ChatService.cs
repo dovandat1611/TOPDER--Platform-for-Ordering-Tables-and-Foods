@@ -45,6 +45,12 @@ namespace TOPDER.Service.Services
             var query = await _chatRepository.QueryableAsync();
 
             var queryDTO = await query
+                .Include(x => x.ChatByNavigation)
+                    .ThenInclude(cbn => cbn.Customer)   
+                .Include(x => x.ChatByNavigation)
+                    .ThenInclude(cbn => cbn.Restaurant)  
+                .Include(x => x.ChatByNavigation)
+                    .ThenInclude(cbn => cbn.Admin)
                 .Where(x => x.ChatBoxId == chatBoxId)  
                 .ProjectTo<ChatDto>(_mapper.ConfigurationProvider)  
                 .ToListAsync();  
