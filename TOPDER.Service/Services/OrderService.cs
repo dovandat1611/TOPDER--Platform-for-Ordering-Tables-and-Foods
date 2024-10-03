@@ -25,14 +25,12 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly IOrderRepository _orderRepository;
-        private readonly IOrderTableRepository _orderTableRepository;
 
 
-        public OrderService(IOrderRepository orderRepository, IMapper mapper, IOrderTableRepository orderTableRepository)
+        public OrderService(IOrderRepository orderRepository, IMapper mapper)
         {
             _orderRepository = orderRepository;
             _mapper = mapper;
-            _orderTableRepository = orderTableRepository;
         }
 
         public async Task<Order> AddAsync(OrderDto orderDto)
@@ -65,6 +63,69 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
+        public async Task<EmailForOrder> GetEmailForOrderAsync(int orderId, string role)
+        {
+            var queryable = await _orderRepository.QueryableAsync();
+            var order = await queryable
+                .Include(x => x.Customer) // Luôn bao gồm Customer
+                .Include(x => x.Restaurant) // Luôn bao gồm Restaurant
+                .FirstOrDefaultAsync(x => x.OrderId == orderId);
+
+            if (order == null)
+            {
+                throw new KeyNotFoundException($"Đơn hàng với ID {orderId} không tồn tại.");
+            }
+
+            // Khai báo biến để lưu thông tin email và tên
+            string email = string.Empty;
+            string name = string.Empty;
+
+            // Kiểm tra vai trò và gán giá trị tương ứng
+            if (role.Equals(User_Role.CUSTOMER))
+            {
+                if (order.Customer != null && order.Customer.UidNavigation != null)
+                {
+                    email = order.Customer.UidNavigation.Email;
+                    name = order.Customer.Name;
+                }
+                else
+                {
+                    throw new KeyNotFoundException($"Đơn hàng với ID {orderId} không có thông tin khách hàng.");
+                }
+            }
+            else if (role.Equals(User_Role.RESTAURANT))
+            {
+                if (order.Restaurant != null && order.Restaurant.UidNavigation != null)
+                {
+                    email = order.Restaurant.UidNavigation.Email;
+                    name = order.Restaurant.NameRes;
+                }
+                else
+                {
+                    throw new KeyNotFoundException($"Đơn hàng với ID {orderId} không có thông tin nhà hàng.");
+                }
+            }
+
+            // Tạo đối tượng OrderChangeStatusEmail
+            var orderChangeStatusEmail = new EmailForOrder()
+            {
+                OrderId = orderId.ToString(),
+                Email = email,
+                Name = name,
+            };
+
+            // Kiểm tra Email và Name không null
+            if (string.IsNullOrEmpty(orderChangeStatusEmail.Email) || string.IsNullOrEmpty(orderChangeStatusEmail.Name))
+            {
+                throw new InvalidOperationException($"Không có thông tin email hoặc tên cho đơn hàng với ID {orderId}.");
+            }
+
+            return orderChangeStatusEmail;
+        }
+
+
+
+
         public async Task<OrderDto> GetItemAsync(int id, int Uid)
         {
             var order = await _orderRepository.GetByIdAsync(id);
@@ -83,22 +144,28 @@ namespace TOPDER.Service.Services
 
         public async Task<OrderPaidEmail> GetOrderPaid(int orderID)
         {
+            // Bước 1: Lấy truy vấn ban đầu từ repository
             var queryOrder = await _orderRepository.QueryableAsync();
-            var queryOrderTables = await _orderTableRepository.QueryableAsync();
 
-            var order = queryOrder
+            // Bước 2: Thêm các Include vào truy vấn
+            queryOrder = queryOrder
                 .Include(x => x.OrderTables)
+                    .ThenInclude(ot => ot.Table)
+                        .ThenInclude(t => t.Room)
                 .Include(x => x.Restaurant)
                 .Include(x => x.Customer)
-                .ThenInclude(x => x.UidNavigation)
-                .FirstOrDefault(x => x.OrderId == orderID);
+                    .ThenInclude(c => c.UidNavigation);
 
-            var orderTables = queryOrderTables
-                .Include(x => x.Table)
-                .ThenInclude(x => x.Room)
-                .Where(x => x.OrderId == orderID)
-                .ToList();
+            // Bước 3: Thực hiện truy vấn FirstOrDefault
+            var order = await queryOrder.FirstOrDefaultAsync(x => x.OrderId == orderID);
 
+            // Kiểm tra nếu order không tồn tại
+            if (order == null)
+            {
+                throw new Exception("Order not found");
+            }
+
+            // Khởi tạo email
             OrderPaidEmail orderPaidEmail = new OrderPaidEmail()
             {
                 Name = order.Customer.Name,
@@ -113,34 +180,37 @@ namespace TOPDER.Service.Services
                 TableName = new List<string>()
             };
 
-            foreach (var orderTable in orderTables)
+            // Xử lý các bàn và phòng
+            foreach (var orderTable in order.OrderTables)
             {
-                var room = orderTable.Table?.Room;
+                var table = orderTable.Table;
+                var room = table?.Room;
+
                 if (room != null)
                 {
                     var existingRoom = orderPaidEmail.Rooms.FirstOrDefault(r => r.RoomName == room.RoomName);
                     if (existingRoom != null)
                     {
-                        existingRoom.Tables.Add(orderTable.Table.TableName);
+                        existingRoom.Tables.Add(table.TableName);
                     }
                     else
                     {
                         var roomEmail = new RoomEmail
                         {
                             RoomName = room.RoomName,
-                            Tables = new List<string> { orderTable.Table.TableName }
+                            Tables = new List<string> { table.TableName }
                         };
                         orderPaidEmail.Rooms.Add(roomEmail);
                     }
                 }
                 else
                 {
-                    orderPaidEmail.TableName.Add(orderTable.Table.TableName);
+                    orderPaidEmail.TableName.Add(table.TableName);
                 }
             }
+
             return orderPaidEmail;
         }
-
 
 
         public async Task<PaginatedList<OrderDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId)
@@ -175,6 +245,28 @@ namespace TOPDER.Service.Services
             var order = _mapper.Map<Order>(orderDto);
             return await _orderRepository.UpdateAsync(order);
         }
+
+        public async Task<bool> UpdateStatusAsync(int orderID, string status)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderID);
+
+            if (order == null)
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(order.StatusOrder))
+            {
+                if (order.StatusOrder.Equals(status))
+                {
+                    return false;
+                }
+                order.StatusOrder = status;
+                return await _orderRepository.UpdateAsync(order);
+            }
+            return false;
+        }
+
 
         public async Task<bool> UpdateStatusOrderPayment(int orderID, string status)
         {

@@ -5,6 +5,8 @@ using Net.payOS.Types;
 using Org.BouncyCastle.Utilities.Encoders;
 using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
+using TOPDER.Service.Common.CommonDtos;
+using TOPDER.Service.Dtos.BlogGroup;
 using TOPDER.Service.Dtos.Email;
 using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.OrderMenu;
@@ -25,6 +27,7 @@ namespace TOPDER.API.Controllers
     {
         private readonly IOrderService _orderService;
         private readonly IOrderMenuService _orderMenuService;
+        private readonly IOrderTableService _orderTableService;
         private readonly IWalletService _walletService;
         private readonly IDiscountRepository _discountRepository;
         private readonly IMenuRepository _menuRepository;
@@ -39,7 +42,7 @@ namespace TOPDER.API.Controllers
             IWalletService walletService, IMenuRepository menuRepository,
             IRestaurantRepository restaurantRepository, IDiscountRepository discountRepository,
             IUserService userService, IWalletTransactionService walletTransactionService,
-            IPaymentGatewayService paymentGatewayService, ISendMailService sendMailService)
+            IPaymentGatewayService paymentGatewayService, ISendMailService sendMailService, IOrderTableService orderTableService)
         {
             _orderService = orderService;
             _orderMenuService = orderMenuService;
@@ -51,8 +54,13 @@ namespace TOPDER.API.Controllers
             _walletTransactionService = walletTransactionService;
             _paymentGatewayService = paymentGatewayService;
             _sendMailService = sendMailService;
+            _orderTableService = orderTableService;
         }
 
+
+        // ORDER
+
+        // Tạo đơn hàng
         [HttpPost]
         public async Task<IActionResult> AddOrder([FromBody] OrderModel orderModel)
         {
@@ -154,13 +162,16 @@ namespace TOPDER.API.Controllers
                     }
                     await _orderMenuService.AddAsync(createOrUpdateOrderMenuDtos);
                 }
+                var orderEmail = await _orderService.GetEmailForOrderAsync(order.OrderId, User_Role.RESTAURANT);
+                await _sendMailService.SendEmailAsync(orderEmail.Email,Email_Subject.NEWORDER, EmailTemplates.NewOrder(orderEmail.Name,orderEmail.OrderId));
             }
-
             return BadRequest("Tạo đơn hàng thất bại");
         }
 
 
 
+        // Khi nhà hàng confirm thì khách hàng sẽ chuyển khoản với phương thức thanh toán
+        // 1: số dư ví(nếu đủ) 2: VNPAY 3: VIETQR 
         [HttpPost("PaidOrder/{orderId}/{userId}/{paymentGateway}")]
         public async Task<IActionResult> PaidOrder(int orderId, int userId, string paymentGateway)
         {
@@ -185,6 +196,7 @@ namespace TOPDER.API.Controllers
 
             // Update the order in the system
             var updateOrderResult = await _orderService.UpdateAsync(order);
+
             if (!updateOrderResult)
             {
                 return BadRequest("Cập nhật đơn hàng thất bại.");
@@ -321,6 +333,8 @@ namespace TOPDER.API.Controllers
             return Ok(linkPayment);
         }
 
+        // Khi chuyển khoản xong thì sẽ check status payment của đơn hàng đó
+        // có 2 status: 1 Successful (thành công) 2 Cancelled (thất bại)
         [HttpGet("CheckPayment/{orderID}")]
         public async Task<IActionResult> GetItemAsync(int orderID, [FromBody] string status)
         {
@@ -349,9 +363,11 @@ namespace TOPDER.API.Controllers
                         ? Ok(new { message = "Cập nhật trạng thái giao dịch thành công." })
                         : BadRequest(new { message = "Cập nhật trạng thái giao dịch thất bại." });
             }
-            return BadRequest(new { message = "Trạng thái không hợp lệ. Vui lòng chọn CANCELLED hoặc SUCCESSFUL." });
+            return BadRequest(new { message = "Trạng thái không hợp lệ. Vui lòng chọn Cancelled hoặc Successful." });
         }
 
+
+        // xem chi tiết đơn hàng
         [HttpGet("{id}")]
         public async Task<IActionResult> GetItemAsync(int id, int Uid)
         {
@@ -362,75 +378,156 @@ namespace TOPDER.API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Order with id {id} not found.");
+                return NotFound($"Đơn hàng với ID {id} không tồn tại.");
             }
             catch (UnauthorizedAccessException)
             {
-                return Forbid($"You do not have access to order with id {id}.");
+                return Forbid($"Bạn không có quyền truy cập vào đơn hàng với ID {id}.");
             }
         }
 
-    
-        [HttpGet("customer/{customerId}")]
+        // list ra đơn hàng của customer
+        [HttpGet("Customer/List/{customerId}")]
         public async Task<IActionResult> GetCustomerPaging(int pageNumber, int pageSize, int customerId)
         {
-            var paginatedOrders = await _orderService.GetCustomerPagingAsync(pageNumber, pageSize, customerId);
-            return Ok(paginatedOrders);
+            var result = await _orderService.GetCustomerPagingAsync(pageNumber, pageSize, customerId);
+
+            var response = new PaginatedResponseDto<OrderCustomerDto>(
+                result,
+                result.PageIndex,
+                result.TotalPages,
+                result.HasPreviousPage,
+                result.HasNextPage
+            );
+
+            return Ok(response);
         }
 
-        /// <summary>
-        /// Gets paginated orders for a specific restaurant.
-        /// </summary>
-        /// <param name="pageNumber">The page number.</param>
-        /// <param name="pageSize">The page size.</param>
-        /// <param name="restaurantId">The restaurant ID.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the paginated list of order DTOs.</returns>
-        [HttpGet("restaurant/{restaurantId}")]
+        // list ra đơn hàng của restaurant
+        [HttpGet("Restaurant/List/{restaurantId}")]
         public async Task<IActionResult> GetRestaurantPaging(int pageNumber, int pageSize, int restaurantId)
         {
-            var paginatedOrders = await _orderService.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId);
-            return Ok(paginatedOrders);
+            var result = await _orderService.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId);
+
+            var response = new PaginatedResponseDto<OrderDto>(
+                result,
+                result.PageIndex,
+                result.TotalPages,
+                result.HasPreviousPage,
+                result.HasNextPage
+            );
+
+            return Ok(response);
         }
 
-        /// <summary>
-        /// Updates an existing order.
-        /// </summary>
-        /// <param name="orderDto">The order DTO with updated information.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains an action result indicating success or failure.</returns>
+        // cập nhật đơn hàng
         [HttpPut]
         public async Task<IActionResult> UpdateOrder([FromBody] OrderDto orderDto)
         {
             if (orderDto == null)
             {
-                return BadRequest("Order cannot be null.");
+                return BadRequest("Đơn hàng không thể là null.");
             }
 
             var result = await _orderService.UpdateAsync(orderDto);
             if (result)
             {
-                return NoContent(); // Success, but no content to return
+                return Ok($"Cập nhật đơn hàng với ID {orderDto.OrderId} thành công."); // Trả về thông điệp thành công
             }
 
-            return NotFound($"Order with ID {orderDto.OrderId} not found.");
+            return NotFound($"Đơn hàng với ID {orderDto.OrderId} không tồn tại."); // Thông báo không tìm thấy
         }
 
-        /// <summary>
-        /// Deletes an order by ID.
-        /// </summary>
-        /// <param name="id">The order ID.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains an action result indicating success or failure.</returns>
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> RemoveOrder(int id)
+        // Cập nhật trạng thái đơn hàng
+        [HttpPut("UpdateStatus/{orderID}")]
+        public async Task<IActionResult> UpdateOrderStatus(int orderID, [FromBody] string status)
         {
-            // Implement the remove functionality
-            // Assuming RemoveAsync is implemented in your service
-            var result = await _orderService.RemoveAsync(id);
+            if (string.IsNullOrEmpty(status))
+            {
+                return BadRequest("Trạng thái không thể để trống."); // Kiểm tra trạng thái không null hoặc empty
+            }
+
+            if (!status.Equals(Order_Status.PENDING) && !status.Equals(Order_Status.CONFIRM) && !status.Equals(Order_Status.PAID)
+                && !status.Equals(Order_Status.COMPLETE) && !status.Equals(Order_Status.CANCEL))
+            {
+                return BadRequest("Trạng thái không hợp lệ (Pending | Confirm | Paid | Complete | Cancel) ");
+            }
+
+            var result = await _orderService.UpdateStatusAsync(orderID, status);
             if (result)
             {
-                return NoContent(); // Success
+                if (status.Equals(Order_Status.CONFIRM) || status.Equals(Order_Status.COMPLETE) || status.Equals(Order_Status.CANCEL))
+                {       
+                    var orderEmail = await _orderService.GetEmailForOrderAsync(orderID, User_Role.CUSTOMER);
+                    await _sendMailService.SendEmailAsync(orderEmail.Email,Email_Subject.UPDATESTATUS, EmailTemplates.OrderStatusUpdate(orderEmail.Name, orderEmail.OrderId, status));
+                }
+                return Ok($"Cập nhật trạng thái cho đơn hàng với ID {orderID} thành công."); // Trả về thông điệp thành công
             }
 
-            return NotFound($"Order with ID {id} not found.");
+            return NotFound($"Đơn hàng với ID {orderID} không tồn tại hoặc trạng thái không thay đổi."); // Thông báo không tìm thấy
         }
+
+
+
+
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> RemoveOrder(int id)
+        //{
+        //    var result = await _orderService.RemoveAsync(id);
+        //    if (result)
+        //    {
+        //        return Ok($"Xóa đơn hàng với ID {id} thành công."); // Trả về thông điệp thành công
+        //    }
+
+        //    return NotFound($"Đơn hàng với ID {id} không tồn tại."); // Thông báo không tìm thấy
+        //}
+
+
+        // ORDER TABLE 
+
+        [HttpPost("Table/Create")]
+        public async Task<IActionResult> AddTablesToOrder([FromBody] CreateRestaurantOrderTablesDto orderTablesDto)
+        {
+            if (orderTablesDto == null || !orderTablesDto.TableIds.Any())
+            {
+                return BadRequest("Yêu cầu không hợp lệ: Cần có thông tin đơn hàng và bàn.");
+            }
+
+            var result = await _orderTableService.AddAsync(orderTablesDto);
+            if (result)
+            {
+                return Ok("Các bàn đã được thêm thành công vào đơn hàng.");
+            }
+            else
+            {
+                return StatusCode(500, "Không thể thêm bàn vào đơn hàng.");
+            }
+        }
+
+        [HttpGet("Table/{id}")]
+        public async Task<IActionResult> GetTableItemsByOrder(int id)
+        {
+            var orderTables = await _orderTableService.GetItemsByOrderAsync(id);
+
+            if (orderTables == null || !orderTables.Any())
+            {
+                return NotFound("Không tìm thấy bàn cho đơn hàng này.");
+            }
+            return Ok(orderTables);
+        }
+
+        // ORDER MENU 
+
+        [HttpGet("Menu/{id}")]
+        public async Task<IActionResult> GetMenuItemsByOrderAsync(int id)
+        {
+            var items = await _orderMenuService.GetItemsByOrderAsync(id);
+            if (items == null || !items.Any())
+            {
+                return NotFound("Không tìm thấy món cho đơn hàng này.");
+            }
+            return Ok(items);
+        }
+
     }
 }

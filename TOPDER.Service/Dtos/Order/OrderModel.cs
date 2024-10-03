@@ -10,12 +10,10 @@ namespace TOPDER.Service.Dtos.Order
 {
     public class OrderModel
     {
-        public int OrderId { get; set; }
         public int CustomerId { get; set; }
         public int RestaurantId { get; set; }
         public int? DiscountId { get; set; }
         public int? CategoryRoomId { get; set; }
-        public bool IsBalance { get; set; }
         public string NameReceiver { get; set; } = null!;
         public string PhoneReceiver { get; set; } = null!;
         public TimeSpan TimeReservation { get; set; }
@@ -23,7 +21,6 @@ namespace TOPDER.Service.Dtos.Order
         public int NumberPerson { get; set; }
         public int NumberChild { get; set; }
         public string? ContentReservation { get; set; }
-        public string? PaymentGateway { get; set; } = string.Empty;
         public List<OrderMenuModelDto>? OrderMenus { get; set; } 
     }
 }

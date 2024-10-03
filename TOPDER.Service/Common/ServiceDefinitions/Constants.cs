@@ -22,17 +22,13 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string OTP = "Mã Xác Nhận OTP - TOPDER";
             public static string CONTACT = "Liên Hệ Với TOPDER";
             public static string ORDERCONFIRM = "Xác Nhận Đặt Hàng - TOPDER";
+            public static string UPDATESTATUS = "Cập Nhật Trạng Thái Đơn Hàng Của Bạn - TOPDER";
+            public static string NEWORDER = "Cửa Hàng Của Bạn Có Đơn Hàng Mới - TOPDER";
         }
 
         public class Is_Null
         {
             public static string ISNULL = "N/A";
-        }
-
-        public class Transaction_Status
-        {
-            public static string PENDING = "Pending";
-            public static string COMPLETE = "Complete";
         }
 
         public class Transaction_Type
@@ -77,8 +73,6 @@ namespace TOPDER.Service.Common.ServiceDefinitions
                 return $"Hệ thống cộng tiền tài khoản có tên {name} mang ID {id}.";
             }
         }
-
-
 
         public class Log_Type
         {

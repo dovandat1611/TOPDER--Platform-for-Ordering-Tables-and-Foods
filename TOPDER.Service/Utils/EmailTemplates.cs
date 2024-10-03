@@ -150,6 +150,38 @@ namespace TOPDER.Service.Utils
             </html>";
         }
 
+        public static string NewOrder(string nameRestaurant, string orderId)
+        {
+            return $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta name='viewport' content='width=device-width, initial-scale=1'>
+            </head>
+            <body style='font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;'>
+                <div style='margin: 20px auto; max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); overflow: hidden;'>
+                    <div style='background-color: #f29034; padding: 20px; text-align: center; color: #ffffff; font-size: 1.5rem; font-weight: bold;'>
+                        Đơn Hàng Mới!
+                    </div>
+                    <div style='padding: 20px; text-align: center; color: #272241;'>
+                        <img src='https://res.cloudinary.com/do9iyczi3/image/upload/v1726643328/LOGO-TOPDER_qonl9l.png' alt='Logo TOPDER' width='150' style='display: block; margin: 0 auto;' />
+                        <div style='background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 8px rgba(8, 120, 211, 0.1); text-align: left;'>
+                            <p>Kính gửi nhà hàng <span style='font-weight: bold; color: #272241;'>{nameRestaurant}</span>,</p>
+                            <p>Chúng tôi muốn thông báo cho bạn rằng đã có đơn hàng mới.</p>
+                            <p>Mã Đơn Hàng: <span style='font-weight: bold; color: #272241;'>#{orderId}</span></p>
+                            <p>Để biết thêm thông tin, xin vui lòng truy cập <a href='https://www.topder.vn' style='color: #f29034; text-decoration: none;'>website</a> của chúng tôi để tìm hiểu thêm thông tin.</p>
+                            <p>Trân trọng,</p>
+                            <p style='font-weight: 700; color: #272241;'>Topder</p>
+                        </div>
+                    </div>
+                    <div style='background-color: #f29034; padding: 10px; text-align: center; color: #ffffff; font-size: 0.875rem; font-weight: bold;'>
+                        © 2024 | Bản quyền thuộc về TOPDER.
+                    </div>
+                </div>
+            </body>
+            </html>";
+        }
+
 
         public static string Order(OrderPaidEmail orderConfirmationEmail)
         {

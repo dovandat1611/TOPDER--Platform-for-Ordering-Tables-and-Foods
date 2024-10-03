@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
+using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.OrderMenu;
 using TOPDER.Service.Dtos.OrderTable;
 using TOPDER.Service.IServices;
@@ -23,11 +24,32 @@ namespace TOPDER.Service.Services
             _orderTableRepository = orderTableRepository;
             _mapper = mapper;
         }
-        public async Task<bool> AddAsync(List<CreateOrUpdateOrderTableDto> orderTableDtos)
+        //public async Task<bool> AddAsync(List<CreateOrUpdateOrderTableDto> orderTableDtos)
+        //{
+        //    var orderTables = _mapper.Map<List<OrderTable>>(orderTableDtos);
+        //    return await _orderTableRepository.CreateRangeAsync(orderTables);
+        //}
+
+        public async Task<bool> AddAsync(CreateRestaurantOrderTablesDto orderTablesDto)
         {
-            var orderTables = _mapper.Map<List<OrderTable>>(orderTableDtos);
+            // Khởi tạo danh sách OrderTable
+            var orderTables = new List<OrderTable>();
+
+            // Tạo một OrderTable cho mỗi TableId trong danh sách
+            foreach (var tableId in orderTablesDto.TableIds)
+            {
+                orderTables.Add(new OrderTable
+                {
+                    OrderTableId = 0, // Sẽ được tự động tạo khi lưu vào database nếu có IDENTITY
+                    OrderId = orderTablesDto.OrderId,
+                    TableId = tableId
+                });
+            }
+
+            // Sử dụng CreateRangeAsync để thêm danh sách OrderTable vào database
             return await _orderTableRepository.CreateRangeAsync(orderTables);
         }
+
 
         public async Task<List<OrderTableDto>> GetItemsByOrderAsync(int id)
         {
