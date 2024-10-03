@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MailKit.Search;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,8 +11,10 @@ using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Repository.Repositories;
 using TOPDER.Service.Dtos.Discount;
+using TOPDER.Service.Dtos.Email;
 using TOPDER.Service.Dtos.Menu;
 using TOPDER.Service.Dtos.Order;
+using TOPDER.Service.Dtos.RestaurantRoom;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
@@ -22,11 +25,14 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly IOrderRepository _orderRepository;
+        private readonly IOrderTableRepository _orderTableRepository;
 
-        public OrderService(IOrderRepository orderRepository, IMapper mapper)
+
+        public OrderService(IOrderRepository orderRepository, IMapper mapper, IOrderTableRepository orderTableRepository)
         {
             _orderRepository = orderRepository;
             _mapper = mapper;
+            _orderTableRepository = orderTableRepository;
         }
 
         public async Task<Order> AddAsync(OrderDto orderDto)
@@ -74,6 +80,68 @@ namespace TOPDER.Service.Services
             }
             return _mapper.Map<OrderDto>(order);
         }
+
+        public async Task<OrderPaidEmail> GetOrderPaid(int orderID)
+        {
+            var queryOrder = await _orderRepository.QueryableAsync();
+            var queryOrderTables = await _orderTableRepository.QueryableAsync();
+
+            var order = queryOrder
+                .Include(x => x.OrderTables)
+                .Include(x => x.Restaurant)
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.UidNavigation)
+                .FirstOrDefault(x => x.OrderId == orderID);
+
+            var orderTables = queryOrderTables
+                .Include(x => x.Table)
+                .ThenInclude(x => x.Room)
+                .Where(x => x.OrderId == orderID)
+                .ToList();
+
+            OrderPaidEmail orderPaidEmail = new OrderPaidEmail()
+            {
+                Name = order.Customer.Name,
+                Email = order.Customer.UidNavigation.Email,
+                RestaurantName = order.Restaurant.NameRes,
+                OrderId = order.OrderId.ToString(),
+                NumberOfGuests = order.NumberChild + order.NumberPerson,
+                ReservationDate = order.DateReservation,
+                ReservationTime = order.TimeReservation,
+                TotalAmount = order.TotalAmount,
+                Rooms = new List<RoomEmail>(),
+                TableName = new List<string>()
+            };
+
+            foreach (var orderTable in orderTables)
+            {
+                var room = orderTable.Table?.Room;
+                if (room != null)
+                {
+                    var existingRoom = orderPaidEmail.Rooms.FirstOrDefault(r => r.RoomName == room.RoomName);
+                    if (existingRoom != null)
+                    {
+                        existingRoom.Tables.Add(orderTable.Table.TableName);
+                    }
+                    else
+                    {
+                        var roomEmail = new RoomEmail
+                        {
+                            RoomName = room.RoomName,
+                            Tables = new List<string> { orderTable.Table.TableName }
+                        };
+                        orderPaidEmail.Rooms.Add(roomEmail);
+                    }
+                }
+                else
+                {
+                    orderPaidEmail.TableName.Add(orderTable.Table.TableName);
+                }
+            }
+            return orderPaidEmail;
+        }
+
+
 
         public async Task<PaginatedList<OrderDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId)
         {

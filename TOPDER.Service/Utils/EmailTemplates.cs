@@ -151,7 +151,7 @@ namespace TOPDER.Service.Utils
         }
 
 
-        public static string Order(OrderConfirmationEmail orderConfirmationEmail)
+        public static string Order(OrderPaidEmail orderConfirmationEmail)
         {
             string formattedDate = orderConfirmationEmail.ReservationDate.ToString("dd/MM/yyyy");
             string formattedTime = orderConfirmationEmail.ReservationTime.ToString(@"hh\:mm");

@@ -7,9 +7,10 @@ using TOPDER.Service.Dtos.RestaurantRoom;
 
 namespace TOPDER.Service.Dtos.Email
 {
-    public class OrderConfirmationEmail
+    public class OrderPaidEmail
     {
         public string Name { get; set; }  = string.Empty;
+        public string Email { get; set; } = string.Empty;
         public string OrderId { get; set; } = string.Empty;
         public string RestaurantName { get; set; } = string.Empty;
         public int NumberOfGuests { get; set; }

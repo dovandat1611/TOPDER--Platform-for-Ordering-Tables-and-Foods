@@ -5,6 +5,7 @@ using Net.payOS.Types;
 using Org.BouncyCastle.Utilities.Encoders;
 using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
+using TOPDER.Service.Dtos.Email;
 using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.OrderMenu;
 using TOPDER.Service.Dtos.User;
@@ -13,6 +14,7 @@ using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.Dtos.WalletTransaction;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Services;
+using TOPDER.Service.Utils;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.API.Controllers
@@ -339,6 +341,10 @@ namespace TOPDER.API.Controllers
             {
                 var result = await _orderService.UpdateStatusOrderPayment(orderID, status);
                 // SEND MAIL 
+                OrderPaidEmail orderPaidEmail = await _orderService.GetOrderPaid(orderID);
+
+                await _sendMailService.SendEmailAsync(orderPaidEmail.Email, Email_Subject.ORDERCONFIRM, EmailTemplates.Order(orderPaidEmail));
+
                 return result
                         ? Ok(new { message = "Cập nhật trạng thái giao dịch thành công." })
                         : BadRequest(new { message = "Cập nhật trạng thái giao dịch thất bại." });
