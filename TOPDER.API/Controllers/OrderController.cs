@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Net.payOS.Types;
+using Org.BouncyCastle.Utilities.Encoders;
 using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Dtos.Order;
@@ -29,13 +30,14 @@ namespace TOPDER.API.Controllers
         private readonly IUserService _userService;
         private readonly IWalletTransactionService _walletTransactionService;
         private readonly IPaymentGatewayService _paymentGatewayService;
-
+        private readonly ISendMailService _sendMailService;
 
 
         public OrderController(IOrderService orderService, IOrderMenuService orderMenuService,
             IWalletService walletService, IMenuRepository menuRepository,
             IRestaurantRepository restaurantRepository, IDiscountRepository discountRepository,
-            IUserService userService, IWalletTransactionService walletTransactionService, IPaymentGatewayService paymentGatewayService)
+            IUserService userService, IWalletTransactionService walletTransactionService,
+            IPaymentGatewayService paymentGatewayService, ISendMailService sendMailService)
         {
             _orderService = orderService;
             _orderMenuService = orderMenuService;
@@ -46,6 +48,7 @@ namespace TOPDER.API.Controllers
             _userService = userService;
             _walletTransactionService = walletTransactionService;
             _paymentGatewayService = paymentGatewayService;
+            _sendMailService = sendMailService;
         }
 
         [HttpPost]
@@ -104,175 +107,172 @@ namespace TOPDER.API.Controllers
                 }
             }
 
-           
-            if (orderModel.IsBalance == true)
+            // Create Order
+            OrderDto orderDto = new OrderDto
             {
-                var walletBalance = await _walletService.GetBalanceOrderAsync(orderModel.CustomerId);
-                if (walletBalance >= totalAmount)
-                {
-                    decimal newWalletBalance = walletBalance - totalAmount;
+                OrderId = 0,
+                CustomerId = orderModel.CustomerId,
+                RestaurantId = orderModel.RestaurantId,
+                DiscountId = orderModel.DiscountId ?? null,
+                CategoryRoomId = orderModel.CategoryRoomId ?? null,
+                NameReceiver = orderModel.NameReceiver,
+                PhoneReceiver = orderModel.PhoneReceiver,
+                TimeReservation = orderModel.TimeReservation,
+                DateReservation = orderModel.DateReservation,
+                NumberPerson = orderModel.NumberPerson,
+                NumberChild = orderModel.NumberChild,
+                ContentReservation = orderModel.ContentReservation,
+                TypeOrder = Order_Type.RESERVATION,
+                TotalAmount = totalAmount,
+                StatusOrder = Order_Status.PENDING,
+                CreatedAt = DateTime.Now
+            };
 
-                    // Create order
-                    OrderDto orderDto = new OrderDto
-                    {
-                        OrderId = 0,
-                        CustomerId = orderModel.CustomerId,
-                        RestaurantId = orderModel.RestaurantId,
-                        DiscountId = orderModel.DiscountId ?? null,
-                        CategoryRoomId = orderModel.CategoryRoomId ?? null,
-                        NameReceiver = orderModel.NameReceiver,
-                        PhoneReceiver = orderModel.PhoneReceiver,
-                        TimeReservation = orderModel.TimeReservation,
-                        DateReservation = orderModel.DateReservation,
-                        NumberPerson = orderModel.NumberPerson,
-                        NumberChild = orderModel.NumberChild,
-                        ContentReservation = orderModel.ContentReservation,
-                        TypeOrder = Order_Type.RESERVATION,
-                        TotalAmount = totalAmount,
-                        StatusPayment = Payment_Status.PENDING,
-                        StatusOrder = Order_Status.PENDING,
-                        ContentPayment = Order_PaymentContent.PaymentContent(orderModel.CustomerId, orderModel.RestaurantId),
-                        CreatedAt = DateTime.Now
-                    };
+            var order = await _orderService.AddAsync(orderDto);
 
-                    var order = await _orderService.AddAsync(orderDto);
-
-                    if (order != null)
-                    {
-                        if (orderModel.OrderMenus != null && orderModel.OrderMenus.Any())
-                        {
-                            List<CreateOrUpdateOrderMenuDto> createOrUpdateOrderMenuDtos = new List<CreateOrUpdateOrderMenuDto>();
-                            foreach (var orderMenu in orderModel.OrderMenus)
-                            {
-                                var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
-                                if (menu != null)
-                                {
-                                    createOrUpdateOrderMenuDtos.Add(new CreateOrUpdateOrderMenuDto
-                                    {
-                                        OrderMenuId = 0,
-                                        OrderId = order.OrderId,
-                                        MenuId = orderMenu.MenuId,
-                                        Quantity = orderMenu.Quantity,
-                                        Price = menu.Price,
-                                    });
-                                }
-                            }
-                            await _orderMenuService.AddAsync(createOrUpdateOrderMenuDtos);
-                        }
-
-                        // Create wallet transaction
-                        UserOrderIsBalance userOrderIsBalance;
-                        try
-                        {
-                            userOrderIsBalance = await _userService.GetInformationUserOrderIsBalance(orderModel.CustomerId);
-                        }
-                        catch (KeyNotFoundException ex)
-                        {
-                            return NotFound(new { message = ex.Message });
-                        }
-
-                        var walletTransactionDto = new WalletTransactionDto
-                        {
-                            TransactionId = 0,
-                            WalletId = userOrderIsBalance.WalletId,
-                            Uid = userOrderIsBalance.Id,
-                            TransactionAmount = totalAmount,
-                            TransactionType = Transaction_Type.SYSTEMSUBTRACT,
-                            TransactionDate = DateTime.Now,
-                            Description = Payment_Descriptions.SystemSubtractDescription(userOrderIsBalance.Name, userOrderIsBalance.Id),
-                            Status = Payment_Status.PENDING
-                        };
-
-                        // Create walletTransaction
-                        var createWallet = await _walletTransactionService.AddAsync(walletTransactionDto);
-                        if (createWallet)
-                        {
-                            WalletBalanceOrderDto walletBalanceOrder = new WalletBalanceOrderDto
-                            {
-                                Uid = orderModel.CustomerId,
-                                WalletBalance = newWalletBalance
-                            };
-                            await _walletService.UpdateWalletBalanceOrderAsync(walletBalanceOrder);
-                        }
-                        return Ok("Tạo đơn hàng thành công");
-                    }
-                }
-                else
-                {
-                    return BadRequest("Số dư ví không đủ cho giao dịch này.");
-                }
-            }
-
-            // Handle other payment gateways (VietQR and VNPay)
-            if (!string.IsNullOrEmpty(orderModel.PaymentGateway))
+            if (order != null)
             {
-                OrderDto orderDto = new OrderDto
+                if (orderModel.OrderMenus != null && orderModel.OrderMenus.Any())
                 {
-                    OrderId = 0,
-                    CustomerId = orderModel.CustomerId,
-                    RestaurantId = orderModel.RestaurantId,
-                    DiscountId = orderModel.DiscountId ?? null,
-                    CategoryRoomId = orderModel.CategoryRoomId ?? null,
-                    NameReceiver = orderModel.NameReceiver,
-                    PhoneReceiver = orderModel.PhoneReceiver,
-                    TimeReservation = orderModel.TimeReservation,
-                    DateReservation = orderModel.DateReservation,
-                    NumberPerson = orderModel.NumberPerson,
-                    NumberChild = orderModel.NumberChild,
-                    ContentReservation = orderModel.ContentReservation,
-                    TypeOrder = Order_Type.RESERVATION,
-                    TotalAmount = totalAmount,
-                    StatusPayment = Payment_Status.PENDING,
-                    StatusOrder = Order_Status.PENDING,
-                    ContentPayment = Order_PaymentContent.PaymentContent(orderModel.CustomerId, orderModel.RestaurantId),
-                    CreatedAt = DateTime.Now
-                };
-
-                var order = await _orderService.AddAsync(orderDto);
-                if (order != null)
-                {
-                    if (orderModel.OrderMenus != null && orderModel.OrderMenus.Any())
+                    List<CreateOrUpdateOrderMenuDto> createOrUpdateOrderMenuDtos = new List<CreateOrUpdateOrderMenuDto>();
+                    foreach (var orderMenu in orderModel.OrderMenus)
                     {
-                        List<CreateOrUpdateOrderMenuDto> createOrUpdateOrderMenuDtos = new List<CreateOrUpdateOrderMenuDto>();
-                        foreach (var orderMenu in orderModel.OrderMenus)
+                        var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
+                        if (menu != null)
                         {
-                            var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
-                            if (menu != null)
+                            createOrUpdateOrderMenuDtos.Add(new CreateOrUpdateOrderMenuDto
                             {
-                                createOrUpdateOrderMenuDtos.Add(new CreateOrUpdateOrderMenuDto
-                                {
-                                    OrderMenuId = 0,
-                                    OrderId = order.OrderId,
-                                    MenuId = orderMenu.MenuId,
-                                    Quantity = orderMenu.Quantity,
-                                    Price = menu.Price,
-                                });
-                            }
+                                OrderMenuId = 0,
+                                OrderId = order.OrderId,
+                                MenuId = orderMenu.MenuId,
+                                Quantity = orderMenu.Quantity,
+                                Price = menu.Price,
+                            });
                         }
-                        await _orderMenuService.AddAsync(createOrUpdateOrderMenuDtos);
                     }
-
-                    if (orderModel.PaymentGateway.Equals(PaymentGateway.VIETQR))
-                    {
-                        return await HandleVietQRPayment(order, orderModel, totalAmount);
-                    }
-                    else if (orderModel.PaymentGateway.Equals(PaymentGateway.VNPAY))
-                    {
-                        return await HandleVNPAYPayment(order, orderModel, totalAmount);
-                    }
+                    await _orderMenuService.AddAsync(createOrUpdateOrderMenuDtos);
                 }
             }
 
             return BadRequest("Tạo đơn hàng thất bại");
         }
 
-        private async Task<IActionResult> HandleVietQRPayment(Order order, OrderModel orderModel, decimal totalAmount)
+
+
+        [HttpPost("PaidOrder/{orderId}/{userId}/{paymentGateway}")]
+        public async Task<IActionResult> PaidOrder(int orderId, int userId, string paymentGateway)
+        {
+            // Fetch the order and ensure the user is authorized
+            OrderDto order;
+            try
+            {
+                order = await _orderService.GetItemAsync(orderId, userId);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+
+            // Update order payment status and content
+            order.StatusPayment = Payment_Status.PENDING;
+            order.ContentPayment = Order_PaymentContent.PaymentContent(order.CustomerId ?? 0, order.RestaurantId ?? 0);
+
+            // Update the order in the system
+            var updateOrderResult = await _orderService.UpdateAsync(order);
+            if (!updateOrderResult)
+            {
+                return BadRequest("Cập nhật đơn hàng thất bại.");
+            }
+
+            if (paymentGateway.Equals(PaymentGateway.ISBALANCE))
+            {
+                return await HandleWalletPayment(order);
+            }
+
+            if (paymentGateway.Equals(PaymentGateway.VIETQR))
+            {
+                var orderMenu = await _orderMenuService.GetItemsByOrderAsync(order.OrderId);
+                return await HandleVietQRPayment(order, orderMenu, order.TotalAmount);
+            }
+
+            if (paymentGateway.Equals(PaymentGateway.VNPAY))
+            {
+                return await HandleVNPAYPayment(order, order.TotalAmount);
+            }
+
+            return BadRequest("Cổng thanh toán không hợp lệ.");
+        }
+
+        private async Task<IActionResult> HandleWalletPayment(OrderDto order)
+        {
+            // Check wallet balance
+            var walletBalance = await _walletService.GetBalanceOrderAsync(order.CustomerId ?? 0);
+
+            if (walletBalance < order.TotalAmount)
+            {
+                return BadRequest("Số dư ví không đủ cho giao dịch này.");
+            }
+
+            decimal newWalletBalance = walletBalance - order.TotalAmount;
+
+            // Retrieve user information for wallet transaction
+            UserOrderIsBalance userOrderIsBalance;
+            try
+            {
+                userOrderIsBalance = await _userService.GetInformationUserOrderIsBalance(order.CustomerId ?? 0);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+
+            // Create the wallet transaction
+            var walletTransactionDto = new WalletTransactionDto
+            {
+                TransactionId = 0, // Auto-generated
+                WalletId = userOrderIsBalance.WalletId,
+                Uid = userOrderIsBalance.Id,
+                TransactionAmount = order.TotalAmount,
+                TransactionType = Transaction_Type.SYSTEMSUBTRACT,
+                TransactionDate = DateTime.Now,
+                Description = Payment_Descriptions.SystemSubtractDescription(userOrderIsBalance.Name, userOrderIsBalance.Id),
+                Status = Payment_Status.PENDING
+            };
+
+            // Add the wallet transaction
+            var createWalletResult = await _walletTransactionService.AddAsync(walletTransactionDto);
+            if (!createWalletResult)
+            {
+                return BadRequest("Tạo giao dịch ví thất bại.");
+            }
+
+            // Update the wallet balance after the transaction
+            WalletBalanceOrderDto walletBalanceOrder = new WalletBalanceOrderDto
+            {
+                Uid = order.CustomerId ?? 0,
+                WalletBalance = newWalletBalance
+            };
+
+            var updateWalletResult = await _walletService.UpdateWalletBalanceOrderAsync(walletBalanceOrder);
+            if (!updateWalletResult)
+            {
+                return BadRequest("Cập nhật số dư ví thất bại.");
+            }
+
+            return Ok("Tạo đơn hàng thành công");
+        }
+
+        private async Task<IActionResult> HandleVietQRPayment(OrderDto order, List<OrderMenuDto> orderMenuDtos, decimal totalAmount)
         {
             var items = new List<ItemData>();
 
-            if (orderModel.OrderMenus != null && orderModel.OrderMenus.Any())
+            if (orderMenuDtos != null && orderMenuDtos.Any())
             {
-                foreach (var orderMenu in orderModel.OrderMenus)
+                foreach (var orderMenu in orderMenuDtos)
                 {
                     var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
                     if (menu != null && orderMenu.Quantity.HasValue)
@@ -285,7 +285,7 @@ namespace TOPDER.API.Controllers
             var paymentData = new PaymentData(
                 orderCode: order.OrderId,
                 amount: (int)totalAmount,
-                description: Order_PaymentContent.PaymentContent(orderModel.CustomerId, orderModel.RestaurantId),
+                description: Order_PaymentContent.PaymentContent(order.CustomerId ?? 0, order.RestaurantId ?? 0),
                 items: items,
                 cancelUrl: "https://yourapp.com/cancel",
                 returnUrl: "https://yourapp.com/return"
@@ -295,13 +295,12 @@ namespace TOPDER.API.Controllers
             return Ok(createPayment.checkoutUrl);
         }
 
-
-        private async Task<IActionResult> HandleVNPAYPayment(Order order, OrderModel orderModel, decimal totalAmount)
+        private async Task<IActionResult> HandleVNPAYPayment(OrderDto order, decimal totalAmount)
         {
             UserPayment userInformation;
             try
             {
-                userInformation = await _userService.GetInformationUserToPayment(orderModel.CustomerId);
+                userInformation = await _userService.GetInformationUserToPayment(order.CustomerId ?? 0);
             }
             catch (KeyNotFoundException ex)
             {
@@ -320,38 +319,52 @@ namespace TOPDER.API.Controllers
             return Ok(linkPayment);
         }
 
+        [HttpGet("CheckPayment/{orderID}")]
+        public async Task<IActionResult> GetItemAsync(int orderID, [FromBody] string status)
+        {
+            if (string.IsNullOrEmpty(status))
+            {
+                return BadRequest(new { message = "Trạng thái không hợp lệ." });
+            }
 
-        /// <summary>
-        /// Gets an order by ID.
-        /// </summary>
-        /// <param name="id">The order ID.</param>
-        /// <param name="Uid">The user ID.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the order DTO.</returns>
-        //[HttpGet("{id}")]
-        //public async Task<IActionResult> GetItemAsync(int id, int Uid)
-        //{
-        //    try
-        //    {
-        //        var orderDto = await _orderService.GetItemAsync(id, Uid);
-        //        return Ok(orderDto);
-        //    }
-        //    catch (KeyNotFoundException)
-        //    {
-        //        return NotFound($"Order with id {id} not found.");
-        //    }
-        //    catch (UnauthorizedAccessException)
-        //    {
-        //        return Forbid($"You do not have access to order with id {id}.");
-        //    }
-        //}
+            if (status.Equals(Payment_Status.CANCELLED))
+            {
+                var result = await _orderService.UpdateStatusOrderPayment(orderID, status);
+                return result
+                    ? Ok(new { message = "Cập nhật trạng thái giao dịch thành công." })
+                    : BadRequest(new { message = "Cập nhật trạng thái giao dịch thất bại." });
+            }
 
-        /// <summary>
-        /// Gets paginated orders for a specific customer.
-        /// </summary>
-        /// <param name="pageNumber">The page number.</param>
-        /// <param name="pageSize">The page size.</param>
-        /// <param name="customerId">The customer ID.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the paginated list of order DTOs.</returns>
+            if (status.Equals(Payment_Status.SUCCESSFUL))
+            {
+                var result = await _orderService.UpdateStatusOrderPayment(orderID, status);
+                // SEND MAIL 
+                return result
+                        ? Ok(new { message = "Cập nhật trạng thái giao dịch thành công." })
+                        : BadRequest(new { message = "Cập nhật trạng thái giao dịch thất bại." });
+            }
+            return BadRequest(new { message = "Trạng thái không hợp lệ. Vui lòng chọn CANCELLED hoặc SUCCESSFUL." });
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetItemAsync(int id, int Uid)
+        {
+            try
+            {
+                var orderDto = await _orderService.GetItemAsync(id, Uid);
+                return Ok(orderDto);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound($"Order with id {id} not found.");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid($"You do not have access to order with id {id}.");
+            }
+        }
+
+    
         [HttpGet("customer/{customerId}")]
         public async Task<IActionResult> GetCustomerPaging(int pageNumber, int pageSize, int customerId)
         {

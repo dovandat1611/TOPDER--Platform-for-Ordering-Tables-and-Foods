@@ -46,6 +46,7 @@ namespace TOPDER.Service.Common.ServiceDefinitions
         {
             public static string VNPAY = "VNPAY";
             public static string VIETQR = "VIETQR";
+            public static string ISBALANCE = "ISBALANCE";
         }
 
         public class Payment_Status

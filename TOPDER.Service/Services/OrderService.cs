@@ -14,6 +14,7 @@ using TOPDER.Service.Dtos.Menu;
 using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
 {
@@ -64,14 +65,13 @@ namespace TOPDER.Service.Services
 
             if (order == null)
             {
-                throw new KeyNotFoundException($"Menu với id {id} không tồn tại.");
+                throw new KeyNotFoundException($"Order với id {id} không tồn tại.");
             }
 
             if (order.RestaurantId != Uid && order.CustomerId != Uid)
             {
                 throw new UnauthorizedAccessException($"Order với id {id} không thuộc user với id {Uid}.");
             }
-
             return _mapper.Map<OrderDto>(order);
         }
 
@@ -107,5 +107,36 @@ namespace TOPDER.Service.Services
             var order = _mapper.Map<Order>(orderDto);
             return await _orderRepository.UpdateAsync(order);
         }
+
+        public async Task<bool> UpdateStatusOrderPayment(int orderID, string status)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderID);
+
+            if (order == null)
+            {
+                return false; 
+            }
+
+            if (!string.IsNullOrEmpty(order.StatusPayment))
+            {
+                if (order.StatusPayment.Equals(status))
+                {
+                    return false; 
+                }
+
+                if (status.Equals(Payment_Status.SUCCESSFUL))
+                {
+                    order.StatusPayment = status;
+                    order.StatusOrder = Order_Status.PAID;
+                }
+                else
+                {
+                    order.StatusPayment = status; 
+                }
+                return await _orderRepository.UpdateAsync(order);
+            }
+            return false; 
+        }
+
     }
 }
