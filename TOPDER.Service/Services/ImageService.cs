@@ -32,6 +32,12 @@ namespace TOPDER.Service.Services
             return await _imageRepository.CreateAsync(image);
         }
 
+        public async Task<bool> AddRangeAsync(List<ImageDto> createImagesDto)
+        {
+            var images = _mapper.Map<List<Image>>(createImagesDto);
+            return await _imageRepository.CreateRangeAsync(images);
+        }
+
         public async Task<ImageDto> GetItemAsync(int imageId, int restaurantId)
         {
             var check = await _imageRepository.GetByIdAsync(imageId);

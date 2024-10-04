@@ -67,11 +67,15 @@ namespace TOPDER.Service.Services
         }
 
         public async Task<bool> IsReadAsync(int id)
-        {
+        {   
             var existingNotification = await _notificationRepository.GetByIdAsync(id);
             if (existingNotification == null)
             {
                 return false;
+            }
+            if(existingNotification.IsRead == true)
+            {
+                return true;
             }
             existingNotification.IsRead = true;
             return await _notificationRepository.UpdateAsync(existingNotification);
