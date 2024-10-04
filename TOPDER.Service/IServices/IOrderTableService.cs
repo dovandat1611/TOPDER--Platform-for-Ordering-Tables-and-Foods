@@ -15,7 +15,6 @@ namespace TOPDER.Service.IServices
     {
         //Task<bool> AddAsync(List<CreateOrUpdateOrderTableDto> orderTablesDto);
         Task<List<OrderTableDto>> GetItemsByOrderAsync(int id);
-        Task<bool> AddAsync(CreateRestaurantOrderTablesDto orderTablesDto);
-
+        Task<bool> AddRangeAsync(CreateRestaurantOrderTablesDto orderTablesDto);
     }
 }

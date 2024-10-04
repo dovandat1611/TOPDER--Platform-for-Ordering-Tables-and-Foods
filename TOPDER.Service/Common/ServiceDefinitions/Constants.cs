@@ -79,6 +79,12 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string FEE_PERCENT = "Fee-Percent";
         }
 
+        public class Default_Avatar
+        {
+            public static string ADMIN = "https://res.cloudinary.com/do9iyczi3/image/upload/v1726643328/LOGO-TOPDER_qonl9l.png";
+            public static string CUSTOMER = "https://res.cloudinary.com/do9iyczi3/image/upload/v1728023034/default-avatar-profile-icon_ecq8w3.jpg";
+        }
+
         public class User_Role
         {
             public static string ADMIN = "Admin";

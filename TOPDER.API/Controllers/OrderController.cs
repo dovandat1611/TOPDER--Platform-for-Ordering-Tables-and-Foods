@@ -160,7 +160,7 @@ namespace TOPDER.API.Controllers
                             });
                         }
                     }
-                    await _orderMenuService.AddAsync(createOrUpdateOrderMenuDtos);
+                    await _orderMenuService.AddRangeAsync(createOrUpdateOrderMenuDtos);
                 }
                 var orderEmail = await _orderService.GetEmailForOrderAsync(order.OrderId, User_Role.RESTAURANT);
                 await _sendMailService.SendEmailAsync(orderEmail.Email,Email_Subject.NEWORDER, EmailTemplates.NewOrder(orderEmail.Name,orderEmail.OrderId));
@@ -386,12 +386,14 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        // list ra đơn hàng của customer
+        // List ra đơn hàng của customer
         [HttpGet("Customer/List/{customerId}")]
-        public async Task<IActionResult> GetCustomerPaging(int pageNumber, int pageSize, int customerId)
+        public async Task<IActionResult> GetCustomerPaging(int pageNumber, int pageSize, int customerId, string? status)
         {
-            var result = await _orderService.GetCustomerPagingAsync(pageNumber, pageSize, customerId);
+            // Gọi service để lấy dữ liệu có phân trang
+            var result = await _orderService.GetCustomerPagingAsync(pageNumber, pageSize, customerId, status);
 
+            // Tạo response DTO
             var response = new PaginatedResponseDto<OrderCustomerDto>(
                 result,
                 result.PageIndex,
@@ -403,12 +405,15 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
-        // list ra đơn hàng của restaurant
-        [HttpGet("Restaurant/List/{restaurantId}")]
-        public async Task<IActionResult> GetRestaurantPaging(int pageNumber, int pageSize, int restaurantId)
-        {
-            var result = await _orderService.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId);
 
+        // List ra đơn hàng của restaurant
+        [HttpGet("Restaurant/List/{restaurantId}")]
+        public async Task<IActionResult> GetRestaurantPaging(int pageNumber, int pageSize, int restaurantId, string? status, DateTime? month, DateTime? date)
+        {
+            // Gọi service để lấy dữ liệu có phân trang
+            var result = await _orderService.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId, status, month, date);
+
+            // Tạo response DTO
             var response = new PaginatedResponseDto<OrderDto>(
                 result,
                 result.PageIndex,
@@ -419,6 +424,7 @@ namespace TOPDER.API.Controllers
 
             return Ok(response);
         }
+
 
         // cập nhật đơn hàng
         [HttpPut]
@@ -493,7 +499,7 @@ namespace TOPDER.API.Controllers
                 return BadRequest("Yêu cầu không hợp lệ: Cần có thông tin đơn hàng và bàn.");
             }
 
-            var result = await _orderTableService.AddAsync(orderTablesDto);
+            var result = await _orderTableService.AddRangeAsync(orderTablesDto);
             if (result)
             {
                 return Ok("Các bàn đã được thêm thành công vào đơn hàng.");

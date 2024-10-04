@@ -11,7 +11,7 @@ namespace TOPDER.Service.IServices
 {
     public interface IOrderMenuService
     {
-        Task<bool> AddAsync(List<CreateOrUpdateOrderMenuDto> orderMenuDtos);
+        Task<bool> AddRangeAsync(List<CreateOrUpdateOrderMenuDto> orderMenuDtos);
         Task<List<OrderMenuDto>> GetItemsByOrderAsync(int id);
     }
 }

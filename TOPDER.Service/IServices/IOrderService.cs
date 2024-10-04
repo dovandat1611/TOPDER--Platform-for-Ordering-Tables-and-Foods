@@ -22,7 +22,7 @@ namespace TOPDER.Service.IServices
         Task<bool> UpdateStatusAsync(int orderID, string status);
         Task<bool> UpdateStatusOrderPayment(int orderID, string status); 
         Task<bool> CheckIsFirstOrderAsync(int customerId, int restaurantId);
-        Task<PaginatedList<OrderDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId);
-        Task<PaginatedList<OrderCustomerDto>> GetCustomerPagingAsync(int pageNumber, int pageSize, int customerId);
+        Task<PaginatedList<OrderDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId, string? status, DateTime? month, DateTime? date);
+        Task<PaginatedList<OrderCustomerDto>> GetCustomerPagingAsync(int pageNumber, int pageSize, int customerId, string? status);
     }
 }

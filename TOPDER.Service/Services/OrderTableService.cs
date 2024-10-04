@@ -30,7 +30,7 @@ namespace TOPDER.Service.Services
         //    return await _orderTableRepository.CreateRangeAsync(orderTables);
         //}
 
-        public async Task<bool> AddAsync(CreateRestaurantOrderTablesDto orderTablesDto)
+        public async Task<bool> AddRangeAsync(CreateRestaurantOrderTablesDto orderTablesDto)
         {
             // Khởi tạo danh sách OrderTable
             var orderTables = new List<OrderTable>();

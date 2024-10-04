@@ -26,7 +26,8 @@ namespace TOPDER.Service.Services
             _orderMenuRepository = orderMenuRepository;
             _mapper = mapper;
         }
-        public async Task<bool> AddAsync(List<CreateOrUpdateOrderMenuDto> orderMenuDtos)
+
+        public async Task<bool> AddRangeAsync(List<CreateOrUpdateOrderMenuDto> orderMenuDtos)
         {
             var orderMenuDtoList = _mapper.Map<List<OrderMenu>>(orderMenuDtos);
             return await _orderMenuRepository.CreateRangeAsync(orderMenuDtoList);

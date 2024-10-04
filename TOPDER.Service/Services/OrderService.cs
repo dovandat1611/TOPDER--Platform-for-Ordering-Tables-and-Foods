@@ -47,21 +47,32 @@ namespace TOPDER.Service.Services
         }
 
 
-        public async Task<PaginatedList<OrderCustomerDto>> GetCustomerPagingAsync(int pageNumber, int pageSize, int customerId)
+        public async Task<PaginatedList<OrderCustomerDto>> GetCustomerPagingAsync(int pageNumber, int pageSize, int customerId, string? status)
         {
             var queryable = await _orderRepository.QueryableAsync();
 
+            // Lọc theo CustomerId
             var query = queryable.Where(x => x.CustomerId == customerId);
 
+            // Kiểm tra nếu có giá trị status thì lọc theo status
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(x => x.StatusOrder == status); // Điều kiện lọc theo status
+            }
+
+            // Chuyển sang DTO
             var queryDTO = query.Select(r => _mapper.Map<OrderCustomerDto>(r));
 
+            // Tạo danh sách phân trang
             var paginatedDTOs = await PaginatedList<OrderCustomerDto>.CreateAsync(
                 queryDTO.AsNoTracking(),
                 pageNumber > 0 ? pageNumber : 1,
                 pageSize > 0 ? pageSize : 10
             );
+
             return paginatedDTOs;
         }
+
 
         public async Task<EmailForOrder> GetEmailForOrderAsync(int orderId, string role)
         {
@@ -213,14 +224,40 @@ namespace TOPDER.Service.Services
         }
 
 
-        public async Task<PaginatedList<OrderDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId)
+        public async Task<PaginatedList<OrderDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId, string? status, DateTime? month, DateTime? date)
         {
             var queryable = await _orderRepository.QueryableAsync();
 
+            // Lọc theo restaurantId
             var query = queryable.Where(x => x.RestaurantId == restaurantId);
 
+            // Lọc theo status nếu có
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(x => x.StatusOrder == status);
+            }
+
+            // Lọc theo month nếu có
+            if (month != null)
+            {
+                int selectedMonth = month.Value.Month;
+                int selectedYear = month.Value.Year;
+                query = query.Where(x => x.CreatedAt.Value.Month == selectedMonth && x.CreatedAt.Value.Year == selectedYear);
+            }
+
+            // Lọc theo date nếu có
+            if (date != null)
+            {
+                int selectedDay = date.Value.Day;
+                int selectedMonth = date.Value.Month;
+                int selectedYear = date.Value.Year;
+                query = query.Where(x => x.CreatedAt.Value.Day == selectedDay && x.CreatedAt.Value.Month == selectedMonth && x.CreatedAt.Value.Year == selectedYear);
+            }
+
+            // Chuyển sang DTO
             var queryDTO = query.Select(r => _mapper.Map<OrderDto>(r));
 
+            // Tạo danh sách phân trang
             var paginatedDTOs = await PaginatedList<OrderDto>.CreateAsync(
                 queryDTO.AsNoTracking(),
                 pageNumber > 0 ? pageNumber : 1,
@@ -229,6 +266,7 @@ namespace TOPDER.Service.Services
 
             return paginatedDTOs;
         }
+
 
         public Task<bool> RemoveAsync(int id)
         {
