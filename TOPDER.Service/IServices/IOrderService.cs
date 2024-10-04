@@ -22,6 +22,8 @@ namespace TOPDER.Service.IServices
         Task<bool> UpdateStatusAsync(int orderID, string status);
         Task<bool> UpdateStatusOrderPayment(int orderID, string status); 
         Task<bool> CheckIsFirstOrderAsync(int customerId, int restaurantId);
+        Task<CompleteOrderDto> GetInformationForCompleteAsync(int orderID);
+        Task<CancelOrderDto> GetInformationForCancelAsync(int userID, int orderID);
         Task<PaginatedList<OrderDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId, string? status, DateTime? month, DateTime? date);
         Task<PaginatedList<OrderCustomerDto>> GetCustomerPagingAsync(int pageNumber, int pageSize, int customerId, string? status);
     }

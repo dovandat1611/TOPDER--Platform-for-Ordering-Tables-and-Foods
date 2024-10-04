@@ -14,6 +14,7 @@ using TOPDER.Repository.Repositories;
 using TOPDER.Service.Dtos.Contact;
 using Microsoft.EntityFrameworkCore;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
+using TOPDER.Service.Dtos.Order;
 
 namespace TOPDER.Service.Services
 {
@@ -99,9 +100,6 @@ namespace TOPDER.Service.Services
 
             return userPayment;
         }
-
-
-
 
         public async Task<bool> Verify(int id)
         {

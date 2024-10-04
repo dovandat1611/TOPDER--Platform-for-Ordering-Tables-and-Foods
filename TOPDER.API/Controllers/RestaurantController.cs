@@ -70,5 +70,77 @@ namespace TOPDER.API.Controllers
         }
 
 
+        [HttpPut("Restaurant/UpdateDiscountAndFee/{restaurantId}")]
+        public async Task<IActionResult> UpdateDiscountAndFee(
+            int restaurantId,
+            [FromQuery] decimal? discountPrice,
+            [FromQuery] decimal? firstFeePercent,
+            [FromQuery] decimal? returningFeePercent,
+            [FromQuery] decimal? cancellationFeePercent)
+        {
+            var result = await _restaurantService.UpdateDiscountAndFeeAsync(
+                restaurantId,
+                discountPrice,
+                firstFeePercent,
+                returningFeePercent,
+                cancellationFeePercent
+            );
+
+            if (result)
+            {
+                return Ok(new { message = "Cập nhật chiết khấu và phí thành công." });
+            }
+            else
+            {
+                return BadRequest(new { message = "Không có thay đổi nào được thực hiện." });
+            }
+        }
+
+        [HttpGet("Restaurant/GetDiscountAndFee/{restaurantId}")]
+        public async Task<IActionResult> GetDiscountAndFee(int restaurantId)
+        {
+            var discountAndFee = await _restaurantService.GetDiscountAndFeeAsync(restaurantId);
+
+            if (discountAndFee == null)
+            {
+                return NotFound(new { message = "Nhà hàng không tồn tại." });
+            }
+
+            return Ok(discountAndFee);
+        }
+
+        [HttpGet("Restaurant/GetDescription/{restaurantId}")]
+        public async Task<IActionResult> GetDescription(int restaurantId)
+        {
+            var description = await _restaurantService.GetDescriptionAsync(restaurantId);
+
+            if (description == null)
+            {
+                return NotFound(new { message = "Nhà hàng không tồn tại." });
+            }
+
+            return Ok(description);
+        }
+
+        [HttpPut("Restaurant/UpdateDescription/{restaurantId}")]
+        public async Task<IActionResult> UpdateDescription(
+            int restaurantId,
+            [FromQuery] string? description,
+            [FromQuery] string? subDescription)
+        {
+            var result = await _restaurantService.UpdateDescriptionAsync(restaurantId, description, subDescription);
+
+            if (result)
+            {
+                return Ok(new { message = "Cập nhật mô tả thành công." });
+            }
+            else
+            {
+                return BadRequest(new { message = "Không có thay đổi nào được thực hiện hoặc nhà hàng không tồn tại." });
+            }
+        }
+
+
+
     }
 }

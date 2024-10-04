@@ -48,7 +48,7 @@ namespace TOPDER.Service.Mapper
                         : 0
                 ));
 
-            CreateMap<CreateRestaurantRequest, Restaurant>();
+            CreateMap<CreateRestaurantRequest, Restaurant>().ReverseMap();
 
             CreateMap<Restaurant, RestaurantDetailDto>()
                 .ForMember(dest => dest.CategoryName,

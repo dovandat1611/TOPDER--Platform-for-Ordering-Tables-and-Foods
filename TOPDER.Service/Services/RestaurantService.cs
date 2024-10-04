@@ -34,6 +34,60 @@ namespace TOPDER.Service.Services
             return await _restaurantRepository.CreateAndReturnAsync(restaurant);
         }
 
+        public async Task<DiscountAndFeeRestaurant> GetDiscountAndFeeAsync(int restaurantId)
+        {
+            var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
+
+            DiscountAndFeeRestaurant discountAndFeeRestaurant = new DiscountAndFeeRestaurant()
+            {
+                RestaurantId = restaurantId,
+                DiscountRestaurant = restaurant.Discount,
+                FirstFeePercent = restaurant.FirstFeePercent,
+                ReturningFeePercent = restaurant.ReturningFeePercent,
+                CancellationFeePercent = restaurant.CancellationFeePercent
+            };
+            
+            return discountAndFeeRestaurant;
+        }
+
+        public async Task<DescriptionRestaurant> GetDescriptionAsync(int restaurantId)
+        {
+            var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
+
+            DescriptionRestaurant descriptionRestaurant = new DescriptionRestaurant()
+            {
+                RestaurantId = restaurantId,
+                Description = restaurant.Description,
+                Subdescription = restaurant.Subdescription
+            };
+
+            return descriptionRestaurant;
+        }
+
+        public async Task<bool> UpdateDescriptionAsync(int restaurantId, string? description, string? subDescription)
+        {
+            var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
+
+            if (restaurant == null)
+            {
+                return false; 
+            }
+
+            if (!string.IsNullOrEmpty(description))
+            {
+                restaurant.Description = description;
+            }
+
+            if (!string.IsNullOrEmpty(subDescription))
+            {
+                restaurant.Subdescription = subDescription;
+            }
+
+            return await _restaurantRepository.UpdateAsync(restaurant);
+        }
+
+
+
         public async Task<RestaurantHomeDto> GetHomeItemsAsync()
         {
             var queryable = await _restaurantRepository.QueryableAsync();
@@ -167,6 +221,69 @@ namespace TOPDER.Service.Services
         {
             throw new NotImplementedException();
         }
+
+        public async Task<bool> UpdateDiscountAndFeeAsync(int restaurantId, decimal? discountPrice, decimal? firstFeePercent, decimal? returningFeePercent, decimal? cancellationFeePercent)
+        {
+            // Lấy thông tin nhà hàng theo restaurantId
+            var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
+
+            if (restaurant == null)
+            {
+                // Nếu không tìm thấy nhà hàng, trả về false
+                return false;
+            }
+
+            int count = 0;
+
+            // Kiểm tra và cập nhật giá trị discountPrice nếu hợp lệ
+            if (discountPrice.HasValue && discountPrice > 0 && discountPrice <= 100)
+            {
+                if (restaurant.Discount != discountPrice)
+                {
+                    restaurant.Discount = discountPrice;
+                    count++;
+                }
+            }
+
+            // Kiểm tra và cập nhật giá trị firstFeePercent nếu hợp lệ
+            if (firstFeePercent.HasValue && firstFeePercent > 0 && firstFeePercent <= 100)
+            {
+                if (restaurant.FirstFeePercent != firstFeePercent)
+                {
+                    restaurant.FirstFeePercent = firstFeePercent;
+                    count++;
+                }
+            }
+
+            // Kiểm tra và cập nhật giá trị returningFeePercent nếu hợp lệ
+            if (returningFeePercent.HasValue && returningFeePercent > 0 && returningFeePercent <= 100)
+            {
+                if (restaurant.ReturningFeePercent != returningFeePercent)
+                {
+                    restaurant.ReturningFeePercent = returningFeePercent;
+                    count++;
+                }
+            }
+
+            // Kiểm tra và cập nhật giá trị cancellationFeePercent nếu hợp lệ
+            if (cancellationFeePercent.HasValue && cancellationFeePercent > 0 && cancellationFeePercent <= 100)
+            {
+                if (restaurant.CancellationFeePercent != cancellationFeePercent)
+                {
+                    restaurant.CancellationFeePercent = cancellationFeePercent;
+                    count++;
+                }
+            }
+
+            // Chỉ cập nhật nếu có thay đổi (count > 0)
+            if (count > 0)
+            {
+                return await _restaurantRepository.UpdateAsync(restaurant);
+            }
+
+            return false;
+        }
+
 
         public async Task<bool> UpdateItemAsync(Restaurant restaurant)
         {

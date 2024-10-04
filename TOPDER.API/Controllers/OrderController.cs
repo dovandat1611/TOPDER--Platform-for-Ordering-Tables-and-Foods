@@ -450,30 +450,122 @@ namespace TOPDER.API.Controllers
         {
             if (string.IsNullOrEmpty(status))
             {
-                return BadRequest("Trạng thái không thể để trống."); // Kiểm tra trạng thái không null hoặc empty
+                return BadRequest("Trạng thái không thể để trống.");
             }
 
-            if (!status.Equals(Order_Status.PENDING) && !status.Equals(Order_Status.CONFIRM) && !status.Equals(Order_Status.PAID)
-                && !status.Equals(Order_Status.COMPLETE) && !status.Equals(Order_Status.CANCEL))
+            if (!status.Equals(Order_Status.CONFIRM) && !status.Equals(Order_Status.COMPLETE))
             {
-                return BadRequest("Trạng thái không hợp lệ (Pending | Confirm | Paid | Complete | Cancel) ");
+                return BadRequest("Trạng thái không hợp lệ (Confirm | Complete).");
             }
 
             var result = await _orderService.UpdateStatusAsync(orderID, status);
             if (result)
             {
-                if (status.Equals(Order_Status.CONFIRM) || status.Equals(Order_Status.COMPLETE) || status.Equals(Order_Status.CANCEL))
-                {       
-                    var orderEmail = await _orderService.GetEmailForOrderAsync(orderID, User_Role.CUSTOMER);
-                    await _sendMailService.SendEmailAsync(orderEmail.Email,Email_Subject.UPDATESTATUS, EmailTemplates.OrderStatusUpdate(orderEmail.Name, orderEmail.OrderId, status));
+                if (status.Equals(Order_Status.COMPLETE))
+                {
+                    var completeOrder = await _orderService.GetInformationForCompleteAsync(orderID);
+                    if (completeOrder != null)
+                    {
+                        var wallet = completeOrder.WalletId; // Giả sử wallet không phải là null
+
+                        if (wallet == null)
+                        {
+                            return NotFound($"Ví không tồn tại cho nhà hàng với ID {completeOrder.RestaurantID}.");
+                        }
+
+                        WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
+                        {
+                            WalletId = completeOrder.WalletId,
+                            Uid = completeOrder.RestaurantID,
+                            WalletBalance = completeOrder.WalletBalance,
+                        };
+
+                        var walletUpdateResult = await _walletService.UpdateWalletBalanceAsync(walletBalanceDto);
+                        if (walletUpdateResult)
+                        {
+                            WalletTransactionDto walletTransactionDto = new WalletTransactionDto()
+                            {
+                                TransactionId = 0,
+                                Uid = completeOrder.RestaurantID,
+                                WalletId = completeOrder.WalletId,
+                                TransactionAmount = completeOrder.TotalAmount,
+                                TransactionType = Transaction_Type.SYSTEMADD,
+                                TransactionDate = DateTime.Now,
+                                Description = Payment_Descriptions.SystemAddtractDescription(completeOrder.RestaurantName, completeOrder.RestaurantID),
+                                Status = Payment_Status.SUCCESSFUL,
+                            };
+
+                            await _walletTransactionService.AddAsync(walletTransactionDto);
+                        }
+                    }
                 }
-                return Ok($"Cập nhật trạng thái cho đơn hàng với ID {orderID} thành công."); // Trả về thông điệp thành công
+
+                var orderEmail = await _orderService.GetEmailForOrderAsync(orderID, User_Role.CUSTOMER);
+                await _sendMailService.SendEmailAsync(orderEmail.Email, Email_Subject.UPDATESTATUS, EmailTemplates.OrderStatusUpdate(orderEmail.Name, orderEmail.OrderId, status));
+
+                return Ok($"Cập nhật trạng thái cho đơn hàng với ID {orderID} thành công.");
             }
 
-            return NotFound($"Đơn hàng với ID {orderID} không tồn tại hoặc trạng thái không thay đổi."); // Thông báo không tìm thấy
+            return NotFound($"Đơn hàng với ID {orderID} không tồn tại hoặc trạng thái không thay đổi.");
         }
 
 
+
+        [HttpPut("CancelOrder/{userID}/{orderID}")]
+        public async Task<IActionResult> CancelOrder(int userID, int orderID)
+        {
+            // Cập nhật trạng thái đơn hàng
+            var result = await _orderService.UpdateStatusAsync(orderID, Order_Status.CANCEL);
+
+            if (!result)
+            {
+                return NotFound($"Đơn hàng với ID {orderID} không tồn tại hoặc trạng thái không thay đổi.");
+            }
+
+            // Lấy thông tin đơn hàng bị hủy
+            var cancelOrder = await _orderService.GetInformationForCancelAsync(userID, orderID);
+
+            // Xử lý tài khoản ví dựa trên vai trò người dùng
+            var isCustomer = cancelOrder.RoleName.Equals(User_Role.CUSTOMER);
+            var transactionAmount = isCustomer && cancelOrder.CancellationFeePercent.HasValue && cancelOrder.CancellationFeePercent > 0
+                ? cancelOrder.TotalAmount * (1 - (cancelOrder.CancellationFeePercent / 100))
+                : cancelOrder.TotalAmount;
+
+            WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
+            {
+                WalletId = cancelOrder.WalletCustomerId,
+                Uid = cancelOrder.CustomerID,
+                WalletBalance = cancelOrder.WalletBalanceCustomer + transactionAmount
+            };
+
+            // Cập nhật số dư ví
+            var walletUpdateResult = await _walletService.UpdateWalletBalanceAsync(walletBalanceDto);
+
+            if (walletUpdateResult)
+            {
+                // Ghi lại giao dịch
+                WalletTransactionDto walletTransactionDto = new WalletTransactionDto()
+                {
+                    TransactionId = 0,
+                    Uid = cancelOrder.CustomerID,
+                    WalletId = cancelOrder.WalletCustomerId,
+                    TransactionAmount = transactionAmount ?? 0,
+                    TransactionType = Transaction_Type.SYSTEMADD,
+                    TransactionDate = DateTime.Now,
+                    Description = Payment_Descriptions.SystemAddtractDescription(cancelOrder.NameCustomer, cancelOrder.CustomerID),
+                    Status = Payment_Status.SUCCESSFUL,
+                };
+                await _walletTransactionService.AddAsync(walletTransactionDto);
+            }
+
+            // Gửi email thông báo
+            var recipientEmail = isCustomer ? cancelOrder.EmailRestaurant : cancelOrder.EmailCustomer;
+            var recipientName = isCustomer ? cancelOrder.NameRestaurant : cancelOrder.NameCustomer;
+            await _sendMailService.SendEmailAsync(recipientEmail, Email_Subject.UPDATESTATUS, EmailTemplates.OrderStatusUpdate(recipientName,
+                cancelOrder.OrderId.ToString(), Order_Status.CANCEL));
+
+            return Ok($"Cập nhật trạng thái cho đơn hàng với ID {orderID} thành công.");
+        }
 
 
         //[HttpDelete("{id}")]

@@ -133,8 +133,101 @@ namespace TOPDER.Service.Services
 
             return orderChangeStatusEmail;
         }
+        public async Task<CancelOrderDto> GetInformationForCancelAsync(int userID, int orderID)
+        {
+            var query = await _orderRepository.QueryableAsync();
 
+            // Tìm kiếm đơn hàng theo ID
+            var order = query
+                .Include(x => x.Restaurant)
+                    .ThenInclude(x => x.UidNavigation)
+                        .ThenInclude(x => x.Wallets)
+                .Include(x => x.Customer)
+                    .ThenInclude(x => x.UidNavigation)
+                        .ThenInclude(x => x.Wallets)
+                .FirstOrDefault(x => x.OrderId == orderID);
 
+            // Ném ra ngoại lệ nếu không tìm thấy đơn hàng
+            if (order == null)
+            {
+                throw new KeyNotFoundException($"Order with ID {orderID} not found.");
+            }
+
+            // Lấy ví của khách hàng
+            var wallet = order.Customer.UidNavigation.Wallets.FirstOrDefault(x => x.Uid == userID);
+
+            // Xác định vai trò của người dùng
+            var isRestaurantUser = order.RestaurantId == userID;
+            var role = isRestaurantUser ? User_Role.RESTAURANT : User_Role.CUSTOMER;
+
+            // Tạo đối tượng CancelOrderDto và trả về
+            return new CancelOrderDto
+            {
+                OrderId = orderID,
+                CustomerID = order.CustomerId ?? 0,
+                EmailRestaurant = order.Restaurant.UidNavigation.Email,
+                EmailCustomer = order.Customer.UidNavigation.Email,
+                NameCustomer = order.Customer.Name,
+                NameRestaurant = order.Restaurant.NameRes,
+                UserCancelID = isRestaurantUser ? order.RestaurantId ?? 0 : order.CustomerId ?? 0,
+                WalletCustomerId = role == User_Role.CUSTOMER ? (wallet?.WalletId ?? 0) : 0,
+                WalletBalanceCustomer = wallet?.WalletBalance ?? 0, // Sử dụng toán tử null-coalescing để xử lý null
+                CancellationFeePercent = isRestaurantUser ? 100 : order.Restaurant.CancellationFeePercent,
+                TotalAmount = order.TotalAmount
+            };
+        }
+
+        public async Task<CompleteOrderDto> GetInformationForCompleteAsync(int orderID)
+        {
+            var query = await _orderRepository.QueryableAsync();
+
+            // Tìm kiếm đơn hàng theo ID
+            var order = await query
+                .Include(x => x.Restaurant)
+                    .ThenInclude(x => x.UidNavigation)
+                        .ThenInclude(x => x.Wallets)
+                .FirstOrDefaultAsync(x => x.OrderId == orderID);
+
+            if (order == null)
+            {
+                throw new KeyNotFoundException($"Order with ID {orderID} not found.");
+            }
+
+            var wallet = order.Restaurant.UidNavigation.Wallets.FirstOrDefault(x => x.Uid == order.RestaurantId);
+
+            // Kiểm tra phí dịch vụ dựa trên số tiền đơn hàng
+            decimal serviceFee = 0;
+
+            if (order.TotalAmount < 50000)
+            {
+                serviceFee = 500; // Phí cho đơn hàng dưới 50 nghìn
+            }
+            else if (order.TotalAmount < 200000)
+            {
+                serviceFee = 1000; // Phí cho đơn hàng từ 50 nghìn đến dưới 200 nghìn
+            }
+            else if (order.TotalAmount < 500000)
+            {
+                serviceFee = 2000; // Phí cho đơn hàng từ 200 nghìn đến dưới 500 nghìn
+            }
+            else if (order.TotalAmount >= 1000000)
+            {
+                serviceFee = 5000; // Phí cho đơn hàng từ 1 triệu trở lên
+            }
+
+            // Tính số dư ví sau khi trừ phí
+            var updatedWalletBalance = wallet.WalletBalance + order.TotalAmount - serviceFee;
+
+            return new CompleteOrderDto
+            {
+                OrderId = orderID,
+                RestaurantID = order.RestaurantId ?? 0,
+                WalletId = wallet.WalletId,
+                RestaurantName = order.Restaurant.NameRes,
+                WalletBalance = updatedWalletBalance ?? 0,
+                TotalAmount = order.TotalAmount - serviceFee,
+            };
+        }
 
 
         public async Task<OrderDto> GetItemAsync(int id, int Uid)
@@ -299,6 +392,17 @@ namespace TOPDER.Service.Services
                 {
                     return false;
                 }
+                if(status.Equals(Order_Status.CONFIRM)) {
+                    order.ConfirmedAt = DateTime.Now;
+                }
+                if (status.Equals(Order_Status.COMPLETE))
+                {
+                    order.CompletedAt = DateTime.Now;
+                }
+                if (status.Equals(Order_Status.CANCEL))
+                {
+                    order.CancelledAt = DateTime.Now;
+                }
                 order.StatusOrder = status;
                 return await _orderRepository.UpdateAsync(order);
             }
@@ -326,6 +430,7 @@ namespace TOPDER.Service.Services
                 {
                     order.StatusPayment = status;
                     order.StatusOrder = Order_Status.PAID;
+                    order.PaidAt = DateTime.Now;
                 }
                 else
                 {

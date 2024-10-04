@@ -178,11 +178,11 @@ namespace TOPDER.Service.Services
         {
             var orders = await _orderRepository.QueryableAsync(); // Awaiting here
             var filteredOrders = await orders
-                .Where(o => o.RestaurantId == restaurantId && o.CreatedAt.HasValue)
+                .Where(o => o.RestaurantId == restaurantId && o.CompletedAt.HasValue)
                 .ToListAsync();
 
             var monthlyIncomeData = filteredOrders
-                .GroupBy(o => o.CreatedAt.Value.Month)
+                .GroupBy(o => o.CompletedAt.Value.Month)
                 .Select(g => new ChartTotalInComeDTO
                 {
                     Month = g.Key,
@@ -298,7 +298,7 @@ namespace TOPDER.Service.Services
             var totalRestaurants = await restaurants.CountAsync();
             var totalIncome = (double)await orders.SumAsync(o => o.TotalAmount);
 
-            var currentMonthIncome = (double)(await orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == DateTime.Now.Month).SumAsync(o => o.TotalAmount));
+            var currentMonthIncome = (double)(await orders.Where(o => o.CompletedAt.HasValue && o.CompletedAt.Value.Month == DateTime.Now.Month).SumAsync(o => o.TotalAmount));
             var currentMonthOrdersCount = await orders.CountAsync(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == DateTime.Now.Month);
 
             return new TaskBarAdminDTO
@@ -412,10 +412,10 @@ namespace TOPDER.Service.Services
         // Method to generate MarketOverviewTotalInComeDTO
         private async Task<MarketOverviewTotalInComeDTO> GetMarketOverviewIncomeAsync(IQueryable<Order> orders)
         {
-            var currentYearIncome = orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Year == DateTime.Now.Year);
+            var currentYearIncome = orders.Where(o => o.CompletedAt.HasValue && o.CompletedAt.Value.Year == DateTime.Now.Year);
 
             var monthlyIncomeData = await currentYearIncome
-                .GroupBy(o => o.CreatedAt.Value.Month) 
+                .GroupBy(o => o.CompletedAt.Value.Month) 
                 .Select(g => new ChartTotalInComeDTO
                 {
                     Month = g.Key,
