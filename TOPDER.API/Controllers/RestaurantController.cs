@@ -140,7 +140,23 @@ namespace TOPDER.API.Controllers
             }
         }
 
-
+        [HttpPut("booking-enabled/{id}")]
+        public async Task<IActionResult> UpdateBookingEnabled(int id, [FromBody] bool isEnabledBooking)
+        {
+            try
+            {
+                bool result = await _restaurantService.IsEnabledBookingAsync(id, isEnabledBooking);
+                if (result)
+                {
+                    return Ok(new { Message = "Trạng thái đặt bàn đã được cập nhật thành công." });
+                }
+                return Ok(new { Message = "Trạng thái đặt bàn không có gì thay đổi." }); // Trả về 204 No Content nếu không có thay đổi
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = $"Đã xảy ra lỗi: {ex.Message}" }); // Trả về 400 Bad Request nếu có lỗi
+            }
+        }
 
     }
 }

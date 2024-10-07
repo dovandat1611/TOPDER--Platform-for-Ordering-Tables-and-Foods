@@ -46,7 +46,7 @@ namespace TOPDER.Service.Services
                 ReturningFeePercent = restaurant.ReturningFeePercent,
                 CancellationFeePercent = restaurant.CancellationFeePercent
             };
-            
+
             return discountAndFeeRestaurant;
         }
 
@@ -70,7 +70,7 @@ namespace TOPDER.Service.Services
 
             if (restaurant == null)
             {
-                return false; 
+                return false;
             }
 
             if (!string.IsNullOrEmpty(description))
@@ -151,7 +151,7 @@ namespace TOPDER.Service.Services
                 .Include(x => x.Feedbacks)
                 .Where(x => x.CategoryRestaurantId == restaurant.CategoryRestaurantId
                 && x.Uid != id && x.IsBookingEnabled == true)
-                .Take(10) 
+                .Take(10)
                 .ToListAsync();
 
             var relateRestaurantDto = _mapper.Map<List<RestaurantDto>>(relateRestaurants);
@@ -160,8 +160,7 @@ namespace TOPDER.Service.Services
         }
 
 
-
-        public async Task<PaginatedList<RestaurantDto>> GetItemsAsync(int pageNumber, int pageSize, string? name, 
+        public async Task<PaginatedList<RestaurantDto>> GetItemsAsync(int pageNumber, int pageSize, string? name,
             string? address, string? location, int? restaurantCategory, decimal? minPrice, decimal? maxPrice, int? maxCapacity)
         {
             var queryable = await _restaurantRepository.QueryableAsync();
@@ -293,6 +292,23 @@ namespace TOPDER.Service.Services
                 return false;
             }
             return await _restaurantRepository.UpdateAsync(restaurant);
+        }
+
+        public async Task<bool> IsEnabledBookingAsync(int id, bool isEnabledBooking)
+        {
+            var existingRestaurant = await _restaurantRepository.GetByIdAsync(id);
+            if (existingRestaurant == null)
+            {
+                throw new Exception("Restaurant not found."); // Hoặc bạn có thể ném ra ngoại lệ cụ thể hơn
+            }
+
+            if (isEnabledBooking == existingRestaurant.IsBookingEnabled)
+            {
+                return false; // Không có sự thay đổi
+            }
+
+            existingRestaurant.IsBookingEnabled = isEnabledBooking;
+            return await _restaurantRepository.UpdateAsync(existingRestaurant);
         }
 
     }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,11 @@ using TOPDER.Repository.IRepositories;
 using TOPDER.Repository.Repositories;
 using TOPDER.Service.Dtos.CategoryMenu;
 using TOPDER.Service.Dtos.Discount;
+using TOPDER.Service.Dtos.DiscountMenu;
 using TOPDER.Service.Dtos.Feedback;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
 {
@@ -20,37 +23,164 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly IDiscountRepository _discountRepository;
+        private readonly IDiscountMenuRepository _discountMenuRepository;
+        private readonly IOrderService _orderService;
 
-        public DiscountService(IDiscountRepository discountRepository, IMapper mapper)
+
+
+        public DiscountService(IDiscountRepository discountRepository, IMapper mapper,
+            IDiscountMenuRepository discountMenuRepository, IOrderService orderService)
         {
             _discountRepository = discountRepository;
             _mapper = mapper;
+            _discountMenuRepository = discountMenuRepository;
+            _orderService = orderService;
         }
         public async Task<bool> AddAsync(DiscountDto discountDto)
         {
-            var discount = _mapper.Map<Discount>(discountDto);
-            return await _discountRepository.CreateAsync(discount);
+            if (discountDto.StartDate >= discountDto.EndDate)
+            {
+                throw new ArgumentException("StartDate must be earlier than EndDate.");
+            }
+
+            if (discountDto.ApplyType == DiscountApplyType.ORDER_VALUE_RANGE && discountDto.MinOrderValue > discountDto.MaxOrderValue)
+            {
+                throw new ArgumentException("MinOrderValue cannot be greater than MaxOrderValue.");
+            }
+
+            Discount discount = new Discount()
+            {   
+                DiscountId = 0,
+                RestaurantId = discountDto.RestaurantId,
+                DiscountName = discountDto.DiscountName,
+                IsActive = discountDto.IsActive,
+                Quantity = discountDto.Quantity,
+                StartDate = discountDto.StartDate,
+                EndDate = discountDto.EndDate,
+                Description = discountDto.Description,
+                ApplicableTo = discountDto.ApplicableTo,
+                ApplyType = discountDto.ApplyType,
+                Scope = discountDto.Scope
+            };
+
+            if(discountDto.ApplyType == DiscountApplyType.ORDER_VALUE_RANGE)
+            {
+                discount.MinOrderValue = discountDto.MinOrderValue;
+                discount.MaxOrderValue = discountDto.MaxOrderValue;
+            }
+
+            if (discountDto.Scope == DiscountScope.ENTIRE_ORDER)
+            {
+                discount.DiscountPercentage = discountDto.DiscountPercentage;
+            }
+
+             var createDiscount = await _discountRepository.CreateAndReturnAsync(discount);
+
+            if(createDiscount != null)
+            {
+                if (discountDto.Scope == DiscountScope.PER_SERVICE)
+                {
+                    List<DiscountMenu> discountMenus = new List<DiscountMenu>();
+                    foreach (var item in discountDto.discountMenuDtos)
+                    {
+                        DiscountMenu discountMenu = new DiscountMenu()
+                        {
+                            DiscountMenuId = 0,
+                            DiscountId = createDiscount.DiscountId,
+                            MenuId = item.MenuId,
+                            DiscountMenuPercentage = item.DiscountMenuPercentage,
+                        };
+                        discountMenus.Add(discountMenu);
+                    }
+                    return await _discountMenuRepository.CreateRangeAsync(discountMenus);
+                }
+            }
+            return false;
         }
 
-        public async Task<PaginatedList<DiscountDto>> GetAvailableDiscountsAsync(int pageNumber, int pageSize, int restaurantId)
+        public async Task<List<DiscountDto>> GetAvailableDiscountsAsync(int restaurantId, int customerId, decimal totalPrice)
         {
-            var queryable = await _discountRepository.QueryableAsync();
+            var queryableDiscounts = await _discountRepository.QueryableAsync();
+            var queryableDiscountMenu = await _discountMenuRepository.QueryableAsync();
 
-            var query = queryable.Where(x => x.RestaurantId == restaurantId
-                                             && x.Quantity > 0
-                                             && x.IsActive == true
-                                             && x.StartDate <= DateTime.Now
-                                             && x.EndDate >= DateTime.Now);
+            // Lọc discount theo điều kiện ban đầu
+            var query = queryableDiscounts.Where(x => x.RestaurantId == restaurantId
+                                                     && x.Quantity > 0
+                                                     && x.IsActive == true 
+                                                     && x.StartDate <= DateTime.Now
+                                                     && x.EndDate >= DateTime.Now);
 
-            var queryDTO = query.Select(r => _mapper.Map<DiscountDto>(r));
+            // Kiểm tra discount cho khách hàng mới
+            if (query.Any(x => x.ApplicableTo == DiscountApplicableTo.NEW_CUSTOMER))
+            {
+                bool isFirstOrder = await _orderService.CheckIsFirstOrderAsync(customerId, restaurantId);
+                if (!isFirstOrder)
+                {
+                    query = query.Where(x => x.ApplicableTo != DiscountApplicableTo.NEW_CUSTOMER);
+                }
+            }
 
-            var paginatedDTOs = await PaginatedList<DiscountDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
+            // Kiểm tra discount cho khách hàng trung thành
+            if (query.Any(x => x.ApplicableTo == DiscountApplicableTo.LOYAL_CUSTOMER))
+            {
+                bool isLoyalCustomer = await _orderService.CheckIsLoyalCustomerAsync(customerId, restaurantId);
+                if (!isLoyalCustomer)
+                {
+                    query = query.Where(x => x.ApplicableTo != DiscountApplicableTo.LOYAL_CUSTOMER);
+                }
+            }
 
-            return paginatedDTOs;
+            // Lấy danh sách discount hợp lệ
+            var validDiscounts = await query.ToListAsync();
+
+            // Khởi tạo danh sách menuDiscounts
+            List<CreateDiscountMenuDto> menuDiscounts = new List<CreateDiscountMenuDto>();
+
+            // Kiểm tra và thêm discount vào danh sách
+            var discountDtos = new List<DiscountDto>();
+            foreach (var item in validDiscounts)
+            {
+                if (item.ApplyType == DiscountApplyType.ORDER_VALUE_RANGE
+                    && (item.MaxOrderValue < totalPrice || item.MinOrderValue > totalPrice))
+                {
+                    continue; // Bỏ qua nếu không thỏa mãn điều kiện ORDER_VALUE_RANGE
+                }
+
+                // Nếu discount có Scope là PER_SERVICE, lấy các menu discounts liên quan
+                if (item.Scope == DiscountScope.PER_SERVICE)
+                {
+                    var discountIds = validDiscounts.Select(x => x.DiscountId).ToList();
+                    menuDiscounts = await queryableDiscountMenu
+                        .Where(x => discountIds.Contains(x.DiscountId))
+                        .Select(x => new CreateDiscountMenuDto
+                        {
+                            MenuId = x.MenuId,
+                            DiscountMenuPercentage = x.DiscountMenuPercentage
+                        })
+                        .ToListAsync();
+                }
+
+                // Thêm discount vào danh sách
+                discountDtos.Add(new DiscountDto
+                {
+                    DiscountId = item.DiscountId,
+                    RestaurantId = item.RestaurantId,
+                    DiscountPercentage = item.DiscountPercentage,
+                    DiscountName = item.DiscountName,
+                    ApplicableTo = item.ApplicableTo,
+                    ApplyType = item.ApplyType,
+                    MinOrderValue = item.ApplyType == DiscountApplyType.ORDER_VALUE_RANGE ? item.MinOrderValue : null,
+                    MaxOrderValue = item.ApplyType == DiscountApplyType.ORDER_VALUE_RANGE ? item.MaxOrderValue : null,
+                    Scope = item.Scope,
+                    StartDate = item.StartDate,
+                    EndDate = item.EndDate,
+                    Description = item.Description,
+                    IsActive = item.IsActive,
+                    Quantity = item.Quantity,
+                    discountMenuDtos = item.Scope == DiscountScope.PER_SERVICE ? menuDiscounts : new List<CreateDiscountMenuDto>()
+                });
+            }
+            return discountDtos;
         }
 
 

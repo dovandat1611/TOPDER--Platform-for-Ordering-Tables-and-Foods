@@ -107,6 +107,26 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string CANCEL = "Cancel"; 
         }
 
+        public class DiscountApplicableTo
+        {
+            public static string ALL_CUSTOMERS = "All Customers";
+            public static string NEW_CUSTOMER = "New Customer";
+            public static string LOYAL_CUSTOMER = "Loyal Customer";
+        }
+
+        public class DiscountApplyType
+        {
+            public static string ALL_ORDERS = "All Orders";
+            public static string ORDER_VALUE_RANGE = "Order Value Range";
+        }
+
+        public class DiscountScope
+        {
+            public static string ENTIRE_ORDER = "Entire Order";
+            public static string PER_SERVICE = "Per Service";
+        }
+
+
         public class Order_PaymentContent
         {
             public static string PaymentContent (int id, int restaurantID)

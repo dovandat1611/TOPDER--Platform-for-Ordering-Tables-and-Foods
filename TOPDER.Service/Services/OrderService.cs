@@ -46,6 +46,25 @@ namespace TOPDER.Service.Services
             return isFirstOrder;
         }
 
+        public async Task<bool> CheckIsLoyalCustomerAsync(int customerId, int restaurantId)
+        {
+            var queryable = await _orderRepository.QueryableAsync();
+
+            var customerOrderCounts = queryable
+                .Where(order => order.RestaurantId == restaurantId) 
+                .GroupBy(order => order.CustomerId) 
+                .Select(group => new
+                {
+                    CustomerId = group.Key,
+                    OrderCount = group.Count()
+                })
+                .OrderByDescending(x => x.OrderCount) 
+                .Take(5)
+                .ToList();
+
+            return customerOrderCounts.Any(x => x.CustomerId == customerId);
+        }
+
 
         public async Task<PaginatedList<OrderCustomerDto>> GetCustomerPagingAsync(int pageNumber, int pageSize, int customerId, string? status)
         {

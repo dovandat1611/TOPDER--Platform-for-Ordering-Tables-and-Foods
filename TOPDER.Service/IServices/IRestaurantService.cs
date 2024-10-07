@@ -28,5 +28,8 @@ namespace TOPDER.Service.IServices
         Task<bool> UpdateDescriptionAsync(int restaurantId, string? description, string? subDescription);
         Task<DescriptionRestaurant> GetDescriptionAsync(int restaurantId);
 
+        // ISABLE BOOKING 
+        Task<bool> IsEnabledBookingAsync(int id, bool isEnabledBooking);
+
     }
 }

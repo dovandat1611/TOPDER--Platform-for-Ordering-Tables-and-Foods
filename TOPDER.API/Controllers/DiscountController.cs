@@ -20,32 +20,38 @@ namespace TOPDER.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddDiscount([FromBody] DiscountDto discountDto)
+        public async Task<IActionResult> AddDiscount([FromBody] DiscountDto discountDto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var result = await _discountService.AddAsync(discountDto);
-            if (result)
             {
-                return Ok("Tạo Discount thành công."); 
+                return BadRequest(ModelState);
             }
-            return BadRequest("Tạo Discount thất bại."); 
+
+            try
+            {
+                bool result = await _discountService.AddAsync(discountDto);
+
+                if (result)
+                {
+                    return Ok(new { Message = "Tạo khuyến mãi thành công." });
+                }
+                return BadRequest(new { Message = "Tạo khuyến mãi thất bại." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Đã xảy ra lỗi khi tạo khuyến mãi.", Details = ex.Message });
+            }
         }
 
-
-        [HttpGet("available/{restaurantId}")]
-        public async Task<ActionResult> GetAvailableDiscounts(int pageNumber, int pageSize, int restaurantId)
+        [HttpGet("available/{restaurantId}/{customerId}/{totalPrice}")]
+        public async Task<ActionResult> GetAvailableDiscounts(int restaurantId, int customerId, decimal totalPrice)
         {
-            var result = await _discountService.GetAvailableDiscountsAsync(pageNumber, pageSize, restaurantId);
-            var response = new PaginatedResponseDto<DiscountDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-            return Ok(response);
+            var result = await _discountService.GetAvailableDiscountsAsync(restaurantId, customerId, totalPrice);
+            return Ok(result);
         }
 
         [HttpGet("{restaurantId}/{id}")]

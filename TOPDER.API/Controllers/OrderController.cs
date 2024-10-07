@@ -92,16 +92,16 @@ namespace TOPDER.API.Controllers
             }
 
             // Check and apply order discount
-            if (orderModel.DiscountId.HasValue && orderModel.DiscountId.Value != 0)
-            {
-                var discount = await _discountRepository.GetByIdAsync(orderModel.DiscountId.Value);
-                if (discount != null && discount.IsActive == true && discount.Quantity > 0)
-                {
-                    totalAmount *= (1 - (discount.DiscountPercentage / 100));
-                    discount.Quantity -= 1;
-                    await _discountRepository.UpdateAsync(discount);
-                }
-            }
+            //if (orderModel.DiscountId.HasValue && orderModel.DiscountId.Value != 0)
+            //{
+            //    var discount = await _discountRepository.GetByIdAsync(orderModel.DiscountId.Value);
+            //    if (discount != null && discount.IsActive == true && discount.Quantity > 0)
+            //    {
+            //        totalAmount *= (1 - (discount.DiscountPercentage / 100));
+            //        discount.Quantity -= 1;
+            //        await _discountRepository.UpdateAsync(discount);
+            //    }
+            //}
 
             
             // Apply fee percentages based on customer status
@@ -468,11 +468,6 @@ namespace TOPDER.API.Controllers
                     if (completeOrder != null)
                     {
                         var wallet = completeOrder.WalletId; // Giả sử wallet không phải là null
-
-                        if (wallet == null)
-                        {
-                            return NotFound($"Ví không tồn tại cho nhà hàng với ID {completeOrder.RestaurantID}.");
-                        }
 
                         WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
                         {
