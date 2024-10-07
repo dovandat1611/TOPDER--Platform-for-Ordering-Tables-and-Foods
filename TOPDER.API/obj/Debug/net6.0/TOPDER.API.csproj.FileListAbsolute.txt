@@ -170,3 +170,5 @@ C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\TOPDER.AP
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\ref\TOPDER.API.dll
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\bin\Debug\net6.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\obj\Debug\net6.0\TOPDER.API.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.API\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.Google.dll

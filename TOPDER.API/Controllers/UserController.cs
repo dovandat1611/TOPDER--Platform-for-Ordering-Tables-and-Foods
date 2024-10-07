@@ -13,10 +13,12 @@ namespace TOPDER.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private IdentityService _identityService;
         private JwtService _jwtService; // Sử dụng interface cho JwtService
 
-        public UserController(IUserService userService, JwtService jwtService)
+        public UserController(IUserService userService, JwtService jwtService, IdentityService identityService)
         {
+            _identityService = identityService;
             _userService = userService;
             _jwtService = jwtService; // Khởi tạo JwtService
         }
@@ -44,18 +46,18 @@ namespace TOPDER.API.Controllers
                 Data = token
             });
         }
-
+        [HttpPost("signin-google")]
         public async Task<IActionResult> CheckAccessToken([FromBody] string accessToken)
         {
             var result = await _identityService.CheckAccessToken(accessToken);
 
             if (result.Success)
             {
-                return Ok(new { Token = result.Token });
+                return Ok(result);
             }
             else
             {
-                return BadRequest(result.ErrorMessage);
+                return BadRequest(result.Message);
             }
         }
     }

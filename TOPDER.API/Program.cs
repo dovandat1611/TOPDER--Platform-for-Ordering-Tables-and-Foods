@@ -55,7 +55,6 @@ builder.Services.Configure<MailSettings>(mailSettingsSection); // register for d
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
 
-// Add JWT authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -65,14 +64,20 @@ builder.Services.AddAuthentication(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = false,  
-        ValidateAudience = false, 
-        ValidateLifetime = true,  
-        ValidateIssuerSigningKey = true, 
-        IssuerSigningKey = new SymmetricSecurityKey(key) 
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key)
     };
+})
+.AddGoogle(options =>
+{
+    var googleSettings = builder.Configuration.GetSection("Google");
+    options.ClientId = googleSettings["ClientId"];
+    options.ClientSecret = googleSettings["ClientSecret"];
+    options.SaveTokens = true;
 });
-// ---- JWT Configuration END ----
 
 var app = builder.Build();
 

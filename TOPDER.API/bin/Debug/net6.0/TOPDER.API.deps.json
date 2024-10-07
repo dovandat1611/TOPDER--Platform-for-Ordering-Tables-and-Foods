@@ -8,6 +8,7 @@
     ".NETCoreApp,Version=v6.0": {
       "TOPDER.API/1.0.0": {
         "dependencies": {
+          "Microsoft.AspNetCore.Authentication.Google": "6.0.32",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "6.0.30",
           "Swashbuckle.AspNetCore": "6.2.3",
           "TOPDER.Repository": "1.0.0",
@@ -102,6 +103,14 @@
           "lib/net6.0/MailKit.dll": {
             "assemblyVersion": "4.7.0.0",
             "fileVersion": "4.7.1.1"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.Authentication.Google/6.0.32": {
+        "runtime": {
+          "lib/net6.0/Microsoft.AspNetCore.Authentication.Google.dll": {
+            "assemblyVersion": "6.0.32.0",
+            "fileVersion": "6.0.3224.31405"
           }
         }
       },
@@ -1182,6 +1191,13 @@
       "sha512": "sha512-Y3okmIxu8g/ZcoJiE2i+dCeKgnNyddsXmcJslZnCPGVPP0aRyeVINHV1h97V+OVMdqjQI6O12J2p8Duwq5UEqQ==",
       "path": "mailkit/4.7.1.1",
       "hashPath": "mailkit.4.7.1.1.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.Authentication.Google/6.0.32": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Hmx/gAKkDP7lcD+FatxnxOMvLMZLHSWC8ya0NLHxYEE6Ao8sWuyCjzt4OYSxt/IUc+RYg+wRjAn7sX/ASNH00A==",
+      "path": "microsoft.aspnetcore.authentication.google/6.0.32",
+      "hashPath": "microsoft.aspnetcore.authentication.google.6.0.32.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Authentication.JwtBearer/6.0.30": {
       "type": "package",

@@ -13,5 +13,7 @@ namespace TOPDER.Service.IServices
     public interface IUserService
     {
          Task<UserLoginDTO> GetUserByEmailAndPassword(string email, string password);
+
+        Task<UserLoginDTO> GetUserByEmail(string email);
     }   
 }
