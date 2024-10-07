@@ -10,6 +10,7 @@ using TOPDER.Repository.Entities;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.Dtos.Customer;
 using TOPDER.Repository.Repositories;
+using TOPDER.Repository.IRepositories;
 
 namespace TOPDER.API.Controllers
 {
@@ -25,11 +26,13 @@ namespace TOPDER.API.Controllers
         private readonly ISendMailService _sendMailService;
         private readonly JwtHelper _jwtHelper;
         private readonly AdminRepository _adminRepository;
+        private readonly IUserRepository _userRepository;
+
 
 
         public UserController(IRestaurantService restaurantService, ICloudinaryService cloudinaryService,
             ISendMailService sendMailService, IUserService userService, ICustomerService customerService,
-            IWalletService walletService, JwtHelper jwtHelper, AdminRepository adminRepository)
+            IWalletService walletService, JwtHelper jwtHelper, AdminRepository adminRepository, IUserRepository userRepository)
         {
             _restaurantService = restaurantService;
             _cloudinaryService = cloudinaryService;
@@ -39,6 +42,7 @@ namespace TOPDER.API.Controllers
             _walletService = walletService;
             _jwtHelper = jwtHelper;
             _adminRepository = adminRepository;
+            _userRepository = userRepository;
         }
 
         [HttpPost("login")]
@@ -254,6 +258,38 @@ namespace TOPDER.API.Controllers
             }
             return Ok("User successfully verified.");
         }
+
+        [HttpGet("updateStatus/{id}")]
+        public async Task<IActionResult> UpdateStatus(int id, string status)
+        {   
+
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound("Người dùng không tồn tại.");
+            }
+
+            if (string.IsNullOrEmpty(status) ||
+                (!status.Equals(Common_Status.INACTIVE) && !status.Equals(Common_Status.ACTIVE)))
+            {
+                return BadRequest("Trạng thái không hợp lệ. Vui lòng chọn ACTIVE hoặc INACTIVE.");
+            }
+
+
+            if (status.Equals(user.Status))
+            {
+                return Ok("Người dùng đã có trạng thái này.");
+            }
+
+            var update = await _userRepository.ChangeStatusAsync(id, status);
+            if (update)
+            {
+                return Ok("Cập nhật trạng thái người dùng thành công.");
+            }
+
+            return BadRequest("Cập nhật trạng thái người dùng thất bại.");
+        }
+
 
     }
 }
