@@ -103,6 +103,7 @@ namespace TOPDER.API.Controllers
                 }
             }
 
+            
             // Apply fee percentages based on customer status
             if (restaurant.FirstFeePercent.HasValue || restaurant.ReturningFeePercent.HasValue)
             {

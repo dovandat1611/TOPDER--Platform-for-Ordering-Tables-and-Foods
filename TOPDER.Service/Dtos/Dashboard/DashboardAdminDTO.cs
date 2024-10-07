@@ -13,8 +13,7 @@ namespace TOPDER.Service.Dtos.Dashboard
         public List<TopRestaurantDTO> TopRestaurantDTOs { get; set; } = null!;
         public CustomerAgeGroupDTO CustomerAgeGroup { get; set; } = null!;
         public List<ChartCategoryRestaurantDTO> ChartCategoryRestaurants { get; set; } = null!;
-        public MarketOverviewOrderDTO MarketOverviewOrder { get; set; } = null!;
-        public MarketOverviewTotalInComeDTO MarketOverviewTotalInCome { get; set; } = null!;
+        public MarketOverviewDTO MarketOverview { get; set; } = null!;
 
     }
 }

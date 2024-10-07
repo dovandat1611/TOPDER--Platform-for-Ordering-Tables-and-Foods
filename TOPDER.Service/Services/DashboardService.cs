@@ -19,6 +19,7 @@ namespace TOPDER.Service.Services
         private readonly IRestaurantRepository _restaurantRepository;
         private readonly IFeedbackRepository _feedbackRepository;
 
+
         public DashboardService(IOrderRepository orderRepository,
                                 ICustomerRepository customerRepository,
                                 IRestaurantRepository restaurantRepository,
@@ -48,10 +49,32 @@ namespace TOPDER.Service.Services
                 TaskBar = taskBar,
                 TopRestaurantDTOs = topRestaurants,
                 CustomerAgeGroup = customerAgeGroup,
-                MarketOverviewOrder = await GetMarketOverviewOrderAsync(orders),
-                MarketOverviewTotalInCome = await GetMarketOverviewIncomeAsync(orders)
+                ChartCategoryRestaurants = await GetChartCategoryRestaurantsAsync(),
+                MarketOverview = await GetMarketOverviewAdminAsync(orders, 0),
             };
         }
+
+        private async Task<List<ChartCategoryRestaurantDTO>> GetChartCategoryRestaurantsAsync()
+        {
+            // Fetch all restaurants with their associated categories from the database
+            var restaurants = await _restaurantRepository.QueryableAsync();
+
+            // Group by CategoryId and count the number of restaurants in each category
+            var categoryRestaurantData = await restaurants
+                .Include(r => r.CategoryRestaurant) // Include the related CategoryRestaurant entity
+                .Where(r => r.CategoryRestaurant != null)  // Ensure category exists
+                .GroupBy(r => new { r.CategoryRestaurantId, r.CategoryRestaurant.CategoryRestaurantName })  // Group by CategoryRestaurantId and CategoryRestaurantName
+                .Select(g => new ChartCategoryRestaurantDTO
+                {
+                    CategoryId = g.Key.CategoryRestaurantId ?? 0,  // Handle nullable CategoryRestaurantId
+                    CategoryName = g.Key.CategoryRestaurantName ?? Is_Null.ISNULL, // Ensure this matches the actual field
+                    RestaurantCount = g.Count()  // Count number of restaurants in each category
+                })
+                .ToListAsync();
+
+            return categoryRestaurantData;
+        }
+
 
         public async Task<DashboardRestaurantDto> GetDashboardRestaurantAsync(int restaurantId)
         {
@@ -66,14 +89,16 @@ namespace TOPDER.Service.Services
                 TaskBar = await GetTaskBarDataAsync(restaurantId),
                 OrderStatus = await GetOrderStatusAsync(restaurantId),
                 LoyalCustomers = await GetLoyalCustomersAsync(restaurantId),
-                MarketOverviewOrder = await GetMarketOverviewOrderAsync(restaurantId),
-                MarketOverviewTotalInCome = await GetMarketOverviewTotalIncomeAsync(restaurantId),
                 CustomerAgeGroup = await GetCustomerAgeGroupAsync(restaurantId),
-                FeedbackStars = await GetFeedbackStarsAsync(restaurantId)
+                FeedbackStars = await GetFeedbackStarsAsync(restaurantId),
+                MarketOverview = await GetMarketOverviewRestaurantAsync(restaurantId,0),
             };
 
             return dashboardDto;
         }
+
+
+
 
         private async Task<TaskBarRestaurantDTO> GetTaskBarDataAsync(int restaurantId)
         {
@@ -114,11 +139,11 @@ namespace TOPDER.Service.Services
             return new OrderStatusDTO
             {
                 TotalOrder = totalOrders,
-                Wait = orderStatusData.FirstOrDefault(g => g.StatusOrder == "Wait")?.Count ?? 0,
-                Accept = orderStatusData.FirstOrDefault(g => g.StatusOrder == "Accept")?.Count ?? 0,
-                Process = orderStatusData.FirstOrDefault(g => g.StatusOrder == "Process")?.Count ?? 0,
-                Done = orderStatusData.FirstOrDefault(g => g.StatusOrder == "Done")?.Count ?? 0,
-                Cancel = orderStatusData.FirstOrDefault(g => g.StatusOrder == "Cancel")?.Count ?? 0
+                Pending = orderStatusData.FirstOrDefault(g => g.StatusOrder == Order_Status.PENDING)?.Count ?? 0,
+                Confirm = orderStatusData.FirstOrDefault(g => g.StatusOrder == Order_Status.CONFIRM)?.Count ?? 0,
+                Paid = orderStatusData.FirstOrDefault(g => g.StatusOrder == Order_Status.PAID)?.Count ?? 0,
+                Complete = orderStatusData.FirstOrDefault(g => g.StatusOrder == Order_Status.COMPLETE)?.Count ?? 0,
+                Cancel = orderStatusData.FirstOrDefault(g => g.StatusOrder == Order_Status.CANCEL)?.Count ?? 0
             };
         }
 
@@ -151,51 +176,63 @@ namespace TOPDER.Service.Services
         }
 
 
-        private async Task<MarketOverviewOrderDTO> GetMarketOverviewOrderAsync(int restaurantId)
+        public async Task<MarketOverviewDTO> GetMarketOverviewRestaurantAsync(int restaurantId, int? filteredYear)
         {
-            var orders = await _orderRepository.QueryableAsync(); // Awaiting here
-            var filteredOrders = await orders
-                .Where(o => o.RestaurantId == restaurantId && o.CreatedAt.HasValue)
-                .ToListAsync();
+            // Fetch orders
+            var orders = await _orderRepository.QueryableAsync();
 
-            var monthlyOrderData = filteredOrders
+            // Determine the year to filter
+            int yearToFilter = (filteredYear == null || filteredYear == 0) ? DateTime.Now.Year : filteredYear.Value;
+
+            // Filter orders by restaurant ID and the specified year
+            var filteredOrdersForYear = orders.Where(o => o.RestaurantId == restaurantId
+                && o.CreatedAt.HasValue && o.CreatedAt.Value.Year == yearToFilter).ToList();
+
+            var filteredIncomeForYear = orders.Where(o => o.RestaurantId == restaurantId
+                && o.CompletedAt.HasValue && o.CompletedAt.Value.Year == yearToFilter).ToList();
+
+            // Monthly order data
+            var monthlyOrderData = filteredOrdersForYear
                 .GroupBy(o => o.CreatedAt.Value.Month)
-                .Select(g => new ChartOrderDTO
-                {
-                    Month = g.Key,
-                    TotalOrders = g.Count()
-                })
+                .Select(g => new { Month = g.Key, TotalOrders = g.Count() })
                 .ToList();
 
-            return new MarketOverviewOrderDTO
-            {
-                OrderForYear = filteredOrders.Count(o => o.CreatedAt.Value.Year == DateTime.Now.Year),
-                MonthlyOrderData = monthlyOrderData
-            };
-        }
-
-        private async Task<MarketOverviewTotalInComeDTO> GetMarketOverviewTotalIncomeAsync(int restaurantId)
-        {
-            var orders = await _orderRepository.QueryableAsync(); // Awaiting here
-            var filteredOrders = await orders
-                .Where(o => o.RestaurantId == restaurantId && o.CompletedAt.HasValue)
-                .ToListAsync();
-
-            var monthlyIncomeData = filteredOrders
+            // Monthly income data
+            var monthlyIncomeData = filteredIncomeForYear
                 .GroupBy(o => o.CompletedAt.Value.Month)
-                .Select(g => new ChartTotalInComeDTO
-                {
-                    Month = g.Key,
-                    TotalInComes = (double)g.Sum(o => o.TotalAmount) 
-                })
+                .Select(g => new { Month = g.Key, TotalInComes = g.Sum(o => (decimal?)o.TotalAmount) }) // Nullable sum to avoid exceptions
                 .ToList();
 
-            return new MarketOverviewTotalInComeDTO
+            // Create a list of months from 1 to 12
+            var months = Enumerable.Range(1, 12).ToList();
+
+            // Merge the two datasets by month, ensuring every month from 1 to 12 is included
+            var mergedMonthlyData = (from month in months
+                                     join order in monthlyOrderData on month equals order.Month into orderGroup
+                                     from order in orderGroup.DefaultIfEmpty()
+                                     join income in monthlyIncomeData on month equals income.Month into incomeGroup
+                                     from income in incomeGroup.DefaultIfEmpty()
+                                     select new ChartDTO
+                                     {
+                                         Month = month,
+                                         TotalOrders = order?.TotalOrders ?? 0,  // Use 0 if no orders for the month
+                                         TotalInComes = income?.TotalInComes ?? 0  // Use 0 if no income for the month
+                                     }).ToList();
+
+            // Calculate total income for the year, ensuring there are incomes
+            double totalIncomeForYear = filteredIncomeForYear.Any() ? (double)filteredIncomeForYear.Sum(o => o.TotalAmount) : 0;
+
+            // Return combined MarketOverviewDTO
+            return new MarketOverviewDTO
             {
-                TotalInComeForYear = (double)filteredOrders.Sum(o => o.TotalAmount),
-                MonthlyTotalInComeData = monthlyIncomeData
+                TotalInComeForYear = totalIncomeForYear,
+                OrderForYear = filteredOrdersForYear.Count(),
+                MonthlyData = mergedMonthlyData
             };
         }
+
+
+
 
         private async Task<CustomerAgeGroupDTO> GetCustomerAgeGroupAsync(int restaurantId)
         {
@@ -282,11 +319,11 @@ namespace TOPDER.Service.Services
             return new OrderStatusDTO
             {
                 TotalOrder = totalOrders,
-                Wait = orderStatusData.FirstOrDefault(g => g.StatusOrder == "Wait")?.Count ?? 0,
-                Accept = orderStatusData.FirstOrDefault(g => g.StatusOrder == "Accept")?.Count ?? 0,
-                Process = orderStatusData.FirstOrDefault(g => g.StatusOrder == "Process")?.Count ?? 0,
-                Done = orderStatusData.FirstOrDefault(g => g.StatusOrder == "Done")?.Count ?? 0,
-                Cancel = orderStatusData.FirstOrDefault(g => g.StatusOrder == "Cancel")?.Count ?? 0
+                Pending = orderStatusData.FirstOrDefault(g => g.StatusOrder == Order_Status.PENDING)?.Count ?? 0,
+                Confirm = orderStatusData.FirstOrDefault(g => g.StatusOrder == Order_Status.CONFIRM)?.Count ?? 0,
+                Paid = orderStatusData.FirstOrDefault(g => g.StatusOrder == Order_Status.PAID)?.Count ?? 0,
+                Complete = orderStatusData.FirstOrDefault(g => g.StatusOrder == Order_Status.COMPLETE)?.Count ?? 0,
+                Cancel = orderStatusData.FirstOrDefault(g => g.StatusOrder == Order_Status.CANCEL)?.Count ?? 0
             };
         }
 
@@ -362,6 +399,65 @@ namespace TOPDER.Service.Services
             };
         }
 
+        public async Task<MarketOverviewDTO> GetMarketOverviewAdminAsync(IQueryable<Order> orders, int? filteredYear)
+        {
+            // Determine the year to filter
+            int yearToFilter = (filteredYear == null || filteredYear == 0) ? DateTime.Now.Year : filteredYear.Value;
+
+            var filteredOrders = orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Year == yearToFilter);
+            var filteredIncome = orders.Where(o => o.CompletedAt.HasValue && o.CompletedAt.Value.Year == yearToFilter);
+
+            // Get monthly order data
+            var monthlyOrderData = await filteredOrders
+                .GroupBy(o => o.CreatedAt.Value.Month)
+                .Select(g => new { Month = g.Key, TotalOrders = g.Count() })
+                .ToListAsync();
+
+            // Get monthly income data
+            var monthlyIncomeData = await filteredIncome
+                .GroupBy(o => o.CompletedAt.Value.Month)
+                .Select(g => new { Month = g.Key, TotalInComes = g.Sum(o => (decimal?)o.TotalAmount) }) // Nullable sum to avoid exceptions
+                .ToListAsync();
+
+            // Create a list of months from 1 to 12
+            var months = Enumerable.Range(1, 12).ToList();
+
+            // Merge the two datasets by month, ensuring every month from 1 to 12 is included
+            var mergedMonthlyData = (from month in months
+                                     join order in monthlyOrderData on month equals order.Month into orderGroup
+                                     from order in orderGroup.DefaultIfEmpty()
+                                     join income in monthlyIncomeData on month equals income.Month into incomeGroup
+                                     from income in incomeGroup.DefaultIfEmpty()
+                                     select new ChartDTO
+                                     {
+                                         Month = month,
+                                         TotalOrders = order?.TotalOrders ?? 0,  // Use 0 if no orders for the month
+                                         TotalInComes = income?.TotalInComes ?? 0  // Use 0 if no income for the month
+                                     }).ToList();
+
+            // Calculate growth rates
+            var orderGrowthRateForYear = CalculateGrowthRate(filteredOrders, "Order"); // Only use filtered orders
+            var incomeGrowthRateForYear = CalculateGrowthRate(filteredIncome, "Income"); // Only use filtered income
+
+            // Calculate total income for the year, ensuring there are incomes
+            double totalIncomeForYear = filteredIncome.Any() ? (double)filteredIncome.Sum(o => o.TotalAmount) : 0;
+
+            // Create and return the MarketOverviewDTO
+            MarketOverviewDTO marketOverviewDTO = new MarketOverviewDTO()
+            {
+                TotalInComeForYear = totalIncomeForYear,
+                TotalInComeGrowthRateForYear = incomeGrowthRateForYear,
+                OrderForYear = filteredOrders.Count(),
+                OrderGrowthRateForYear = orderGrowthRateForYear,
+                MonthlyData = mergedMonthlyData
+            };
+
+            return marketOverviewDTO;
+        }
+
+
+
+
         private double CalculateGrowthRate(IQueryable<Order> orders, string type)
         {
             var lastMonthOrders = orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == DateTime.Now.AddMonths(-1).Month);
@@ -382,58 +478,6 @@ namespace TOPDER.Service.Services
 
             return 0;
         }
-
-
-        // Method to generate MarketOverviewOrderDTO
-        private async Task<MarketOverviewOrderDTO> GetMarketOverviewOrderAsync(IQueryable<Order> orders)
-        {
-            var currentYearOrders = orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Year == DateTime.Now.Year);
-
-            var monthlyOrderData = await currentYearOrders
-                .Where(o => o.CreatedAt.HasValue)
-                .GroupBy(o => o.CreatedAt.Value.Month)
-                .Select(g => new ChartOrderDTO
-                {
-                    Month = g.Key,
-                    TotalOrders = g.Count()
-                })
-                .ToListAsync();
-
-            var orderGrowthRateForYear = CalculateGrowthRate(orders, "Order");
-
-            return new MarketOverviewOrderDTO
-            {
-                OrderForYear = currentYearOrders.Count(),
-                OrderGrowthRateForYear = orderGrowthRateForYear,
-                MonthlyOrderData = monthlyOrderData
-            };
-        }
-
-        // Method to generate MarketOverviewTotalInComeDTO
-        private async Task<MarketOverviewTotalInComeDTO> GetMarketOverviewIncomeAsync(IQueryable<Order> orders)
-        {
-            var currentYearIncome = orders.Where(o => o.CompletedAt.HasValue && o.CompletedAt.Value.Year == DateTime.Now.Year);
-
-            var monthlyIncomeData = await currentYearIncome
-                .GroupBy(o => o.CompletedAt.Value.Month) 
-                .Select(g => new ChartTotalInComeDTO
-                {
-                    Month = g.Key,
-                    TotalInComes = g.Sum(o => (double)o.TotalAmount) 
-                })
-                .ToListAsync();
-
-
-            var incomeGrowthRateForYear = CalculateGrowthRate(orders, "Income");
-
-            return new MarketOverviewTotalInComeDTO
-            {
-                TotalInComeForYear = (double)currentYearIncome.Sum(o => o.TotalAmount),
-                TotalInComeGrowthRateForYear = incomeGrowthRateForYear,
-                MonthlyTotalInComeData = monthlyIncomeData
-            };
-        }
-
 
     }
 }

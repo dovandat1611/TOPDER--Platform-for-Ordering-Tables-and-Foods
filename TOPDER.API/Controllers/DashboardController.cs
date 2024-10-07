@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Dtos.Dashboard;
 using TOPDER.Service.IServices;
 
@@ -10,10 +11,12 @@ namespace TOPDER.API.Controllers
     public class DashboardController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;
+        private readonly IOrderRepository _orderRepository;
 
-        public DashboardController(IDashboardService dashboardService)
+        public DashboardController(IDashboardService dashboardService, IOrderRepository orderRepository)
         {
             _dashboardService = dashboardService;
+            _orderRepository = orderRepository;
         }
 
         [HttpGet("admin")]
@@ -51,5 +54,30 @@ namespace TOPDER.API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpGet("restaurant/overview/{restaurantId}")]
+        public async Task<IActionResult> GetMarketOverview(int restaurantId, [FromQuery] int? filteredYear)
+        {
+            // Gọi phương thức GetMarketOverviewRestaurantAsync
+            var result = await _dashboardService.GetMarketOverviewRestaurantAsync(restaurantId, filteredYear);
+
+            // Trả về kết quả
+            return Ok(result); // Trả về HTTP 200 với kết quả
+        }
+
+        [HttpGet("admin/overview")]
+        public async Task<IActionResult> GetMarketOverview([FromQuery] int? filteredYear)
+        {
+            // Fetch all orders using the repository
+            var orders = await _orderRepository.QueryableAsync();
+
+            // Gọi phương thức GetMarketOverviewAdminAsync
+            var result = await _dashboardService.GetMarketOverviewAdminAsync(orders.AsQueryable(), filteredYear);
+
+            // Trả về kết quả
+            return Ok(result); // Trả về HTTP 200 với kết quả
+        }
+
+
     }
 }

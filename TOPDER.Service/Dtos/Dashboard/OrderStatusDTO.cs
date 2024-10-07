@@ -9,10 +9,10 @@ namespace TOPDER.Service.Dtos.Dashboard
     public class OrderStatusDTO
     {
         public int TotalOrder { get; set; }
-        public int Wait { get; set; }
-        public int Accept { get; set; }
-        public int Process { get; set; }
-        public int Done { get; set; }
+        public int Pending { get; set; }
+        public int Confirm { get; set; }
+        public int Paid { get; set; }
+        public int Complete { get; set; }
         public int Cancel { get; set; }
     }
 }

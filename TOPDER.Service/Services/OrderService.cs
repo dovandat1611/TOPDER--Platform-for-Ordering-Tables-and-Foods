@@ -227,6 +227,7 @@ namespace TOPDER.Service.Services
                 WalletBalance = updatedWalletBalance ?? 0,
                 TotalAmount = order.TotalAmount - serviceFee,
             };
+
         }
 
 
