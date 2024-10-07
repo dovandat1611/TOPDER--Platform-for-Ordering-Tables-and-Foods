@@ -44,5 +44,19 @@ namespace TOPDER.API.Controllers
                 Data = token
             });
         }
+
+        public async Task<IActionResult> CheckAccessToken([FromBody] string accessToken)
+        {
+            var result = await _identityService.CheckAccessToken(accessToken);
+
+            if (result.Success)
+            {
+                return Ok(new { Token = result.Token });
+            }
+            else
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+        }
     }
 }
