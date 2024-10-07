@@ -64,6 +64,10 @@
               "target": "Package",
               "version": "[4.7.1.1, )"
             },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[6.0.30, )"
+            },
             "Microsoft.AspNetCore.Http": {
               "target": "Package",
               "version": "[2.2.2, )"
@@ -86,6 +90,10 @@
               "target": "Package",
               "version": "[6.0.1, )"
             },
+            "Microsoft.IdentityModel.Tokens": {
+              "target": "Package",
+              "version": "[6.36.0, )"
+            },
             "MimeKit": {
               "target": "Package",
               "version": "[4.7.1, )"
@@ -93,6 +101,10 @@
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[6.36.0, )"
             },
             "payOS": {
               "target": "Package",

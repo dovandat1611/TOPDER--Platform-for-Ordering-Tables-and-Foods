@@ -26,6 +26,12 @@ namespace TOPDER.Service.Services
             _mapper = mapper;
         }
 
+        public async Task<Customer> AddAsync(CreateCustomerRequest customerRequest)
+        {
+            var customer = _mapper.Map<Customer>(customerRequest);
+            return await _customerRepository.CreateAndReturnAsync(customer);
+        }
+
         public async Task<PaginatedList<CustomerInfoDto>> GetPagingAsync(int pageNumber, int pageSize)
         {
             var query = await _customerRepository.QueryableAsync();

@@ -140,6 +140,8 @@ namespace TOPDER.Service.Mapper
             CreateMap<Customer, CustomerInfoDto>()
                 .ForMember(dest => dest.Email, otp => otp.MapFrom(src => src.UidNavigation.Email));
 
+            CreateMap<CreateCustomerRequest, Customer>().ReverseMap();
+
             // CONTACT
             CreateMap<ContactDto, Contact>().ReverseMap();
 
@@ -286,6 +288,20 @@ namespace TOPDER.Service.Mapper
 
             // USER 
             CreateMap<UserDto, User>().ReverseMap();
+            CreateMap<User, UserLoginDTO>()
+                .ForMember(dest => dest.RoleName,
+                           opt => opt.MapFrom(src => src.Role != null ? src.Role.Name : "Unknown Role"))
+                .ForMember(dest => dest.Name,
+                           opt => opt.MapFrom(src =>
+                               src.Customer != null ? src.Customer.Name :
+                               (src.Restaurant != null ? src.Restaurant.NameRes :
+                               (src.Admin != null ? src.Admin.Name : "Unknown Name"))))
+                .ForMember(dest => dest.Phone,
+                           opt => opt.MapFrom(src =>
+                               src.Admin != null ? src.Admin.Phone :
+                               (src.Restaurant != null ? src.Restaurant.Phone :
+                               (src.Customer != null ? src.Customer.Phone : "Unknown Phone"))));
+
 
             //ROLE
             CreateMap<RoleDto, Role>().ReverseMap();

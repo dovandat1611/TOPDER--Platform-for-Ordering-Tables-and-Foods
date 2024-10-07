@@ -14,5 +14,6 @@ namespace TOPDER.Service.IServices
     public interface ICustomerService
     {
         Task<PaginatedList<CustomerInfoDto>> GetPagingAsync(int pageNumber, int pageSize);
+        Task<Customer> AddAsync(CreateCustomerRequest customerRequest);
     }
 }

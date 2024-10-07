@@ -101,6 +101,25 @@ namespace TOPDER.Service.Services
             return userPayment;
         }
 
+        public async Task<UserLoginDTO> GetUserByEmailAndPassword(LoginModel loginModel)
+        {
+            var users = await _userRepository.QueryableAsync();
+
+            var user = await users
+                .Include(x => x.Role)
+                .Include(x => x.Admin)
+                .Include(x => x.Customer)
+                .Include(x => x.Restaurant)
+                .SingleOrDefaultAsync(u => u.Email == loginModel.Email);
+
+            if (user == null || !BCrypt.Net.BCrypt.Verify(loginModel.Password, user.Password))
+            {
+                throw new UnauthorizedAccessException("Email hoặc mật khẩu không hợp lệ.");
+            }
+
+            return _mapper.Map<UserLoginDTO>(user);
+        }
+
         public async Task<bool> Verify(int id)
         {
             var user = await _userRepository.GetByIdAsync(id);
