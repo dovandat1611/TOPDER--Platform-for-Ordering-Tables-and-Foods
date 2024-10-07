@@ -1,12 +1,14 @@
 ﻿using MailKit.Search;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Net.payOS.Types;
 using Org.BouncyCastle.Utilities.Encoders;
 using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.BlogGroup;
+using TOPDER.Service.Dtos.Discount;
 using TOPDER.Service.Dtos.Email;
 using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.OrderMenu;
@@ -36,13 +38,16 @@ namespace TOPDER.API.Controllers
         private readonly IWalletTransactionService _walletTransactionService;
         private readonly IPaymentGatewayService _paymentGatewayService;
         private readonly ISendMailService _sendMailService;
+        private readonly IDiscountMenuRepository _discountMenuRepository;
+
 
 
         public OrderController(IOrderService orderService, IOrderMenuService orderMenuService,
             IWalletService walletService, IMenuRepository menuRepository,
             IRestaurantRepository restaurantRepository, IDiscountRepository discountRepository,
             IUserService userService, IWalletTransactionService walletTransactionService,
-            IPaymentGatewayService paymentGatewayService, ISendMailService sendMailService, IOrderTableService orderTableService)
+            IPaymentGatewayService paymentGatewayService, ISendMailService sendMailService,
+            IOrderTableService orderTableService, IDiscountMenuRepository discountMenuRepository)
         {
             _orderService = orderService;
             _orderMenuService = orderMenuService;
@@ -55,6 +60,7 @@ namespace TOPDER.API.Controllers
             _paymentGatewayService = paymentGatewayService;
             _sendMailService = sendMailService;
             _orderTableService = orderTableService;
+            _discountMenuRepository = discountMenuRepository;
         }
 
 
@@ -69,21 +75,11 @@ namespace TOPDER.API.Controllers
                 return BadRequest("Order cannot be null.");
             }
 
+
+
             decimal totalAmount = 0;
             var restaurant = await _restaurantRepository.GetByIdAsync(orderModel.RestaurantId);
 
-            // Calculate total amount from OrderMenus
-            if (orderModel.OrderMenus != null && orderModel.OrderMenus.Any())
-            {
-                foreach (var orderMenu in orderModel.OrderMenus)
-                {
-                    var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
-                    if (menu != null)
-                    {
-                        totalAmount += menu.Price * (orderMenu.Quantity ?? 1);
-                    }
-                }
-            }
 
             // Apply restaurant discount
             if (restaurant.Price > 0 && restaurant.Discount > 0)
@@ -91,19 +87,53 @@ namespace TOPDER.API.Controllers
                 totalAmount += restaurant.Price * (1 - (restaurant.Discount.Value / 100));
             }
 
-            // Check and apply order discount
-            //if (orderModel.DiscountId.HasValue && orderModel.DiscountId.Value != 0)
-            //{
-            //    var discount = await _discountRepository.GetByIdAsync(orderModel.DiscountId.Value);
-            //    if (discount != null && discount.IsActive == true && discount.Quantity > 0)
-            //    {
-            //        totalAmount *= (1 - (discount.DiscountPercentage / 100));
-            //        discount.Quantity -= 1;
-            //        await _discountRepository.UpdateAsync(discount);
-            //    }
-            //}
 
-            
+            // Check and apply order discount
+            if (orderModel.DiscountId.HasValue && orderModel.DiscountId.Value != 0)
+            {
+                var discount = await _discountRepository.GetByIdAsync(orderModel.DiscountId.Value);
+
+                if (discount != null && discount.IsActive == true && discount.Quantity > 0)
+                {
+                    if (discount.Scope == DiscountScope.ENTIRE_ORDER)
+                    {
+                        // Áp dụng giảm giá cho toàn bộ đơn hàng
+                        totalAmount *= (1 - (discount.DiscountPercentage / 100)) ?? 0;
+                        discount.Quantity -= 1;
+                        await _discountRepository.UpdateAsync(discount);
+                    }
+                    else if (discount.Scope == DiscountScope.PER_SERVICE)
+                    {
+                        // Lấy danh sách menu giảm giá
+                        var discountMenus = await _discountMenuRepository.QueryableAsync();
+                        var applicableMenus = await discountMenus
+                            .Where(x => x.DiscountId == discount.DiscountId)
+                            .ToListAsync();
+
+                        if (orderModel.OrderMenus != null && orderModel.OrderMenus.Any())
+                        {
+                            foreach (var orderMenu in orderModel.OrderMenus)
+                            {
+                                var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
+                                if (menu != null)
+                                {
+                                    // Tìm menu trong danh sách giảm giá
+                                    var menuDiscount = applicableMenus.FirstOrDefault(x => x.MenuId == menu.MenuId);
+                                    if (menuDiscount != null)
+                                    {
+                                        totalAmount += (menu.Price * (1 - (menuDiscount.DiscountMenuPercentage / 100)) * (orderMenu.Quantity ?? 1));
+                                    }
+                                    else
+                                    {
+                                        totalAmount += (menu.Price * (orderMenu.Quantity ?? 1));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             // Apply fee percentages based on customer status
             if (restaurant.FirstFeePercent.HasValue || restaurant.ReturningFeePercent.HasValue)
             {
