@@ -61,7 +61,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<Admin>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Admin__DD7012643138E6AA");
+                    .HasName("PK__Admin__DD70126473A04321");
 
                 entity.ToTable("Admin");
 
@@ -287,7 +287,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<Customer>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Customer__DD701264A30DDBCC");
+                    .HasName("PK__Customer__DD70126413A0C90B");
 
                 entity.ToTable("Customer");
 
@@ -774,7 +774,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<Restaurant>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Restaura__DD7012649B1A59C1");
+                    .HasName("PK__Restaura__DD701264AAFA1580");
 
                 entity.ToTable("Restaurant");
 
@@ -861,7 +861,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<RestaurantRoom>(entity =>
             {
                 entity.HasKey(e => e.RoomId)
-                    .HasName("PK__Restaura__19675A8AC523CD8C");
+                    .HasName("PK__Restaura__19675A8A35DAF0D6");
 
                 entity.ToTable("Restaurant_Room");
 
@@ -898,7 +898,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<RestaurantTable>(entity =>
             {
                 entity.HasKey(e => e.TableId)
-                    .HasName("PK__Restaura__B21E8F24653136AF");
+                    .HasName("PK__Restaura__B21E8F24EED8D0E5");
 
                 entity.ToTable("Restaurant_Table");
 
@@ -946,11 +946,11 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__User__DD701264E2DF24BA");
+                    .HasName("PK__User__DD701264CDF3CBBC");
 
                 entity.ToTable("User");
 
-                entity.HasIndex(e => e.Email, "UQ__User__AB6E61640529FE7D")
+                entity.HasIndex(e => e.Email, "UQ__User__AB6E6164698A6B41")
                     .IsUnique();
 
                 entity.Property(e => e.Uid).HasColumnName("uid");
@@ -1028,7 +1028,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<WalletTransaction>(entity =>
             {
                 entity.HasKey(e => e.TransactionId)
-                    .HasName("PK__Wallet_T__85C600AF1B7383D4");
+                    .HasName("PK__Wallet_T__85C600AFE55EED08");
 
                 entity.ToTable("Wallet_Transaction");
 

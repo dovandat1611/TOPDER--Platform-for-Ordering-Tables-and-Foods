@@ -17,6 +17,7 @@ namespace TOPDER.Service.IServices
         Task<UserLoginDTO> GetUserByEmailAndPassword(LoginModel loginModel);
         Task<User> AddAsync(UserDto userDto);
         Task<bool> Verify(int id);
+        Task<UserLoginDTO> GetUserByEmail(string email);
         Task<UserPayment> GetInformationUserToPayment(int id);
         Task<UserOrderIsBalance> GetInformationUserOrderIsBalance(int id);
     }

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "a73Qopq8cDlqTEtsjZl9OqGSkI2HT1mgkmjjtJ9nGUs3VGz96L+Nt4aoanv+jfF482Cfwm/IDYpb5E161aYlMA==",
+  "dgSpecHash": "tqWj8KHZWnEXZu8Z0Mz+qokNNkz7jj4Bm+nYniE1JlMTjje3UN7t4j9EJQpiKspa39UdIlDdB+5reUptjfF+WQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\Lenovo\\Documents\\C#\\CAPSTONE\\TOPDER\\TOPDER.Repository\\TOPDER.Repository.csproj",
   "expectedPackageFiles": [
@@ -13,6 +13,7 @@
     "C:\\Users\\Lenovo\\.nuget\\packages\\epplus.system.drawing\\6.1.1\\epplus.system.drawing.6.1.1.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\mailkit\\4.7.1.1\\mailkit.4.7.1.1.nupkg.sha512",
+    "C:\\Users\\Lenovo\\.nuget\\packages\\microsoft.aspnetcore.authentication.google\\6.0.32\\microsoft.aspnetcore.authentication.google.6.0.32.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\6.0.30\\microsoft.aspnetcore.authentication.jwtbearer.6.0.30.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\microsoft.aspnetcore.http\\2.2.2\\microsoft.aspnetcore.http.2.2.2.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\microsoft.aspnetcore.http.abstractions\\2.2.0\\microsoft.aspnetcore.http.abstractions.2.2.0.nupkg.sha512",

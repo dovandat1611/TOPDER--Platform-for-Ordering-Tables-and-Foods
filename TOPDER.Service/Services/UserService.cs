@@ -101,6 +101,20 @@ namespace TOPDER.Service.Services
             return userPayment;
         }
 
+        public async Task<UserLoginDTO> GetUserByEmail(string email)
+        {
+            var users = await _userRepository.QueryableAsync();
+
+            var user = await users
+                .Include(x => x.Role)
+                .Include(x => x.Admin)
+                .Include(x => x.Customer)
+                .Include(x => x.Restaurant)
+                .SingleOrDefaultAsync(u => u.Email == email);
+
+            return _mapper.Map<UserLoginDTO>(user);
+        }
+
         public async Task<UserLoginDTO> GetUserByEmailAndPassword(LoginModel loginModel)
         {
             var users = await _userRepository.QueryableAsync();

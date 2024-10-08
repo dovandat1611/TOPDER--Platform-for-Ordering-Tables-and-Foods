@@ -20,15 +20,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"], 
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])) 
         };
+    })
+    .AddGoogle(options =>
+    {
+        var googleSettings = builder.Configuration.GetSection("Google");
+        options.ClientId = googleSettings["ClientId"];
+        options.ClientSecret = googleSettings["ClientSecret"];
+        options.SaveTokens = true;
     });
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -76,6 +84,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 builder.Services.AddScoped<IWalletTransactionRepository, WalletTransactionRepository>();
 builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
+builder.Services.AddScoped<IDiscountMenuRepository, DiscountMenuRepository>();
+
 
 
 // Service: Transient
@@ -111,18 +121,16 @@ builder.Services.AddTransient<IWalletTransactionService, WalletTransactionServic
 builder.Services.AddTransient<IWishlistService, WishlistService>();
 builder.Services.AddTransient<IWishlistService, WishlistService>();
 
-
-
 // Other: ASK CHAT GPT
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<ISendMailService, SendMailService>();
 builder.Services.AddTransient<IExcelService, ExcelService>();
 builder.Services.AddScoped<IPaymentGatewayService, PaymentGatewayService>();
+builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddSingleton<JwtHelper>();
 
 // ADD CORS
 builder.Services.AddCors();
-
 
 
 // Configure MailSettings

@@ -14,8 +14,8 @@ namespace TOPDER.Repository.Entities
         }
 
         public int Uid { get; set; }
-        public string Name { get; set; } = null!;
-        public string Phone { get; set; } = null!;
+        public string? Name { get; set; }
+        public string? Phone { get; set; }
         public string? Image { get; set; }
         public DateTime? Dob { get; set; }
         public string? Gender { get; set; }

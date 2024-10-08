@@ -86,3 +86,4 @@ C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\TOPDER.
 C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\payos-lib-backend-dotnet.dll
 C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.Google.dll

@@ -27,12 +27,14 @@ namespace TOPDER.API.Controllers
         private readonly JwtHelper _jwtHelper;
         private readonly AdminRepository _adminRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IIdentityService _identityService;
 
 
 
         public UserController(IRestaurantService restaurantService, ICloudinaryService cloudinaryService,
             ISendMailService sendMailService, IUserService userService, ICustomerService customerService,
-            IWalletService walletService, JwtHelper jwtHelper, AdminRepository adminRepository, IUserRepository userRepository)
+            IWalletService walletService, JwtHelper jwtHelper, AdminRepository adminRepository,
+            IUserRepository userRepository, IIdentityService identityService)
         {
             _restaurantService = restaurantService;
             _cloudinaryService = cloudinaryService;
@@ -43,6 +45,7 @@ namespace TOPDER.API.Controllers
             _jwtHelper = jwtHelper;
             _adminRepository = adminRepository;
             _userRepository = userRepository;
+            _identityService = identityService;
         }
 
         [HttpPost("login")]
@@ -70,6 +73,21 @@ namespace TOPDER.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Có lỗi xảy ra. Vui lòng thử lại sau.", error = ex.Message });
+            }
+        }
+
+        [HttpPost("signin-google")]
+        public async Task<IActionResult> CheckAccessToken([FromBody] string accessToken)
+        {
+            var result = await _identityService.AuthenticateWithGoogle(accessToken);
+
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest(result.Message);
             }
         }
 
