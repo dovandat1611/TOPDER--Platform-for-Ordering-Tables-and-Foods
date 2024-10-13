@@ -72,82 +72,34 @@ namespace TOPDER.API.Controllers
         {
             if (orderModel == null)
             {
-                return BadRequest("Order cannot be null.");
+                return BadRequest("Order không thể null.");
             }
 
-
-            decimal totalAmount = 0;
             var restaurant = await _restaurantRepository.GetByIdAsync(orderModel.RestaurantId);
 
-            // Apply restaurant discount
-            if (restaurant.Price > 0 && restaurant.Discount > 0)
+            if (restaurant == null)
             {
-                totalAmount += restaurant.Price * (1 - (restaurant.Discount.Value / 100));
+                return NotFound("Nhà hàng không tồn tại.");
             }
 
-
-            // Check and apply order discount
-            if (orderModel.DiscountId.HasValue && orderModel.DiscountId.Value != 0)
+            // Nếu đặt bàn miễn phí
+            if (restaurant.Price == 0 &&
+                (orderModel.OrderMenus == null || !orderModel.OrderMenus.Any()))
             {
-                var discount = await _discountRepository.GetByIdAsync(orderModel.DiscountId.Value);
-
-                if (discount != null && discount.IsActive == true && discount.Quantity > 0)
+                var orderToFree = await CreateFreeOrderAsync(orderModel);
+                if (orderToFree != null)
                 {
-                    if (discount.Scope == DiscountScope.ENTIRE_ORDER)
-                    {
-                        // Áp dụng giảm giá cho toàn bộ đơn hàng
-                        totalAmount *= (1 - (discount.DiscountPercentage / 100)) ?? 0;
-                        discount.Quantity -= 1;
-                        await _discountRepository.UpdateAsync(discount);
-                    }
-                    else if (discount.Scope == DiscountScope.PER_SERVICE)
-                    {
-                        // Lấy danh sách menu giảm giá
-                        var discountMenus = await _discountMenuRepository.QueryableAsync();
-                        var applicableMenus = await discountMenus
-                            .Where(x => x.DiscountId == discount.DiscountId)
-                            .ToListAsync();
-
-                        if (orderModel.OrderMenus != null && orderModel.OrderMenus.Any())
-                        {
-                            foreach (var orderMenu in orderModel.OrderMenus)
-                            {
-                                var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
-                                if (menu != null)
-                                {
-                                    // Tìm menu trong danh sách giảm giá
-                                    var menuDiscount = applicableMenus.FirstOrDefault(x => x.MenuId == menu.MenuId);
-                                    if (menuDiscount != null)
-                                    {
-                                        totalAmount += (menu.Price * (1 - (menuDiscount.DiscountMenuPercentage / 100)) * (orderMenu.Quantity ?? 1));
-                                    }
-                                    else
-                                    {
-                                        totalAmount += (menu.Price * (orderMenu.Quantity ?? 1));
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    await SendOrderEmailAsync(orderToFree.OrderId);
+                    return Ok("Tạo đơn hàng miễn phí thành công");
                 }
+                return BadRequest("Tạo đơn hàng miễn phí thất bại");
             }
 
-            // Apply fee percentages based on customer status
-            if (restaurant.FirstFeePercent.HasValue || restaurant.ReturningFeePercent.HasValue)
-            {
-                var isFirst = await _orderService.CheckIsFirstOrderAsync(orderModel.CustomerId, orderModel.RestaurantId);
-                if (isFirst && restaurant.FirstFeePercent.HasValue && restaurant.FirstFeePercent.Value > 0)
-                {
-                    totalAmount *= (1 - (restaurant.FirstFeePercent.Value / 100));
-                }
-                else if (!isFirst && restaurant.ReturningFeePercent.HasValue && restaurant.ReturningFeePercent.Value > 0)
-                {
-                    totalAmount *= (1 - (restaurant.ReturningFeePercent.Value / 100));
-                }
-            }
+            // Tính toán tổng tiền cho đơn hàng
+            decimal totalAmount = await CalculateTotalAmountAsync(orderModel, restaurant);
 
-            // Create Order
-            OrderDto orderDto = new OrderDto
+            // Tạo đơn hàng
+            var orderDto = new OrderDto
             {
                 OrderId = 0,
                 CustomerId = orderModel.CustomerId,
@@ -168,34 +120,183 @@ namespace TOPDER.API.Controllers
             };
 
             var order = await _orderService.AddAsync(orderDto);
-
             if (order != null)
             {
                 if (orderModel.OrderMenus != null && orderModel.OrderMenus.Any())
                 {
-                    List<CreateOrUpdateOrderMenuDto> createOrUpdateOrderMenuDtos = new List<CreateOrUpdateOrderMenuDto>();
-                    foreach (var orderMenu in orderModel.OrderMenus)
-                    {
-                        var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
-                        if (menu != null)
-                        {
-                            createOrUpdateOrderMenuDtos.Add(new CreateOrUpdateOrderMenuDto
-                            {
-                                OrderMenuId = 0,
-                                OrderId = order.OrderId,
-                                MenuId = orderMenu.MenuId,
-                                Quantity = orderMenu.Quantity,
-                                Price = menu.Price,
-                            });
-                        }
-                    }
-                    await _orderMenuService.AddRangeAsync(createOrUpdateOrderMenuDtos);
+                    await AddOrderMenusAsync(order.OrderId, orderModel.OrderMenus);
                 }
-                var orderEmail = await _orderService.GetEmailForOrderAsync(order.OrderId, User_Role.RESTAURANT);
-                await _sendMailService.SendEmailAsync(orderEmail.Email,Email_Subject.NEWORDER, EmailTemplates.NewOrder(orderEmail.Name,orderEmail.OrderId));
+                await SendOrderEmailAsync(order.OrderId);
+                return Ok("Tạo đơn hàng thành công");
             }
+
             return BadRequest("Tạo đơn hàng thất bại");
         }
+
+        // Phương thức tạo đơn hàng miễn phí
+        private async Task<Order> CreateFreeOrderAsync(OrderModel orderModel)
+        {
+            OrderDto orderDtoToFree = new OrderDto
+            {
+                OrderId = 0,
+                CustomerId = orderModel.CustomerId,
+                RestaurantId = orderModel.RestaurantId,
+                DiscountId = orderModel.DiscountId ?? null,
+                CategoryRoomId = orderModel.CategoryRoomId ?? null,
+                NameReceiver = orderModel.NameReceiver,
+                PhoneReceiver = orderModel.PhoneReceiver,
+                TimeReservation = orderModel.TimeReservation,
+                DateReservation = orderModel.DateReservation,
+                NumberPerson = orderModel.NumberPerson,
+                NumberChild = orderModel.NumberChild,
+                ContentReservation = orderModel.ContentReservation,
+                TypeOrder = Order_Type.RESERVATION,
+                TotalAmount = 0,
+                StatusOrder = Order_Status.PENDING,
+                CreatedAt = DateTime.Now
+            };
+
+            return await _orderService.AddAsync(orderDtoToFree);
+        }
+
+        // Phương thức tính toán tổng tiền đơn hàng
+        private async Task<decimal> CalculateTotalAmountAsync(OrderModel orderModel, Restaurant restaurant)
+        {
+            decimal totalAmount = 0;
+
+            // Kiểm tra và áp dụng giảm giá cho nhà hàng
+            if (restaurant.Price > 0)
+            {
+                totalAmount += restaurant.Price;
+                if (restaurant.Discount > 0)
+                {
+                    totalAmount *= (1 - (restaurant.Discount.Value / 100));
+                }
+            }
+
+            // Kiểm tra và áp dụng giảm giá cho đơn hàng
+            if (orderModel.DiscountId.HasValue && orderModel.DiscountId.Value != 0)
+            {
+                var discount = await _discountRepository.GetByIdAsync(orderModel.DiscountId.Value);
+                if (discount != null && discount.IsActive.HasValue && discount.IsActive.Value && discount.Quantity > 0)
+                {
+                    if (discount.Scope == DiscountScope.ENTIRE_ORDER)
+                    {
+                        totalAmount *= (1 - (discount.DiscountPercentage / 100)) ?? 0;
+                        discount.Quantity -= 1;
+                        await _discountRepository.UpdateAsync(discount);
+                    }
+                    else if (discount.Scope == DiscountScope.PER_SERVICE)
+                    {
+                        await ApplyServiceDiscountAsync(orderModel, discount, totalAmount);
+                    }
+                }
+            }
+            else
+            {
+                totalAmount += await CalculateMenuTotalAsync(orderModel);
+            }
+
+            // Áp dụng phí dựa trên trạng thái khách hàng
+            totalAmount = await ApplyCustomerFeeAsync(orderModel.CustomerId, restaurant, totalAmount);
+
+            return totalAmount;
+        }
+
+        // Phương thức áp dụng giảm giá theo menu
+        private async Task ApplyServiceDiscountAsync(OrderModel orderModel, Discount discount, decimal totalAmount)
+        {
+            var discountMenus = await _discountMenuRepository.QueryableAsync();
+            var applicableMenus = await discountMenus
+                .Where(x => x.DiscountId == discount.DiscountId)
+                .ToListAsync();
+
+            if (orderModel.OrderMenus != null && orderModel.OrderMenus.Any())
+            {
+                foreach (var orderMenu in orderModel.OrderMenus)
+                {
+                    var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
+                    if (menu != null)
+                    {
+                        var menuDiscount = applicableMenus.FirstOrDefault(x => x.MenuId == menu.MenuId);
+                        if (menuDiscount != null)
+                        {
+                            totalAmount += (menu.Price * (1 - (menuDiscount.DiscountMenuPercentage / 100)) * (orderMenu.Quantity ?? 1));
+                        }
+                        else
+                        {
+                            totalAmount += (menu.Price * (orderMenu.Quantity ?? 1));
+                        }
+                    }
+                }
+            }
+        }
+
+        // Phương thức tính tổng tiền theo menu
+        private async Task<decimal> CalculateMenuTotalAsync(OrderModel orderModel)
+        {
+            decimal totalAmount = 0;
+            if (orderModel.OrderMenus != null && orderModel.OrderMenus.Any())
+            {
+                foreach (var orderMenu in orderModel.OrderMenus)
+                {
+                    var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
+                    if (menu != null)
+                    {
+                        totalAmount += (menu.Price * (orderMenu.Quantity ?? 1));
+                    }
+                }
+            }
+            return totalAmount;
+        }
+
+        // Phương thức áp dụng phí dựa trên trạng thái khách hàng
+        private async Task<decimal> ApplyCustomerFeeAsync(int customerId, Restaurant restaurant, decimal totalAmount)
+        {
+            if (restaurant.FirstFeePercent.HasValue || restaurant.ReturningFeePercent.HasValue)
+            {
+                var isFirst = await _orderService.CheckIsFirstOrderAsync(customerId, restaurant.Uid);
+                if (isFirst && restaurant.FirstFeePercent.HasValue && restaurant.FirstFeePercent.Value > 0)
+                {
+                    totalAmount *= (1 - (restaurant.FirstFeePercent.Value / 100));
+                }
+                else if (!isFirst && restaurant.ReturningFeePercent.HasValue && restaurant.ReturningFeePercent.Value > 0)
+                {
+                    totalAmount *= (1 - (restaurant.ReturningFeePercent.Value / 100));
+                }
+            }
+            return totalAmount;
+        }
+
+        // Phương thức thêm danh sách menu vào đơn hàng
+        private async Task AddOrderMenusAsync(int orderId, List<OrderMenuModelDto> orderMenus)
+        {
+            List<CreateOrUpdateOrderMenuDto> createOrUpdateOrderMenuDtos = new List<CreateOrUpdateOrderMenuDto>();
+            foreach (var orderMenu in orderMenus)
+            {
+                var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
+                if (menu != null)
+                {
+                    createOrUpdateOrderMenuDtos.Add(new CreateOrUpdateOrderMenuDto
+                    {
+                        OrderMenuId = 0,
+                        OrderId = orderId,
+                        MenuId = orderMenu.MenuId,
+                        Quantity = orderMenu.Quantity,
+                        Price = menu.Price,
+                    });
+                }
+            }
+            await _orderMenuService.AddRangeAsync(createOrUpdateOrderMenuDtos);
+        }
+
+        // Phương thức gửi email cho đơn hàng
+        private async Task SendOrderEmailAsync(int orderId)
+        {
+            var orderEmail = await _orderService.GetEmailForOrderAsync(orderId, User_Role.RESTAURANT);
+            await _sendMailService.SendEmailAsync(orderEmail.Email, Email_Subject.NEWORDER, EmailTemplates.NewOrder(orderEmail.Name, orderEmail.OrderId));
+        }
+
 
 
 
