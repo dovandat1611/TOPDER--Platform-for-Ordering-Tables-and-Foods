@@ -89,6 +89,15 @@ namespace TOPDER.API.Controllers
                 var orderToFree = await CreateFreeOrderAsync(orderModel);
                 if (orderToFree != null)
                 {
+                    if (orderModel.TableIds != null && orderModel.TableIds.Any())
+                    {
+                        CreateRestaurantOrderTablesDto orderTablesDto = new CreateRestaurantOrderTablesDto()
+                        {
+                            OrderId = orderToFree.OrderId,
+                            TableIds = orderModel.TableIds,
+                        };
+                        await _orderTableService.AddRangeAsync(orderTablesDto);
+                    }
                     await SendOrderEmailAsync(orderToFree.OrderId);
                     return Ok("Tạo đơn hàng miễn phí thành công");
                 }
@@ -121,7 +130,16 @@ namespace TOPDER.API.Controllers
 
             var order = await _orderService.AddAsync(orderDto);
             if (order != null)
-            {
+            {   
+                if(orderModel.TableIds != null && orderModel.TableIds.Any())
+                {
+                    CreateRestaurantOrderTablesDto orderTablesDto = new CreateRestaurantOrderTablesDto()
+                    {
+                        OrderId = order.OrderId,
+                        TableIds = orderModel.TableIds,
+                    };
+                    await _orderTableService.AddRangeAsync(orderTablesDto);
+                }
                 if (orderModel.OrderMenus != null && orderModel.OrderMenus.Any())
                 {
                     await AddOrderMenusAsync(order.OrderId, orderModel.OrderMenus);
