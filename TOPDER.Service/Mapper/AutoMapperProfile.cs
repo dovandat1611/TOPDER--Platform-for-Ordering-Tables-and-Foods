@@ -306,6 +306,8 @@ namespace TOPDER.Service.Mapper
             //ROLE
             CreateMap<RoleDto, Role>().ReverseMap();
 
+            // CUSTOMER
+            CreateMap<CustomerProfileDto, Customer>().ReverseMap();
 
 
         }

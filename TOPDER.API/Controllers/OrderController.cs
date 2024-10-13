@@ -76,10 +76,8 @@ namespace TOPDER.API.Controllers
             }
 
 
-
             decimal totalAmount = 0;
             var restaurant = await _restaurantRepository.GetByIdAsync(orderModel.RestaurantId);
-
 
             // Apply restaurant discount
             if (restaurant.Price > 0 && restaurant.Discount > 0)

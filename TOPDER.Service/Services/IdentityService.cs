@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using TOPDER.Service.Dtos.Customer;
+using TOPDER.Service.Dtos.ExternalLogin;
 using TOPDER.Service.Dtos.User;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.IServices;
@@ -18,21 +19,26 @@ namespace TOPDER.Service.Services
     public class IdentityService : IIdentityService
     {
         private readonly HttpClient _httpClient;
-        private JwtHelper _jwtHelper;
-        private UserService _userService;
-        private WalletService _walletService;
-        private CustomerService _customerService;
+        private readonly JwtHelper _jwtHelper;
+        private readonly UserService _userService;
+        private readonly WalletService _walletService;
+        private readonly CustomerService _customerService;
+        private readonly ExternalLoginService _externalLoginService;
+
 
 
         public IdentityService(HttpClient httpClient, JwtHelper jwtHelper,
-            UserService userService, WalletService walletService, CustomerService customerService)
+            UserService userService, WalletService walletService,
+            CustomerService customerService, ExternalLoginService externalLoginService)
         {
             _httpClient = httpClient;
             _jwtHelper = jwtHelper;
             _userService = userService;
             _walletService = walletService;
             _customerService = customerService;
+            _externalLoginService = externalLoginService;
         }
+
         public async Task<ApiResponse> AuthenticateWithGoogle(string accessToken)
         {
             try
@@ -65,16 +71,17 @@ namespace TOPDER.Service.Services
 
                 // Check if the user already exists in the system
                 var existingUser = await _userService.GetUserByEmail(userResult.Email);
-
                 if (existingUser != null)
                 {
                     // Existing user, generate token
+                    var isProfileComplete = await _customerService.CheckProfile(existingUser.Uid);
                     var generatedToken = _jwtHelper.GenerateJwtToken(existingUser);
                     return new ApiResponse
                     {
                         Success = true,
                         Data = generatedToken,
-                        Message = "Authentication success"
+                        Message = "Authentication success",
+                        IsProfileComplete = isProfileComplete,
                     };
                 }
 
@@ -92,9 +99,20 @@ namespace TOPDER.Service.Services
                 //ADD USER
                 var newUser = await _userService.AddAsync(userDto);
 
-
                 if (newUser != null)
                 {
+                    //ADD ExternalLogin 
+                    var externalLogin = new ExternalLoginDto
+                    {
+                        Id = 0,
+                        Uid = newUser.Uid,
+                        ExternalProvider = ExternalProvider.GOOGLE,
+                        ExternalUserId = userResult.Id ?? Is_Null.ISNULL,
+                        AccessToken = accessToken
+                    };
+
+                    await _externalLoginService.AddAsync(externalLogin);
+
                     // ADD WALLET
                     WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
                     {
@@ -131,7 +149,8 @@ namespace TOPDER.Service.Services
                         {
                             Success = true,
                             Data = token,
-                            Message = "Authentication success"
+                            Message = "Authentication success",
+                            IsProfileComplete = false
                         };
                     }
                 }

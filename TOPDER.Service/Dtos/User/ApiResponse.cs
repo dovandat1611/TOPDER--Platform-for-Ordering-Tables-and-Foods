@@ -11,5 +11,6 @@ namespace TOPDER.Service.Dtos.User
         public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
         public object Data { get; set; } = null!;
+        public bool IsProfileComplete { get; set; }
     }
 }

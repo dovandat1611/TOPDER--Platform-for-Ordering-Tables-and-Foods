@@ -59,11 +59,21 @@ namespace TOPDER.API.Controllers
             try
             {
                 var userLoginDto = await _userService.GetUserByEmailAndPassword(loginModel);
-                var token = _jwtHelper.GenerateJwtToken(userLoginDto);
-                return Ok(new
+                var isProfileComplete = true;
+                if (userLoginDto.RoleName.Equals(User_Role.CUSTOMER))
                 {
-                    user = userLoginDto,
-                    token = token
+                    isProfileComplete = await _customerService.CheckProfile(userLoginDto.Uid);
+                }
+                var token = _jwtHelper.GenerateJwtToken(userLoginDto);
+                return Ok(new ApiResponse
+                {
+                    Success = true,
+                    Message = "Authentication success.",
+                    Data = new
+                    {
+                        Token = token
+                    },
+                    IsProfileComplete = isProfileComplete
                 });
             }
             catch (UnauthorizedAccessException ex)

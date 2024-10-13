@@ -15,5 +15,8 @@ namespace TOPDER.Service.IServices
     {
         Task<PaginatedList<CustomerInfoDto>> GetPagingAsync(int pageNumber, int pageSize);
         Task<Customer> AddAsync(CreateCustomerRequest customerRequest);
+        Task<CustomerProfileDto?> Profile(int uid);
+        Task<bool> UpdateProfile(CustomerProfileDto customer);
+        Task<bool> CheckProfile(int uid);
     }
 }

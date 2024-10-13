@@ -39,6 +39,11 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string SYSTEMSUBTRACT = "SystemSubtract";
         }
 
+        public class ExternalProvider
+        {
+            public static string GOOGLE = "Google";
+        }
+
         public class PaymentGateway
         {
             public static string VNPAY = "VNPAY";

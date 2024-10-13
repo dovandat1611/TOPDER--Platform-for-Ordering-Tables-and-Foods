@@ -126,8 +126,9 @@ builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<ISendMailService, SendMailService>();
 builder.Services.AddTransient<IExcelService, ExcelService>();
 builder.Services.AddScoped<IPaymentGatewayService, PaymentGatewayService>();
-builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddSingleton<JwtHelper>();
+builder.Services.AddHttpClient<IIdentityService, IdentityService>();
+
 
 // ADD CORS
 builder.Services.AddCors();

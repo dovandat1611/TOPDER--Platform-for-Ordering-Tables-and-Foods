@@ -32,6 +32,19 @@ namespace TOPDER.Service.Services
             return await _customerRepository.CreateAndReturnAsync(customer);
         }
 
+        public async Task<bool> CheckProfile(int uid)
+        {
+            var customer = await _customerRepository.GetByIdAsync(uid);
+
+            if (customer is null) return false;
+
+            return !string.IsNullOrWhiteSpace(customer.Name) &&
+                   !string.IsNullOrWhiteSpace(customer.Phone) &&
+                   customer.Dob.HasValue &&
+                   !string.IsNullOrWhiteSpace(customer.Gender);
+        }
+
+
         public async Task<PaginatedList<CustomerInfoDto>> GetPagingAsync(int pageNumber, int pageSize)
         {
             var query = await _customerRepository.QueryableAsync();
@@ -46,6 +59,23 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
+        public async Task<CustomerProfileDto?> Profile(int uid)
+        {
+            var customer = await _customerRepository.GetByIdAsync(uid);
+
+            if (customer == null) return null;
+
+            return _mapper.Map<CustomerProfileDto>(customer);
+        }
+
+        public async Task<bool> UpdateProfile(CustomerProfileDto customerProfile)
+        {
+            if (customerProfile == null)
+                throw new ArgumentNullException(nameof(customerProfile));
+
+            var customer = _mapper.Map<Customer>(customerProfile);
+            return await _customerRepository.UpdateAsync(customer);
+        }
 
     }
 }
