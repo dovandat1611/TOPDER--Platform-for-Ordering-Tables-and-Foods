@@ -110,21 +110,28 @@ namespace TOPDER.Service.Services
             return _mapper.Map<RestaurantRoomDto>(table);
         }
 
-        public async Task<PaginatedList<RestaurantRoomDto>> GetPagingAsync(int pageNumber, int pageSize, int restaurantId)
+        public async Task<bool> IsEnabledBookingAsync(int roomId, int restaurantId, bool isEnabledBooking)
         {
-            var queryable = await _restaurantRoomRepository.QueryableAsync();
+            var existingRoom = await _restaurantRoomRepository.GetByIdAsync(roomId);
+            if (existingRoom == null)
+            {
+                throw new KeyNotFoundException($"Không tìm thấy phòng với Id {roomId}.");
+            }
 
-            var query = queryable.Where(x => x.RestaurantId == restaurantId);
+            if (existingRoom.RestaurantId != restaurantId)
+            {
+                throw new UnauthorizedAccessException($"Phòng với Id {roomId} không thuộc về nhà hàng với Id {restaurantId}.");
+            }
 
-            var queryDTO = query.Select(r => _mapper.Map<RestaurantRoomDto>(r));
+            if (isEnabledBooking == existingRoom.IsBookingEnabled)
+            {
+                return false; // Không có sự thay đổi
+            }
 
-            var paginatedDTOs = await PaginatedList<RestaurantRoomDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-            return paginatedDTOs;
+            existingRoom.IsBookingEnabled = isEnabledBooking;
+            return await _restaurantRoomRepository.UpdateAsync(existingRoom);
         }
+
 
         public async Task<bool> RemoveAsync(int id, int restaurantId)
         {
@@ -137,24 +144,29 @@ namespace TOPDER.Service.Services
             return await _restaurantRoomRepository.DeleteAsync(id);
         }
 
-        public async Task<PaginatedList<RestaurantRoomDto>> SearchPagingAsync(int pageNumber, int pageSize, int restaurantId, int roomId, string roomName)
+        public async Task<PaginatedList<RestaurantRoomDto>> GetRoomListAsync(int pageNumber, int pageSize, int restaurantId, int? roomId, string? roomName)
         {
             var queryable = await _restaurantRoomRepository.QueryableAsync();
 
+            // Chỉ truy vấn phòng thuộc nhà hàng cụ thể
             var query = queryable.Where(x => x.RestaurantId == restaurantId);
 
-            if (roomId != 0)
+            // Kiểm tra nếu roomId có giá trị hợp lệ
+            if (roomId.HasValue && roomId.Value != 0)
             {
-                query = query.Where(x => x.RoomId == roomId);
+                query = query.Where(x => x.RoomId == roomId.Value);
             }
 
+            // Kiểm tra tên phòng
             if (!string.IsNullOrEmpty(roomName))
             {
                 query = query.Where(x => x.RoomName.Contains(roomName));
             }
 
+            // Chọn các DTO từ các thực thể
             var queryDTO = query.Select(r => _mapper.Map<RestaurantRoomDto>(r));
 
+            // Tạo danh sách phân trang
             var paginatedDTOs = await PaginatedList<RestaurantRoomDto>.CreateAsync(
                 queryDTO.AsNoTracking(),
                 pageNumber > 0 ? pageNumber : 1,
@@ -163,8 +175,6 @@ namespace TOPDER.Service.Services
 
             return paginatedDTOs;
         }
-
-
 
         public async Task<bool> UpdateAsync(RestaurantRoomDto restaurantRoomDto)
         {

@@ -105,8 +105,10 @@ namespace TOPDER.Service.Services
 
             // Thêm điều kiện lọc cho nhà hàng, trạng thái đặt bàn và thời gian đặt bàn
             var filteredTables = queryableTables
+                .Include(x => x.Room)
                 .Where(table => table.RestaurantId == restaurantId &&
                                 table.IsBookingEnabled == true &&
+                                (table.Room == null || table.Room.IsBookingEnabled == true) && // Kiểm tra Room có null hay không
                                 !table.OrderTables.Any(orderTable =>
                                     orderTable.Order.DateReservation.Date == dateReservation.Date &&
                                     orderTable.Order.TimeReservation == timeReservation));
@@ -186,23 +188,28 @@ namespace TOPDER.Service.Services
 
 
 
-        public async Task<PaginatedList<RestaurantTableRestaurantDto>> GetPagingAsync(int pageNumber, int pageSize, int restaurantId)
+        public async Task<bool> IsEnabledBookingAsync(int tableId, int restaurantId, bool isEnabledBooking)
         {
-            var queryable = await _restaurantTableRepository.QueryableAsync();
+            var existingTable = await _restaurantTableRepository.GetByIdAsync(tableId);
+            if (existingTable == null)
+            {
+                throw new KeyNotFoundException($"Không tìm thấy bàn với Id {tableId}.");
+            }
 
-            var query = queryable
-                .Include(x => x.Room)
-                .Where(x => x.RestaurantId == restaurantId);
+            if (existingTable.RestaurantId != restaurantId)
+            {
+                throw new UnauthorizedAccessException($"Bàn với Id {tableId} không thuộc về nhà hàng với Id {restaurantId}.");
+            }
 
-            var queryDTO = query.Select(r => _mapper.Map<RestaurantTableRestaurantDto>(r));
+            if (isEnabledBooking == existingTable.IsBookingEnabled)
+            {
+                return false; // Không có sự thay đổi
+            }
 
-            var paginatedDTOs = await PaginatedList<RestaurantTableRestaurantDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-            return paginatedDTOs;
+            existingTable.IsBookingEnabled = isEnabledBooking;
+            return await _restaurantTableRepository.UpdateAsync(existingTable);
         }
+
 
         public async Task<bool> RemoveAsync(int id, int restaurantId)
         {
@@ -216,13 +223,20 @@ namespace TOPDER.Service.Services
         }
 
 
-        public async Task<PaginatedList<RestaurantTableRestaurantDto>> SearchPagingAsync(int pageNumber, int pageSize, int restaurantId, string tableName)
+        public async Task<PaginatedList<RestaurantTableRestaurantDto>> GetTableListAsync(int pageNumber, int pageSize, int restaurantId, string? tableName)
         {
             var queryable = await _restaurantTableRepository.QueryableAsync();
 
+            // Build the query
             var query = queryable
                 .Include(x => x.Room)
-                .Where(x => x.RestaurantId == restaurantId && x.TableName.Contains(tableName));
+                .Where(x => x.RestaurantId == restaurantId);
+
+            // Apply table name filtering only if it has a value
+            if (!string.IsNullOrEmpty(tableName))
+            {
+                query = query.Where(x => x.TableName.Contains(tableName));
+            }
 
             var queryDTO = query.Select(r => _mapper.Map<RestaurantTableRestaurantDto>(r));
 
@@ -231,8 +245,10 @@ namespace TOPDER.Service.Services
                 pageNumber > 0 ? pageNumber : 1,
                 pageSize > 0 ? pageSize : 10
             );
+
             return paginatedDTOs;
         }
+
 
         public async Task<bool> UpdateAsync(RestaurantTableDto restaurantTableDto)
         {
