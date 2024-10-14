@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Menu;
 using TOPDER.Service.Dtos.RestaurantRoom;
@@ -18,7 +19,8 @@ namespace TOPDER.API.Controllers
             _restaurantRoomService = restaurantRoomService;
         }
 
-        [HttpPost("CreateRoom")]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Tạo Phòng: Restaurant")]
         public async Task<IActionResult> Add([FromBody] RestaurantRoomDto restaurantRoomDto)
         {
             if (!ModelState.IsValid)
@@ -35,12 +37,13 @@ namespace TOPDER.API.Controllers
             return CreatedAtAction(nameof(GetItem), new { id = restaurantRoomDto.RoomId }, restaurantRoomDto);
         }
 
-        [HttpGet("GetRoom/{id}/{restaurantId}")]
-        public async Task<IActionResult> GetItem(int id, int restaurantId)
+        [HttpGet("GetRoom/{restaurantId}/{roomId}")]
+        [SwaggerOperation(Summary = "Lấy thông tin phòng của nhà hàng để cập nhật: Restaurant")]
+        public async Task<IActionResult> GetItem(int restaurantId, int roomId)
         {
             try
             {
-                var room = await _restaurantRoomService.GetItemAsync(id, restaurantId);
+                var room = await _restaurantRoomService.GetItemAsync(roomId, restaurantId);
                 return Ok(room);
             }
             catch (KeyNotFoundException ex)
@@ -53,36 +56,32 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpPut("UpdateRoom/{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] RestaurantRoomDto restaurantRoomDto)
+        [HttpPut("Update")]
+        [SwaggerOperation(Summary = "Cập nhật phòng: Restaurant")]
+        public async Task<IActionResult> Update([FromBody] RestaurantRoomDto restaurantRoomDto)
         {
-            if (id != restaurantRoomDto.RoomId || !ModelState.IsValid)
-            {
-                return BadRequest("Thông tin phòng không hợp lệ.");
-            }
-
             var result = await _restaurantRoomService.UpdateAsync(restaurantRoomDto);
             if (!result)
             {
                 return NotFound("Không tìm thấy phòng để cập nhật.");
             }
-
             return NoContent();
         }
 
-        [HttpDelete("DeleteRoom/{id}/{restaurantId}")]
-        public async Task<IActionResult> Remove(int id, int restaurantId)
+        [HttpDelete("Delete/{restaurantId}/{roomId}")]
+        [SwaggerOperation(Summary = "Xóa phòng: Restaurant")]
+        public async Task<IActionResult> Remove(int restaurantId, int roomId)
         {
-            var result = await _restaurantRoomService.RemoveAsync(id, restaurantId);
+            var result = await _restaurantRoomService.RemoveAsync(roomId, restaurantId);
             if (!result)
             {
                 return NotFound("Không tìm thấy phòng để xóa.");
             }
-
             return NoContent();
         }
 
         [HttpGet("GetRoomList/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy danh sách thông tin phòng của nhà hàng: Restaurant")]
         public async Task<IActionResult> SearchPaging(int restaurantId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int? roomId = null, [FromQuery] string? roomName = null)
         {
             var result = await _restaurantRoomService.GetRoomListAsync(pageNumber, pageSize, restaurantId, roomId, roomName);
@@ -96,8 +95,9 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
-        [HttpPut("IsEnabledBooking/{roomId}/{restaurantId}")]
-        public async Task<IActionResult> IsEnabledBooking(int roomId, int restaurantId, [FromBody] bool isEnabledBooking)
+        [HttpPut("IsEnabledBooking/{restaurantId}/{roomId}")]
+        [SwaggerOperation(Summary = "Thay đổi trạng thái Booking của Room: Restaurant")]
+        public async Task<IActionResult> IsEnabledBooking(int restaurantId, int roomId,[FromBody] bool isEnabledBooking)
         {
             try
             {

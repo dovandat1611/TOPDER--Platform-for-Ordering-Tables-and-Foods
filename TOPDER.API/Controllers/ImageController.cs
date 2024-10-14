@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Org.BouncyCastle.Asn1.Ocsp;
 using Service.Services;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Dtos.Image;
 using TOPDER.Service.IServices;
 
@@ -22,7 +23,8 @@ namespace TOPDER.API.Controllers
             _cloudinaryService = cloudinaryService;
         }
 
-        [HttpPost]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Có tạo tải nhiều ảnh: Restaurant")]
         public async Task<IActionResult> AddImage(int restaurantId, List<IFormFile> files)
         {
             if (files == null || !files.Any())
@@ -65,9 +67,9 @@ namespace TOPDER.API.Controllers
         }
 
 
-        // Lấy thông tin hình ảnh
-        [HttpGet("{imageId}/{restaurantId}")]
-        public async Task<IActionResult> GetImage(int imageId, int restaurantId)
+        [HttpGet("GetImage/{restaurantId}/{imageId}")]
+        [SwaggerOperation(Summary = "Lấy thông tin của ảnh phục vụ cho Update: Restaurant")]
+        public async Task<IActionResult> GetImage(int restaurantId,int imageId)
         {
             try
             {
@@ -80,8 +82,8 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        // Phân trang danh sách hình ảnh của nhà hàng
-        [HttpGet("list/{restaurantId}")]
+        [HttpGet("GetImageList/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy danh sách hình ảnh của nhà hàng: Restaurant")]
         public async Task<IActionResult> GetPagingImages(int restaurantId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
@@ -95,14 +97,12 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        // Cập nhật hình ảnh
-        [HttpPut("{imageId}")]
-        public async Task<IActionResult> UpdateImage(int imageId, [FromBody] ImageDto imageDto)
+        [HttpPut("Update")]
+        [SwaggerOperation(Summary = "Cập nhật hình ảnh của nhà hàng: Restaurant")]
+        public async Task<IActionResult> UpdateImage([FromBody] ImageDto imageDto)
         {
-            if (imageDto == null || imageDto.ImageId != imageId)
-            {
-                return BadRequest("Dữ liệu không hợp lệ.");
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             var result = await _imageService.UpdateAsync(imageDto);
             if (result)
@@ -110,12 +110,12 @@ namespace TOPDER.API.Controllers
                 return Ok("Cập nhật hình ảnh thành công.");
             }
 
-            return NotFound($"Không tìm thấy hình ảnh với Id {imageId}.");
+            return NotFound($"Không tìm thấy hình ảnh với Id {imageDto.ImageId}.");
         }
 
-        // Xóa hình ảnh
-        [HttpDelete("{imageId}/restaurant/{restaurantId}")]
-        public async Task<IActionResult> RemoveImage(int imageId, int restaurantId)
+        [HttpDelete("Delete/{restaurantId}/{imageId}")]
+        [SwaggerOperation(Summary = "Xóa hình ảnh của nhà hàng: Restaurant")]
+        public async Task<IActionResult> RemoveImage(int restaurantId, int imageId)
         {
             try
             {

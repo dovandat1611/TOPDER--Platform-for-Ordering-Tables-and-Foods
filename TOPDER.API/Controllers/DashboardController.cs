@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Dtos.Dashboard;
 using TOPDER.Service.IServices;
@@ -19,7 +20,8 @@ namespace TOPDER.API.Controllers
             _orderRepository = orderRepository;
         }
 
-        [HttpGet("admin")]
+        [HttpGet("GetDashboardAdmin")]
+        [SwaggerOperation(Summary = "Dashboard : Admin")]
         public async Task<ActionResult<DashboardAdminDTO>> GetDashboardAdmin()
         {
             try
@@ -37,7 +39,8 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpGet("restaurant/{restaurantId}")]
+        [HttpGet("GetDashboardRestaurant/{restaurantId}")]
+        [SwaggerOperation(Summary = "Dashboard : Restaurant")]
         public async Task<ActionResult<DashboardRestaurantDto>> GetDashboardRestaurant(int restaurantId)
         {
             try

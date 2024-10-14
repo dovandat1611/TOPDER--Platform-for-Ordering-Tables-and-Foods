@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.IServices;
 
@@ -18,6 +19,7 @@ namespace TOPDER.API.Controllers
 
         // POST: api/Wallet/AddOTP
         [HttpPost("AddOTP")]
+        [SwaggerOperation(Summary = "Tạo OTP cho Wallet (mỗi lần rút tiền hay nạp tiền đều phải trải qua OTP): Customer | Restaurant")]
         public async Task<IActionResult> AddOTP([FromBody] WalletOtpDto walletOtpDto)
         {
             var result = await _walletService.AddOTPAsync(walletOtpDto);
@@ -28,6 +30,7 @@ namespace TOPDER.API.Controllers
 
         // GET: api/Wallet/CheckExistOTP/{Uid}
         [HttpGet("CheckExistOTP/{uid}")]
+        [SwaggerOperation(Summary = "Check xem là User đã có OTP Wallet chưa: Customer | Restaurant")]
         public async Task<IActionResult> CheckExistOTP(int uid)
         {
             var exists = await _walletService.CheckExistOTP(uid);
@@ -38,6 +41,7 @@ namespace TOPDER.API.Controllers
 
         // POST: api/Wallet/CheckOTP/{uid}
         [HttpPost("CheckOTP/{uid}")]
+        [SwaggerOperation(Summary = "Check xem OTP có đúng không sau đó mới cho rút tiền hay nạp tiền: Customer | Restaurant")]
         public async Task<IActionResult> CheckOTP(int uid, [FromQuery] string Otp)
         {
             var isValid = await _walletService.CheckOTP(uid, Otp);
@@ -46,7 +50,8 @@ namespace TOPDER.API.Controllers
             return BadRequest(new { message = "OTP không hợp lệ." });
         }
 
-        [HttpPut("UpdateBank")]
+        [HttpPut("CreateOrUpdateBank")]
+        [SwaggerOperation(Summary = "Tạo hoặc Cập Nhật Bank(BankCode,AccountNo,AccountName): Customer | Restaurant")]
         public async Task<IActionResult> UpdateWalletBank([FromBody] WalletBankDto walletBankDto)
         {
             var result = await _walletService.UpdateWalletBankAsync(walletBankDto);

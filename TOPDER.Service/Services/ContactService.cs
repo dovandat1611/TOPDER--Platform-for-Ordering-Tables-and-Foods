@@ -34,22 +34,6 @@ namespace TOPDER.Service.Services
             return await _contactRepository.CreateAsync(contact);
         }
 
-        public async Task<PaginatedList<ContactDto>> GetPagingAsync(int pageNumber, int pageSize)
-        {
-            var query = await _contactRepository.QueryableAsync();
-
-            var contacts = query.OrderByDescending(x => x.ContactId);
-
-            var queryDTO = contacts.Select(r => _mapper.Map<ContactDto>(r));
-
-            var paginatedDTOs = await PaginatedList<ContactDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-            return paginatedDTOs;
-        }
-
         public async Task<bool> RemoveAsync(int id)
         {
             var contact = await _contactRepository.GetByIdAsync(id);
@@ -60,25 +44,30 @@ namespace TOPDER.Service.Services
             var result = await _contactRepository.DeleteAsync(id);
             return result;
         }
-        public async Task<PaginatedList<ContactDto>> SearchPagingAsync(int pageNumber, int pageSize, string contactContent, string topicContent)
+        public async Task<PaginatedList<ContactDto>> SearchPagingAsync(int pageNumber, int pageSize, string? contactContent, string? topicContent)
         {
+            // Lấy danh sách IQueryable từ repository
             var query = await _contactRepository.QueryableAsync();
 
+            // Lọc dữ liệu dựa trên các tham số đầu vào
             var filteredContacts = query.Where(x =>
                 (string.IsNullOrEmpty(contactContent) || x.Content.Contains(contactContent)) &&
                 (string.IsNullOrEmpty(topicContent) || x.Topic.Contains(topicContent))
-            );
+            ).AsNoTracking(); // Sử dụng AsNoTracking trước khi Select()
 
+            // Ánh xạ sang DTO
             var queryDTO = filteredContacts.Select(r => _mapper.Map<ContactDto>(r));
 
+            // Tạo danh sách phân trang
             var paginatedDTOs = await PaginatedList<ContactDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
+                queryDTO,
                 pageNumber > 0 ? pageNumber : 1,
                 pageSize > 0 ? pageSize : 10
             );
 
             return paginatedDTOs;
         }
+
 
     }
 }

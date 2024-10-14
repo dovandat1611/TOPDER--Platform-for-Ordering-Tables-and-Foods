@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.CategoryRestaurant;
 using TOPDER.Service.IServices;
@@ -17,7 +18,8 @@ namespace TOPDER.API.Controllers
             _categoryRestaurantService = categoryRestaurantService;
         }
 
-        [HttpPost]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Tạo Category Restaurant: Admin")]
         public async Task<IActionResult> Create([FromBody] CategoryRestaurantDto categoryRestaurantDto)
         {
             var result = await _categoryRestaurantService.AddAsync(categoryRestaurantDto);
@@ -29,12 +31,13 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("GetCategoryRestaurant/{categoryRestaurantId}")]
+        [SwaggerOperation(Summary = "Lấy ra một Category Restaurant để Update: Admin")]
+        public async Task<IActionResult> GetById(int categoryRestaurantId)
         {
             try
             {
-                var result = await _categoryRestaurantService.UpdateItemAsync(id);
+                var result = await _categoryRestaurantService.UpdateItemAsync(categoryRestaurantId);
                 return Ok(result);
             }
             catch (KeyNotFoundException ex)
@@ -44,7 +47,8 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpGet("list")]
+        [HttpGet("GetCategoryRestaurantList")]
+        [SwaggerOperation(Summary = "Lấy danh sách Category Restaurant (có thể Search theo Name): Admin")]
         public async Task<IActionResult> ListPaging(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -74,13 +78,12 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] CategoryRestaurantDto categoryRestaurantDto)
+        [HttpPut("Update")]
+        [SwaggerOperation(Summary = "Cập nhật Category Restaurant: Admin")]
+        public async Task<IActionResult> Update([FromBody] CategoryRestaurantDto categoryRestaurantDto)
         {
-            if (id != categoryRestaurantDto.CategoryRestaurantId)
-            {
-                return BadRequest(new { message = "ID không khớp." }); 
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             var result = await _categoryRestaurantService.UpdateAsync(categoryRestaurantDto);
             if (result)
@@ -92,7 +95,8 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpGet("exists")]
+        [HttpGet("GetExistingCategoriesRestaurant")]
+        [SwaggerOperation(Summary = "Lấy ra những CategoryRestaurant có trong Restaurant (phục vụ cho việc Search): Customer")]
         public async Task<IActionResult> CategoryExist()
         {
             try

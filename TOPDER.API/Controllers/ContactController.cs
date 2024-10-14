@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.ChatBox;
 using TOPDER.Service.Dtos.Contact;
@@ -22,7 +23,8 @@ namespace TOPDER.API.Controllers
             _sendMailService = sendMailService;
         }
 
-        [HttpPost("create")]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Tạo Contact: Customer | Guest")]
         public async Task<IActionResult> AddContact([FromBody] ContactDto contactDto)
         {
             if (!ModelState.IsValid)
@@ -37,23 +39,8 @@ namespace TOPDER.API.Controllers
             return BadRequest("Thêm liên hệ thất bại.");
         }
 
-        [HttpGet("list")]
-        public async Task<IActionResult> GetPaging([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-        {
-            var result = await _contactService.GetPagingAsync(pageNumber, pageSize);
-
-            var response = new PaginatedResponseDto<ContactDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-
-            return Ok(response);
-        }
-
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete/{contactId}")]
+        [SwaggerOperation(Summary = "Xóa Contact: Admin")]
         public async Task<IActionResult> DeleteContact(int id)
         {
             var result = await _contactService.RemoveAsync(id);
@@ -64,8 +51,9 @@ namespace TOPDER.API.Controllers
             return NotFound($"Liên hệ với ID {id} không tồn tại.");
         }
 
-        [HttpGet("search")]
-        public async Task<IActionResult> Search([FromQuery] string content, [FromQuery] string topic, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        [HttpGet("GetContactList")]
+        [SwaggerOperation(Summary = "Lấy danh sách Contact (có thể Search theo Content, Topic): Admin")]
+        public async Task<IActionResult> Search([FromQuery] string? content, [FromQuery] string? topic, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _contactService.SearchPagingAsync(pageNumber, pageSize, content, topic);
 
@@ -76,8 +64,8 @@ namespace TOPDER.API.Controllers
                 result.HasPreviousPage,
                 result.HasNextPage
             );
-
             return Ok(response);
         }
+
     }
 }

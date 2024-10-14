@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Net.payOS.Types;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Common.CommonDtos;
@@ -35,6 +36,7 @@ namespace TOPDER.API.Controllers
         }
 
         [HttpPost("Withdraw")]
+        [SwaggerOperation(Summary = "Rút tiền ra khỏi ví: Customer")]
         public async Task<IActionResult> Withdraw([FromBody] WalletTransactionDto walletTransactionDto)
         {
             var balance = await _walletService.GetBalanceAsync(walletTransactionDto.WalletId, walletTransactionDto.Uid);
@@ -73,6 +75,7 @@ namespace TOPDER.API.Controllers
         }
 
         [HttpPut("CheckRecharge/{transactionId}")]
+        [SwaggerOperation(Summary = "Khi đã chuyển khoản xong thì sẽ trả về trạng thái thanh toán, sau đó sẽ check xem là thanh toán (Cancelled or Successful)")]
         public async Task<IActionResult> CheckRecharge(int transactionId, [FromBody] string status)
         {
             if (string.IsNullOrEmpty(status))
@@ -109,6 +112,7 @@ namespace TOPDER.API.Controllers
 
 
         [HttpPost("Recharge")]
+        [SwaggerOperation(Summary = "Nạp tiền:(Số tiền phải lớn hơn 0 và không được dưới 5.000VNĐ.) cổng thanh toán phải là VIETQR hoặc VNPAY")]
         public async Task<IActionResult> Recharge([FromBody] RechargeWalletTransaction rechargeWalletTransaction)
         {
             // Kiểm tra số tiền
@@ -196,8 +200,9 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpGet("RestaurantOrCustomer/list/{uid}")]
-        public async Task<IActionResult> GetRestaurantOrCustomerPaging(int uid, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? status = null)
+        [HttpGet("GetWalletTransactionList/{uid}")]
+        [SwaggerOperation(Summary = "Xem lịch sử giao dịch của riêng user: Customer | Restaurant")]
+        public async Task<IActionResult> GetWalletTransactionList(int uid, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? status = null)
         {
             try
             {
@@ -212,7 +217,8 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpGet("admin/list")]
+        [HttpGet("GetWalletTransactionListForAdmin")]
+        [SwaggerOperation(Summary = "Xem lịch sử giao dịch và đặc biệt là (Withdraw) phải làm thủ công bằng tay: Admin")]
         public async Task<IActionResult> GetPaging([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? status = null)
         {
             var result = await _walletTransactionService.GetAdminPagingAsync(pageNumber, pageSize, status);
@@ -229,6 +235,7 @@ namespace TOPDER.API.Controllers
         }
 
         [HttpPut("UpdateStatus/{transactionId}")]
+        [SwaggerOperation(Summary = "Cập nhật lại trạng thái thanh toán rút tiền (Cancelled, Successful hoặc Pending)")]
         public async Task<IActionResult> UpdateStatus(int transactionId, [FromBody] string status)
         {
             if (string.IsNullOrEmpty(status))

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Net.payOS.Types;
 using Org.BouncyCastle.Utilities.Encoders;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Common.CommonDtos;
@@ -67,7 +68,8 @@ namespace TOPDER.API.Controllers
         // ORDER
 
         // Tạo đơn hàng
-        [HttpPost]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Tạo đơn hàng | đơn hàng có thể có Table, Menu | sau khi click vào tạo đơn hàng thì sẽ hiện ra Discount: Customer")]
         public async Task<IActionResult> AddOrder([FromBody] OrderModel orderModel)
         {
             if (orderModel == null)
@@ -316,11 +318,10 @@ namespace TOPDER.API.Controllers
         }
 
 
-
-
         // Khi nhà hàng confirm thì khách hàng sẽ chuyển khoản với phương thức thanh toán
         // 1: số dư ví(nếu đủ) 2: VNPAY 3: VIETQR 
         [HttpPost("PaidOrder/{orderId}/{userId}/{paymentGateway}")]
+        [SwaggerOperation(Summary = "Khi nhà hàng confirm thì khách hàng sẽ chuyển khoản với phương thức thanh toán (nếu đơn hàng có giá trị) ISBALANCE | VIETQR | VNPAY: Customer")]
         public async Task<IActionResult> PaidOrder(int orderId, int userId, string paymentGateway)
         {
             // Fetch the order and ensure the user is authorized
@@ -484,6 +485,7 @@ namespace TOPDER.API.Controllers
         // Khi chuyển khoản xong thì sẽ check status payment của đơn hàng đó
         // có 2 status: 1 Successful (thành công) 2 Cancelled (thất bại)
         [HttpGet("CheckPayment/{orderID}")]
+        [SwaggerOperation(Summary = "Khi chuyển khoản xong thì sẽ check status payment của đơn hàng đó Cancelled | Successful: Customer")]
         public async Task<IActionResult> GetItemAsync(int orderID, [FromBody] string status)
         {
             if (string.IsNullOrEmpty(status))
@@ -516,26 +518,28 @@ namespace TOPDER.API.Controllers
 
 
         // xem chi tiết đơn hàng
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetItemAsync(int id, int Uid)
+        [HttpGet("GetOrder/{Uid}/{orderId}")]
+        [SwaggerOperation(Summary = "Xem chi tiết đơn hàng: Customer | Restaurant")]
+        public async Task<IActionResult> GetItemAsync(int Uid, int orderId)
         {
             try
             {
-                var orderDto = await _orderService.GetItemAsync(id, Uid);
+                var orderDto = await _orderService.GetItemAsync(orderId, Uid);
                 return Ok(orderDto);
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Đơn hàng với ID {id} không tồn tại.");
+                return NotFound($"Đơn hàng với ID {orderId} không tồn tại.");
             }
             catch (UnauthorizedAccessException)
             {
-                return Forbid($"Bạn không có quyền truy cập vào đơn hàng với ID {id}.");
+                return Forbid($"Bạn không có quyền truy cập vào đơn hàng với ID {orderId}.");
             }
         }
 
         // List ra đơn hàng của customer
-        [HttpGet("Customer/List/{customerId}")]
+        [HttpGet("GetOrdeHistoryForCustomer/{customerId}")]
+        [SwaggerOperation(Summary = "Lấy ra tất cả thông tin đơn hàng của khách hàng: Customer")]
         public async Task<IActionResult> GetCustomerPaging(int pageNumber, int pageSize, int customerId, string? status)
         {
             // Gọi service để lấy dữ liệu có phân trang
@@ -555,7 +559,8 @@ namespace TOPDER.API.Controllers
 
 
         // List ra đơn hàng của restaurant
-        [HttpGet("Restaurant/List/{restaurantId}")]
+        [HttpGet("GetOrderListForRestaurant/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy ra tất cả thông tin đơn hàng của nhà hàng (có thể search theo status, month, date): Restaurant")]
         public async Task<IActionResult> GetRestaurantPaging(int pageNumber, int pageSize, int restaurantId, string? status, DateTime? month, DateTime? date)
         {
             // Gọi service để lấy dữ liệu có phân trang
@@ -575,7 +580,8 @@ namespace TOPDER.API.Controllers
 
 
         // cập nhật đơn hàng
-        [HttpPut]
+        [HttpPut("Update")]
+        [SwaggerOperation(Summary = "Cập nhật thông tin đơn hàng: Restaurant")]
         public async Task<IActionResult> UpdateOrder([FromBody] OrderDto orderDto)
         {
             if (orderDto == null)
@@ -594,6 +600,7 @@ namespace TOPDER.API.Controllers
 
         // Cập nhật trạng thái đơn hàng
         [HttpPut("UpdateStatus/{orderID}")]
+        [SwaggerOperation(Summary = "Cập nhật trạng thái đơn hàng (Confirm,Complete): Restaurant")]
         public async Task<IActionResult> UpdateOrderStatus(int orderID, [FromBody] string status)
         {
             if (string.IsNullOrEmpty(status))
@@ -614,8 +621,6 @@ namespace TOPDER.API.Controllers
                     var completeOrder = await _orderService.GetInformationForCompleteAsync(orderID);
                     if (completeOrder != null)
                     {
-                        var wallet = completeOrder.WalletId; // Giả sử wallet không phải là null
-
                         WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
                         {
                             WalletId = completeOrder.WalletId,
@@ -652,9 +657,8 @@ namespace TOPDER.API.Controllers
             return NotFound($"Đơn hàng với ID {orderID} không tồn tại hoặc trạng thái không thay đổi.");
         }
 
-
-
         [HttpPut("CancelOrder/{userID}/{orderID}")]
+        [SwaggerOperation(Summary = "Hủy đơn hàng: Restaurant | Customer")]
         public async Task<IActionResult> CancelOrder(int userID, int orderID)
         {
             // Cập nhật trạng thái đơn hàng
@@ -710,23 +714,9 @@ namespace TOPDER.API.Controllers
             return Ok($"Cập nhật trạng thái cho đơn hàng với ID {orderID} thành công.");
         }
 
-
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> RemoveOrder(int id)
-        //{
-        //    var result = await _orderService.RemoveAsync(id);
-        //    if (result)
-        //    {
-        //        return Ok($"Xóa đơn hàng với ID {id} thành công."); // Trả về thông điệp thành công
-        //    }
-
-        //    return NotFound($"Đơn hàng với ID {id} không tồn tại."); // Thông báo không tìm thấy
-        //}
-
-
         // ORDER TABLE 
-
-        [HttpPost("Table/Create")]
+        [HttpPost("CreateOrderTable")]
+        [SwaggerOperation(Summary = "Tạo order table cho đơn hàng Nếu khách hàng không chọn được bàn: Restaurant")]
         public async Task<IActionResult> AddTablesToOrder([FromBody] CreateRestaurantOrderTablesDto orderTablesDto)
         {
             if (orderTablesDto == null || !orderTablesDto.TableIds.Any())
@@ -745,10 +735,11 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpGet("Table/{id}")]
-        public async Task<IActionResult> GetTableItemsByOrder(int id)
+        [HttpGet("GetOrderTable/{orderId}")]
+        [SwaggerOperation(Summary = "Lấy danh sách order table cho đơn hàng: Restaurant | Customer")]
+        public async Task<IActionResult> GetTableItemsByOrder(int orderId)
         {
-            var orderTables = await _orderTableService.GetItemsByOrderAsync(id);
+            var orderTables = await _orderTableService.GetItemsByOrderAsync(orderId);
 
             if (orderTables == null || !orderTables.Any())
             {
@@ -759,10 +750,11 @@ namespace TOPDER.API.Controllers
 
         // ORDER MENU 
 
-        [HttpGet("Menu/{id}")]
-        public async Task<IActionResult> GetMenuItemsByOrderAsync(int id)
+        [HttpGet("GetOrderMenu/{orderId}")]
+        [SwaggerOperation(Summary = "Lấy danh sách order menu cho đơn hàng: Restaurant | Customer")]
+        public async Task<IActionResult> GetMenuItemsByOrderAsync(int orderId)
         {
-            var items = await _orderMenuService.GetItemsByOrderAsync(id);
+            var items = await _orderMenuService.GetItemsByOrderAsync(orderId);
             if (items == null || !items.Any())
             {
                 return NotFound("Không tìm thấy món cho đơn hàng này.");

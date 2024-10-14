@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Restaurant;
 using TOPDER.Service.IServices;
@@ -14,17 +15,15 @@ namespace TOPDER.API.Controllers
     public class RestaurantController : ControllerBase
     {
         private readonly IRestaurantService _restaurantService;
-        private readonly ICloudinaryService _cloudinaryService;
-        private readonly ISendMailService _sendMailService;
 
-        public RestaurantController(IRestaurantService restaurantService, ICloudinaryService cloudinaryService, ISendMailService sendMailService)
+        public RestaurantController(IRestaurantService restaurantService)
         {
             _restaurantService = restaurantService;
-            _cloudinaryService = cloudinaryService;
-            _sendMailService = sendMailService;
         }
 
-        [HttpGet("customer/service")]
+        // CUSTOMER SITE
+        [HttpGet("ServiceForCustomerSite")]
+        [SwaggerOperation(Summary = "Trang dịch vụ để search nhà hàng theo (Address, Name, Location, Price(min,max), Capacity, Category Restaurant): Customer")]
         public async Task<IActionResult> GetItems([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10,
             [FromQuery] string? name = null, [FromQuery] string? address = null,
             [FromQuery] string? location = null, [FromQuery] int? restaurantCategory = null,
@@ -44,19 +43,21 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("customer/home")]
+        [HttpGet("HomeForCustomerSite")]
+        [SwaggerOperation(Summary = "Trang Home chứa nhà hàng mới, nhà hàng uy tín, nhà hàng yêu thích, blog mới nhất... : Customer")]
         public async Task<IActionResult> GetHomeItems()
         {
             var result = await _restaurantService.GetHomeItemsAsync();
             return Ok(result);
         }
 
-        [HttpGet("customer/detail/{id}")]
-        public async Task<IActionResult> GetItem(int id)
+        [HttpGet("RestaurantDetailForCustomerSite/{restaurantId}")]
+        [SwaggerOperation(Summary = "Xem chi tiết nhà hàng : Customer")]
+        public async Task<IActionResult> GetItem(int restaurantId)
         {
             try
             {
-                var result = await _restaurantService.GetItemAsync(id);
+                var result = await _restaurantService.GetItemAsync(restaurantId);
                 return Ok(result);
             }
             catch (KeyNotFoundException ex)
@@ -69,8 +70,10 @@ namespace TOPDER.API.Controllers
             }
         }
 
+        // THÔNG TIN NHÀ HÀNG
 
-        [HttpPut("Restaurant/UpdateDiscountAndFee/{restaurantId}")]
+        [HttpPut("UpdateDiscountAndFee/{restaurantId}")]
+        [SwaggerOperation(Summary = "Cập nhật giảm giá tiền đặt cọc, tiền đặt lần đầu, quay lại, hủy : Restaurant")]
         public async Task<IActionResult> UpdateDiscountAndFee(
             int restaurantId,
             [FromQuery] decimal? discountPrice,
@@ -96,7 +99,8 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpGet("Restaurant/GetDiscountAndFee/{restaurantId}")]
+        [HttpGet("GetDiscountAndFee/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy thông tin giảm giá tiền đặt cọc, tiền đặt lần đầu, quay lại, hủy : Restaurant")]
         public async Task<IActionResult> GetDiscountAndFee(int restaurantId)
         {
             var discountAndFee = await _restaurantService.GetDiscountAndFeeAsync(restaurantId);
@@ -109,7 +113,8 @@ namespace TOPDER.API.Controllers
             return Ok(discountAndFee);
         }
 
-        [HttpGet("Restaurant/GetDescription/{restaurantId}")]
+        [HttpGet("GetDescription/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy thông tin mô tả của nhà hàng : Restaurant")]
         public async Task<IActionResult> GetDescription(int restaurantId)
         {
             var description = await _restaurantService.GetDescriptionAsync(restaurantId);
@@ -122,7 +127,8 @@ namespace TOPDER.API.Controllers
             return Ok(description);
         }
 
-        [HttpPut("Restaurant/UpdateDescription/{restaurantId}")]
+        [HttpPut("UpdateDescription/{restaurantId}")]
+        [SwaggerOperation(Summary = "Cập nhật thông tin mô tả của nhà hàng : Restaurant")]
         public async Task<IActionResult> UpdateDescription(
             int restaurantId,
             [FromQuery] string? description,
@@ -140,7 +146,8 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpPut("booking-enabled/{id}")]
+        [HttpPut("IsEnabledBooking/{restaurantId}")]
+        [SwaggerOperation(Summary = "Thay đổi trạng thái Booking của nhà hàng : Restaurant")]
         public async Task<IActionResult> UpdateBookingEnabled(int id, [FromBody] bool isEnabledBooking)
         {
             try

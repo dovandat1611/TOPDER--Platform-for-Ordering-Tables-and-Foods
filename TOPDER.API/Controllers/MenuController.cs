@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Contact;
 using TOPDER.Service.Dtos.Menu;
@@ -23,8 +24,9 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost("Create")]
         [Consumes("multipart/form-data")]
+        [SwaggerOperation(Summary = "Tạo món ăn ở nhà hàng: Restaurant")]
         public async Task<IActionResult> Create([FromForm] MenuDto menuDto, IFormFile File)
         {
             if (File == null || File.Length == 0)
@@ -56,8 +58,9 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut("Update")]
         [Consumes("multipart/form-data")]
+        [SwaggerOperation(Summary = "Cập Nhật món ăn ở nhà hàng: Restaurant")]
         public async Task<IActionResult> Update([FromForm] MenuDto menuDto, IFormFile File)
         {
             if (!ModelState.IsValid)
@@ -86,8 +89,9 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpPost("import-excel")]
+        [HttpPost("CreateByExcel")]
         [Consumes("multipart/form-data")]
+        [SwaggerOperation(Summary = "Tạo một list món ăn thông qua file excel : Restaurant")]
         public async Task<IActionResult> AddRangeFromExcel([FromForm] CreateExcelMenuDto createExcelMenuDto)
         {
             var result = await _menuService.AddRangeExcelAsync(createExcelMenuDto);
@@ -99,10 +103,11 @@ namespace TOPDER.API.Controllers
             return Ok("Menu items added successfully from Excel.");
         }
 
-        [HttpDelete("remove/{restaurantId}/{id}")]
-        public async Task<IActionResult> RemoveMenu(int restaurantId, int id)
+        [HttpDelete("Delete/{restaurantId}/{menuId}")]
+        [SwaggerOperation(Summary = "Xóa món ăn : Restaurant")]
+        public async Task<IActionResult> RemoveMenu(int restaurantId, int menuId)
         {
-            var result = await _menuService.RemoveAsync(id, restaurantId);
+            var result = await _menuService.RemoveAsync(menuId, restaurantId);
             if (!result)
             {
                 return NotFound("Món ăn không được tìm thấy, không thuộc về nhà hàng đã chỉ định, hoặc đang được sử dụng trong một đơn hàng.");
@@ -110,7 +115,8 @@ namespace TOPDER.API.Controllers
             return Ok("Món ăn đã được xóa thành công.");
         }
 
-        [HttpGet("restaurant/{restaurantId}")]
+        [HttpGet("GetMenuListForRestaurant/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy món ăn của nhà hàng: Restaurant")]
         public async Task<IActionResult> GetMenuList(
             int restaurantId,
             [FromQuery] int pageNumber,
@@ -136,7 +142,8 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("customer/{restaurantId}")]
+        [HttpGet("GetMenuListForCustomer/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy món ăn của nhà hàng đó (món ăn phải active): Customer")]
         public async Task<IActionResult> GetCustomerMenuList(
             int restaurantId,
             [FromQuery] int pageNumber,

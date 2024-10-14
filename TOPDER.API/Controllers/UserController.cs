@@ -11,6 +11,7 @@ using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.Dtos.Customer;
 using TOPDER.Repository.Repositories;
 using TOPDER.Repository.IRepositories;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace TOPDER.API.Controllers
 {
@@ -48,7 +49,8 @@ namespace TOPDER.API.Controllers
             _identityService = identityService;
         }
 
-        [HttpPost("login")]
+        [HttpPost("Login")]
+        [SwaggerOperation(Summary = "Login bằng tài khoản và mật khẩu")]
         public async Task<IActionResult> Login([FromBody] LoginModel loginModel)
         {
             if (!ModelState.IsValid)
@@ -86,7 +88,8 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpPost("signin-google")]
+        [HttpPost("LoginWithGoogle")]
+        [SwaggerOperation(Summary = "Login bằng google | Nếu chưa có tài khoản trong hệ thống thì sẽ tạo mới(Giống flow của RegisterCustomer)")]
         public async Task<IActionResult> CheckAccessToken([FromBody] string accessToken)
         {
             var result = await _identityService.AuthenticateWithGoogle(accessToken);
@@ -102,8 +105,9 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpPost("restaurant/register")]
+        [HttpPost("RegisterRestaurant")]
         [Consumes("multipart/form-data")]
+        [SwaggerOperation(Summary = "(Tạo User) sau đó (Tạo Wallet) cho User sau đó (Tạo Restaurant) và (SendEmail VerifyAccount)")]
         public async Task<IActionResult> RegisterRestaurant([FromForm] CreateRestaurantRequest restaurantRequest)
         {
             if (restaurantRequest.File == null || restaurantRequest.File.Length == 0)
@@ -169,7 +173,8 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpPost("customer/register")]
+        [HttpPost("RegisterCustomer")]
+        [SwaggerOperation(Summary = "(Tạo User) sau đó (Tạo Wallet) cho User sau đó (Tạo Customer) và (SendEmail VerifyAccount)")]
         public async Task<IActionResult> RegisterCustomer([FromForm] CreateCustomerRequest customerRequest)
         {
             if (!ModelState.IsValid)
@@ -204,13 +209,13 @@ namespace TOPDER.API.Controllers
 
                 var wallet = await _walletService.AddWalletBalanceAsync(walletBalanceDto);
 
-                // ADD RESTAURANT
+                // ADD Customer
                 customerRequest.Uid = user.Uid;
                 customerRequest.Image = Default_Avatar.CUSTOMER;
                 var addedCustomer = await _customerService.AddAsync(customerRequest);
 
                 // SEND EMAIL
-                await _sendMailService.SendEmailAsync(user.Email, Email_Subject.VERIFY, EmailTemplates.Verify(customerRequest.Name, user.Uid));
+                await _sendMailService.SendEmailAsync(user.Email, Email_Subject.VERIFY, EmailTemplates.Verify(customerRequest.Name??Is_Null.ISNULL, user.Uid));
 
                 return Ok(addedCustomer);
             }
@@ -222,7 +227,8 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpPost("admin/register")]
+        [HttpPost("RegisterAdmin")]
+        [SwaggerOperation(Summary = "Tạo Admin: Lưu ý! chỉ dùng 1 lần khi chưa có data của Admin")]
         public async Task<IActionResult> RegisterAdmin()
         {
             try
@@ -276,10 +282,11 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpGet("verify/{id}")]
-        public async Task<IActionResult> VerifyUser(int id)
+        [HttpGet("VerifyAccount/{uid}")]
+        [SwaggerOperation(Summary = "Cập nhật lại trường thông tin có tên IsVerify trong User thành TRUE")]
+        public async Task<IActionResult> VerifyUser(int uid)
         {
-            var isVerified = await _userService.Verify(id);
+            var isVerified = await _userService.Verify(uid);
             if (!isVerified)
             {
                 return NotFound("User not found or already verified.");
@@ -287,11 +294,12 @@ namespace TOPDER.API.Controllers
             return Ok("User successfully verified.");
         }
 
-        [HttpGet("updateStatus/{id}")]
-        public async Task<IActionResult> UpdateStatus(int id, string status)
+        [HttpGet("UpdateStatus/{uid}")]
+        [SwaggerOperation(Summary = "Cập nhật lại trạng thái của người dùng (In-Active, Active)")]
+        public async Task<IActionResult> UpdateStatus(int uid, string status)
         {   
 
-            var user = await _userRepository.GetByIdAsync(id);
+            var user = await _userRepository.GetByIdAsync(uid);
             if (user == null)
             {
                 return NotFound("Người dùng không tồn tại.");
@@ -309,7 +317,7 @@ namespace TOPDER.API.Controllers
                 return Ok("Người dùng đã có trạng thái này.");
             }
 
-            var update = await _userRepository.ChangeStatusAsync(id, status);
+            var update = await _userRepository.ChangeStatusAsync(uid, status);
             if (update)
             {
                 return Ok("Cập nhật trạng thái người dùng thành công.");

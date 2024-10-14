@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Blog;
 using TOPDER.Service.Dtos.Discount;
@@ -20,7 +21,8 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Tạo Blog: Admin")]
         public async Task<IActionResult> CreateBlog([FromBody] CreateBlogModel createBlogModel)
         {
             if (!ModelState.IsValid)
@@ -36,7 +38,31 @@ namespace TOPDER.API.Controllers
             return Ok($"Tạo Blog thành công.");
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetBlogForUpdate/{blogId}")]
+        [SwaggerOperation(Summary = "Lấy thông tin của blog để cập nhật: Admin")]
+        public async Task<IActionResult> GetUpdateItemAsync(int blogId)
+        {
+            try
+            {
+                var updateBlogModel = await _blogService.GetUpdateItemAsync(blogId);
+                return Ok(updateBlogModel);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Đã xảy ra lỗi: {ex.Message}"); 
+            }
+        }
+
+        [HttpGet("GetDetailBlog/{id}")]
+        [SwaggerOperation(Summary = "Xem chi tiết Blog: Customer")]
         public async Task<IActionResult> GetBlogById(int id)
         {
             try
@@ -50,7 +76,8 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut("Update")]
+        [SwaggerOperation(Summary = "Cập nhật Blog: Admin")]
         public async Task<IActionResult> UpdateBlog([FromBody] UpdateBlogModel updateBlogModel)
         {
             if (!ModelState.IsValid)
@@ -67,7 +94,8 @@ namespace TOPDER.API.Controllers
             return Ok($"Cập nhật Blog với ID {updateBlogModel.BlogId} thành công.");
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete/{id}")]
+        [SwaggerOperation(Summary = "Xóa Blog: Admin")]
         public async Task<IActionResult> DeleteBlog(int id)
         {
             var result = await _blogService.RemoveAsync(id);
@@ -79,7 +107,8 @@ namespace TOPDER.API.Controllers
             return Ok($"Xóa Blog với ID {id} thành công.");
         }
 
-        [HttpGet("customer/list")]
+        [HttpGet("GetBlogListForCustomer")]
+        [SwaggerOperation(Summary = "Danh sách Blog: Customer")]
         public async Task<IActionResult> CustomerBlogList(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -98,7 +127,8 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpGet("admin/list")]
+        [HttpGet("GetBlogListForAdmin")]
+        [SwaggerOperation(Summary = "Danh sách Blog: Admin")]
         public async Task<IActionResult> AdminBlogList(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,

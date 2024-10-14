@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Dtos.Notification;
 using TOPDER.Service.IServices;
 
@@ -17,8 +18,8 @@ namespace TOPDER.API.Controllers
             _notificationService = notificationService;
         }
 
-        // API thêm mới thông báo
-        [HttpPost]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Thêm mới thông báo")]
         public async Task<IActionResult> Create([FromBody] NotificationDto notificationDto)
         {
             if (!ModelState.IsValid)
@@ -33,9 +34,9 @@ namespace TOPDER.API.Controllers
             return BadRequest("Thêm thông báo thất bại.");
         }
 
-        // API lấy thông tin chi tiết thông báo
-        [HttpGet("{notificationId}")]
-        public async Task<IActionResult> GetById(int notificationId, [FromQuery] int userId)
+        [HttpGet("GetNotification/{userId}/{notificationId}")]
+        [SwaggerOperation(Summary = "Lấy thông tin chi tiết thông báo")]
+        public async Task<IActionResult> GetById(int userId,int notificationId)
         {
             try
             {
@@ -52,16 +53,16 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        // API lấy danh sách thông báo với phân trang
-        [HttpGet("list")]
+        [HttpGet("GetNotificationList")]
+        [SwaggerOperation(Summary = "Lấy danh sách thông báo với phân trang")]
         public async Task<IActionResult> GetPaged(int pageNumber, int pageSize, [FromQuery] int userId)
         {
             var notifications = await _notificationService.GetPagingAsync(pageNumber, pageSize, userId);
             return Ok(notifications);
         }
 
-        // API đánh dấu thông báo là đã đọc
         [HttpPut("IsRead/{id}")]
+        [SwaggerOperation(Summary = "Đánh dấu thông báo là đã đọc")]
         public async Task<IActionResult> MarkAsRead(int id)
         {
             var result = await _notificationService.IsReadAsync(id);
@@ -72,7 +73,8 @@ namespace TOPDER.API.Controllers
             return NotFound("Không tìm thấy thông báo hoặc thông báo đã được đánh dấu là đã đọc.");
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("Update")]
+        [SwaggerOperation(Summary = "Cập nhật dấu thông báo là đã đọc")]
         public async Task<IActionResult> Update([FromBody] NotificationDto notificationDto)
         {
             if (!ModelState.IsValid)
@@ -87,15 +89,17 @@ namespace TOPDER.API.Controllers
             return NotFound("Không tìm thấy thông báo hoặc thông báo không thuộc về user.");
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id, [FromQuery] int userId)
+        [HttpDelete("Delete/{userId}/{notificationId}")]
+        [SwaggerOperation(Summary = "Xóa thông báo")]
+        public async Task<IActionResult> Delete(int userId,int notificationId)
         {
-            var result = await _notificationService.RemoveAsync(id, userId);
+            var result = await _notificationService.RemoveAsync(notificationId, userId);
             if (result)
             {
                 return Ok("Xóa thông báo thành công.");
             }
             return NotFound("Không tìm thấy thông báo hoặc thông báo không thuộc về user.");
         }
+
     }
 }

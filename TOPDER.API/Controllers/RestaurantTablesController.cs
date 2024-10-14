@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.RestaurantRoom;
 using TOPDER.Service.Dtos.RestaurantTable;
@@ -18,12 +19,13 @@ namespace TOPDER.API.Controllers
             _restaurantTableService = restaurantTableService;
         }
 
-        [HttpPost("CreateTable")]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Tạo bàn: Restaurant")]
         public async Task<IActionResult> AddAsync([FromBody] RestaurantTableDto restaurantTableDto)
         {
             if (restaurantTableDto == null)
             {
-                return BadRequest("Restaurant table data is required.");
+                return BadRequest("Dữ liệu bàn ăn là bắt buộc.");
             }
 
             var result = await _restaurantTableService.AddAsync(restaurantTableDto);
@@ -32,10 +34,11 @@ namespace TOPDER.API.Controllers
                 return Ok("Tạo bàn thành công!");
             }
 
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while adding the table.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Đã xảy ra lỗi khi thêm bàn.");
         }
 
         [HttpGet("GetTable/{tableId}/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy thông tin của bàn để cập nhật: Restaurant")]
         public async Task<IActionResult> GetItemAsync(int tableId, int restaurantId)
         {
             try
@@ -45,20 +48,21 @@ namespace TOPDER.API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Table with ID {tableId} not found.");
+                return NotFound($"Không tìm thấy bàn với ID {tableId}.");
             }
             catch (UnauthorizedAccessException)
             {
-                return Forbid();
+                return Forbid("Không có quyền truy cập.");
             }
         }
 
-        [HttpPut("UpdateTable")]
+        [HttpPut("Update")]
+        [SwaggerOperation(Summary = "Cập nhật bàn: Restaurant")]
         public async Task<IActionResult> UpdateAsync([FromBody] RestaurantTableDto restaurantTableDto)
         {
             if (restaurantTableDto == null)
             {
-                return BadRequest("Restaurant table data is required.");
+                return BadRequest("Dữ liệu bàn ăn là bắt buộc.");
             }
 
             var result = await _restaurantTableService.UpdateAsync(restaurantTableDto);
@@ -67,11 +71,13 @@ namespace TOPDER.API.Controllers
                 return NoContent();
             }
 
-            return NotFound($"Table with ID {restaurantTableDto.TableId} not found or does not belong to the specified restaurant.");
+            return NotFound($"Không tìm thấy bàn với ID {restaurantTableDto.TableId} hoặc không thuộc nhà hàng đã chỉ định.");
         }
 
-        [HttpDelete("DeleteTable/{tableId}/{restaurantId}")]
-        public async Task<IActionResult> RemoveAsync(int tableId, int restaurantId)
+
+        [HttpDelete("Delete/{restaurantId}/{tableId}")]
+        [SwaggerOperation(Summary = "Xóa bàn: Restaurant")]
+        public async Task<IActionResult> RemoveAsync(int restaurantId, int tableId)
         {
             var result = await _restaurantTableService.RemoveAsync(tableId, restaurantId);
             if (result)
@@ -79,10 +85,11 @@ namespace TOPDER.API.Controllers
                 return NoContent();
             }
 
-            return NotFound($"Table with ID {tableId} not found or does not belong to the specified restaurant.");
+            return NotFound($"Không tìm thấy bàn với ID {tableId} hoặc không thuộc nhà hàng đã chỉ định.");
         }
 
         [HttpGet("GetTableList/{restaurantId}")]
+        [SwaggerOperation(Summary = "lấy ra danh sách tất cả các bàn của nhà hàng: Restaurant")]
         public async Task<IActionResult> SearchPagingAsync(int restaurantId, int pageNumber, int pageSize, string? tableName)
         {
             var result = await _restaurantTableService.GetTableListAsync(pageNumber, pageSize, restaurantId, tableName);
@@ -100,6 +107,7 @@ namespace TOPDER.API.Controllers
 
         // API để lấy danh sách bàn có sẵn
         [HttpGet("GetAvailableTables")]
+        [SwaggerOperation(Summary = "Lấy ra những bàn hợp lệ ví dụ như thời gian, enable booking table (or room if exist): Customer | Restaurant")]
         public async Task<IActionResult> GetAvailableTablesAsync(int restaurantId, string timeReservation, DateTime dateReservation)
         {
             // Chuyển đổi timeReservation từ string thành TimeSpan
@@ -122,24 +130,26 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpPost("CreateByExcelTable")]
+        [HttpPost("CreateByExcel")]
+        [SwaggerOperation(Summary = "Tạo danh sách bàn bằng excel: Restaurant")]
         public async Task<IActionResult> AddRangeExcel([FromForm] CreateExcelRestaurantTableDto createExcelRestaurantTableDto)
         {
             if (createExcelRestaurantTableDto.File == null || createExcelRestaurantTableDto.File.Length == 0)
             {
-                return BadRequest("No file uploaded.");
+                return BadRequest("Không có tệp nào được tải lên.");
             }
 
             var result = await _restaurantTableService.AddRangeExcelAsync(createExcelRestaurantTableDto);
             if (result)
             {
-                return Ok("Tables added successfully.");
+                return Ok("Tạo danh sách bàn thành công.");
             }
-            return BadRequest("Failed to add tables from Excel.");
+            return BadRequest("Không thể tạo danh sách bàn từ Excel.");
         }
 
-        [HttpPut("IsEnabledBooking/{roomId}/{restaurantId}")]
-        public async Task<IActionResult> IsEnabledBooking(int tableId, int restaurantId, [FromBody] bool isEnabledBooking)
+        [HttpPut("IsEnabledBooking/{restaurantId}/{roomId}")]
+        [SwaggerOperation(Summary = "Thay đổi trạng thái Booking của Table: Restaurant")]
+        public async Task<IActionResult> IsEnabledBooking(int restaurantId,int tableId,[FromBody] bool isEnabledBooking)
         {
             try
             {
@@ -159,7 +169,5 @@ namespace TOPDER.API.Controllers
                 return Forbid(ex.Message);
             }
         }
-
-
     }
 }

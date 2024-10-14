@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Discount;
 using TOPDER.Service.Dtos.Feedback;
@@ -18,7 +19,8 @@ namespace TOPDER.API.Controllers
             _feedbackService = feedbackService;
         }
 
-        [HttpPost]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Tạo Feedback: Customer")]
         public async Task<IActionResult> AddFeedback([FromBody] FeedbackDto feedbackDto)
         {
             if (!ModelState.IsValid)
@@ -32,7 +34,8 @@ namespace TOPDER.API.Controllers
             return BadRequest("Failed to create feedback.");
         }
 
-        [HttpGet("history")]
+        [HttpGet("GetFeedbacksHistory")]
+        [SwaggerOperation(Summary = "Lấy ra cách feedback mà khách hàng từng tạo: Customer")]
         public async Task<IActionResult> GetHistoryCustomerPaging([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int customerId)
         {
             var result = await _feedbackService.GetHistoryCustomerPagingAsync(pageNumber, pageSize, customerId);
@@ -40,18 +43,20 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFeedback(int id)
+        [HttpDelete("Delete/{feedbackId}")]
+        [SwaggerOperation(Summary = "Xóa Feedback: Customer | Admin")]
+        public async Task<IActionResult> DeleteFeedback(int feedbackId)
         {
-            var result = await _feedbackService.RemoveAsync(id);
+            var result = await _feedbackService.RemoveAsync(feedbackId);
             if (result)
             {
-                return Ok($"Feedback with ID {id} deleted successfully.");
+                return Ok($"Feedback with ID {feedbackId} deleted successfully.");
             }
-            return NotFound($"Feedback with ID {id} not found.");
+            return NotFound($"Feedback with ID {feedbackId} not found.");
         }
 
-        [HttpPut]
+        [HttpPut("Update")]
+        [SwaggerOperation(Summary = "Cập nhật Feedback: Customer")]
         public async Task<IActionResult> UpdateFeedback([FromBody] FeedbackDto feedbackDto)
         {
             if (!ModelState.IsValid)
@@ -65,7 +70,8 @@ namespace TOPDER.API.Controllers
             return NotFound("Feedback not found.");
         }
 
-        [HttpGet("customer/{restaurantId}")]
+        [HttpGet("GetFeedbackForRestaurantDetail/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy ra danh sách Feedback của nhà hàng đó trong CHI TIẾT NHÀ HÀNG: Customer")]
         public async Task<IActionResult> GetCustomerFeedbacks(int restaurantId,[FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int? star = null)
         {
             var result = await _feedbackService.ListCustomerPagingAsync(pageNumber, pageSize, restaurantId, star);
@@ -79,7 +85,8 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("admin")]
+        [HttpGet("GetFeedbackListForAdmin")]
+        [SwaggerOperation(Summary = "Lấy ra danh sách Feedback của toàn hệ thống: Admin")]
         public async Task<IActionResult> GetAdminFeedbacks([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int? star = null, [FromQuery] string? content = null)
         {
             var result = await _feedbackService.ListAdminPagingAsync(pageNumber, pageSize, star, content);
@@ -95,7 +102,8 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("restaurant/{restaurantId}")]
+        [HttpGet("GetFeedbackListForRestaurant/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy ra danh sách Feedback của nhà hàng: Restaurant")]
         public async Task<IActionResult> GetRestaurantFeedbacks(int restaurantId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int? star = null, [FromQuery] string? content = null)
         {
             var result = await _feedbackService.ListRestaurantPagingAsync(pageNumber, pageSize, restaurantId, star, content);

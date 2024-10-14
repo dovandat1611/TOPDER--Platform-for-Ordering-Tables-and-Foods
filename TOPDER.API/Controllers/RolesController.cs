@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
+using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Role;
+using TOPDER.Service.Dtos.WalletTransaction;
 using TOPDER.Service.IServices;
 
 namespace TOPDER.API.Controllers
@@ -17,15 +20,26 @@ namespace TOPDER.API.Controllers
         }
 
         // GET: api/Roles
-        [HttpGet]
+        [HttpGet("GetRoleList")]
+        [SwaggerOperation(Summary = "Lấy danh sách roles: Admin")]
         public async Task<IActionResult> GetRoles([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var roles = await _roleService.GetPagingAsync(pageNumber, pageSize);
-            return Ok(roles);
+            var result = await _roleService.GetPagingAsync(pageNumber, pageSize);
+
+            var response = new PaginatedResponseDto<RoleDto>(
+                result,
+                result.PageIndex,
+                result.TotalPages,
+                result.HasPreviousPage,
+                result.HasNextPage
+            );
+
+            return Ok(response);
         }
 
         // POST: api/Roles
-        [HttpPost]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Tạo Role: Admin")]
         public async Task<IActionResult> CreateRole([FromBody] RoleDto roleDto)
         {
             if (!ModelState.IsValid)
@@ -43,12 +57,13 @@ namespace TOPDER.API.Controllers
         }
 
         // GET: api/Roles/{id}
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetRoleById(int id)
+        [HttpGet("GetRole/{roleId}")]
+        [SwaggerOperation(Summary = "Lấy role để update: Admin")]
+        public async Task<IActionResult> GetRoleById(int roleId)
         {
             try
             {
-                var roleDto = await _roleService.GetByIdAsync(id);
+                var roleDto = await _roleService.GetByIdAsync(roleId);
                 return Ok(roleDto);
             }
             catch (KeyNotFoundException ex)
@@ -62,14 +77,10 @@ namespace TOPDER.API.Controllers
         }
 
         // PUT: api/Roles/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRole(int id, [FromBody] RoleDto roleDto)
+        [HttpPut("Update")]
+        [SwaggerOperation(Summary = "Cập nhật role: Admin")]
+        public async Task<IActionResult> UpdateRole([FromBody] RoleDto roleDto)
         {
-            if (id != roleDto.RoleId)
-            {
-                return BadRequest("Role ID mismatch.");
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

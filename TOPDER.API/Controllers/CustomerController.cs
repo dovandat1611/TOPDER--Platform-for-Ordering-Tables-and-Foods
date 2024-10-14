@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Dtos.Customer;
 using TOPDER.Service.IServices;
 
@@ -16,7 +17,8 @@ namespace TOPDER.API.Controllers
             _customerService = customerService;
         }
 
-        [HttpGet("Profile/{uid}")]
+        [HttpGet("GetProfile/{uid}")]
+        [SwaggerOperation(Summary = "Lấy thông tin profile của customer : Customer")]
         public async Task<IActionResult> GetProfile(int uid)
         {
             var profile = await _customerService.Profile(uid);
@@ -28,6 +30,7 @@ namespace TOPDER.API.Controllers
         }
 
         [HttpPut("UpdateProfile")]
+        [SwaggerOperation(Summary = "cập nhật lại thông tin profile : Customer")]
         public async Task<IActionResult> UpdateProfile([FromBody] CustomerProfileDto customerProfile)
         {
             if (!ModelState.IsValid)

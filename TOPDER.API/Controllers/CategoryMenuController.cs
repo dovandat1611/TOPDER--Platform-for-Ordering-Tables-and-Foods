@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Blog;
 using TOPDER.Service.Dtos.CategoryMenu;
@@ -18,7 +19,8 @@ namespace TOPDER.API.Controllers
             _categoryMenuService = categoryMenuService;
         }
 
-        [HttpPost]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Tạo Category Menu: Restaurant")]
         public async Task<IActionResult> CreateCategoryMenu([FromBody] CreateCategoryMenuDto categoryMenuDto)
         {
             if (!ModelState.IsValid)
@@ -33,8 +35,9 @@ namespace TOPDER.API.Controllers
             return BadRequest("Tạo Category Menu thất bại.");
         }
 
-        [HttpGet("{restaurantId}/{id}")]
-        public async Task<IActionResult> GetCategoryMenu(int restaurantId, int id)
+        [HttpGet("GetCategoryMenu/{restaurantId}/{categoryMenuId}")]
+        [SwaggerOperation(Summary = "Lấy ra một Category Menu để Update: Restaurant")]
+        public async Task<IActionResult> GetCategoryMenu(int restaurantId, int categoryMenuId)
         {
             if (restaurantId <= 0)
             {
@@ -43,21 +46,22 @@ namespace TOPDER.API.Controllers
 
             try
             {   
-                var categoryMenu = await _categoryMenuService.GetItemAsync(id, restaurantId);
+                var categoryMenu = await _categoryMenuService.GetItemAsync(categoryMenuId, restaurantId);
                 return Ok(categoryMenu);
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Category Menu với ID {id} không tồn tại.");
+                return NotFound($"Category Menu với ID {categoryMenuId} không tồn tại.");
             }
             catch (UnauthorizedAccessException)
             {
-                return Forbid($"Category Menu với ID {id} không thuộc về nhà hàng với ID {restaurantId}.");
+                return Forbid($"Category Menu với ID {categoryMenuId} không thuộc về nhà hàng với ID {restaurantId}.");
             }
         }
 
 
-        [HttpGet("list/{restaurantId}")]
+        [HttpGet("GetCategoryMenuList/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy danh sách Category Menu của Nhà Hàng (có thể Search theo Name): Restaurant")]
         public async Task<IActionResult> ListPaging(
             int restaurantId,
             [FromQuery] int pageNumber = 1,
@@ -87,7 +91,8 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut("Update")]
+        [SwaggerOperation(Summary = "Cập nhật Category Menu của Nhà Hàng: Restaurant")]
         public async Task<IActionResult> UpdateCategoryMenu([FromBody] CategoryMenuDto categoryMenuDto)
         {
             if (!ModelState.IsValid)
@@ -101,7 +106,8 @@ namespace TOPDER.API.Controllers
             return NotFound($"Category Menu với ID {categoryMenuDto.CategoryMenuId} không tồn tại.");
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete/{id}")]
+        [SwaggerOperation(Summary = "Xóa Category Menu: Restaurant")]
         public async Task<IActionResult> RemoveCategoryMenu(int id)
         {
             try
@@ -118,5 +124,6 @@ namespace TOPDER.API.Controllers
                 return StatusCode(500, $"Đã xảy ra lỗi trong quá trình xử lý: {ex.Message}");
             }
         }
+
     }
 }

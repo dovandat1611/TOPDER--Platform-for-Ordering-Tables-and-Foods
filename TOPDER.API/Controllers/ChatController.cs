@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Dtos.Chat;
 using TOPDER.Service.IServices;
 
@@ -16,7 +17,8 @@ namespace TOPDER.API.Controllers
             _chatService = chatService;
         }
 
-        [HttpPost]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Tạo tin nhắn: Customer | Restaurant")]
         public async Task<IActionResult> CreateChat([FromBody] CreateorUpdateChatDto createChatDto)
         {
             if (!ModelState.IsValid)
@@ -31,28 +33,31 @@ namespace TOPDER.API.Controllers
             return BadRequest("Tạo chat thất bại.");
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetChat(int id)
+        [HttpGet("GetChat/{chatId}")]
+        [SwaggerOperation(Summary = "Lấy ra một tin nhắn để Update: Customer | Restaurant")]
+        public async Task<IActionResult> GetChat(int chatId)
         {
             try
             {
-                var chat = await _chatService.GetItemAsync(id);
+                var chat = await _chatService.GetItemAsync(chatId);
                 return Ok(chat);
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Chat với ID {id} không tồn tại.");
+                return NotFound($"Chat với ID {chatId} không tồn tại.");
             }
         }
 
-        [HttpGet("list/{chatBoxId}")]
+        [HttpGet("GetChatList/{chatBoxId}")]
+        [SwaggerOperation(Summary = "Lấy ra toàn bộ tin nhắn của ChatBox: Customer | Restaurant")]
         public async Task<IActionResult> GetChatList(int chatBoxId)
         {
             var chats = await _chatService.GetListAsync(chatBoxId);
             return Ok(chats);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete/{id}")]
+        [SwaggerOperation(Summary = "Xóa tin nhắn: Customer | Restaurant")]
         public async Task<IActionResult> DeleteChat(int id)
         {
             var result = await _chatService.RemoveAsync(id);
@@ -63,7 +68,8 @@ namespace TOPDER.API.Controllers
             return NotFound($"Chat với ID {id} không tồn tại.");
         }
 
-        [HttpPut]
+        [HttpPut("Update")]
+        [SwaggerOperation(Summary = "Cập nhật tin nhắn: Customer | Restaurant")]
         public async Task<IActionResult> UpdateChat([FromBody] CreateorUpdateChatDto updateChatDto)
         {
             if (!ModelState.IsValid)

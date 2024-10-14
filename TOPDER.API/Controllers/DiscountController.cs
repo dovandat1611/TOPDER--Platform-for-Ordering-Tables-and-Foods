@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Discount;
 using TOPDER.Service.Dtos.Restaurant;
@@ -19,14 +20,14 @@ namespace TOPDER.API.Controllers
             _discountService = discountService;
         }
 
-        [HttpPost]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Tạo Discount : Restaurant")]
         public async Task<IActionResult> AddDiscount([FromBody] DiscountDto discountDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
             try
             {
                 bool result = await _discountService.AddAsync(discountDto);
@@ -47,19 +48,21 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpGet("available/{restaurantId}/{customerId}/{totalPrice}")]
+        [HttpGet("GetAvailableDiscount/{restaurantId}/{customerId}/{totalPrice}")]
+        [SwaggerOperation(Summary = "Khi click vào đặt bàn thì sẽ hiện ra những mã giảm giá tương ứng với đơn hàng dựa theo Customer, Restaurant, Giá trị đơn hàng: Customer")]
         public async Task<ActionResult> GetAvailableDiscounts(int restaurantId, int customerId, decimal totalPrice)
         {
             var result = await _discountService.GetAvailableDiscountsAsync(restaurantId, customerId, totalPrice);
             return Ok(result);
         }
 
-        [HttpGet("{restaurantId}/{id}")]
-        public async Task<ActionResult> GetItem(int id, int restaurantId)
+        [HttpGet("GetDiscount/{restaurantId}/{discountId}")]
+        [SwaggerOperation(Summary = "Lấy ra một Discount để Update: Restaurant")]
+        public async Task<ActionResult> GetItem(int restaurantId, int discountId)
         {
             try
             {
-                var discount = await _discountService.GetItemAsync(id, restaurantId);
+                var discount = await _discountService.GetItemAsync(discountId, restaurantId);
                 return Ok(discount);
             }
             catch (KeyNotFoundException ex)
@@ -72,7 +75,8 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpGet("list/{restaurantId}")]
+        [HttpGet("GetDiscountList/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy danh sách Discount của nhà hàng: Restaurant")]
         public async Task<ActionResult> GetRestaurantPaging(int pageNumber, int pageSize, int restaurantId)
         {
             var result = await _discountService.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId);
@@ -87,10 +91,11 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
-        [HttpDelete("{restaurantId}/{id}")]
-        public async Task<ActionResult> RemoveDiscount(int restaurantId, int id)
+        [HttpDelete("Delete/{restaurantId}/{discountId}")]
+        [SwaggerOperation(Summary = "Xóa Discount của nhà hàng: Restaurant")]
+        public async Task<ActionResult> RemoveDiscount(int restaurantId, int discountId)
         {
-            var result = await _discountService.RemoveAsync(id, restaurantId);
+            var result = await _discountService.RemoveAsync(discountId, restaurantId);
             if (result)
             {
                 return Ok("Xóa Discount thành công.");
@@ -98,7 +103,8 @@ namespace TOPDER.API.Controllers
             return NotFound("Giảm giá không tồn tại hoặc không thuộc về nhà hàng.");
         }
 
-        [HttpPut]
+        [HttpPut("Update")]
+        [SwaggerOperation(Summary = "Cập Nhật Discount của nhà hàng: Restaurant")]
         public async Task<ActionResult> UpdateDiscount([FromBody] DiscountDto discountDto)
         {
             if (!ModelState.IsValid)
@@ -111,5 +117,6 @@ namespace TOPDER.API.Controllers
             }
             return NotFound("Giảm giá không tồn tại hoặc không thuộc về nhà hàng.");
         }
+
     }
 }

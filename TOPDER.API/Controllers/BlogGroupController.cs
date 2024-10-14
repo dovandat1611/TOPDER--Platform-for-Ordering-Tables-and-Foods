@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Blog;
 using TOPDER.Service.Dtos.BlogGroup;
@@ -18,7 +19,8 @@ namespace TOPDER.API.Controllers
             _blogGroupService = blogGroupService;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetBlogGroup/{id}")]
+        [SwaggerOperation(Summary = "Lấy ra một Blog Group để Update: Admin")]
         public async Task<IActionResult> GetBlogGroup(int id)
         {
             try
@@ -36,7 +38,8 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Tạo Blog Group: Admin")]
         public async Task<IActionResult> CreateBlogGroup([FromBody] BlogGroupDto blogGroupDto)
         {
             if (!ModelState.IsValid)
@@ -51,7 +54,8 @@ namespace TOPDER.API.Controllers
             return BadRequest("Tạo Blog Group thất bại.");
         }
 
-        [HttpGet("exist")]
+        [HttpGet("GetExistingBlogGroups")]
+        [SwaggerOperation(Summary = "Lấy ra những Blog Group có trong Blog(phục vụ cho việc Search): Customer")]
         public async Task<IActionResult> GetExistingBlogGroups()
         {
             try
@@ -66,7 +70,8 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpPut]
+        [HttpPut("Update")]
+        [SwaggerOperation(Summary = "Cập nhật Blog Group: Admin")]
         public async Task<IActionResult> UpdateBlogGroup([FromBody] BlogGroupDto blogGroupDto)
         {
             if (!ModelState.IsValid)
@@ -80,7 +85,8 @@ namespace TOPDER.API.Controllers
             return NotFound($"Blog Group với ID {blogGroupDto.BloggroupId} không tồn tại.");
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete/{id}")]
+        [SwaggerOperation(Summary = "Xóa Blog Group: Admin")]
         public async Task<IActionResult> DeleteBlogGroup(int id)
         {
             var result = await _blogGroupService.RemoveAsync(id);
@@ -92,7 +98,8 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpGet("list")]
+        [HttpGet("GetBlogGroupList")]
+        [SwaggerOperation(Summary = "Lấy danh sách Blog Group (có thể Search theo Name): Admin")]
         public async Task<IActionResult> SearchBlogGroups([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? blogGroupName = null)
         {
             var result = await _blogGroupService.ListPagingAsync(pageNumber, pageSize, blogGroupName);

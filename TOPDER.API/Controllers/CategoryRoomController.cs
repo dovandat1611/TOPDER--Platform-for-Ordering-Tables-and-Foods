@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.CategoryMenu;
 using TOPDER.Service.Dtos.CategoryRoom;
@@ -18,7 +19,8 @@ namespace TOPDER.API.Controllers
             _categoryRoomService = categoryRoomService;
         }
 
-        [HttpPost]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Tạo Category Room: Restaurant")]
         public async Task<IActionResult> CreateCategoryRoom([FromBody] CategoryRoomDto categoryRoomDto)
         {
             if (!ModelState.IsValid)
@@ -33,25 +35,27 @@ namespace TOPDER.API.Controllers
             return BadRequest("Tạo Category Room thất bại.");
         }
 
-        [HttpGet("{restaurantId}/{id}")]
-        public async Task<IActionResult> GetCategoryRoom(int restaurantId, int id)
+        [HttpGet("GetCategoryRoom/{restaurantId}/{categoryRoomId}")]
+        [SwaggerOperation(Summary = "Lấy ra một Category Room để Update: Restaurant")]
+        public async Task<IActionResult> GetCategoryRoom(int restaurantId, int categoryRoomId)
         {
             try
             {
-                var categoryRoom = await _categoryRoomService.GetItemAsync(id, restaurantId);
+                var categoryRoom = await _categoryRoomService.GetItemAsync(categoryRoomId, restaurantId);
                 return Ok(categoryRoom);
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Category Room với ID {id} không tồn tại.");
+                return NotFound($"Category Room với ID {categoryRoomId} không tồn tại.");
             }
             catch (UnauthorizedAccessException)
             {
-                return Forbid($"Category Room với ID {id} không thuộc về nhà hàng với ID {restaurantId}.");
+                return Forbid($"Category Room với ID {categoryRoomId} không thuộc về nhà hàng với ID {restaurantId}.");
             }
         }
 
-        [HttpGet("list/{restaurantId}")]
+        [HttpGet("GetCategoryRoomList/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy danh sách Category Room của Nhà Hàng (có thể Search theo Name): Restaurant")]
         public async Task<IActionResult> GetCategoryRoomPaging(
             int restaurantId,
             [FromQuery] int pageNumber = 1,
@@ -84,7 +88,8 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpPut]
+        [HttpPut("Update")]
+        [SwaggerOperation(Summary = "Cập nhật Category Room của Nhà Hàng: Restaurant")]
         public async Task<IActionResult> UpdateCategoryRoom([FromBody] CategoryRoomDto categoryRoomDto)
         {
             if (!ModelState.IsValid)
@@ -98,17 +103,18 @@ namespace TOPDER.API.Controllers
             return NotFound($"Category Room với ID {categoryRoomDto.CategoryRoomId} không tồn tại.");
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Remove(int id)
+        [HttpDelete("Delete/{categoryRoomId}")]
+        [SwaggerOperation(Summary = "Xóa Category Room của Nhà Hàng: Restaurant")]
+        public async Task<IActionResult> Remove(int categoryRoomId)
         {
-            if (id <= 0)
+            if (categoryRoomId <= 0)
             {
                 return BadRequest(new { message = "ID không hợp lệ." });
             }
 
             try
             {
-                var result = await _categoryRoomService.RemoveAsync(id);
+                var result = await _categoryRoomService.RemoveAsync(categoryRoomId);
                 if (result)
                 {
                     return Ok(new { message = "Xóa CategoryRoom thành công." });

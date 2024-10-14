@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Dtos.Wishlist;
 using TOPDER.Service.IServices;
 
@@ -16,8 +17,8 @@ namespace TOPDER.API.Controllers
             _wishlistService = wishlistService;
         }
 
-        // POST: api/wishlist
-        [HttpPost]
+        [HttpPost("Create")]
+        [SwaggerOperation(Summary = "Thêm nhà hàng vào Wishlist: Customer")]
         public async Task<IActionResult> Add([FromBody] WishlistDto wishlistDto)
         {
             if (wishlistDto == null)
@@ -34,24 +35,25 @@ namespace TOPDER.API.Controllers
             return Conflict("Wishlist item already exists.");
         }
 
-        // GET: api/wishlist/{customerId}
-        [HttpGet("{customerId}")]
+        [HttpGet("GetWishlistList/{customerId}")]
+        [SwaggerOperation(Summary = "lấy danh sách Wishlist của khách hàng: Customer")]
         public async Task<IActionResult> GetPaging(int customerId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             var paginatedWishlists = await _wishlistService.GetPagingAsync(pageNumber, pageSize, customerId);
             return Ok(paginatedWishlists);
         }
 
-        // DELETE: api/wishlist/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Remove(int id, [FromQuery] int customerId)
+        [HttpDelete("Delete/{customerId}/{wishlistId}")]
+        [SwaggerOperation(Summary = "Xóa danh sách yêu thích: Customer")]
+        public async Task<IActionResult> Remove(int customerId,int wishlistId)
         {
-            var result = await _wishlistService.RemoveAsync(id, customerId);
+            var result = await _wishlistService.RemoveAsync(wishlistId, customerId);
             if (result)
             {
                 return Ok("Xóa nhà hàng ra khỏi Wishlist thành công");
             }
             return NotFound("Wishlist item not found or does not belong to the customer.");
         }
+
     }
 }
