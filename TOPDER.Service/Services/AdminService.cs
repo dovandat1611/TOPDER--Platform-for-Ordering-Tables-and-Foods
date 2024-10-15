@@ -23,6 +23,13 @@ namespace TOPDER.Service.Services
             _adminRepository = adminRepository;
             _mapper = mapper;
         }
+
+        public async Task<Admin> AddAsync(AdminDto adminDto)
+        {
+            var admin = _mapper.Map<Admin>(adminDto);
+            return await _adminRepository.CreateAndReturnAsync(admin);
+        }
+
         public async Task<bool> UpdateAsync(AdminDto adminDto)
         {
             var existingAdmin = await _adminRepository.GetByIdAsync(adminDto.Uid);

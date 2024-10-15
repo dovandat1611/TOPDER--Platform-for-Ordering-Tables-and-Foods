@@ -12,6 +12,7 @@ using TOPDER.Service.Dtos.Customer;
 using TOPDER.Repository.Repositories;
 using TOPDER.Repository.IRepositories;
 using Swashbuckle.AspNetCore.Annotations;
+using TOPDER.Service.Dtos.Admin;
 
 namespace TOPDER.API.Controllers
 {
@@ -26,7 +27,7 @@ namespace TOPDER.API.Controllers
         private readonly IWalletService _walletService;
         private readonly ISendMailService _sendMailService;
         private readonly JwtHelper _jwtHelper;
-        private readonly IAdminRepository _adminRepository;
+        private readonly IAdminService _adminService;
         private readonly IUserRepository _userRepository;
         private readonly IIdentityService _identityService;
 
@@ -34,7 +35,7 @@ namespace TOPDER.API.Controllers
 
         public UserController(IRestaurantService restaurantService, ICloudinaryService cloudinaryService,
             ISendMailService sendMailService, IUserService userService, ICustomerService customerService,
-            IWalletService walletService, JwtHelper jwtHelper, IAdminRepository adminRepository,
+            IWalletService walletService, JwtHelper jwtHelper, IAdminService adminService,
             IUserRepository userRepository, IIdentityService identityService)
         {
             _restaurantService = restaurantService;
@@ -44,9 +45,9 @@ namespace TOPDER.API.Controllers
             _customerService = customerService;
             _walletService = walletService;
             _jwtHelper = jwtHelper;
-            _adminRepository = adminRepository;
             _userRepository = userRepository;
             _identityService = identityService;
+            _adminService = adminService;
         }
 
         [HttpPost("Login")]
@@ -276,7 +277,7 @@ namespace TOPDER.API.Controllers
                 var wallet = await _walletService.AddWalletBalanceAsync(walletBalanceDto);
 
                 // ADD RESTAURANT
-                Admin admin = new Admin()
+                AdminDto admin = new AdminDto()
                 {
                     Uid = user.Uid,
                     Name = "TOPDER",
@@ -284,7 +285,8 @@ namespace TOPDER.API.Controllers
                     Dob = DateTime.Now,
                     Image = Default_Avatar.ADMIN
                 };
-                var addedAdmin = await _adminRepository.CreateAndReturnAsync(admin);
+
+                var addedAdmin = await _adminService.AddAsync(admin);
 
                 // SEND EMAIL
                 await _sendMailService.SendEmailAsync(user.Email, Email_Subject.VERIFY, EmailTemplates.Verify(admin.Name, user.Uid));
