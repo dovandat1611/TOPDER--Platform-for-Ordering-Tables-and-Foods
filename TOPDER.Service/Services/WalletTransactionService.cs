@@ -3,16 +3,19 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Repository.Repositories;
 using TOPDER.Service.Dtos.Discount;
+using TOPDER.Service.Dtos.Notification;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.Dtos.WalletTransaction;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
 {
@@ -20,11 +23,14 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly IWalletTransactionRepository _walletTransactionRepository;
+        private readonly INotificationService _notificationService;
 
-        public WalletTransactionService(IWalletTransactionRepository walletTransactionRepository, IMapper mapper)
+
+        public WalletTransactionService(IWalletTransactionRepository walletTransactionRepository, IMapper mapper, INotificationService notificationService)
         {
             _walletTransactionRepository = walletTransactionRepository;
             _mapper = mapper;
+            _notificationService = notificationService;
         }
         public async Task<bool> AddAsync(WalletTransactionDto walletTransactionDto)
         {   
@@ -121,6 +127,7 @@ namespace TOPDER.Service.Services
             {
                 return true;
             }
+
             walletTransaction.Status = status;
             return await _walletTransactionRepository.UpdateAsync(walletTransaction);
         }

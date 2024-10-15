@@ -79,6 +79,24 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             }
         }
 
+        public class Notification_Type
+        {
+            public static string SYSTEM_ADD = "Hệ Thống Cộng Tiền Vào Ví";
+            public static string SYSTEM_SUB = "Hệ Thống Trừ Tiền Từ Ví";
+        }
+
+        public class Notification_Content
+        {
+            public static string SYSTEM_ADD(decimal price)
+            {
+                return $"Hệ thống cộng số tiền {price} vào ví của bạn.";
+            }
+            public static string SYSTEM_SUB(decimal price)
+            {
+                return $"Hệ thống hỗ trợ rút số tiền {price} từ ví của bạn thành công.";
+            }
+        }
+
         public class Log_Type
         {
             public static string FEE_PERCENT = "Fee-Percent";

@@ -135,7 +135,7 @@ namespace TOPDER.Service.Services
 
                     if(addedCustomer != null)
                     {
-                        var newUserLoginDto = new UserLoginDTO
+                        var newUserLoginDto = new UserLoginDTO() 
                         {
                             Uid = newUser.Uid,
                             Email = newUser.Email,

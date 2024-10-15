@@ -15,6 +15,8 @@ namespace TOPDER.Service.Dtos.Restaurant
         public string NameRes { get; set; } = null!;
         public int? CategoryRestaurantId { get; set; }
         public string CategoryName { get; set; } = null!;
+        public string? Description { get; set; }
+        public string? Subdescription { get; set; }
         public TimeSpan OpenTime { get; set; }
         public TimeSpan CloseTime { get; set; }
         public string Address { get; set; } = null!;
@@ -28,6 +30,5 @@ namespace TOPDER.Service.Dtos.Restaurant
         public decimal? ReturningFeePercent { get; set; }
         public decimal? CancellationFeePercent { get; set; }
         public List<ImageDto> Images { get; set; } = null!;
-        public List<RestaurantDto> RelateRestaurant { get; set; } = null!;
     }
 }

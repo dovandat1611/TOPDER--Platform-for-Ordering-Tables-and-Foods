@@ -61,8 +61,6 @@ namespace TOPDER.Service.Mapper
                                 : 0))
                 .ForMember(dest => dest.Images,
                            opt => opt.MapFrom(src => src.Images)) 
-                .ForMember(dest => dest.RelateRestaurant,
-                           opt => opt.Ignore())
                 .ForMember(dest => dest.MinPriceMenu,
                            opt => opt.MapFrom(src => src.Menus != null && src.Menus.Any()
                                 ? src.Menus.Min(m => m.Price)
@@ -71,6 +69,8 @@ namespace TOPDER.Service.Mapper
                            opt => opt.MapFrom(src => src.Menus != null && src.Menus.Any()
                                 ? src.Menus.Max(m => m.Price)
                                 : 0));
+
+
 
 
 
@@ -287,20 +287,116 @@ namespace TOPDER.Service.Mapper
             CreateMap<OrderDto, Order>().ReverseMap();
 
             // USER 
+
+            CreateMap<Restaurant, UserLoginDTO>()
+                .ForMember(dest => dest.RoleName,
+                           opt => opt.MapFrom(src =>
+                               src.UidNavigation != null && src.UidNavigation.Role != null
+                                   ? src.UidNavigation.Role.Name
+                                   : string.Empty))
+                .ForMember(dest => dest.Email,
+                           opt => opt.MapFrom(src =>
+                               src.UidNavigation != null ? src.UidNavigation.Email
+                                   : string.Empty));
+
             CreateMap<UserDto, User>().ReverseMap();
+
             CreateMap<User, UserLoginDTO>()
                 .ForMember(dest => dest.RoleName,
-                           opt => opt.MapFrom(src => src.Role != null ? src.Role.Name : "Unknown Role"))
+                           opt => opt.MapFrom(src => src.Role != null ? src.Role.Name : null))
+
                 .ForMember(dest => dest.Name,
                            opt => opt.MapFrom(src =>
                                src.Customer != null ? src.Customer.Name :
-                               (src.Restaurant != null ? src.Restaurant.NameRes :
-                               (src.Admin != null ? src.Admin.Name : "Unknown Name"))))
+                               src.Admin != null ? src.Admin.Name : null))
+
                 .ForMember(dest => dest.Phone,
                            opt => opt.MapFrom(src =>
                                src.Admin != null ? src.Admin.Phone :
                                (src.Restaurant != null ? src.Restaurant.Phone :
-                               (src.Customer != null ? src.Customer.Phone : "Unknown Phone"))));
+                               (src.Customer != null ? src.Customer.Phone : null))))
+
+                .ForMember(dest => dest.Image,
+                           opt => opt.MapFrom(src =>
+                               src.Admin != null ? src.Admin.Image :
+                               src.Customer != null ? src.Customer.Image : null))
+
+                .ForMember(dest => dest.Dob,
+                           opt => opt.MapFrom(src =>
+                               src.Admin != null ? src.Admin.Dob.ToString() :
+                               src.Customer != null ? src.Customer.Dob.ToString() : null))
+
+                .ForMember(dest => dest.Gender,
+                           opt => opt.MapFrom(src =>
+                               src.Customer != null ? src.Customer.Gender : null))
+
+                // RESTAURANT
+                .ForMember(dest => dest.CategoryRestaurantId,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.CategoryRestaurantId : null))
+
+                .ForMember(dest => dest.NameOwner,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.NameOwner : null))
+                .ForMember(dest => dest.NameRes,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.NameRes : null))
+
+                .ForMember(dest => dest.Logo,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.Logo : null))
+
+                .ForMember(dest => dest.OpenTime,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.OpenTime.ToString() : null))
+
+                .ForMember(dest => dest.CloseTime,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.CloseTime.ToString() : null))
+
+                .ForMember(dest => dest.Address,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.Address : null))
+
+                .ForMember(dest => dest.Description,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.Description : null))
+
+                .ForMember(dest => dest.Subdescription,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.Subdescription : null))
+
+                .ForMember(dest => dest.Location,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.Location : null))
+
+                .ForMember(dest => dest.Discount,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.Discount : null))
+
+                .ForMember(dest => dest.MaxCapacity,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.MaxCapacity.ToString() : null))
+
+                .ForMember(dest => dest.Price,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.Price.ToString() : null))
+
+                .ForMember(dest => dest.IsBookingEnabled,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.IsBookingEnabled : null))
+
+                .ForMember(dest => dest.FirstFeePercent,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.FirstFeePercent : null))
+
+                .ForMember(dest => dest.ReturningFeePercent,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.ReturningFeePercent : null))
+
+                .ForMember(dest => dest.CancellationFeePercent,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.CancellationFeePercent : null));
 
 
             //ROLE

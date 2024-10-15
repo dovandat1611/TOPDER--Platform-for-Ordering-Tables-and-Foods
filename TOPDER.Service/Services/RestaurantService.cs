@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 using TOPDER.Service.Dtos.Blog;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TOPDER.Service.Services
 {
@@ -146,17 +147,24 @@ namespace TOPDER.Service.Services
 
             var restaurantDto = _mapper.Map<RestaurantDetailDto>(restaurant);
 
+            return restaurantDto;
+        }
+
+        public async Task<List<RestaurantDto>> GetRelateRestaurantByCategoryAsync(int restaurantId, int restaurantCategoryId)
+        {
+            var query = await _restaurantRepository.QueryableAsync();
+
             var relateRestaurants = await query
                 .Include(x => x.CategoryRestaurant)
                 .Include(x => x.Feedbacks)
-                .Where(x => x.CategoryRestaurantId == restaurant.CategoryRestaurantId
-                && x.Uid != id && x.IsBookingEnabled == true)
+                .Where(x => x.CategoryRestaurantId == restaurantCategoryId
+                && x.Uid != restaurantId && x.IsBookingEnabled == true)
                 .Take(10)
                 .ToListAsync();
 
             var relateRestaurantDto = _mapper.Map<List<RestaurantDto>>(relateRestaurants);
-            restaurantDto.RelateRestaurant = relateRestaurantDto;
-            return restaurantDto;
+
+            return relateRestaurantDto;
         }
 
 
@@ -310,6 +318,7 @@ namespace TOPDER.Service.Services
             existingRestaurant.IsBookingEnabled = isEnabledBooking;
             return await _restaurantRepository.UpdateAsync(existingRestaurant);
         }
+
 
     }
 }

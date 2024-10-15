@@ -113,6 +113,23 @@ namespace TOPDER.API.Controllers
             return Ok(discountAndFee);
         }
 
+
+        [HttpGet("GetRelateRestaurant/{restaurantId}/{categoryRestaurantId}")]
+        [SwaggerOperation(Summary = "Lấy ra những nhà hàng liên quan theo category(không tính nhà hàng hiện tại): Customer")]
+        public async Task<IActionResult> GetRelatedRestaurants(int restaurantId, int categoryRestaurantId)
+        {
+            try
+            {
+                var restaurants = await _restaurantService.GetRelateRestaurantByCategoryAsync(restaurantId, categoryRestaurantId);
+                return Ok(restaurants);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
+            }
+        }
+
+
         [HttpGet("GetDescription/{restaurantId}")]
         [SwaggerOperation(Summary = "Lấy thông tin mô tả của nhà hàng : Restaurant")]
         public async Task<IActionResult> GetDescription(int restaurantId)
@@ -164,6 +181,9 @@ namespace TOPDER.API.Controllers
                 return BadRequest(new { Message = $"Đã xảy ra lỗi: {ex.Message}" }); // Trả về 400 Bad Request nếu có lỗi
             }
         }
+
+
+
 
     }
 }
