@@ -146,24 +146,33 @@ namespace TOPDER.API.Controllers
                 //ADD USER
                 var user = await _userService.AddAsync(userDto);
 
-                // ADD WALLET
-                WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
+                if(user != null)
                 {
-                    WalletId = 0,
-                    Uid = user.Uid,
-                    WalletBalance = 0
-                };
-                
-                var wallet = await _walletService.AddWalletBalanceAsync(walletBalanceDto);
-                
-                // ADD RESTAURANT
-                restaurantRequest.Uid = user.Uid; 
-                var addedRestaurant = await _restaurantService.AddAsync(restaurantRequest);
-                
-                // SEND EMAIL
-                await _sendMailService.SendEmailAsync(user.Email, Email_Subject.VERIFY, EmailTemplates.Verify(addedRestaurant.NameRes, user.Uid));
-                
-                return Ok(addedRestaurant);
+                    // ADD WALLET
+                    WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
+                    {
+                        WalletId = 0,
+                        Uid = user.Uid,
+                        WalletBalance = 0
+                    };
+
+                    var wallet = await _walletService.AddWalletBalanceAsync(walletBalanceDto);
+
+                    // ADD RESTAURANT
+                    restaurantRequest.Uid = user.Uid;
+                    var addedRestaurant = await _restaurantService.AddAsync(restaurantRequest);
+
+                    // SEND EMAIL
+                    await _sendMailService.SendEmailAsync(user.Email, Email_Subject.VERIFY, EmailTemplates.Verify(addedRestaurant.NameRes, user.Uid));
+
+                    if (wallet == false)
+                    {
+                        return BadRequest("Không tạo được Ví cho người dùng.");
+                    }
+
+                    return Ok(addedRestaurant);
+                }
+                return BadRequest("Tạo người dùng thất bại.");
             }
             catch (Exception ex)
             {
@@ -191,33 +200,40 @@ namespace TOPDER.API.Controllers
                     Password = BCrypt.Net.BCrypt.HashPassword(customerRequest.Password),
                     OtpCode = string.Empty,
                     IsVerify = false,
-                    Status = Common_Status.INACTIVE,
+                    Status = Common_Status.ACTIVE,
                     IsExternalLogin = false,
                     CreatedAt = DateTime.Now,
                 };
 
                 //ADD USER
                 var user = await _userService.AddAsync(userDto);
-
-                // ADD WALLET
-                WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
+                if(user != null)
                 {
-                    WalletId = 0,
-                    Uid = user.Uid,
-                    WalletBalance = 0
-                };
+                    // ADD WALLET
+                    WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
+                    {
+                        WalletId = 0,
+                        Uid = user.Uid,
+                        WalletBalance = 0
+                    };
 
-                var wallet = await _walletService.AddWalletBalanceAsync(walletBalanceDto);
+                    var wallet = await _walletService.AddWalletBalanceAsync(walletBalanceDto);
 
-                // ADD Customer
-                customerRequest.Uid = user.Uid;
-                customerRequest.Image = Default_Avatar.CUSTOMER;
-                var addedCustomer = await _customerService.AddAsync(customerRequest);
+                    // ADD Customer
+                    customerRequest.Uid = user.Uid;
+                    customerRequest.Image = Default_Avatar.CUSTOMER;
+                    var addedCustomer = await _customerService.AddAsync(customerRequest);
 
-                // SEND EMAIL
-                await _sendMailService.SendEmailAsync(user.Email, Email_Subject.VERIFY, EmailTemplates.Verify(customerRequest.Name??Is_Null.ISNULL, user.Uid));
+                    // SEND EMAIL
+                    await _sendMailService.SendEmailAsync(user.Email, Email_Subject.VERIFY, EmailTemplates.Verify(customerRequest.Name ?? Is_Null.ISNULL, user.Uid));
 
-                return Ok(addedCustomer);
+                    if(wallet == false)
+                    {
+                        return BadRequest("Không tạo được Ví cho người dùng.");
+                    }
+                    return Ok(addedCustomer);
+                }
+                return BadRequest("Tạo người dùng thất bại.");
             }
             catch (Exception ex)
             {
