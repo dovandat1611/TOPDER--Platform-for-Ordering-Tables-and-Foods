@@ -62,10 +62,66 @@ namespace TOPDER.API.Controllers
             try
             {
                 var userLoginDto = await _userService.GetUserByEmailAndPassword(loginModel);
-                var isProfileComplete = true;
+                object userInfo = null;
+                if (userLoginDto.RoleName.Equals(User_Role.RESTAURANT))
+                {
+                    RestaurantInfoResponse restaurantInfo = new RestaurantInfoResponse()
+                    {
+                        Uid = userLoginDto.Uid,
+                        Email = userLoginDto.Email,
+                        CategoryRestaurantId = userLoginDto.CategoryRestaurantId,
+                        NameOwner = userLoginDto.NameOwner,
+                        NameRes = userLoginDto.NameRes,
+                        Logo = userLoginDto.Logo,
+                        OpenTime = userLoginDto.OpenTime,
+                        CloseTime = userLoginDto.CloseTime,
+                        Address = userLoginDto.Address,
+                        Description = userLoginDto.Description,
+                        Subdescription = userLoginDto.Subdescription,
+                        Location = userLoginDto.Location,
+                        Discount = userLoginDto.Discount,
+                        MaxCapacity = userLoginDto.MaxCapacity,
+                        Price = userLoginDto.Price,
+                        IsBookingEnabled = userLoginDto.IsBookingEnabled,
+                        FirstFeePercent = userLoginDto.FirstFeePercent,
+                        ReturningFeePercent = userLoginDto.ReturningFeePercent,
+                        CancellationFeePercent = userLoginDto.CancellationFeePercent,
+                        RoleName = userLoginDto.RoleName
+                    };
+                    userInfo = restaurantInfo;
+                }
+                if (userLoginDto.RoleName.Equals(User_Role.ADMIN))
+                {
+                    AdminInfoRespone adminInfo = new AdminInfoRespone()
+                    {
+                        Uid = userLoginDto.Uid,
+                        Email = userLoginDto.Email,
+                        Name = userLoginDto.Name,
+                        Phone = userLoginDto.Phone,
+                        Image = userLoginDto.Image,
+                        Dob = userLoginDto.Dob,
+                        RoleName = userLoginDto.RoleName
+                    };
+                    userInfo = adminInfo;
+                }
                 if (userLoginDto.RoleName.Equals(User_Role.CUSTOMER))
                 {
-                    isProfileComplete = await _customerService.CheckProfile(userLoginDto.Uid);
+                    CustomerInfoResponse customerInfo = new CustomerInfoResponse()
+                    {
+                        Uid = userLoginDto.Uid,
+                        Email = userLoginDto.Email,
+                        Name = userLoginDto.Name,
+                        Phone = userLoginDto.Phone,
+                        Image = userLoginDto.Image,
+                        Dob = userLoginDto.Dob,
+                        Gender = userLoginDto.Gender,
+                        RoleName = userLoginDto.RoleName
+                    };
+                    userInfo = customerInfo;
+                }
+                if (userInfo == null)
+                {
+                    return BadRequest(new { message = "Role không hợp lệ." });
                 }
                 var token = _jwtHelper.GenerateJwtToken(userLoginDto);
                 return Ok(new ApiResponse
@@ -74,9 +130,9 @@ namespace TOPDER.API.Controllers
                     Message = "Authentication success.",
                     Data = new
                     {
-                        Token = token
+                        Token = token,
+                        UserInfo = userInfo
                     },
-                    IsProfileComplete = isProfileComplete
                 });
             }
             catch (UnauthorizedAccessException ex)

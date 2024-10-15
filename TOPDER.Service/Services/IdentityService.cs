@@ -81,7 +81,6 @@ namespace TOPDER.Service.Services
                         Success = true,
                         Data = generatedToken,
                         Message = "Authentication success",
-                        IsProfileComplete = isProfileComplete,
                     };
                 }
 
@@ -150,7 +149,6 @@ namespace TOPDER.Service.Services
                             Success = true,
                             Data = token,
                             Message = "Authentication success",
-                            IsProfileComplete = false
                         };
                     }
                 }

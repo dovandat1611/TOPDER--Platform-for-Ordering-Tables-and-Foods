@@ -87,8 +87,6 @@ namespace TOPDER.Service.Services
             return await _restaurantRepository.UpdateAsync(restaurant);
         }
 
-
-
         public async Task<RestaurantHomeDto> GetHomeItemsAsync()
         {
             var queryable = await _restaurantRepository.QueryableAsync();
@@ -105,13 +103,17 @@ namespace TOPDER.Service.Services
                 .Where(r => r.IsBookingEnabled == true);
 
             var restaurantDtos = enabledRestaurants.Select(r => _mapper.Map<RestaurantDto>(r)).ToList();
+
             var blogDtos = activeBlogs.Select(b => _mapper.Map<BlogListCustomerDto>(b)).ToList();
 
             var topBookingRestaurants = restaurantDtos.OrderByDescending(x => x.TotalFeedbacks).Take(6).ToList();
+
             var topStarRestaurants = restaurantDtos.OrderByDescending(x => x.Star)
                                                    .ThenByDescending(x => x.TotalFeedbacks)
                                                    .Take(6).ToList();
+
             var newRestaurants = restaurantDtos.OrderByDescending(x => x.Uid).Take(6).ToList();
+
             var topBlogs = blogDtos.OrderByDescending(x => x.BlogId).Take(6).ToList();
 
             return new RestaurantHomeDto
