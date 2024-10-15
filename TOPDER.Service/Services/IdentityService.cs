@@ -20,16 +20,16 @@ namespace TOPDER.Service.Services
     {
         private readonly HttpClient _httpClient;
         private readonly JwtHelper _jwtHelper;
-        private readonly UserService _userService;
-        private readonly WalletService _walletService;
-        private readonly CustomerService _customerService;
-        private readonly ExternalLoginService _externalLoginService;
+        private readonly IUserService _userService;
+        private readonly IWalletService _walletService;
+        private readonly ICustomerService _customerService;
+        private readonly IExternalLoginService _externalLoginService;
 
 
 
         public IdentityService(HttpClient httpClient, JwtHelper jwtHelper,
-            UserService userService, WalletService walletService,
-            CustomerService customerService, ExternalLoginService externalLoginService)
+            IUserService userService, IWalletService walletService,
+            ICustomerService customerService, IExternalLoginService externalLoginService)
         {
             _httpClient = httpClient;
             _jwtHelper = jwtHelper;

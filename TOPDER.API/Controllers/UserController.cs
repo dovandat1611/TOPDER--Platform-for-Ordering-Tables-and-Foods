@@ -26,7 +26,7 @@ namespace TOPDER.API.Controllers
         private readonly IWalletService _walletService;
         private readonly ISendMailService _sendMailService;
         private readonly JwtHelper _jwtHelper;
-        private readonly AdminRepository _adminRepository;
+        private readonly IAdminRepository _adminRepository;
         private readonly IUserRepository _userRepository;
         private readonly IIdentityService _identityService;
 
@@ -34,7 +34,7 @@ namespace TOPDER.API.Controllers
 
         public UserController(IRestaurantService restaurantService, ICloudinaryService cloudinaryService,
             ISendMailService sendMailService, IUserService userService, ICustomerService customerService,
-            IWalletService walletService, JwtHelper jwtHelper, AdminRepository adminRepository,
+            IWalletService walletService, JwtHelper jwtHelper, IAdminRepository adminRepository,
             IUserRepository userRepository, IIdentityService identityService)
         {
             _restaurantService = restaurantService;
