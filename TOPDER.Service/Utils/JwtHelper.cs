@@ -29,10 +29,10 @@ namespace TOPDER.Service.Utils
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Uid.ToString()),
-                    new Claim(ClaimTypes.Name, user.Name),
+                    new Claim("UserId", user.Uid.ToString()),
+                    new Claim("Name", user.Name),
                     new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.MobilePhone, user.Phone),
+                    new Claim("Phone", user.Phone),
                     new Claim(ClaimTypes.Role, user.RoleName)
                 }),
                 Expires = DateTime.UtcNow.AddHours(double.Parse(_config["Jwt:ExpireHours"])),
