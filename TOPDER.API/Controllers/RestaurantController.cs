@@ -23,15 +23,16 @@ namespace TOPDER.API.Controllers
 
         // CUSTOMER SITE
         [HttpGet("ServiceForCustomerSite")]
-        [SwaggerOperation(Summary = "Trang dịch vụ để search nhà hàng theo (Address, Name, Location, Price(min,max), Capacity, Category Restaurant): Customer")]
+        [SwaggerOperation(Summary = "Trang dịch vụ để search nhà hàng theo (Address, Name, ProvinceCity,District,Commune, Price(min,max), Capacity, Category Restaurant): Customer")]
         public async Task<IActionResult> GetItems([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10,
             [FromQuery] string? name = null, [FromQuery] string? address = null,
-            [FromQuery] string? location = null, [FromQuery] int? restaurantCategory = null,
+            [FromQuery] int? provinceCity = null, [FromQuery] int? district = null,
+            [FromQuery] int? commune = null, [FromQuery] int? restaurantCategory = null,
             [FromQuery] decimal? minPrice = null, [FromQuery] decimal? maxPrice = null,
             [FromQuery] int? maxCapacity = null)
         {
-            var result = await _restaurantService.GetItemsAsync(pageNumber, pageSize, name, address, location,
-                restaurantCategory, minPrice, maxPrice, maxCapacity);
+            var result = await _restaurantService.GetItemsAsync(pageNumber, pageSize, name, address, provinceCity,
+                district, commune, restaurantCategory, minPrice, maxPrice, maxCapacity);
 
             var response = new PaginatedResponseDto<RestaurantDto>(
                 result,

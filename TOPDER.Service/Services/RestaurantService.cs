@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 using TOPDER.Service.Dtos.Blog;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Microsoft.IdentityModel.Tokens;
 
 namespace TOPDER.Service.Services
 {
@@ -171,7 +172,7 @@ namespace TOPDER.Service.Services
 
 
         public async Task<PaginatedList<RestaurantDto>> GetItemsAsync(int pageNumber, int pageSize, string? name,
-            string? address, string? location, int? restaurantCategory, decimal? minPrice, decimal? maxPrice, int? maxCapacity)
+            string? address, int? provinceCity, int? district, int?commune , int? restaurantCategory, decimal? minPrice, decimal? maxPrice, int? maxCapacity)
         {
             var queryable = await _restaurantRepository.QueryableAsync();
 
@@ -190,9 +191,19 @@ namespace TOPDER.Service.Services
                 queryable = queryable.Where(r => r.Address.Contains(address));
             }
 
-            if (!string.IsNullOrEmpty(location))
+            if (provinceCity.HasValue)
             {
-                queryable = queryable.Where(r => r.Location.Contains(location));
+                queryable = queryable.Where(r => r.ProvinceCity == provinceCity);
+            }
+
+            if (district.HasValue)
+            {
+                queryable = queryable.Where(r => r.District == district);
+            }
+
+            if (commune.HasValue)
+            {
+                queryable = queryable.Where(r => r.Commune == commune);
             }
 
             if (restaurantCategory.HasValue)

@@ -48,9 +48,9 @@ namespace TOPDER.Service.Dtos.Restaurant
         [Range(1, int.MaxValue, ErrorMessage = "Maximum capacity must be at least 1.")]
         public int MaxCapacity { get; set; }
 
-        [Required(ErrorMessage = "Location is required.")]
-        [StringLength(100, ErrorMessage = "Location cannot be longer than 100 characters.")]
-        public string Location { get; set; } = null!;
+        public int? ProvinceCity { get; set; }
+        public int? District { get; set; }
+        public int? Commune { get; set; }
 
         [Required(ErrorMessage = "Password is required.")]
         [DataType(DataType.Password)]

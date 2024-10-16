@@ -366,9 +366,17 @@ namespace TOPDER.Service.Mapper
                            opt => opt.MapFrom(src =>
                                src.Restaurant != null ? src.Restaurant.Subdescription : null))
 
-                .ForMember(dest => dest.Location,
+                .ForMember(dest => dest.ProvinceCity,
                            opt => opt.MapFrom(src =>
-                               src.Restaurant != null ? src.Restaurant.Location : null))
+                               src.Restaurant != null ? src.Restaurant.ProvinceCity : null))
+
+                .ForMember(dest => dest.District,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.District : null))
+
+                .ForMember(dest => dest.Commune,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.Commune : null))
 
                 .ForMember(dest => dest.Discount,
                            opt => opt.MapFrom(src =>
