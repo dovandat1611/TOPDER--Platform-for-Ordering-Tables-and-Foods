@@ -23,6 +23,27 @@ namespace TOPDER.API.Controllers
             _cloudinaryService = cloudinaryService;
         }
 
+        [HttpPost("UploadFileToCloudinary")]
+        [SwaggerOperation(Summary = "Tải 1 ảnh lên cloud và lấy vễ đường dẫn")]
+        public async Task<IActionResult> UploadImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { Message = "File không hợp lệ." });
+            }
+
+            var uploadResult = await _cloudinaryService.UploadImageAsync(file);
+
+            if (uploadResult == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Lỗi trong quá trình upload hình ảnh." });
+            }
+
+            var imageUrl = uploadResult.SecureUrl.ToString();
+
+            return Ok(new { Message = "Tải lên hình ảnh thành công.", Url = imageUrl });
+        }
+
         [HttpPost("Create")]
         [SwaggerOperation(Summary = "Có tạo tải nhiều ảnh: Restaurant")]
         public async Task<IActionResult> AddImage(int restaurantId, List<IFormFile> files)
