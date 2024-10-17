@@ -15,10 +15,12 @@ namespace TOPDER.API.Controllers
     public class RestaurantController : ControllerBase
     {
         private readonly IRestaurantService _restaurantService;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public RestaurantController(IRestaurantService restaurantService)
+        public RestaurantController(IRestaurantService restaurantService, ICloudinaryService cloudinaryService)
         {
             _restaurantService = restaurantService;
+            _cloudinaryService = cloudinaryService;
         }
 
         // CUSTOMER SITE
@@ -72,6 +74,36 @@ namespace TOPDER.API.Controllers
         }
 
         // THÔNG TIN NHÀ HÀNG
+
+        [HttpPut("UpdateRestaurantInfo")]
+        [SwaggerOperation(Summary = "Cập nhật thông tin nhà hàng")]
+        public async Task<IActionResult> UpdateRestaurantInfo([FromForm] UpdateInfoRestaurantDto restaurantDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { Message = "Dữ liệu không hợp lệ." });
+            }
+
+            if (restaurantDto.File != null && restaurantDto.File.Length > 0)
+            {
+                var uploadResult = await _cloudinaryService.UploadImageAsync(restaurantDto.File);
+                if(uploadResult != null)
+                {
+                    restaurantDto.Logo = uploadResult.SecureUrl.ToString();
+                }
+            }
+
+            var result = await _restaurantService.UpdateInfoRestaurantAsync(restaurantDto);
+
+            if (!result)
+            {
+                return NotFound(new { Message = "Không tìm thấy nhà hàng." });
+            }
+
+            return Ok(new { Message = "Cập nhật thông tin thành công." });
+        }
+
+
 
         [HttpPut("UpdateDiscountAndFee/{restaurantId}")]
         [SwaggerOperation(Summary = "Cập nhật giảm giá tiền đặt cọc, tiền đặt lần đầu, quay lại, hủy : Restaurant")]
@@ -166,11 +198,11 @@ namespace TOPDER.API.Controllers
 
         [HttpPut("IsEnabledBooking/{restaurantId}")]
         [SwaggerOperation(Summary = "Thay đổi trạng thái Booking của nhà hàng : Restaurant")]
-        public async Task<IActionResult> UpdateBookingEnabled(int id, [FromBody] bool isEnabledBooking)
+        public async Task<IActionResult> UpdateBookingEnabled(int restaurantId, [FromBody] bool isEnabledBooking)
         {
             try
             {
-                bool result = await _restaurantService.IsEnabledBookingAsync(id, isEnabledBooking);
+                bool result = await _restaurantService.IsEnabledBookingAsync(restaurantId, isEnabledBooking);
                 if (result)
                 {
                     return Ok(new { Message = "Trạng thái đặt bàn đã được cập nhật thành công." });

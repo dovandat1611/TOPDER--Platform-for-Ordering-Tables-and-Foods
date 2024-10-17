@@ -88,6 +88,33 @@ namespace TOPDER.Service.Services
             return await _restaurantRepository.UpdateAsync(restaurant);
         }
 
+        public async Task<bool> UpdateInfoRestaurantAsync(UpdateInfoRestaurantDto restaurant)
+        {
+            var existingRestaurant = await _restaurantRepository.GetByIdAsync(restaurant.Uid);
+            if (existingRestaurant == null)
+            {
+                return false;
+            }
+            existingRestaurant.CategoryRestaurantId = restaurant.CategoryRestaurantId;
+            existingRestaurant.NameOwner = restaurant.NameOwner;
+            existingRestaurant.NameRes = restaurant.NameRes;
+            if (!string.IsNullOrEmpty(restaurant.Logo))
+            {
+                existingRestaurant.Logo = restaurant.Logo;
+            }
+            existingRestaurant.OpenTime = restaurant.OpenTime;
+            existingRestaurant.CloseTime = restaurant.CloseTime;
+            existingRestaurant.ProvinceCity = restaurant.ProvinceCity;
+            existingRestaurant.District = restaurant.District;
+            existingRestaurant.Commune = restaurant.Commune;
+            existingRestaurant.Address = restaurant.Address;
+            existingRestaurant.Phone = restaurant.Phone;
+            existingRestaurant.MaxCapacity = restaurant.MaxCapacity;
+            existingRestaurant.Price = restaurant.Price;
+            return await _restaurantRepository.UpdateAsync(existingRestaurant);
+        }
+
+
         public async Task<RestaurantHomeDto> GetHomeItemsAsync()
         {
             var queryable = await _restaurantRepository.QueryableAsync();
@@ -169,6 +196,7 @@ namespace TOPDER.Service.Services
 
             return relateRestaurantDto;
         }
+
 
 
         public async Task<PaginatedList<RestaurantDto>> GetItemsAsync(int pageNumber, int pageSize, string? name,
@@ -305,15 +333,6 @@ namespace TOPDER.Service.Services
         }
 
 
-        public async Task<bool> UpdateItemAsync(Restaurant restaurant)
-        {
-            var existingRestaurant = await _restaurantRepository.GetByIdAsync(restaurant.Uid);
-            if (existingRestaurant == null)
-            {
-                return false;
-            }
-            return await _restaurantRepository.UpdateAsync(restaurant);
-        }
 
         public async Task<bool> IsEnabledBookingAsync(int id, bool isEnabledBooking)
         {
