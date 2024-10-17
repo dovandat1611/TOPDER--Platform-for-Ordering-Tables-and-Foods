@@ -19,9 +19,9 @@ namespace TOPDER.Service.Dtos.Restaurant
         public IFormFile? File { get; set; }
         public TimeSpan OpenTime { get; set; }
         public TimeSpan CloseTime { get; set; }
-        public int? ProvinceCity { get; set; }
-        public int? District { get; set; }
-        public int? Commune { get; set; }
+        public string? ProvinceCity { get; set; }
+        public string? District { get; set; }
+        public string? Commune { get; set; }
         public string Address { get; set; } = null!;
         public string Phone { get; set; } = null!;
         public int MaxCapacity { get; set; }

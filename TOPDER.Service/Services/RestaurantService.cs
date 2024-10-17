@@ -200,7 +200,7 @@ namespace TOPDER.Service.Services
 
 
         public async Task<PaginatedList<RestaurantDto>> GetItemsAsync(int pageNumber, int pageSize, string? name,
-            string? address, int? provinceCity, int? district, int?commune , int? restaurantCategory, decimal? minPrice, decimal? maxPrice, int? maxCapacity)
+            string? address, string? provinceCity, string? district, string? commune , int? restaurantCategory, decimal? minPrice, decimal? maxPrice, int? maxCapacity)
         {
             var queryable = await _restaurantRepository.QueryableAsync();
 
@@ -219,17 +219,17 @@ namespace TOPDER.Service.Services
                 queryable = queryable.Where(r => r.Address.Contains(address));
             }
 
-            if (provinceCity.HasValue)
+            if (!string.IsNullOrEmpty(provinceCity))
             {
                 queryable = queryable.Where(r => r.ProvinceCity == provinceCity);
             }
 
-            if (district.HasValue)
+            if (!string.IsNullOrEmpty(district))
             {
                 queryable = queryable.Where(r => r.District == district);
             }
 
-            if (commune.HasValue)
+            if (!string.IsNullOrEmpty(commune))
             {
                 queryable = queryable.Where(r => r.Commune == commune);
             }

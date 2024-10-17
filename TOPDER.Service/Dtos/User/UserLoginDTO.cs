@@ -27,9 +27,9 @@ namespace TOPDER.Service.Dtos.User
         public string? Address { get; set; }
         public string? Description { get; set; }
         public string? Subdescription { get; set; }
-        public int? ProvinceCity { get; set; }
-        public int? District { get; set; }
-        public int? Commune { get; set; }
+        public string? ProvinceCity { get; set; }
+        public string? District { get; set; }
+        public string? Commune { get; set; }
         public decimal? Discount { get; set; }
         public int? MaxCapacity { get; set; }
         public decimal? Price { get; set; }

@@ -17,7 +17,7 @@ namespace TOPDER.Service.IServices
         Task<RestaurantDetailDto> GetItemAsync(int id);
         Task<RestaurantHomeDto> GetHomeItemsAsync();
         Task<PaginatedList<RestaurantDto>> GetItemsAsync(int pageNumber, int pageSize, string? name, string? address,
-            int? provinceCity, int? district, int? commune, int? restaurantCategory, decimal? minPrice, decimal? maxPrice, int? maxCapacity);
+            string? provinceCity, string? district, string? commune, int? restaurantCategory, decimal? minPrice, decimal? maxPrice, int? maxCapacity);
         Task<List<RestaurantDto>> GetRelateRestaurantByCategoryAsync(int restaurantId, int restaurantCategory);
 
         // DISCOUNT AND FEE

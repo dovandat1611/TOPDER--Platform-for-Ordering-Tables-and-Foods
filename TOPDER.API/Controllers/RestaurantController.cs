@@ -28,8 +28,8 @@ namespace TOPDER.API.Controllers
         [SwaggerOperation(Summary = "Trang dịch vụ để search nhà hàng theo (Address, Name, ProvinceCity,District,Commune, Price(min,max), Capacity, Category Restaurant): Customer")]
         public async Task<IActionResult> GetItems([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10,
             [FromQuery] string? name = null, [FromQuery] string? address = null,
-            [FromQuery] int? provinceCity = null, [FromQuery] int? district = null,
-            [FromQuery] int? commune = null, [FromQuery] int? restaurantCategory = null,
+            [FromQuery] string? provinceCity = null, [FromQuery] string? district = null,
+            [FromQuery] string? commune = null, [FromQuery] int? restaurantCategory = null,
             [FromQuery] decimal? minPrice = null, [FromQuery] decimal? maxPrice = null,
             [FromQuery] int? maxCapacity = null)
         {

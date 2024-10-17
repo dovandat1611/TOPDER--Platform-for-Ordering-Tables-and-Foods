@@ -61,7 +61,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<Admin>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Admin__DD701264CCA1A47E");
+                    .HasName("PK__Admin__DD701264BFBCD107");
 
                 entity.ToTable("Admin");
 
@@ -287,7 +287,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<Customer>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Customer__DD701264C1B2F9F7");
+                    .HasName("PK__Customer__DD701264D542B966");
 
                 entity.ToTable("Customer");
 
@@ -774,7 +774,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<Restaurant>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Restaura__DD701264683DC8DE");
+                    .HasName("PK__Restaura__DD701264E72191E1");
 
                 entity.ToTable("Restaurant");
 
@@ -795,7 +795,9 @@ namespace TOPDER.Repository.Entities
 
                 entity.Property(e => e.CloseTime).HasColumnName("close_time");
 
-                entity.Property(e => e.Commune).HasColumnName("commune");
+                entity.Property(e => e.Commune)
+                    .HasMaxLength(255)
+                    .HasColumnName("commune");
 
                 entity.Property(e => e.Description).HasColumnName("description");
 
@@ -804,7 +806,9 @@ namespace TOPDER.Repository.Entities
                     .HasColumnName("discount")
                     .HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.District).HasColumnName("district");
+                entity.Property(e => e.District)
+                    .HasMaxLength(255)
+                    .HasColumnName("district");
 
                 entity.Property(e => e.FirstFeePercent)
                     .HasColumnType("decimal(5, 2)")
@@ -839,7 +843,9 @@ namespace TOPDER.Repository.Entities
                     .HasColumnType("decimal(18, 2)")
                     .HasColumnName("price");
 
-                entity.Property(e => e.ProvinceCity).HasColumnName("province_city");
+                entity.Property(e => e.ProvinceCity)
+                    .HasMaxLength(255)
+                    .HasColumnName("province_city");
 
                 entity.Property(e => e.ReturningFeePercent)
                     .HasColumnType("decimal(5, 2)")
@@ -863,7 +869,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<RestaurantRoom>(entity =>
             {
                 entity.HasKey(e => e.RoomId)
-                    .HasName("PK__Restaura__19675A8A8553C26F");
+                    .HasName("PK__Restaura__19675A8AE886B663");
 
                 entity.ToTable("Restaurant_Room");
 
@@ -900,7 +906,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<RestaurantTable>(entity =>
             {
                 entity.HasKey(e => e.TableId)
-                    .HasName("PK__Restaura__B21E8F248FDB7AE8");
+                    .HasName("PK__Restaura__B21E8F24F9D89A58");
 
                 entity.ToTable("Restaurant_Table");
 
@@ -948,11 +954,11 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__User__DD701264B8421A26");
+                    .HasName("PK__User__DD7012649F434AD3");
 
                 entity.ToTable("User");
 
-                entity.HasIndex(e => e.Email, "UQ__User__AB6E61647D0FAF8B")
+                entity.HasIndex(e => e.Email, "UQ__User__AB6E6164475A343B")
                     .IsUnique();
 
                 entity.Property(e => e.Uid).HasColumnName("uid");
@@ -1030,7 +1036,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<WalletTransaction>(entity =>
             {
                 entity.HasKey(e => e.TransactionId)
-                    .HasName("PK__Wallet_T__85C600AF233C7659");
+                    .HasName("PK__Wallet_T__85C600AF8A37F7ED");
 
                 entity.ToTable("Wallet_Transaction");
 
