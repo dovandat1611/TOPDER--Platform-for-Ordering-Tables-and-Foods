@@ -289,7 +289,7 @@ namespace TOPDER.Service.Mapper
             // USER 
 
             CreateMap<Restaurant, UserLoginDTO>()
-                .ForMember(dest => dest.RoleName,
+                .ForMember(dest => dest.Role,
                            opt => opt.MapFrom(src =>
                                src.UidNavigation != null && src.UidNavigation.Role != null
                                    ? src.UidNavigation.Role.Name
@@ -302,7 +302,7 @@ namespace TOPDER.Service.Mapper
             CreateMap<UserDto, User>().ReverseMap();
 
             CreateMap<User, UserLoginDTO>()
-                .ForMember(dest => dest.RoleName,
+                .ForMember(dest => dest.Role,
                            opt => opt.MapFrom(src => src.Role != null ? src.Role.Name : null))
 
                 .ForMember(dest => dest.Name,

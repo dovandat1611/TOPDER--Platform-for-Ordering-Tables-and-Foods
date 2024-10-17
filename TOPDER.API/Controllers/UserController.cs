@@ -63,7 +63,7 @@ namespace TOPDER.API.Controllers
             {
                 var userLoginDto = await _userService.GetUserByEmailAndPassword(loginModel);
                 object userInfo = null;
-                if (userLoginDto.RoleName.Equals(User_Role.RESTAURANT))
+                if (userLoginDto.Role.Equals(User_Role.RESTAURANT))
                 {
                     RestaurantInfoResponse restaurantInfo = new RestaurantInfoResponse()
                     {
@@ -89,11 +89,11 @@ namespace TOPDER.API.Controllers
                         FirstFeePercent = userLoginDto.FirstFeePercent,
                         ReturningFeePercent = userLoginDto.ReturningFeePercent,
                         CancellationFeePercent = userLoginDto.CancellationFeePercent,
-                        RoleName = userLoginDto.RoleName
+                        Role = userLoginDto.Role
                     };
                     userInfo = restaurantInfo;
                 }
-                if (userLoginDto.RoleName.Equals(User_Role.ADMIN))
+                if (userLoginDto.Role.Equals(User_Role.ADMIN))
                 {
                     AdminInfoRespone adminInfo = new AdminInfoRespone()
                     {
@@ -103,11 +103,11 @@ namespace TOPDER.API.Controllers
                         Phone = userLoginDto.Phone,
                         Image = userLoginDto.Image,
                         Dob = userLoginDto.Dob,
-                        RoleName = userLoginDto.RoleName
+                        Role = userLoginDto.Role
                     };
                     userInfo = adminInfo;
                 }
-                if (userLoginDto.RoleName.Equals(User_Role.CUSTOMER))
+                if (userLoginDto.Role.Equals(User_Role.CUSTOMER))
                 {
                     CustomerInfoResponse customerInfo = new CustomerInfoResponse()
                     {
@@ -118,7 +118,7 @@ namespace TOPDER.API.Controllers
                         Image = userLoginDto.Image,
                         Dob = userLoginDto.Dob,
                         Gender = userLoginDto.Gender,
-                        RoleName = userLoginDto.RoleName
+                        Role = userLoginDto.Role
                     };
                     userInfo = customerInfo;
                 }

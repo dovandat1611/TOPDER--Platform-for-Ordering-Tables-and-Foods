@@ -39,6 +39,6 @@ namespace TOPDER.Service.Dtos.User
         public decimal? CancellationFeePercent { get; set; }
 
         // ALL 
-        public string? RoleName { get; set; } = string.Empty;
+        public string? Role { get; set; } = string.Empty;
     }
 }

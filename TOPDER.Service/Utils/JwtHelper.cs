@@ -30,13 +30,13 @@ namespace TOPDER.Service.Utils
             // Khởi tạo danh sách claim
             var claims = new List<Claim>
             {
-                new Claim("id", user.Uid.ToString() ?? string.Empty),
+                new Claim("uid", user.Uid.ToString() ?? string.Empty),
                 new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
-                new Claim(ClaimTypes.Role, user.RoleName ?? string.Empty),
+                new Claim(ClaimTypes.Role, user.Role ?? string.Empty),
                 new Claim("phone", user.Phone ?? string.Empty),
             };
 
-            if(user.RoleName == User_Role.CUSTOMER || user.RoleName == User_Role.ADMIN)
+            if(user.Role == User_Role.CUSTOMER || user.Role == User_Role.ADMIN)
             {
                 claims.AddRange(new[]
                 {
@@ -46,25 +46,25 @@ namespace TOPDER.Service.Utils
                 });
             }
 
-            if(user.RoleName == User_Role.CUSTOMER)
+            if(user.Role == User_Role.CUSTOMER)
             {
                 claims.Add(new Claim("gender", user.Gender ?? string.Empty));
             }
 
-            if (user.RoleName == User_Role.RESTAURANT)
+            if (user.Role == User_Role.RESTAURANT)
             {
                 claims.AddRange(new[]
                 {
                 new Claim("nameOwner", user.NameOwner ?? string.Empty),
-                new Claim("nameRestaurant", user.NameRes ?? string.Empty),
-                new Claim("categoryId", user.CategoryRestaurantId?.ToString() ?? string.Empty),
+                new Claim("nameRes", user.NameRes ?? string.Empty),
+                new Claim("categoryRestaurantId", user.CategoryRestaurantId?.ToString() ?? string.Empty),
                 new Claim("logo", user.Logo ?? string.Empty),
                 new Claim("address", user.Address ?? string.Empty),
                 new Claim("openTime", user.OpenTime?.ToString() ?? string.Empty),
                 new Claim("closeTime", user.CloseTime?.ToString() ?? string.Empty),
-                new Claim("subDescription", user.Subdescription ?? string.Empty),
+                new Claim("subdescription", user.Subdescription ?? string.Empty),
                 new Claim("description", user.Description ?? string.Empty),
-                new Claim("provincecity", user.ProvinceCity.ToString() ?? string.Empty),
+                new Claim("provinceCity", user.ProvinceCity.ToString() ?? string.Empty),
                 new Claim("district", user.District.ToString() ?? string.Empty),
                 new Claim("commune", user.Commune.ToString() ?? string.Empty),
                 new Claim("discount", user.Discount?.ToString() ?? string.Empty),

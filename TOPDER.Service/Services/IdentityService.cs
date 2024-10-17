@@ -139,7 +139,7 @@ namespace TOPDER.Service.Services
                             Uid = newUser.Uid,
                             Email = newUser.Email,
                             Name = userResult.Name,
-                            RoleName = User_Role.CUSTOMER,
+                            Role = User_Role.CUSTOMER,
                         };
 
                         // Generate token for the newly created user

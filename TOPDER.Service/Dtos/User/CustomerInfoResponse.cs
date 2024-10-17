@@ -15,6 +15,6 @@ namespace TOPDER.Service.Dtos.User
         public string? Image { get; set; }
         public DateTime? Dob { get; set; }
         public string? Gender { get; set; }
-        public string? RoleName { get; set; } = string.Empty;
+        public string? Role { get; set; } = string.Empty;
     }
 }

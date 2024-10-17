@@ -30,6 +30,6 @@ namespace TOPDER.Service.Dtos.User
         public decimal? FirstFeePercent { get; set; }
         public decimal? ReturningFeePercent { get; set; }
         public decimal? CancellationFeePercent { get; set; }
-        public string? RoleName { get; set; } = string.Empty;
+        public string? Role { get; set; } = string.Empty;
     }
 }
