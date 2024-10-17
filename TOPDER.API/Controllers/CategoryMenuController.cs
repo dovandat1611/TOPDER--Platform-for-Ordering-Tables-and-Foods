@@ -5,6 +5,7 @@ using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Blog;
 using TOPDER.Service.Dtos.CategoryMenu;
 using TOPDER.Service.IServices;
+using TOPDER.Service.Services;
 
 namespace TOPDER.API.Controllers
 {
@@ -34,6 +35,15 @@ namespace TOPDER.API.Controllers
 
             return BadRequest("Tạo Category Menu thất bại.");
         }
+
+        [HttpGet("GetAllCategoryMenus/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy ra tất cả danh sách Category Menu để chọn UPDATE và ADD: Restaurant")]
+        public async Task<IActionResult> GetAllCategoryMenus(int restaurantId)
+        {
+            var result = await _categoryMenuService.GetAllCategoryMenuAsync(restaurantId);
+            return Ok(result);
+        }
+
 
         [HttpGet("GetCategoryMenu/{restaurantId}/{categoryMenuId}")]
         [SwaggerOperation(Summary = "Lấy ra một Category Menu để Update: Restaurant")]
@@ -90,6 +100,8 @@ namespace TOPDER.API.Controllers
                 return StatusCode(500, $"Đã xảy ra lỗi trong quá trình xử lý: {ex.Message}");
             }
         }
+
+
 
         [HttpPut("Update")]
         [SwaggerOperation(Summary = "Cập nhật Category Menu của Nhà Hàng: Restaurant")]

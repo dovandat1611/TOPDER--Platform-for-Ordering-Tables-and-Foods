@@ -17,6 +17,7 @@ namespace TOPDER.Service.Dtos.User
         public TimeSpan? OpenTime { get; set; }
         public TimeSpan? CloseTime { get; set; }
         public string? Address { get; set; }
+        public string? Phone { get; set; }
         public string? Description { get; set; }
         public string? Subdescription { get; set; }
         public int? ProvinceCity { get; set; }

@@ -117,5 +117,22 @@ namespace TOPDER.Service.Services
                 var queryDTO = existingBlogGroups.Select(bg => _mapper.Map<BlogGroupDto>(bg)).ToList();
                 return queryDTO;
         }
+
+        public async Task<List<BlogGroupDto>> GetAllBlogsAsync()
+        {
+            var blogs = await _blogGroupRepository.GetAllAsync();
+
+            // Kiểm tra dữ liệu null hoặc rỗng trước khi map
+            if (blogs == null || !blogs.Any())
+            {
+                return new List<BlogGroupDto>();
+            }
+
+            // Sử dụng AutoMapper để map danh sách blog sang DTO
+            var blogsDTO = _mapper.Map<List<BlogGroupDto>>(blogs).ToList();
+
+            return blogsDTO;
+        }
+
     }
 }

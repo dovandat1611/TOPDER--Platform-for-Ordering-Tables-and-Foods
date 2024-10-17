@@ -62,7 +62,19 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
+        public async Task<List<CategoryRestaurantDto>> GetAllCategoryRestaurantAsync()
+        {
+            var categoryRestaurants = await _categoryRestaurantRepository.GetAllAsync();
 
+            if (categoryRestaurants == null || !categoryRestaurants.Any())
+            {
+                return new List<CategoryRestaurantDto>();
+            }
+
+            var categoryRestaurantsDTO = _mapper.Map<List<CategoryRestaurantDto>>(categoryRestaurants);
+
+            return categoryRestaurantsDTO;
+        }
 
         public async Task<bool> UpdateAsync(CategoryRestaurantDto categoryRestaurantDto)
         {

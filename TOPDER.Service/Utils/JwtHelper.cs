@@ -32,7 +32,8 @@ namespace TOPDER.Service.Utils
             {
                 new Claim("id", user.Uid.ToString() ?? string.Empty),
                 new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
-                new Claim(ClaimTypes.Role, user.RoleName ?? string.Empty)
+                new Claim(ClaimTypes.Role, user.RoleName ?? string.Empty),
+                new Claim("phone", user.Phone ?? string.Empty),
             };
 
             if(user.RoleName == User_Role.CUSTOMER || user.RoleName == User_Role.ADMIN)
@@ -40,7 +41,6 @@ namespace TOPDER.Service.Utils
                 claims.AddRange(new[]
                 {
                 new Claim("name", user.Name ?? string.Empty),
-                new Claim("phone", user.Phone ?? string.Empty),
                 new Claim("dob", user.Dob?.ToString() ?? string.Empty),
                 new Claim("image", user.Image ?? string.Empty),
                 });

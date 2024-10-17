@@ -16,6 +16,7 @@ namespace TOPDER.Service.IServices
         Task<bool> UpdateAsync(BlogGroupDto blogGroup);
         Task<bool> RemoveAsync(int id);
         Task<BlogGroupDto> GetItemAsync(int id);
+        Task<List<BlogGroupDto>> GetAllBlogsAsync();
         Task<List<BlogGroupDto>> BlogGroupExistAsync();
         Task<PaginatedList<BlogGroupDto>> ListPagingAsync(int pageNumber, int pageSize, string? blogGroupName);
     }

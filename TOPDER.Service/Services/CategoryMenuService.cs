@@ -75,6 +75,21 @@ namespace TOPDER.Service.Services
         }
 
 
+        public async Task<List<CategoryMenuDto>> GetAllCategoryMenuAsync(int restaurantId)
+        {
+            var query = await _categoryMenuRepository.QueryableAsync();
+
+            var categoryMenus = await query.Where(x => x.RestaurantId == restaurantId).ToListAsync();
+
+            if (categoryMenus == null || !categoryMenus.Any())
+            {
+                return new List<CategoryMenuDto>();
+            }
+
+            var categoryMenusDTO = _mapper.Map<List<CategoryMenuDto>>(categoryMenus);
+
+            return categoryMenusDTO;
+        }
 
         public async Task<PaginatedList<CategoryMenuDto>> ListPagingAsync(int pageNumber, int pageSize, int restaurantId, string? categoryMenuName)
         {

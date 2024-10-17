@@ -72,6 +72,7 @@ namespace TOPDER.API.Controllers
                         CategoryRestaurantId = userLoginDto.CategoryRestaurantId,
                         NameOwner = userLoginDto.NameOwner,
                         NameRes = userLoginDto.NameRes,
+                        Phone = userLoginDto.Phone,
                         Logo = userLoginDto.Logo,
                         OpenTime = userLoginDto.OpenTime,
                         CloseTime = userLoginDto.CloseTime,

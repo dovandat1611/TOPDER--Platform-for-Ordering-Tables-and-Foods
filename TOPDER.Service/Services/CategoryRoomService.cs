@@ -9,6 +9,7 @@ using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Repository.Repositories;
 using TOPDER.Service.Dtos.CategoryMenu;
+using TOPDER.Service.Dtos.CategoryRestaurant;
 using TOPDER.Service.Dtos.CategoryRoom;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
@@ -33,6 +34,22 @@ namespace TOPDER.Service.Services
         {
             var category = _mapper.Map<CategoryRoom>(categoryRoom);
             return await _categoryRoomRepository.CreateAsync(category);
+        }
+
+        public async Task<List<CategoryRoomDto>> GetAllCategoryRoomAsync(int restaurantId)
+        {
+            var query = await _categoryRoomRepository.QueryableAsync();
+
+            var categoryRooms = await query.Where(x => x.RestaurantId == restaurantId).ToListAsync();
+
+            if (categoryRooms == null || !categoryRooms.Any())
+            {
+                return new List<CategoryRoomDto>();
+            }
+
+            var categoryRoomsDTO = _mapper.Map<List<CategoryRoomDto>>(categoryRooms);
+
+            return categoryRoomsDTO;
         }
 
         public async Task<CategoryRoomDto> GetItemAsync(int id, int restaurantId)

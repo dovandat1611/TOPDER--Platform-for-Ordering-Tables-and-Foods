@@ -115,5 +115,13 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetAllBlogGroups")]
+        [SwaggerOperation(Summary = "Lấy ra tất cả danh sách Blog Group để chọn UPDATE và ADD: Admin")]
+        public async Task<IActionResult> GetAllBlogGroups()
+        {
+            var result = await _blogGroupService.GetAllBlogsAsync();
+            return Ok(result);
+        }
+
     }
 }

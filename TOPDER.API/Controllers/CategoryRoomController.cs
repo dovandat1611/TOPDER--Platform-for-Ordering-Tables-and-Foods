@@ -5,6 +5,7 @@ using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.CategoryMenu;
 using TOPDER.Service.Dtos.CategoryRoom;
 using TOPDER.Service.IServices;
+using TOPDER.Service.Services;
 
 namespace TOPDER.API.Controllers
 {
@@ -33,6 +34,14 @@ namespace TOPDER.API.Controllers
             }
 
             return BadRequest("Tạo Category Room thất bại.");
+        }
+
+        [HttpGet("GetAllCategoryRooms/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy ra tất cả danh sách Category Room để chọn UPDATE và ADD: Restaurant")]
+        public async Task<IActionResult> GetAllCategoryRooms(int restaurantId)
+        {
+            var result = await _categoryRoomService.GetAllCategoryRoomAsync(restaurantId);
+            return Ok(result);
         }
 
         [HttpGet("GetCategoryRoom/{restaurantId}/{categoryRoomId}")]

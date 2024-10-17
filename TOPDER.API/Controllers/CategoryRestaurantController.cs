@@ -4,6 +4,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.CategoryRestaurant;
 using TOPDER.Service.IServices;
+using TOPDER.Service.Services;
 
 namespace TOPDER.API.Controllers
 {
@@ -28,6 +29,14 @@ namespace TOPDER.API.Controllers
                 return Ok(new { message = "Tạo danh mục nhà hàng thành công." });
             }
             return BadRequest(new { message = "Lỗi khi tạo danh mục nhà hàng." }); 
+        }
+
+        [HttpGet("GetAllCategoryRestaurants")]
+        [SwaggerOperation(Summary = "Lấy ra tất cả danh sách Category Restaurant để chọn Register và Update cho Nhà Hàng: Restaurant")]
+        public async Task<IActionResult> GetAllCategoryRestaurants()
+        {
+            var result = await _categoryRestaurantService.GetAllCategoryRestaurantAsync();
+            return Ok(result);
         }
 
 
