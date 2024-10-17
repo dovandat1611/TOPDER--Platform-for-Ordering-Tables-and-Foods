@@ -68,13 +68,35 @@ namespace TOPDER.Service.Services
             return _mapper.Map<CustomerProfileDto>(customer);
         }
 
+
         public async Task<bool> UpdateProfile(CustomerProfileDto customerProfile)
         {
-            if (customerProfile == null)
-                throw new ArgumentNullException(nameof(customerProfile));
-
-            var customer = _mapper.Map<Customer>(customerProfile);
-            return await _customerRepository.UpdateAsync(customer);
+            var existingCustomer = await _customerRepository.GetByIdAsync(customerProfile.Uid);
+            if (existingCustomer == null)
+            {
+                return false;
+            }
+            if (!string.IsNullOrEmpty(customerProfile.Name))
+            {
+                existingCustomer.Name = customerProfile.Name;
+            }
+            if (customerProfile.Gender != null)
+            {
+                existingCustomer.Gender = customerProfile.Gender;
+            }
+            if (!string.IsNullOrEmpty(customerProfile.Phone))
+            {
+                existingCustomer.Phone = customerProfile.Phone;
+            }
+            if (customerProfile.Dob != null)
+            {
+                existingCustomer.Dob = customerProfile.Dob;
+            }
+            if (!string.IsNullOrEmpty(customerProfile.Image))
+            {
+                existingCustomer.Image = customerProfile.Image;
+            }
+            return await _customerRepository.UpdateAsync(existingCustomer);
         }
 
     }
