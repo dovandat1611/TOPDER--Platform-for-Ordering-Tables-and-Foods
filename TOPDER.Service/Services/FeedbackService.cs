@@ -13,6 +13,7 @@ using TOPDER.Service.Dtos.Contact;
 using TOPDER.Service.Dtos.Feedback;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
 {
@@ -29,6 +30,8 @@ namespace TOPDER.Service.Services
         {
             feedbackDto.FeedbackId = 0;
             var feedback = _mapper.Map<Feedback>(feedbackDto);
+            feedback.CreateDate = DateTime.Now;
+            feedback.Status = Common_Status.ACTIVE;
             return await _feedbackRepository.CreateAsync(feedback);
         }
 

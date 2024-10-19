@@ -13,7 +13,5 @@ namespace TOPDER.Service.Dtos.Feedback
         public int? RestaurantId { get; set; }
         public int? Star { get; set; }
         public string? Content { get; set; }
-        public DateTime CreateDate { get; set; }
-        public string? Status { get; set; }
     }
 }
