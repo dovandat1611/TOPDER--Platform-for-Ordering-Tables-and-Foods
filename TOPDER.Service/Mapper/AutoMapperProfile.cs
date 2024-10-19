@@ -194,6 +194,16 @@ namespace TOPDER.Service.Mapper
                     src.Restaurant != null && src.Restaurant.CategoryRestaurantId != null
                     ? src.Restaurant.CategoryRestaurantId.Value
                     : 0))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src =>
+                    src.Restaurant != null ? src.Restaurant.Price
+                    : 0))
+                .ForMember(dest => dest.Discount, opt => opt.MapFrom(src =>
+                    src.Restaurant != null ? src.Restaurant.Discount
+                    : 0))
+                .ForMember(dest => dest.Logo, opt => opt.MapFrom(src =>
+                    src.Restaurant != null && src.Restaurant.Logo != null
+                    ? src.Restaurant.Logo
+                    : Is_Null.ISNULL))
                 .ForMember(dest => dest.TotalFeedbacks, opt => opt.MapFrom(src =>
                     src.Restaurant != null && src.Restaurant.Feedbacks != null
                     ? src.Restaurant.Feedbacks.Count()
