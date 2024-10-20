@@ -9,7 +9,7 @@ namespace TOPDER.Service.Dtos.Wishlist
     public class UserWishlistDto
     {
         public int WishlistId { get; set; }
-        public int? RestaurantId { get; set; }
+        public int? Uid { get; set; }
         public string Logo { get; set; } = string.Empty;
         public string NameRes { get; set; } = string.Empty;
         public int CategoryId { get; set; } 

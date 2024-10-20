@@ -181,7 +181,11 @@ namespace TOPDER.Service.Mapper
 
             // WHISTLIST
             CreateMap<WishlistDto, Wishlist>().ReverseMap();
+
+
+
             CreateMap<Wishlist, UserWishlistDto>()
+                .ForMember(dest => dest.Uid, opt => opt.MapFrom(src => src.RestaurantId))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src =>
                     src.Restaurant != null && src.Restaurant.CategoryRestaurant != null
                     ? src.Restaurant.CategoryRestaurant.CategoryRestaurantName
@@ -212,6 +216,7 @@ namespace TOPDER.Service.Mapper
                     src.Restaurant != null && src.Restaurant.Feedbacks != null && src.Restaurant.Feedbacks.Any()
                     ? (int)Math.Round(src.Restaurant.Feedbacks.Average(r => r.Star.HasValue ? r.Star.Value : 0))
                     : 0));
+
 
             //CHATBOX
             CreateMap<CreateChatBoxDto, ChatBox>().ReverseMap();
