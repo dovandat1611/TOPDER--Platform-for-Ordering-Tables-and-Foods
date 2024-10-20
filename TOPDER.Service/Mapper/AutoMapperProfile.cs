@@ -194,7 +194,7 @@ namespace TOPDER.Service.Mapper
                     src.Restaurant != null
                     ? src.Restaurant.NameRes
                     : Is_Null.ISNULL))
-                .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src =>
+                .ForMember(dest => dest.CategoryRestaurantId, opt => opt.MapFrom(src =>
                     src.Restaurant != null && src.Restaurant.CategoryRestaurantId != null
                     ? src.Restaurant.CategoryRestaurantId.Value
                     : 0))
