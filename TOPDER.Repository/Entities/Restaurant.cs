@@ -28,7 +28,7 @@ namespace TOPDER.Repository.Entities
         public TimeSpan OpenTime { get; set; }
         public TimeSpan CloseTime { get; set; }
         public string? ProvinceCity { get; set; }
-        public string? District { get; set; }
+        public string? District { get; set; } 
         public string? Commune { get; set; }
         public string Address { get; set; } = null!;
         public string Phone { get; set; } = null!;

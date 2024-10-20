@@ -133,6 +133,7 @@ builder.Services.AddTransient<IWalletTransactionService, WalletTransactionServic
 builder.Services.AddTransient<IWishlistService, WishlistService>();
 builder.Services.AddTransient<IWishlistService, WishlistService>();
 
+
 // Other: ASK CHAT GPT
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<ISendMailService, SendMailService>();

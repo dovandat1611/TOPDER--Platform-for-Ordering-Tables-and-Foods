@@ -6,6 +6,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using TOPDER.Repository.Entities;
+using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Dtos.Customer;
 using TOPDER.Service.Dtos.ExternalLogin;
 using TOPDER.Service.Dtos.User;
@@ -24,6 +26,7 @@ namespace TOPDER.Service.Services
         private readonly IWalletService _walletService;
         private readonly ICustomerService _customerService;
         private readonly IExternalLoginService _externalLoginService;
+
 
 
 

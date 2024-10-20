@@ -13,6 +13,7 @@ using TOPDER.Repository.Repositories;
 using TOPDER.Repository.IRepositories;
 using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Dtos.Admin;
+using TOPDER.Service.Services;
 
 namespace TOPDER.API.Controllers
 {
@@ -32,7 +33,6 @@ namespace TOPDER.API.Controllers
         private readonly IIdentityService _identityService;
 
 
-
         public UserController(IRestaurantService restaurantService, ICloudinaryService cloudinaryService,
             ISendMailService sendMailService, IUserService userService, ICustomerService customerService,
             IWalletService walletService, JwtHelper jwtHelper, IAdminService adminService,
@@ -49,6 +49,7 @@ namespace TOPDER.API.Controllers
             _identityService = identityService;
             _adminService = adminService;
         }
+
 
         [HttpPost("Login")]
         [SwaggerOperation(Summary = "Login bằng tài khoản và mật khẩu")]
@@ -126,7 +127,9 @@ namespace TOPDER.API.Controllers
                 {
                     return BadRequest(new { message = "Role không hợp lệ." });
                 }
+
                 var token = _jwtHelper.GenerateJwtToken(userLoginDto);
+
                 return Ok(new ApiResponse
                 {
                     Success = true,
@@ -147,6 +150,7 @@ namespace TOPDER.API.Controllers
                 return StatusCode(500, new { message = "Có lỗi xảy ra. Vui lòng thử lại sau.", error = ex.Message });
             }
         }
+
 
         [HttpPost("LoginWithGoogle")]
         [SwaggerOperation(Summary = "Login bằng google | Nếu chưa có tài khoản trong hệ thống thì sẽ tạo mới(Giống flow của RegisterCustomer)")]
