@@ -98,7 +98,7 @@ namespace TOPDER.Service.Services
             return false;
         }
 
-        public async Task<List<DiscountDto>> GetAvailableDiscountsAsync(int restaurantId, int customerId, decimal totalPrice)
+        public async Task<List<AvailableDiscountDto>> GetAvailableDiscountsAsync(int restaurantId, int customerId, decimal totalPrice)
         {
             var queryableDiscounts = await _discountRepository.QueryableAsync();
             var queryableDiscountMenu = await _discountMenuRepository.QueryableAsync();
@@ -134,10 +134,10 @@ namespace TOPDER.Service.Services
             var validDiscounts = await query.ToListAsync();
 
             // Khởi tạo danh sách menuDiscounts
-            List<CreateDiscountMenuDto> menuDiscounts = new List<CreateDiscountMenuDto>();
+            List<DiscountMenuForAvailableDiscountDto> menuDiscounts = new List<DiscountMenuForAvailableDiscountDto>();
 
             // Kiểm tra và thêm discount vào danh sách
-            var discountDtos = new List<DiscountDto>();
+            var discountDtos = new List<AvailableDiscountDto>();
             foreach (var item in validDiscounts)
             {
                 if (item.ApplyType == DiscountApplyType.ORDER_VALUE_RANGE
@@ -149,23 +149,30 @@ namespace TOPDER.Service.Services
                 // Nếu discount có Scope là PER_SERVICE, lấy các menu discounts liên quan
                 if (item.Scope == DiscountScope.PER_SERVICE)
                 {
-                    var discountIds = validDiscounts.Select(x => x.DiscountId).ToList();
+                    var discountIds = validDiscounts
+                        .Select(x => x.DiscountId).ToList();
                     menuDiscounts = await queryableDiscountMenu
+                        .Include(x => x.Menu)
                         .Where(x => discountIds.Contains(x.DiscountId))
-                        .Select(x => new CreateDiscountMenuDto
+                        .Select(x => new DiscountMenuForAvailableDiscountDto
                         {
+                            DiscountMenuId = x.DiscountMenuId,
+                            DiscountId = x.DiscountId,
                             MenuId = x.MenuId,
+                            DishName = x.Menu.DishName,
+                            Price = x.Menu.Price,
+                            Image = x.Menu.Image,
                             DiscountMenuPercentage = x.DiscountMenuPercentage
                         })
                         .ToListAsync();
                 }
 
                 // Thêm discount vào danh sách
-                discountDtos.Add(new DiscountDto
+                discountDtos.Add(new AvailableDiscountDto
                 {
                     DiscountId = item.DiscountId,
                     RestaurantId = item.RestaurantId,
-                    DiscountPercentage = item.DiscountPercentage,
+                    DiscountPercentage = item.Scope == DiscountScope.ENTIRE_ORDER ? item.DiscountPercentage : null,
                     DiscountName = item.DiscountName,
                     ApplicableTo = item.ApplicableTo,
                     ApplyType = item.ApplyType,
@@ -177,7 +184,7 @@ namespace TOPDER.Service.Services
                     Description = item.Description,
                     IsActive = item.IsActive,
                     Quantity = item.Quantity,
-                    discountMenuDtos = item.Scope == DiscountScope.PER_SERVICE ? menuDiscounts : new List<CreateDiscountMenuDto>()
+                    discountMenuDtos = item.Scope == DiscountScope.PER_SERVICE ? menuDiscounts : new List<DiscountMenuForAvailableDiscountDto>()
                 });
             }
             return discountDtos;

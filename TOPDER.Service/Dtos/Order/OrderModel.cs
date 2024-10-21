@@ -14,8 +14,8 @@ namespace TOPDER.Service.Dtos.Order
         public int RestaurantId { get; set; }
         public int? DiscountId { get; set; }
         public int? CategoryRoomId { get; set; }
-        public string NameReceiver { get; set; } = null!;
-        public string PhoneReceiver { get; set; } = null!;
+        public string NameReceiver { get; set; } = string.Empty;
+        public string PhoneReceiver { get; set; } = string.Empty;
         public TimeSpan TimeReservation { get; set; }
         public DateTime DateReservation { get; set; }
         public int NumberPerson { get; set; }

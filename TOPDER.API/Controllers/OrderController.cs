@@ -66,15 +66,54 @@ namespace TOPDER.API.Controllers
 
 
         // ORDER
+        // Phương thức tính toán tổng tiền đơn hàng
+        [HttpPost("CalculateTotalAmountFreDiscount")]
+        [SwaggerOperation(Summary = "Tính toán và trả về TotalAmount: Customer")]
+        public async Task<IActionResult> CalculateTotalAmountFreDiscountAsync([FromBody] CaculatorOrderDto caculatorOrder)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var restaurant = await _restaurantRepository.GetByIdAsync(caculatorOrder.RestaurantId);
+            if (restaurant == null)
+            {
+                return NotFound("Nhà hàng không tồn tại.");
+            }
+
+            decimal totalAmount = 0;
+
+            // Tính tổng giá nhà hàng và áp dụng giảm giá nếu có
+            if (restaurant.Price > 0)
+            {
+                totalAmount += restaurant.Price;
+
+                if (restaurant.Discount.HasValue && restaurant.Discount > 0)
+                {
+                    totalAmount *= (1 - (restaurant.Discount.Value / 100m)); // Chia cho 100m để tránh lỗi số học
+                }
+            }
+
+            // Tính tổng tiền từ thực đơn
+            totalAmount += await CalculateMenuTotalForPreOrderAsync(caculatorOrder);
+
+            // Áp dụng phí dựa trên trạng thái khách hàng
+            totalAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, totalAmount);
+
+            return Ok(totalAmount); // Trả về tổng số tiền đã tính toán
+        }
+
+
 
         // Tạo đơn hàng
         [HttpPost("Create")]
         [SwaggerOperation(Summary = "Tạo đơn hàng | đơn hàng có thể có Table, Menu | sau khi click vào tạo đơn hàng thì sẽ hiện ra Discount: Customer")]
         public async Task<IActionResult> AddOrder([FromBody] OrderModel orderModel)
         {
-            if (orderModel == null)
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Order không thể null.");
+                return BadRequest(ModelState);
             }
 
             var restaurant = await _restaurantRepository.GetByIdAsync(orderModel.RestaurantId);
@@ -254,6 +293,23 @@ namespace TOPDER.API.Controllers
 
         // Phương thức tính tổng tiền theo menu
         private async Task<decimal> CalculateMenuTotalAsync(OrderModel orderModel)
+        {
+            decimal totalAmount = 0;
+            if (orderModel.OrderMenus != null && orderModel.OrderMenus.Any())
+            {
+                foreach (var orderMenu in orderModel.OrderMenus)
+                {
+                    var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
+                    if (menu != null)
+                    {
+                        totalAmount += (menu.Price * (orderMenu.Quantity ?? 1));
+                    }
+                }
+            }
+            return totalAmount;
+        }
+
+        private async Task<decimal> CalculateMenuTotalForPreOrderAsync(CaculatorOrderDto orderModel)
         {
             decimal totalAmount = 0;
             if (orderModel.OrderMenus != null && orderModel.OrderMenus.Any())
