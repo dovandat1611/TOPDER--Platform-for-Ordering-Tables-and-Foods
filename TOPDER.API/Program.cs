@@ -97,6 +97,7 @@ builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 builder.Services.AddScoped<IWalletTransactionRepository, WalletTransactionRepository>();
 builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
 builder.Services.AddScoped<IDiscountMenuRepository, DiscountMenuRepository>();
+builder.Services.AddScoped<IUserOtpRepository, UserOtpRepository>();
 
 
 

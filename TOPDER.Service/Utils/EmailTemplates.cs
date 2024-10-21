@@ -51,7 +51,7 @@ namespace TOPDER.Service.Utils
             </html>";
         }
 
-        public static string OTP(string name, int otp)
+        public static string OTP(string name, string otp)
         {
             return $@"
             <!DOCTYPE html>

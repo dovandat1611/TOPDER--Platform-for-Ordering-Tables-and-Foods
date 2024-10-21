@@ -14,6 +14,7 @@ using TOPDER.Repository.IRepositories;
 using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Dtos.Admin;
 using TOPDER.Service.Services;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace TOPDER.API.Controllers
 {
@@ -31,12 +32,14 @@ namespace TOPDER.API.Controllers
         private readonly IAdminService _adminService;
         private readonly IUserRepository _userRepository;
         private readonly IIdentityService _identityService;
+        private readonly IUserOtpRepository _userOtpRepository;
+
 
 
         public UserController(IRestaurantService restaurantService, ICloudinaryService cloudinaryService,
             ISendMailService sendMailService, IUserService userService, ICustomerService customerService,
             IWalletService walletService, JwtHelper jwtHelper, IAdminService adminService,
-            IUserRepository userRepository, IIdentityService identityService)
+            IUserRepository userRepository, IIdentityService identityService, IUserOtpRepository userOtpRepository)
         {
             _restaurantService = restaurantService;
             _cloudinaryService = cloudinaryService;
@@ -48,6 +51,7 @@ namespace TOPDER.API.Controllers
             _userRepository = userRepository;
             _identityService = identityService;
             _adminService = adminService;
+            _userOtpRepository = userOtpRepository;
         }
 
 
@@ -407,6 +411,99 @@ namespace TOPDER.API.Controllers
             return BadRequest("Cập nhật trạng thái người dùng thất bại.");
         }
 
+        [HttpPost("ForgotPassword")]
+        [SwaggerOperation(Summary = "Quên mật khẩu - OTP - Đặt lại mật khẩu")]
+        public async Task<IActionResult> ForgotPassword([FromBody] string email)
+        {
+            var user = await _userService.GetUserByEmail(email);
+            if (user == null)
+                return BadRequest($"Không tìm thấy tài khoản với email: {email}");
+
+            var otpCode = new Random().Next(100000, 999999).ToString();
+            var expiresAt = DateTime.Now.AddMinutes(5); 
+
+            var userOtp = new UserOtp
+            {
+                Uid = user.Uid,
+                OtpCode = otpCode,
+                ExpiresAt = expiresAt,
+                CreatedAt = DateTime.Now,
+                IsUse = false,
+            };
+
+            var createOTP = await _userOtpRepository.CreateAsync(userOtp);
+            if (!createOTP)
+                return BadRequest("Không thể tạo OTP");
+
+            var subject = Email_Subject.OTP;
+            var body = user.Role.Equals(User_Role.RESTAURANT)
+                ? EmailTemplates.OTP(user.NameRes, otpCode)
+                : EmailTemplates.OTP(user.Name, otpCode);
+
+            await _sendMailService.SendEmailAsync(email, subject, body);
+            return Ok("OTP đã được gửi đến email của bạn.");
+        }
+
+        [HttpPost("VerifyOTP")]
+        [SwaggerOperation(Summary = "Quên mật khẩu - OTP - Đặt lại mật khẩu")]
+        public async Task<IActionResult> VerifyOTP([FromBody] VerifyOtpRequest request)
+        {
+            var user = await _userService.GetUserByEmail(request.Email);
+
+            if (user == null)
+                return BadRequest($"Không tìm thấy tài khoản với email: {request.Email}");
+
+            var getOTP = await _userOtpRepository.GetValidOtpAsync(user.Uid, request.Otp);
+
+            if (getOTP == null)
+                return BadRequest("Không thấy OTP nào hợp lệ hoặc OTP đã hết hạn. Hãy thử tạo lại OTP (Thời gian hiệu lực là 5 phút).");
+
+            if (string.Equals(request.Otp, getOTP.OtpCode, StringComparison.OrdinalIgnoreCase))
+            {
+                getOTP.IsUse = true;
+                var success = await _userOtpRepository.UpdateAsync(getOTP);
+                if (success)
+                    return Ok("OTP đã được xác thực thành công.");
+                return StatusCode(500, "Đã xảy ra lỗi khi đánh dấu OTP là đã sử dụng.");
+            }
+            return BadRequest("OTP không đúng.");
+        }
+
+        [HttpPost("ResetPassword")]
+        [SwaggerOperation(Summary = "Quên mật khẩu - OTP - Đặt lại mật khẩu")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            var query = await _userRepository.QueryableAsync();
+
+            var user = query.FirstOrDefault(x => x.Email.Equals(request.Email));
+
+            if (user == null)
+                return BadRequest($"Không tìm thấy tài khoản với email: {request.Email}");
+
+            user.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword); // Hash password
+
+            var result = await _userRepository.UpdateAsync(user);
+
+            if (result)
+                return Ok("Mật khẩu đã được đặt lại thành công.");
+
+            return StatusCode(500, "Lỗi khi cập nhật mật khẩu.");
+        }
+
+        [HttpPost("ChangePassword")]
+        [SwaggerOperation(Summary = "Đổi mật khẩu")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Dữ liệu không hợp lệ.");
+
+            var result = await _userService.ChangePassword(request);
+
+            if (!result)
+                return BadRequest("Mật khẩu cũ không đúng hoặc không tìm thấy tài khoản.");
+
+            return Ok("Mật khẩu đã được thay đổi thành công.");
+        }
 
     }
 }

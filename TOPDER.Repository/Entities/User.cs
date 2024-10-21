@@ -14,6 +14,7 @@ namespace TOPDER.Repository.Entities
             Notifications = new HashSet<Notification>();
             ReportReportedByNavigations = new HashSet<Report>();
             ReportReportedOnNavigations = new HashSet<Report>();
+            UserOtps = new HashSet<UserOtp>();
             Wallets = new HashSet<Wallet>();
         }
 
@@ -21,7 +22,6 @@ namespace TOPDER.Repository.Entities
         public int RoleId { get; set; }
         public string Email { get; set; } = null!;
         public string? Password { get; set; }
-        public string? OtpCode { get; set; }
         public bool IsVerify { get; set; }
         public string Status { get; set; } = null!;
         public DateTime? CreatedAt { get; set; }
@@ -38,6 +38,7 @@ namespace TOPDER.Repository.Entities
         public virtual ICollection<Notification> Notifications { get; set; }
         public virtual ICollection<Report> ReportReportedByNavigations { get; set; }
         public virtual ICollection<Report> ReportReportedOnNavigations { get; set; }
+        public virtual ICollection<UserOtp> UserOtps { get; set; }
         public virtual ICollection<Wallet> Wallets { get; set; }
     }
 }

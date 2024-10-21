@@ -35,6 +35,30 @@ namespace TOPDER.Service.Services
             return await _userRepository.CreateAndReturnAsync(user);
         }
 
+        public async Task<bool> ChangePassword(ChangePasswordRequest changePassword)
+        {
+            // Lấy user theo Uid
+            var user = await _userRepository.GetByIdAsync(changePassword.Uid);
+
+            if (user == null)
+                return false; // Không tìm thấy user
+
+            // Kiểm tra mật khẩu cũ có khớp không
+            bool isOldPasswordValid = BCrypt.Net.BCrypt.Verify(changePassword.OldPassword, user.Password);
+
+            if (!isOldPasswordValid)
+                return false; // Mật khẩu cũ không đúng
+
+            // Băm mật khẩu mới và cập nhật
+            user.Password = BCrypt.Net.BCrypt.HashPassword(changePassword.NewPassword);
+
+            // Lưu thay đổi vào cơ sở dữ liệu
+            var result = await _userRepository.UpdateAsync(user);
+
+            return result;
+        }
+
+
         public async Task<UserOrderIsBalance> GetInformationUserOrderIsBalance(int id)
         {
             var query = await _userRepository.QueryableAsync();

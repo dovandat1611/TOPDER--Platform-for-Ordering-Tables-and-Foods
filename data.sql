@@ -9,9 +9,9 @@ SET IDENTITY_INSERT [dbo].[Role] OFF
 GO
 SET IDENTITY_INSERT [dbo].[User] ON 
 
-INSERT [dbo].[User] ([uid], [role_id], [email], [password], [otp_code], [is_verify], [status], [created_at], [is_external_login]) VALUES (1, 1, N'topder.vn@gmail.com', N'$2a$11$bCy3gf5Qca1awsszGPYdke3I9bIvNCNWVtwRxHfcclrOluakbsKNK', N'', 1, N'Active', CAST(N'2024-10-15T13:54:18.213' AS DateTime), 0)
-INSERT [dbo].[User] ([uid], [role_id], [email], [password], [otp_code], [is_verify], [status], [created_at], [is_external_login]) VALUES (2, 3, N'datdvhe161664@fpt.edu.vn', N'$2a$11$SSAKsdpn7NRGc8cZCjcM1ugRG1CmiEk4ZMvNbgzmS6OVu5C5LPSwC', N'', 1, N'Active', CAST(N'2024-10-15T13:56:01.427' AS DateTime), 0)
-INSERT [dbo].[User] ([uid], [role_id], [email], [password], [otp_code], [is_verify], [status], [created_at], [is_external_login]) VALUES (3, 2, N'dovandat1611@gmail.com', N'$2a$11$yK3dvHfZQjMST23LdKyDjeGdSwaT8qmj3YcrwxzKMCw0HUFIl9xNS', N'', 1, N'In-Active', CAST(N'2024-10-15T13:58:38.483' AS DateTime), 0)
+INSERT [dbo].[User] ([uid], [role_id], [email], [password],  [is_verify], [status], [created_at], [is_external_login]) VALUES (1, 1, N'topder.vn@gmail.com', N'$2a$11$bCy3gf5Qca1awsszGPYdke3I9bIvNCNWVtwRxHfcclrOluakbsKNK', 1, N'Active', CAST(N'2024-10-15T13:54:18.213' AS DateTime), 0)
+INSERT [dbo].[User] ([uid], [role_id], [email], [password],  [is_verify], [status], [created_at], [is_external_login]) VALUES (2, 3, N'datdvhe161664@fpt.edu.vn', N'$2a$11$SSAKsdpn7NRGc8cZCjcM1ugRG1CmiEk4ZMvNbgzmS6OVu5C5LPSwC', 1, N'Active', CAST(N'2024-10-15T13:56:01.427' AS DateTime), 0)
+INSERT [dbo].[User] ([uid], [role_id], [email], [password], [is_verify], [status], [created_at], [is_external_login]) VALUES (3, 2, N'dovandat1611@gmail.com', N'$2a$11$yK3dvHfZQjMST23LdKyDjeGdSwaT8qmj3YcrwxzKMCw0HUFIl9xNS', 1, N'In-Active', CAST(N'2024-10-15T13:58:38.483' AS DateTime), 0)
 SET IDENTITY_INSERT [dbo].[User] OFF
 GO
 INSERT [dbo].[Customer] ([uid], [name], [phone], [image], [dob], [gender]) VALUES (2, N'Đỗ Văn Đạt', N'0902121881', N'https://res.cloudinary.com/do9iyczi3/image/upload/v1728023034/default-avatar-profile-icon_ecq8w3.jpg', CAST(N'2002-11-16' AS Date), N'Male')
