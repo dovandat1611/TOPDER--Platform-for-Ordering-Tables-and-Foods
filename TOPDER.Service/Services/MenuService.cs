@@ -26,20 +26,26 @@ namespace TOPDER.Service.Services
         private readonly IMenuRepository _menuRepository;
         private readonly IExcelService _excelService;
         private readonly IOrderMenuRepository _orderMenuRepository;
+        private readonly ICategoryMenuRepository _categoryMenuRepository;
 
 
-        public MenuService(IMenuRepository menuRepository, IMapper mapper, IExcelService excelService, IOrderMenuRepository orderMenuRepository)
+
+        public MenuService(IMenuRepository menuRepository, IMapper mapper, 
+            IExcelService excelService, IOrderMenuRepository orderMenuRepository, ICategoryMenuRepository categoryMenuRepository)
         {
             _menuRepository = menuRepository;
             _mapper = mapper;
             _excelService = excelService;
             _orderMenuRepository = orderMenuRepository;
+            _categoryMenuRepository = categoryMenuRepository;
         }
         public async Task<bool> AddAsync(MenuDto menuDto)
         {
             var menu = _mapper.Map<Menu>(menuDto);
+            menu.Status = Common_Status.ACTIVE;
             return await _menuRepository.CreateAsync(menu);
         }
+
         public async Task<bool> AddRangeExcelAsync(CreateExcelMenuDto createExcelMenuDto)
         {
             if (createExcelMenuDto.File == null || createExcelMenuDto.File.Length == 0)
@@ -126,27 +132,31 @@ namespace TOPDER.Service.Services
             return result; 
         }
 
-        public async Task<PaginatedList<MenuCustomerDto>> ListCustomerPagingAsync(int pageNumber, int pageSize, int restaurantId)
+        public async Task<List<MenuCustomerByCategoryMenuDto>> ListMenuCustomerByCategoryMenuAsync(int restaurantId)
         {
-            var queryable = await _menuRepository.QueryableAsync();
+            // Lấy tất cả các menu của nhà hàng có trạng thái ACTIVE
+            var menus = await _menuRepository.QueryableAsync();
+            var filteredMenus = await menus
+                .Include(m => m.CategoryMenu) // Kèm thông tin CategoryMenu
+                .Where(m =>
+                    m.RestaurantId == restaurantId &&
+                    m.Status == Common_Status.ACTIVE)
+                .ToListAsync();
 
-            var query = queryable
-                .Include(o => o.CategoryMenu)
-                .Where(x =>
-                x.RestaurantId == restaurantId &&
-                x.Status != null &&
-                x.Status.Equals(Common_Status.ACTIVE));
+            // Nhóm các menu theo CategoryMenuId
+            var groupedMenus = filteredMenus
+                .GroupBy(m => m.CategoryMenuId)
+                .Select(g => new MenuCustomerByCategoryMenuDto
+                {
+                    CategoryMenuId = g.Key,
+                    CategoryMenuName = g.FirstOrDefault()?.CategoryMenu?.CategoryMenuName,
+                    MenusOfCategoryMenu = g.Select(menu => _mapper.Map<MenuCustomerDto>(menu)).ToList()
+                })
+                .ToList();
 
-            var queryDTO = query.Select(r => _mapper.Map<MenuCustomerDto>(r));
-
-            var paginatedDTOs = await PaginatedList<MenuCustomerDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-
-            return paginatedDTOs;
+            return groupedMenus;
         }
+
 
         public async Task<PaginatedList<MenuRestaurantDto>> ListRestaurantPagingAsync(
             int pageNumber,

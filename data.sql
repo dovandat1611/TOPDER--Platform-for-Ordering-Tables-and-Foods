@@ -115,3 +115,29 @@ INSERT [dbo].[Image] ([image_id], [restaurant_id], [imageUrl]) VALUES (2, 3, N'h
 
 SET IDENTITY_INSERT [dbo].[Image] OFF
 GO
+
+INSERT INTO [dbo].[Category_Menu] ([restaurant_id], [category_menu_name]) 
+VALUES 
+(3, N'Món chính'),
+(3, N'Món phụ'),
+(3, N'Khai vị'),
+(3, N'Tráng miệng'),
+(3, N'Đồ uống');
+
+
+GO
+
+INSERT INTO [dbo].[Menu] ([restaurant_id], [category_menu_id], [dish_name], [price], [status], [image], [description]) 
+VALUES
+(3, 1, N'Phở bò', 50000.00, N'Active', N'https://files.elfsight.com/storage/b27fdf3d-b477-40ce-84d4-ddcade571fb4/f299acaf-76fe-4e14-aa67-fff28c5fdea0.jpeg', N'Phở bò truyền thống với nước dùng đặc biệt'),
+(3, 1, N'Cơm gà', 45000.00, N'Active', N'https://files.elfsight.com/storage/b27fdf3d-b477-40ce-84d4-ddcade571fb4/422f8da7-6463-4944-a7b2-f7dfe5d5d9b8.jpeg', N'Cơm gà chiên giòn kèm salad'),
+(3, 2, N'Khoai tây chiên', 30000.00, N'Active', N'https://files.elfsight.com/storage/b27fdf3d-b477-40ce-84d4-ddcade571fb4/422f8da7-6463-4944-a7b2-f7dfe5d5d9b8.jpeg', N'Khoai tây chiên giòn rụm'),
+(3, 2, N'Nấm xào tỏi', 35000.00, N'Active', N'https://files.elfsight.com/storage/b27fdf3d-b477-40ce-84d4-ddcade571fb4/422f8da7-6463-4944-a7b2-f7dfe5d5d9b8.jpeg', N'Nấm xào với tỏi thơm lừng'),
+(3, 3, N'Súp gà', 40000.00, N'Active', N'https://files.elfsight.com/storage/b27fdf3d-b477-40ce-84d4-ddcade571fb4/422f8da7-6463-4944-a7b2-f7dfe5d5d9b8.jpeg', N'Súp gà với ngô và rau củ'),
+(3, 3, N'Salad trộn', 35000.00, N'Active', N'https://files.elfsight.com/storage/b27fdf3d-b477-40ce-84d4-ddcade571fb4/422f8da7-6463-4944-a7b2-f7dfe5d5d9b8.jpeg', N'Salad rau củ tươi ngon'),
+(3, 4, N'Chè khúc bạch', 30000.00, N'Active', N'https://files.elfsight.com/storage/b27fdf3d-b477-40ce-84d4-ddcade571fb4/422f8da7-6463-4944-a7b2-f7dfe5d5d9b8.jpeg', N'Món chè khúc bạch thơm mát'),
+(3, 4, N'Bánh flan', 25000.00, N'Active', N'https://files.elfsight.com/storage/b27fdf3d-b477-40ce-84d4-ddcade571fb4/422f8da7-6463-4944-a7b2-f7dfe5d5d9b8.jpeg', N'Bánh flan mềm mịn, thơm ngon'),
+(3, 5, N'Trá sữa trân châu', 40000.00, N'Active', N'https://files.elfsight.com/storage/b27fdf3d-b477-40ce-84d4-ddcade571fb4/422f8da7-6463-4944-a7b2-f7dfe5d5d9b8.jpeg', N'Trá sữa với trân châu đen dai giòn'),
+(3, 5, N'Cafe sữa đá', 35000.00, N'Active', N'https://files.elfsight.com/storage/b27fdf3d-b477-40ce-84d4-ddcade571fb4/422f8da7-6463-4944-a7b2-f7dfe5d5d9b8.jpeg', N'Cà phê sữa đá kiểu Việt Nam');
+
+GO

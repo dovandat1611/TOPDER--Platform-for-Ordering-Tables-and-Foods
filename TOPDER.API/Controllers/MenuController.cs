@@ -144,29 +144,11 @@ namespace TOPDER.API.Controllers
 
         [HttpGet("GetMenuListForCustomer/{restaurantId}")]
         [SwaggerOperation(Summary = "Lấy món ăn của nhà hàng đó (món ăn phải active): Customer")]
-        public async Task<IActionResult> GetCustomerMenuList(
-            int restaurantId,
-            [FromQuery] int pageNumber,
-            [FromQuery] int pageSize)
+        public async Task<IActionResult> GetCustomerMenuList(int restaurantId)
         {
-            var result = await _menuService.ListCustomerPagingAsync(pageNumber, pageSize, restaurantId);
-
-            if (result == null || !result.Any())
-            {
-                return NotFound("Không tìm thấy món ăn nào cho nhà hàng được chỉ định.");
-            }
-
-            var response = new PaginatedResponseDto<MenuCustomerDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-
-            return Ok(response);
+            var result = await _menuService.ListMenuCustomerByCategoryMenuAsync(restaurantId);
+            return Ok(result);
         }
-
 
     }
 }

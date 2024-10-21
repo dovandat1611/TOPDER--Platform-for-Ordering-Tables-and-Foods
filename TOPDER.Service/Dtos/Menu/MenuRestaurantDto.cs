@@ -9,7 +9,8 @@ namespace TOPDER.Service.Dtos.Menu
     public class MenuRestaurantDto
     {
         public int MenuId { get; set; }
-        public int? CategoryMenuName { get; set; }
+        public int? CategoryMenuId { get; set; }
+        public string? CategoryMenuName { get; set; }
         public string DishName { get; set; } = null!;
         public decimal Price { get; set; }
         public string? Image { get; set; }

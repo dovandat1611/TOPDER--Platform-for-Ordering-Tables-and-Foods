@@ -88,9 +88,7 @@ namespace TOPDER.Service.Mapper
                 .ForMember(dest => dest.CategoryMenuName,
                            otp => otp.MapFrom(src => src.CategoryMenu != null ? src.CategoryMenu.CategoryMenuName : Is_Null.ISNULL));
 
-            CreateMap<Menu, MenuCustomerDto>()
-                .ForMember(dest => dest.CategoryMenuName,
-                           otp => otp.MapFrom(src => src.CategoryMenu != null ? src.CategoryMenu.CategoryMenuName : Is_Null.ISNULL));
+            CreateMap<Menu, MenuCustomerDto>().ReverseMap();
 
             CreateMap<MenuDto, Menu>().ReverseMap();
 
