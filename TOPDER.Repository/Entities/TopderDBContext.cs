@@ -53,7 +53,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<Admin>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Admin__DD701264847FB958");
+                    .HasName("PK__Admin__DD701264BC1CDA5E");
 
                 entity.ToTable("Admin");
 
@@ -279,7 +279,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<Customer>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Customer__DD70126462E025C6");
+                    .HasName("PK__Customer__DD70126464DA74B1");
 
                 entity.ToTable("Customer");
 
@@ -339,7 +339,7 @@ namespace TOPDER.Repository.Entities
                     .HasColumnName("discount_percentage");
 
                 entity.Property(e => e.EndDate)
-                    .HasColumnType("date")
+                    .HasColumnType("datetime")
                     .HasColumnName("end_date");
 
                 entity.Property(e => e.IsActive)
@@ -364,7 +364,7 @@ namespace TOPDER.Repository.Entities
                     .HasColumnName("scope");
 
                 entity.Property(e => e.StartDate)
-                    .HasColumnType("date")
+                    .HasColumnType("datetime")
                     .HasColumnName("start_date");
 
                 entity.HasOne(d => d.Restaurant)
@@ -766,7 +766,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<Restaurant>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__Restaura__DD7012646596F635");
+                    .HasName("PK__Restaura__DD7012640C985FDB");
 
                 entity.ToTable("Restaurant");
 
@@ -861,7 +861,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<RestaurantRoom>(entity =>
             {
                 entity.HasKey(e => e.RoomId)
-                    .HasName("PK__Restaura__19675A8A53CB6FC0");
+                    .HasName("PK__Restaura__19675A8AEA218EDC");
 
                 entity.ToTable("Restaurant_Room");
 
@@ -898,7 +898,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<RestaurantTable>(entity =>
             {
                 entity.HasKey(e => e.TableId)
-                    .HasName("PK__Restaura__B21E8F24020FD642");
+                    .HasName("PK__Restaura__B21E8F2428E54F25");
 
                 entity.ToTable("Restaurant_Table");
 
@@ -946,11 +946,11 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(e => e.Uid)
-                    .HasName("PK__User__DD7012640FF9AFE1");
+                    .HasName("PK__User__DD7012647961FF94");
 
                 entity.ToTable("User");
 
-                entity.HasIndex(e => e.Email, "UQ__User__AB6E6164DE2194A1")
+                entity.HasIndex(e => e.Email, "UQ__User__AB6E61644AAB725D")
                     .IsUnique();
 
                 entity.Property(e => e.Uid).HasColumnName("uid");
@@ -988,7 +988,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<UserOtp>(entity =>
             {
                 entity.HasKey(e => e.OtpId)
-                    .HasName("PK__User_OTP__AEE3543535D3A3E5");
+                    .HasName("PK__User_OTP__AEE3543562B1E208");
 
                 entity.ToTable("User_OTP");
 
@@ -1059,7 +1059,7 @@ namespace TOPDER.Repository.Entities
             modelBuilder.Entity<WalletTransaction>(entity =>
             {
                 entity.HasKey(e => e.TransactionId)
-                    .HasName("PK__Wallet_T__85C600AFA13D5229");
+                    .HasName("PK__Wallet_T__85C600AF10349237");
 
                 entity.ToTable("Wallet_Transaction");
 

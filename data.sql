@@ -141,3 +141,229 @@ VALUES
 (3, 5, N'Cafe sữa đá', 35000.00, N'Active', N'https://files.elfsight.com/storage/b27fdf3d-b477-40ce-84d4-ddcade571fb4/422f8da7-6463-4944-a7b2-f7dfe5d5d9b8.jpeg', N'Cà phê sữa đá kiểu Việt Nam');
 
 GO
+
+
+GO
+-- 1. Giảm giá theo món cho tất cả khách hàng
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, 0, N'Giảm giá theo món - Tất cả khách hàng', N'All Customers', N'All Orders', 
+NULL, NULL, N'Per Service', '2024-10-16 00:00:00', '2024-12-31 23:59:59', 
+N'Giảm giá riêng từng món cho tất cả khách hàng', 1, 100);
+
+-- Thêm vào bảng Discount_Menu (discount_id = 1)
+INSERT INTO [dbo].[Discount_Menu] (discount_id, menu_id, discount_menu_percentage)
+VALUES 
+(1, 1, 10.00), (1, 2, 10.00), (1, 3, 10.00), (1, 4, 10.00), 
+(1, 5, 10.00), (1, 6, 10.00), (1, 7, 10.00), (1, 8, 10.00), 
+(1, 9, 10.00), (1, 10, 10.00);
+
+-- 2. Giảm giá cho khách hàng mới theo từng món
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, 0, N'Giảm giá món - Khách hàng mới', N'New Customer', N'All Orders', 
+NULL, NULL, N'Per Service', '2024-10-16 00:00:00', '2024-11-30 23:59:59', 
+N'Giảm riêng từng món cho khách hàng mới', 1, 50);
+
+-- Thêm vào bảng Discount_Menu (discount_id = 2)
+INSERT INTO [dbo].[Discount_Menu] (discount_id, menu_id, discount_menu_percentage)
+VALUES 
+(2, 1, 15.00), (2, 2, 15.00), (2, 3, 15.00), (2, 4, 15.00), 
+(2, 5, 15.00), (2, 6, 15.00), (2, 7, 15.00), (2, 8, 15.00), 
+(2, 9, 15.00), (2, 10, 15.00);
+
+-- 3. Giảm giá theo món cho khách hàng thân thiết
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, 0, N'Giảm giá món - Khách hàng thân thiết', N'Loyal Customer', N'All Orders', 
+NULL, NULL, N'Per Service', '2024-11-01 00:00:00', '2024-12-25 23:59:59', 
+N'Giảm giá cho từng món với khách hàng thân thiết', 1, 30);
+
+-- Thêm vào bảng Discount_Menu (discount_id = 3)
+INSERT INTO [dbo].[Discount_Menu] (discount_id, menu_id, discount_menu_percentage)
+VALUES 
+(3, 1, 5.00), (3, 2, 5.00), (3, 3, 5.00), (3, 4, 5.00), 
+(3, 5, 5.00), (3, 6, 5.00), (3, 7, 5.00), (3, 8, 5.00), 
+(3, 9, 5.00), (3, 10, 5.00);
+
+-- 4. Giảm giá đặc biệt cho món cho khách hàng mới
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, 0, N'Giảm giá đặc biệt theo món', N'New Customer', N'All Orders', 
+NULL, NULL, N'Per Service', '2024-10-16 00:00:00', '2024-12-01 23:59:59', 
+N'Áp dụng giảm giá đặc biệt từng món', 1, 20);
+
+-- Thêm vào bảng Discount_Menu (discount_id = 4)
+INSERT INTO [dbo].[Discount_Menu] (discount_id, menu_id, discount_menu_percentage)
+VALUES 
+(4, 1, 20.00), (4, 2, 20.00), (4, 3, 20.00), (4, 4, 20.00), 
+(4, 5, 20.00), (4, 6, 20.00), (4, 7, 20.00), (4, 8, 20.00), 
+(4, 9, 20.00), (4, 10, 20.00);
+
+-- 5. Giảm giá riêng từng món cho tất cả khách hàng
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, 0, N'Tất cả khách hàng - Giảm giá từng món', N'All Customers', N'All Orders', 
+NULL, NULL, N'Per Service', '2024-10-20 00:00:00', '2024-12-31 23:59:59', 
+N'Giảm giá theo từng món riêng lẻ', 1, 75);
+
+-- Thêm vào bảng Discount_Menu (discount_id = 5)
+INSERT INTO [dbo].[Discount_Menu] (discount_id, menu_id, discount_menu_percentage)
+VALUES 
+(5, 1, 10.00), (5, 2, 10.00), (5, 3, 10.00), (5, 4, 10.00), 
+(5, 5, 10.00), (5, 6, 10.00), (5, 7, 10.00), (5, 8, 10.00), 
+(5, 9, 10.00), (5, 10, 10.00);
+
+
+-- 1. Giảm giá cho tất cả khách hàng trên toàn bộ đơn hàng
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, 10.00, N'Tất cả khách hàng - Giảm 10%', N'All Customers', N'All Orders', 
+NULL, NULL, N'Entire Order', '2024-10-16 00:00:00', '2024-12-31 23:59:59', 
+N'Giảm 10% cho mọi đơn hàng', 1, 100);
+
+-- 2. Giảm giá cho khách hàng mới trong khoảng giá trị đơn hàng
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, 20.00, N'Khách hàng mới - Giảm 20%', N'New Customer', N'Order Value Range', 
+500000, 3000000, N'Entire Order', '2024-10-16 00:00:00', '2024-12-31 23:59:59', 
+N'Giảm 20% cho đơn hàng từ 500,000 đến 3,000,000', 1, 50);
+
+-- 3. Giảm giá theo món cho khách hàng thân thiết
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, NULL, N'Khách hàng thân thiết - Giảm giá theo món', N'Loyal Customer', 
+N'All Orders', NULL, NULL, N'Per Service', '2024-10-16 00:00:00', '2024-11-30 23:59:59', 
+N'Áp dụng giảm giá riêng cho từng món', 1, 30);
+
+-- 4. Giảm giá cho tất cả khách hàng - toàn bộ đơn hàng
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, 5.00, N'Tất cả khách hàng - Giảm 5%', N'All Customers', N'All Orders', 
+NULL, NULL, N'Entire Order', '2024-10-20 00:00:00', '2024-12-25 23:59:59', 
+N'Giảm 5% cho đơn hàng', 1, 70);
+
+-- 5. Giảm giá 15% cho khách hàng thân thiết với giá trị đơn hàng từ 1 triệu đến 5 triệu
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, 15.00, N'Khách hàng thân thiết - Giảm 15%', N'Loyal Customer', N'Order Value Range', 
+1000000, 5000000, N'Entire Order', '2024-10-18 00:00:00', '2024-11-20 23:59:59', 
+N'Giảm 15% cho đơn hàng lớn', 1, 40);
+
+-- 6. Khuyến mãi món riêng cho khách hàng mới
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, NULL, N'Món riêng - Khuyến mãi khách hàng mới', N'New Customer', N'All Orders', 
+NULL, NULL, N'Per Service', '2024-10-16 00:00:00', '2024-12-01 23:59:59', 
+N'Giảm giá cho từng món riêng cho khách hàng mới', 1, 20);
+
+-- 7. Giảm giá 25% cho khách hàng mới với đơn hàng từ 1 triệu đến 2 triệu
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, 25.00, N'Khách hàng mới - Giảm 25%', N'New Customer', N'Order Value Range', 
+1000000, 2000000, N'Entire Order', '2024-10-20 00:00:00', '2024-11-15 23:59:59', 
+N'Giảm 25% cho đơn hàng lớn', 1, 35);
+
+-- 8. Giảm giá món theo dịch vụ cho khách hàng thân thiết
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, NULL, N'Giảm món cho khách hàng thân thiết', N'Loyal Customer', N'All Orders', 
+NULL, NULL, N'Per Service', '2024-11-01 00:00:00', '2024-12-31 23:59:59', 
+N'Khuyến mãi theo món cho khách hàng thân thiết', 1, 10);
+
+-- 9. Giảm 30% cho tất cả khách hàng trên toàn bộ đơn hàng
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, 30.00, N'Tất cả khách hàng - Giảm 30%', N'All Customers', N'All Orders', 
+NULL, NULL, N'Entire Order', '2024-11-10 00:00:00', '2024-12-25 23:59:59', 
+N'Giảm 30% cho mọi đơn hàng', 1, 90);
+
+-- 10. Giảm giá món đặc biệt theo dịch vụ cho khách hàng mới
+INSERT INTO [dbo].[Discount] 
+(restaurant_id, discount_percentage, discount_name, applicable_to, apply_type, 
+min_order_value, max_order_value, scope, start_date, end_date, description, is_active, quantity)
+VALUES
+(3, NULL, N'Giảm món đặc biệt', N'New Customer', N'All Orders', 
+NULL, NULL, N'Per Service', '2024-10-16 00:00:00', '2024-11-30 23:59:59', 
+N'Khuyến mãi đặc biệt theo từng món', 1, 15);
+
+GO 
+
+INSERT INTO [dbo].[Notification] (uid, content, type, is_read, created_at) 
+VALUES 
+(2, N'Đơn hàng của bạn đã được xác nhận.', 'Order', 0, GETDATE()),
+(2, N'Nhà hàng đã chuẩn bị xong đơn hàng của bạn.', 'Order', 0, GETDATE()),
+(2, N'Thông báo khuyến mãi 20% cho tất cả các đơn hàng.', 'Promotion', 0, GETDATE()),
+(2, N'Tài khoản của bạn đã được cập nhật thông tin thành công.', 'Account', 1, GETDATE()),
+(2, N'Mời bạn đánh giá dịch vụ của chúng tôi.', 'Feedback', 0, GETDATE()),
+
+(3, N'Đơn hàng của bạn đã được giao thành công.', 'Order', 1, GETDATE()),
+(3, N'Thông báo khuyến mãi 10% cho khách hàng thân thiết.', 'Promotion', 0, GETDATE()),
+(3, N'Tài khoản của bạn vừa được đăng nhập từ thiết bị lạ.', 'Security', 0, GETDATE()),
+(3, N'Nhà hàng đối tác mới đã được thêm vào danh sách.', 'Info', 0, GETDATE()),
+(3, N'Hóa đơn thanh toán của bạn đã được xuất.', 'Invoice', 1, GETDATE());
+GO
+
+-- Giả sử restaurant có uid = 3 và customer có uid = 2
+INSERT INTO [dbo].[ChatBox] (customer_id, restaurant_id) 
+VALUES (2, 3);
+GO
+
+-- Thêm các tin nhắn vào chat box với id = 1
+INSERT INTO [dbo].[Chat] (chat_box_id, content, chat_by) 
+VALUES 
+(1, N'Xin chào nhà hàng! Nhà hàng có mở cửa không?', 2),  -- Tin nhắn từ customer (uid = 2)
+(1, N'Chào bạn! Nhà hàng chúng tôi đang mở. Bạn cần hỗ trợ gì?', 3), -- Tin nhắn từ restaurant (uid = 3)
+(1, N'Mình có thể đặt bàn cho 2 người lúc 7 giờ tối không?', 2),
+(1, N'Dạ được, nhà hàng sẽ chuẩn bị bàn cho bạn. Cảm ơn đã liên hệ!', 3),
+(1, N'Cảm ơn nhà hàng nhé!', 2),
+(1, N'Không có gì, hẹn gặp lại bạn!', 3);
+GO
+
+-- Giả sử restaurant có uid = 3 và customer có uid = 2
+INSERT INTO [dbo].[Wishlist] (customer_id, restaurant_id) 
+VALUES (2, 3);
+GO
+
+-- Thêm 10 feedback từ customer_id = 2 cho restaurant_id = 3
+INSERT INTO [dbo].[Feedback] (customer_id, restaurant_id, star, content, status)
+VALUES 
+(2, 3, 5, N'Thức ăn ngon, phục vụ chu đáo.', N'Approved'),
+(2, 3, 4, N'Không gian đẹp nhưng hơi ồn.', N'Approved'),
+(2, 3, 5, N'Rất hài lòng với dịch vụ.', N'Approved'),
+(2, 3, 3, N'Món ăn bình thường, chưa đặc sắc.', N'Pending'),
+(2, 3, 2, N'Nhân viên phục vụ không nhiệt tình.', N'Rejected'),
+(2, 3, 4, N'Giá cả hợp lý, sẽ quay lại.', N'Approved'),
+(2, 3, 1, N'Rất thất vọng về chất lượng.', N'Rejected'),
+(2, 3, 3, N'Cần cải thiện thời gian chuẩn bị món.', N'Pending'),
+(2, 3, 5, N'Món tráng miệng tuyệt vời.', N'Approved'),
+(2, 3, 4, N'Nhà hàng có nhiều món ngon.', N'Approved');
+GO
