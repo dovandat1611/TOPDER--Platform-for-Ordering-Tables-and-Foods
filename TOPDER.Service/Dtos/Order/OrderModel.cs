@@ -22,6 +22,6 @@ namespace TOPDER.Service.Dtos.Order
         public int NumberChild { get; set; }
         public string? ContentReservation { get; set; }
         public List<OrderMenuModelDto>? OrderMenus { get; set; }
-        public List<int> TableIds { get; set; } = new List<int>();
+        public List<int>? TableIds { get; set; } = new List<int>();
     }
 }

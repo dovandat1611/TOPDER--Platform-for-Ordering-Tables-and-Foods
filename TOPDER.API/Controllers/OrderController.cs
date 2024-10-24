@@ -104,8 +104,6 @@ namespace TOPDER.API.Controllers
             return Ok(totalAmount); // Trả về tổng số tiền đã tính toán
         }
 
-
-
         // Tạo đơn hàng
         [HttpPost("Create")]
         [SwaggerOperation(Summary = "Tạo đơn hàng | đơn hàng có thể có Table, Menu | sau khi click vào tạo đơn hàng thì sẽ hiện ra Discount: Customer")]

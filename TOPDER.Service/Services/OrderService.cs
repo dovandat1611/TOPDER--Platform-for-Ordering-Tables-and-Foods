@@ -71,7 +71,9 @@ namespace TOPDER.Service.Services
             var queryable = await _orderRepository.QueryableAsync();
 
             // Lọc theo CustomerId
-            var query = queryable.Where(x => x.CustomerId == customerId);
+            var query = queryable
+                .Include(x => x.Restaurant)
+                .Where(x => x.CustomerId == customerId);
 
             // Kiểm tra nếu có giá trị status thì lọc theo status
             if (!string.IsNullOrEmpty(status))
@@ -97,9 +99,12 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _orderRepository.QueryableAsync();
             var order = await queryable
-                .Include(x => x.Customer) // Luôn bao gồm Customer
-                .Include(x => x.Restaurant) // Luôn bao gồm Restaurant
+                .Include(x => x.Customer)
+                    .ThenInclude(c => c.UidNavigation)  // Bao gồm UidNavigation của Customer
+                .Include(x => x.Restaurant)
+                    .ThenInclude(r => r.UidNavigation)  // Bao gồm UidNavigation của Restaurant
                 .FirstOrDefaultAsync(x => x.OrderId == orderId);
+
 
             if (order == null)
             {
@@ -113,7 +118,7 @@ namespace TOPDER.Service.Services
             // Kiểm tra vai trò và gán giá trị tương ứng
             if (role.Equals(User_Role.CUSTOMER))
             {
-                if (order.Customer != null && order.Customer.UidNavigation != null)
+                if (order.Customer?.UidNavigation != null)
                 {
                     email = order.Customer.UidNavigation.Email;
                     name = order.Customer.Name;
@@ -125,7 +130,7 @@ namespace TOPDER.Service.Services
             }
             else if (role.Equals(User_Role.RESTAURANT))
             {
-                if (order.Restaurant != null && order.Restaurant.UidNavigation != null)
+                if (order.Restaurant?.UidNavigation != null)
                 {
                     email = order.Restaurant.UidNavigation.Email;
                     name = order.Restaurant.NameRes;

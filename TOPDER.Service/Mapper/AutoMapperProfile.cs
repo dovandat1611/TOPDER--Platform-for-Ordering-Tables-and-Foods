@@ -299,6 +299,12 @@ namespace TOPDER.Service.Mapper
             // ORDER 
             CreateMap<OrderDto, Order>().ReverseMap();
 
+            CreateMap<Order, OrderCustomerDto>()
+                .ForMember(dest => dest.RestaurantName,
+                           opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.NameRes : Is_Null.ISNULL))
+                .ForMember(dest => dest.RestaurantPhone,
+                           opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.Phone : Is_Null.ISNULL));
+
             // USER 
 
             CreateMap<Restaurant, UserLoginDTO>()
@@ -425,7 +431,6 @@ namespace TOPDER.Service.Mapper
 
             // CUSTOMER
             CreateMap<CustomerProfileDto, Customer>().ReverseMap();
-
 
 
         }
