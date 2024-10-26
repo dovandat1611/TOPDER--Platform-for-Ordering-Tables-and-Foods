@@ -125,20 +125,27 @@ namespace TOPDER.Service.Services
             return userPayment;
         }
 
-        public async Task<string> GetRoleUserProfile(int uid)
+        public async Task<GetRoleAndBalanceForProfileDto> GetRoleUserProfile(int uid)
         {
             var query = await _userRepository.QueryableAsync();
 
             var user = await query
                 .Include(x => x.Role)
+                .Include(x => x.Wallets)
                 .SingleOrDefaultAsync(u => u.Uid == uid);
 
-            if (user == null || user.Role == null)
+            if (user == null)
             {
-                return Is_Null.ISNULL; 
+                return null; // Hoặc throw exception nếu cần
             }
 
-            return user.Role.Name;
+            GetRoleAndBalanceForProfileDto forProfileDto = new GetRoleAndBalanceForProfileDto()
+            {
+                Role = user.Role?.Name ?? "No Role", // Kiểm tra null cho Role
+                WalletBalance = user.Wallets?.FirstOrDefault()?.WalletBalance ?? 0 // Kiểm tra null cho Wallet
+            };
+
+            return forProfileDto;
         }
 
 

@@ -94,79 +94,79 @@ namespace TOPDER.Service.Services
             }
         }
 
-        public async Task<AvailableTablesDto> GetAvailableTablesAsync(
-            int restaurantId,
-            TimeSpan timeReservation,
-            DateTime dateReservation)
-        {
-            // Tối ưu hóa truy vấn, chỉ lấy các trường cần thiết
-            // Lấy truy vấn ban đầu từ repository
-            var queryableTables = await _restaurantTableRepository.QueryableAsync();
+        //public async Task<AvailableTablesDto> GetAvailableTablesAsync(
+        //    int restaurantId,
+        //    TimeSpan timeReservation,
+        //    DateTime dateReservation)
+        //{
+        //    // Tối ưu hóa truy vấn, chỉ lấy các trường cần thiết
+        //    // Lấy truy vấn ban đầu từ repository
+        //    var queryableTables = await _restaurantTableRepository.QueryableAsync();
 
-            // Thêm điều kiện lọc cho nhà hàng, trạng thái đặt bàn và thời gian đặt bàn
-            var filteredTables = queryableTables
-                .Include(x => x.Room)
-                .Where(table => table.RestaurantId == restaurantId &&
-                                table.IsBookingEnabled == true &&
-                                (table.Room == null || table.Room.IsBookingEnabled == true) && // Kiểm tra Room có null hay không
-                                !table.OrderTables.Any(orderTable =>
-                                    orderTable.Order.DateReservation.Date == dateReservation.Date &&
-                                    orderTable.Order.TimeReservation == timeReservation));
+        //    // Thêm điều kiện lọc cho nhà hàng, trạng thái đặt bàn và thời gian đặt bàn
+        //    var filteredTables = queryableTables
+        //        .Include(x => x.Room)
+        //        .Where(table => table.RestaurantId == restaurantId &&
+        //                        table.IsBookingEnabled == true &&
+        //                        (table.Room == null || table.Room.IsBookingEnabled == true) && // Kiểm tra Room có null hay không
+        //                        !table.OrderTables.Any(orderTable =>
+        //                            orderTable.Order.DateReservation.Date == dateReservation.Date &&
+        //                            orderTable.Order.TimeReservation == timeReservation));
 
-            // Áp dụng Select để chỉ lấy những trường cần thiết
-            var availableTables = await filteredTables
-                .Select(table => new
-                {
-                    Table = table,
-                    Room = table.Room
-                })
-                .ToListAsync();
+        //    // Áp dụng Select để chỉ lấy những trường cần thiết
+        //    var availableTables = await filteredTables
+        //        .Select(table => new
+        //        {
+        //            Table = table,
+        //            Room = table.Room
+        //        })
+        //        .ToListAsync();
 
 
-            // Khởi tạo đối tượng để chứa kết quả
-            AvailableTablesDto availableTablesDto = new AvailableTablesDto()
-            {
-                TablesWithRooms = new List<RestaurantTableIncludeRoomDto>(),
-                StandaloneTables = new List<RestaurantTableCustomerDto>()
-            };
+        //    // Khởi tạo đối tượng để chứa kết quả
+        //    AvailableTablesDto availableTablesDto = new AvailableTablesDto()
+        //    {
+        //        TablesWithRooms = new List<RestaurantTableIncludeRoomDto>(),
+        //        StandaloneTables = new List<RestaurantTableCustomerDto>()
+        //    };
 
-            // Từ điển để nhóm các bàn theo phòng
-            var roomsDictionary = new Dictionary<int, RestaurantTableIncludeRoomDto>();
+        //    // Từ điển để nhóm các bàn theo phòng
+        //    var roomsDictionary = new Dictionary<int, RestaurantTableIncludeRoomDto>();
 
-            foreach (var entry in availableTables)
-            {
-                var table = entry.Table;
-                var room = entry.Room;
+        //    foreach (var entry in availableTables)
+        //    {
+        //        var table = entry.Table;
+        //        var room = entry.Room;
 
-                if (room != null)
-                {
-                    // Nếu phòng tồn tại, kiểm tra xem phòng đã có trong từ điển chưa
-                    if (!roomsDictionary.TryGetValue(room.RoomId, out var existingRoom))
-                    {
-                        // Nếu phòng chưa tồn tại, tạo mới
-                        existingRoom = new RestaurantTableIncludeRoomDto
-                        {
-                            RestaurantRoom = _mapper.Map<RestaurantRoomDto>(room),
-                            restaurantTables = new List<RestaurantTableCustomerDto> { _mapper.Map<RestaurantTableCustomerDto>(table) }
-                        };
+        //        if (room != null)
+        //        {
+        //            // Nếu phòng tồn tại, kiểm tra xem phòng đã có trong từ điển chưa
+        //            if (!roomsDictionary.TryGetValue(room.RoomId, out var existingRoom))
+        //            {
+        //                // Nếu phòng chưa tồn tại, tạo mới
+        //                existingRoom = new RestaurantTableIncludeRoomDto
+        //                {
+        //                    RestaurantRoom = _mapper.Map<RestaurantRoomDto>(room),
+        //                    restaurantTables = new List<RestaurantTableCustomerDto> { _mapper.Map<RestaurantTableCustomerDto>(table) }
+        //                };
 
-                        roomsDictionary.Add(room.RoomId, existingRoom);
-                        availableTablesDto.TablesWithRooms.Add(existingRoom);
-                    }
-                    else
-                    {
-                        // Nếu phòng đã tồn tại, thêm bàn vào danh sách bàn của phòng
-                        existingRoom.restaurantTables.Add(_mapper.Map<RestaurantTableCustomerDto>(table));
-                    }
-                }
-                else
-                {
-                    // Nếu bàn không có phòng, thêm vào danh sách bàn riêng lẻ
-                    availableTablesDto.StandaloneTables.Add(_mapper.Map<RestaurantTableCustomerDto>(table));
-                }
-            }
-            return availableTablesDto;
-        }
+        //                roomsDictionary.Add(room.RoomId, existingRoom);
+        //                availableTablesDto.TablesWithRooms.Add(existingRoom);
+        //            }
+        //            else
+        //            {
+        //                // Nếu phòng đã tồn tại, thêm bàn vào danh sách bàn của phòng
+        //                existingRoom.restaurantTables.Add(_mapper.Map<RestaurantTableCustomerDto>(table));
+        //            }
+        //        }
+        //        else
+        //        {
+        //            // Nếu bàn không có phòng, thêm vào danh sách bàn riêng lẻ
+        //            availableTablesDto.StandaloneTables.Add(_mapper.Map<RestaurantTableCustomerDto>(table));
+        //        }
+        //    }
+        //    return availableTablesDto;
+        //}
 
 
         public async Task<RestaurantTableRestaurantDto> GetItemAsync(int id, int restaurantId)
@@ -222,6 +222,25 @@ namespace TOPDER.Service.Services
             return await _restaurantTableRepository.DeleteAsync(id);
         }
 
+        public async Task<List<RestaurantTableRestaurantDto>> GetAvailableTablesAsync(int restaurantId, TimeSpan timeReservation, DateTime dateReservation)
+        {
+            var queryableTables = await _restaurantTableRepository.QueryableAsync();
+
+            // Thêm điều kiện lọc cho nhà hàng, trạng thái đặt bàn và thời gian đặt bàn
+            var filteredTables = await queryableTables
+                .Include(x => x.Room)
+                .Where(table => table.RestaurantId == restaurantId &&
+                                table.IsBookingEnabled == true &&
+                                (table.Room == null || table.Room.IsBookingEnabled == true) && // Kiểm tra Room có null hay không
+                                !table.OrderTables.Any(orderTable =>
+                                    orderTable.Order.DateReservation.Date == dateReservation.Date &&
+                                    orderTable.Order.TimeReservation == timeReservation)).ToListAsync();
+
+            var restaurantTable = _mapper.Map<List<RestaurantTableRestaurantDto>>(filteredTables);
+
+            return restaurantTable;
+        }
+
 
         public async Task<PaginatedList<RestaurantTableRestaurantDto>> GetTableListAsync(int pageNumber, int pageSize, int restaurantId, string? tableName)
         {
@@ -260,5 +279,7 @@ namespace TOPDER.Service.Services
             var restaurantTable = _mapper.Map<RestaurantTable>(restaurantTableDto);
             return await _restaurantTableRepository.UpdateAsync(restaurantTable);
         }
+
+
     }
 }

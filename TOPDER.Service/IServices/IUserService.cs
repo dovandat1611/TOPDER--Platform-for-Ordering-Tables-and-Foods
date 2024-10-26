@@ -15,7 +15,7 @@ namespace TOPDER.Service.IServices
     public interface IUserService
     {
         Task<UserLoginDTO> GetUserByEmailAndPassword(LoginModel loginModel);
-        Task<string> GetRoleUserProfile(int uid);
+        Task<GetRoleAndBalanceForProfileDto> GetRoleUserProfile(int uid);
         Task<User> AddAsync(UserDto userDto);
         Task<bool> Verify(int id);
         Task<UserLoginDTO> GetUserByEmail(string email);

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MailKit.Search;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
+using TOPDER.Repository.Repositories;
 using TOPDER.Service.Dtos.Blog;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.IServices;
@@ -27,8 +29,11 @@ namespace TOPDER.Service.Services
 
         public async Task<bool> AddOTPAsync(WalletOtpDto walletOtpDto)
         {
-            var wallet = _mapper.Map<Wallet>(walletOtpDto);
-            return await _walletRepository.UpdateAsync(wallet);
+            var existingWallet = await _walletRepository.GetByIdAsync(walletOtpDto.WalletId);
+            
+            existingWallet.OtpCode = walletOtpDto.OtpCode;
+
+            return await _walletRepository.UpdateAsync(existingWallet);
         }
 
         public async Task<bool> AddWalletBalanceAsync(WalletBalanceDto walletBalanceDto)
@@ -39,8 +44,13 @@ namespace TOPDER.Service.Services
 
         public async Task<bool> AddWalletBankAsync(WalletBankDto walletBankDto)
         {
-            var wallet = _mapper.Map<Wallet>(walletBankDto);
-            return await _walletRepository.UpdateAsync(wallet);
+            var existingWallet = await _walletRepository.GetByIdAsync(walletBankDto.WalletId);
+
+            existingWallet.BankCode = walletBankDto.BankCode;
+            existingWallet.AccountName = walletBankDto.AccountName;
+            existingWallet.AccountNo = walletBankDto.AccountNo;
+
+            return await _walletRepository.UpdateAsync(existingWallet);
         }
 
         public async Task<bool> CheckExistOTP(int Uid)
@@ -112,8 +122,9 @@ namespace TOPDER.Service.Services
 
         public async Task<bool> UpdateWalletBalanceAsync(WalletBalanceDto walletBalanceDto)
         {
-            var wallet = _mapper.Map<Wallet>(walletBalanceDto);
-            return await _walletRepository.UpdateAsync(wallet);
+            var existingWallet = await _walletRepository.GetByIdAsync(walletBalanceDto.WalletId);
+            existingWallet.WalletBalance = walletBalanceDto.WalletBalance;
+            return await _walletRepository.UpdateAsync(existingWallet);
         }
 
         public async Task<bool> UpdateWalletBalanceOrderAsync(WalletBalanceOrderDto walletBalanceOrder)
@@ -132,8 +143,13 @@ namespace TOPDER.Service.Services
 
         public async Task<bool> UpdateWalletBankAsync(WalletBankDto walletBankDto)
         {
-            var wallet = _mapper.Map<Wallet>(walletBankDto);
-            return await _walletRepository.UpdateAsync(wallet);
+            var existingWallet = await _walletRepository.GetByIdAsync(walletBankDto.WalletId);
+
+            existingWallet.BankCode = walletBankDto.BankCode;
+            existingWallet.AccountName = walletBankDto.AccountName;
+            existingWallet.AccountNo = walletBankDto.AccountNo;
+
+            return await _walletRepository.UpdateAsync(existingWallet);
         }
 
 

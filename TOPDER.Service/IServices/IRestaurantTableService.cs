@@ -18,7 +18,10 @@ namespace TOPDER.Service.IServices
         Task<bool> RemoveAsync(int id, int restaurantId);
         Task<RestaurantTableRestaurantDto> GetItemAsync(int id, int restaurantId);
         Task<PaginatedList<RestaurantTableRestaurantDto>> GetTableListAsync(int pageNumber, int pageSize, int restaurantId, string? tableName);
-        Task<AvailableTablesDto> GetAvailableTablesAsync(int restaurantId, TimeSpan TimeReservation, DateTime DateReservation);
+
+        Task<List<RestaurantTableRestaurantDto>> GetAvailableTablesAsync(int restaurantId, TimeSpan TimeReservation, DateTime DateReservation);
+
+        //Task<AvailableTablesDto> GetAvailableTablesAsync(int restaurantId, TimeSpan TimeReservation, DateTime DateReservation);
         Task<bool> IsEnabledBookingAsync(int tableId, int restaurantId, bool isEnabledBooking);
     }
 }
