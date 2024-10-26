@@ -55,6 +55,46 @@ namespace TOPDER.API.Controllers
         }
 
 
+        [HttpGet("GetProfile/{uid}")]
+        [SwaggerOperation(Summary = "Lấy thông tin profile của Current User")]
+        public async Task<IActionResult> GetProfile(int uid)
+        {
+            var role = await _userService.GetRoleUserProfile(uid);
+
+
+            if (role.Equals(User_Role.CUSTOMER))
+            {
+                var profile = await _customerService.Profile(uid);
+
+                if (profile == null)
+                    return NotFound(new { Message = "Không tìm thấy khách hàng." });
+
+                return Ok(profile);
+            }
+
+            if (role.Equals(User_Role.RESTAURANT))
+            {
+                var profile = await _restaurantService.Profile(uid);
+
+                if (profile == null)
+                    return NotFound(new { Message = "Không tìm thấy nhà hàng." });
+
+                return Ok(profile);
+            }
+
+            if (role.Equals(User_Role.ADMIN))
+            {
+                var profile = await _adminService.Profile(uid);
+
+                if (profile == null)
+                    return NotFound(new { Message = "Không tìm thấy admin." });
+
+                return Ok(profile);
+            }
+
+            return NotFound(new { Message = "Không tìm thấy user hoặc user không hợp lệ." });
+        }
+
         [HttpPost("Login")]
         [SwaggerOperation(Summary = "Login bằng tài khoản và mật khẩu")]
         public async Task<IActionResult> Login([FromBody] LoginModel loginModel)

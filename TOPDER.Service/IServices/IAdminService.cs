@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TOPDER.Repository.Entities;
 using TOPDER.Service.Dtos.Admin;
 using TOPDER.Service.Dtos.BlogGroup;
+using TOPDER.Service.Dtos.Customer;
 
 namespace TOPDER.Service.IServices
 {
@@ -13,5 +14,6 @@ namespace TOPDER.Service.IServices
     {
         Task<Admin> AddAsync(AdminDto adminDto);
         Task<bool> UpdateAsync(AdminDto adminDto);
+        Task<AdminDto?> Profile(int uid);
     }
 }

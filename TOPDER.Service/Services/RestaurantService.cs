@@ -14,6 +14,7 @@ using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 using TOPDER.Service.Dtos.Blog;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Microsoft.IdentityModel.Tokens;
+using TOPDER.Service.Dtos.Customer;
 
 namespace TOPDER.Service.Services
 {
@@ -351,6 +352,17 @@ namespace TOPDER.Service.Services
             return await _restaurantRepository.UpdateAsync(existingRestaurant);
         }
 
+        public async Task<RestaurantProfileDto?> Profile(int uid)
+        {
+            var query = await _restaurantRepository.QueryableAsync();
 
+            var restaurant = query
+                .Include(x => x.CategoryRestaurant)
+                .FirstOrDefault(x => x.Uid == uid);
+
+            if (restaurant == null) return null;
+
+            return _mapper.Map<RestaurantProfileDto>(restaurant);
+        }
     }
 }

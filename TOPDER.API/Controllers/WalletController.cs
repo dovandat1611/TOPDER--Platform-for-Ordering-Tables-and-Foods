@@ -39,6 +39,26 @@ namespace TOPDER.API.Controllers
             return NotFound(new { message = "OTP không tồn tại." });
         }
 
+        [HttpGet("GetWalletInfo/{uid}")]
+        [SwaggerOperation(Summary = "Lấy tất cả thông tin của Wallet người dùng(số dư ví, bank, otp)")]
+        public async Task<IActionResult> GetWalletInfo(int uid)
+        {
+            try
+            {
+                var walletDto = await _walletService.GetInforWalletAsync(uid);
+                if (walletDto == null)
+                {
+                    return NotFound(new { message = $"Wallet with UID {uid} not found." });
+                }
+                return Ok(walletDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred.", error = ex.Message });
+            }
+        }
+
+
         // POST: api/Wallet/CheckOTP/{uid}
         [HttpPost("CheckOTP/{uid}")]
         [SwaggerOperation(Summary = "Check xem OTP có đúng không sau đó mới cho rút tiền hay nạp tiền: Customer | Restaurant")]

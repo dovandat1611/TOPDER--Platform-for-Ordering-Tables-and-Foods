@@ -125,6 +125,23 @@ namespace TOPDER.Service.Services
             return userPayment;
         }
 
+        public async Task<string> GetRoleUserProfile(int uid)
+        {
+            var query = await _userRepository.QueryableAsync();
+
+            var user = await query
+                .Include(x => x.Role)
+                .SingleOrDefaultAsync(u => u.Uid == uid);
+
+            if (user == null || user.Role == null)
+            {
+                return Is_Null.ISNULL; 
+            }
+
+            return user.Role.Name;
+        }
+
+
         public async Task<UserLoginDTO> GetUserByEmail(string email)
         {
             var users = await _userRepository.QueryableAsync();

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TOPDER.Service.Dtos.Restaurant;
 using TOPDER.Repository.Entities;
 using TOPDER.Service.Utils;
+using TOPDER.Service.Dtos.Customer;
 
 namespace TOPDER.Service.IServices
 {
@@ -19,6 +20,10 @@ namespace TOPDER.Service.IServices
         Task<PaginatedList<RestaurantDto>> GetItemsAsync(int pageNumber, int pageSize, string? name, string? address,
             string? provinceCity, string? district, string? commune, int? restaurantCategory, decimal? minPrice, decimal? maxPrice, int? maxCapacity);
         Task<List<RestaurantDto>> GetRelateRestaurantByCategoryAsync(int restaurantId, int restaurantCategory);
+
+        // PROFILE
+        Task<RestaurantProfileDto?> Profile(int uid);
+
 
         // DISCOUNT AND FEE
         Task<DiscountAndFeeRestaurant> GetDiscountAndFeeAsync(int restaurantId);

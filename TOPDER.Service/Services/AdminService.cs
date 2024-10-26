@@ -9,6 +9,7 @@ using TOPDER.Repository.IRepositories;
 using TOPDER.Repository.Repositories;
 using TOPDER.Service.Dtos.Admin;
 using TOPDER.Service.Dtos.BlogGroup;
+using TOPDER.Service.Dtos.Customer;
 using TOPDER.Service.IServices;
 
 namespace TOPDER.Service.Services
@@ -28,6 +29,15 @@ namespace TOPDER.Service.Services
         {
             var admin = _mapper.Map<Admin>(adminDto);
             return await _adminRepository.CreateAndReturnAsync(admin);
+        }
+
+        public async Task<AdminDto?> Profile(int uid)
+        {
+            var admin = await _adminRepository.GetByIdAsync(uid);
+
+            if (admin == null) return null;
+
+            return _mapper.Map<AdminDto>(admin);
         }
 
         public async Task<bool> UpdateAsync(AdminDto adminDto)

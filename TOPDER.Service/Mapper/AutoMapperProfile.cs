@@ -70,7 +70,8 @@ namespace TOPDER.Service.Mapper
                                 ? src.Menus.Max(m => m.Price)
                                 : 0));
 
-
+            CreateMap<Restaurant, RestaurantProfileDto>()
+                .ForMember(dest => dest.CategoryRestaurantName, opt => opt.MapFrom(src => src.CategoryRestaurant != null ? src.CategoryRestaurant.CategoryRestaurantName : Is_Null.ISNULL));
 
 
 

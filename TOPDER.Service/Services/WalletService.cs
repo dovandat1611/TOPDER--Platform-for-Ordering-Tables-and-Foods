@@ -101,6 +101,15 @@ namespace TOPDER.Service.Services
             return 0;
         }
 
+        public async Task<WalletDto> GetInforWalletAsync(int Uid)
+        {
+            var query = await _walletRepository.QueryableAsync();
+            var wallet = query.FirstOrDefault(x => x.Uid == Uid);
+
+            var walletDto = _mapper.Map<WalletDto>(wallet);
+            return walletDto;
+        }
+
         public async Task<bool> UpdateWalletBalanceAsync(WalletBalanceDto walletBalanceDto)
         {
             var wallet = _mapper.Map<Wallet>(walletBalanceDto);

@@ -20,17 +20,6 @@ namespace TOPDER.API.Controllers
             _cloudinaryService = cloudinaryService;
         }
 
-        [HttpGet("GetProfile/{uid}")]
-        [SwaggerOperation(Summary = "Lấy thông tin profile của customer : Customer")]
-        public async Task<IActionResult> GetProfile(int uid)
-        {
-            var profile = await _customerService.Profile(uid);
-
-            if (profile == null)
-                return NotFound(new { Message = "Không tìm thấy khách hàng." });
-
-            return Ok(profile);
-        }
 
         [HttpPut("UpdateProfile")]
         [SwaggerOperation(Summary = "cập nhật lại thông tin profile : Customer")]
