@@ -374,7 +374,7 @@ namespace TOPDER.API.Controllers
 
         // Khi nhà hàng confirm thì khách hàng sẽ chuyển khoản với phương thức thanh toán
         // 1: số dư ví(nếu đủ) 2: VNPAY 3: VIETQR 
-        [HttpPost("PaidOrder/{orderId}/{userId}/{paymentGateway}")]
+        [HttpPost("PaidOrder")]
         [SwaggerOperation(Summary = "Khi nhà hàng confirm thì khách hàng sẽ chuyển khoản với phương thức thanh toán (nếu đơn hàng có giá trị) ISBALANCE | VIETQR | VNPAY: Customer")]
         public async Task<IActionResult> PaidOrder(int orderId, int userId, string paymentGateway)
         {
@@ -398,7 +398,7 @@ namespace TOPDER.API.Controllers
             order.ContentPayment = Order_PaymentContent.PaymentContent(order.CustomerId ?? 0, order.RestaurantId ?? 0);
 
             // Update the order in the system
-            var updateOrderResult = await _orderService.UpdateAsync(order);
+            var updateOrderResult = await _orderService.UpdatePaidOrderAsync(order);
 
             if (!updateOrderResult)
             {
@@ -633,24 +633,24 @@ namespace TOPDER.API.Controllers
         }
 
 
-        // cập nhật đơn hàng
-        [HttpPut("Update")]
-        [SwaggerOperation(Summary = "Cập nhật thông tin đơn hàng: Restaurant")]
-        public async Task<IActionResult> UpdateOrder([FromBody] OrderDto orderDto)
-        {
-            if (orderDto == null)
-            {
-                return BadRequest("Đơn hàng không thể là null.");
-            }
+        //// cập nhật đơn hàng
+        //[HttpPut("Update")]
+        //[SwaggerOperation(Summary = "Cập nhật thông tin đơn hàng: Restaurant")]
+        //public async Task<IActionResult> UpdateOrder([FromBody] OrderDto orderDto)
+        //{
+        //    if (orderDto == null)
+        //    {
+        //        return BadRequest("Đơn hàng không thể là null.");
+        //    }
 
-            var result = await _orderService.UpdateAsync(orderDto);
-            if (result)
-            {
-                return Ok($"Cập nhật đơn hàng với ID {orderDto.OrderId} thành công."); // Trả về thông điệp thành công
-            }
+        //    var result = await _orderService.UpdateAsync(orderDto);
+        //    if (result)
+        //    {
+        //        return Ok($"Cập nhật đơn hàng với ID {orderDto.OrderId} thành công."); // Trả về thông điệp thành công
+        //    }
 
-            return NotFound($"Đơn hàng với ID {orderDto.OrderId} không tồn tại."); // Thông báo không tìm thấy
-        }
+        //    return NotFound($"Đơn hàng với ID {orderDto.OrderId} không tồn tại."); // Thông báo không tìm thấy
+        //}
 
         // Cập nhật trạng thái đơn hàng
         [HttpPut("UpdateStatus/{orderID}")]

@@ -391,15 +391,28 @@ namespace TOPDER.Service.Services
             throw new NotImplementedException();
         }
 
-        public async Task<bool> UpdateAsync(OrderDto orderDto)
+        //public async Task<bool> UpdateAsync(OrderDto orderDto)
+        //{
+        //    var existingOrder = await _orderRepository.GetByIdAsync(orderDto.OrderId);
+        //    if (existingOrder == null)
+        //    {
+        //        return false;
+        //    }
+        //    return await _orderRepository.UpdateAsync(existingOrder);
+        //}
+
+        public async Task<bool> UpdatePaidOrderAsync(OrderDto orderDto)
         {
             var existingOrder = await _orderRepository.GetByIdAsync(orderDto.OrderId);
             if (existingOrder == null)
             {
                 return false;
             }
-            var order = _mapper.Map<Order>(orderDto);
-            return await _orderRepository.UpdateAsync(order);
+
+            existingOrder.StatusPayment = orderDto.StatusPayment;
+            existingOrder.ContentPayment = orderDto.ContentPayment;
+
+            return await _orderRepository.UpdateAsync(existingOrder);
         }
 
         public async Task<bool> UpdateStatusAsync(int orderID, string status)

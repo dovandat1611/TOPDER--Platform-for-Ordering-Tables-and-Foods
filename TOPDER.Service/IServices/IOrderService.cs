@@ -14,7 +14,8 @@ namespace TOPDER.Service.IServices
     public interface IOrderService
     {
         Task<Order> AddAsync(OrderDto orderDto);
-        Task<bool> UpdateAsync(OrderDto orderDto); 
+        //Task<bool> UpdateAsync(OrderDto orderDto);
+        Task<bool> UpdatePaidOrderAsync(OrderDto orderDto);
         Task<OrderPaidEmail> GetOrderPaid(int orderID); 
         Task<bool> RemoveAsync(int id);
         Task<OrderDto> GetItemAsync(int id, int Uid);
