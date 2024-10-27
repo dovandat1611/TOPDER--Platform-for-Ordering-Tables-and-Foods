@@ -58,6 +58,12 @@ namespace TOPDER.Service.Services
             return result;
         }
 
+        public async Task<bool> CheckExistEmail(string email)
+        {
+            var query = await _userRepository.QueryableAsync();
+            bool exists = await query.AnyAsync(u => u.Email.ToLower() == email.ToLower());
+            return exists;
+        }
 
         public async Task<UserOrderIsBalance> GetInformationUserOrderIsBalance(int id)
         {

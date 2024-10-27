@@ -547,5 +547,19 @@ namespace TOPDER.API.Controllers
             return Ok("Mật khẩu đã được thay đổi thành công.");
         }
 
+
+        [HttpGet("CheckExistEmail")]
+        [SwaggerOperation(Summary = "Khi người dùng ngừng nhập ô email được 1s thì sẽ check xem email đã tồn tại hay chưa và trả về cho họ thông báo")]
+        public async Task<IActionResult> CheckEmail(string email)
+        {
+            bool exists = await _userService.CheckExistEmail(email);
+            if (exists)
+            {
+                return Ok(new { message = "Email đã tồn tại trong hệ thống vui lòng thử một email khác ." });
+            }
+            return NotFound(new { message = "Email chưa được đăng ký trong hệ thống và hợp lệ." });
+        }
+
+
     }
 }

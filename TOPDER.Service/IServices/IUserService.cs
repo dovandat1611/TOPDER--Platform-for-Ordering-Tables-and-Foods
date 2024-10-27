@@ -21,6 +21,7 @@ namespace TOPDER.Service.IServices
         Task<UserLoginDTO> GetUserByEmail(string email);
         Task<UserPayment> GetInformationUserToPayment(int id);
         Task<UserOrderIsBalance> GetInformationUserOrderIsBalance(int id);
+        Task<bool> CheckExistEmail(string email);
         Task<bool> ChangePassword(ChangePasswordRequest changePassword);
     }
 }

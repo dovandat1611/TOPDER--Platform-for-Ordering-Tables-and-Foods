@@ -119,11 +119,34 @@ namespace TOPDER.API.Controllers
         }
 
         [HttpPut("Update")]
-        [SwaggerOperation(Summary = "Cập nhật hình ảnh của nhà hàng: Restaurant")]
-        public async Task<IActionResult> UpdateImage([FromBody] ImageDto imageDto)
+        [SwaggerOperation(Summary = "Cập nhật hình ảnh của nhà hàng (để trống imageUrl và truyền file thôi): Restaurant")]
+        public async Task<IActionResult> UpdateImage(int imageId, int restaurantId , IFormFile file)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { Message = "File không được bỏ trống." });
+            }
+
+            var uploadResult = await _cloudinaryService.UploadImageAsync(file);
+
+            if (uploadResult == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Lỗi trong quá trình upload hình ảnh." });
+            }
+
+            var imageUrl = uploadResult.SecureUrl.ToString();
+
+            if (string.IsNullOrEmpty(imageUrl))
+            {
+                return BadRequest($"Đường dẫn ảnh để update file đang rỗng.");
+            }
+
+            ImageDto imageDto = new ImageDto()
+            {
+                ImageId = imageId,
+                RestaurantId = restaurantId,
+                ImageUrl = imageUrl
+            };
 
             var result = await _imageService.UpdateAsync(imageDto);
             if (result)

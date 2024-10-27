@@ -89,8 +89,8 @@ namespace TOPDER.Service.Services
                 return false;
             }
 
-            var image = _mapper.Map<Image>(imageDto);
-            return await _imageRepository.UpdateAsync(image);
+            existingImage.ImageUrl = imageDto.ImageUrl;
+            return await _imageRepository.UpdateAsync(existingImage);
         }
 
     }
