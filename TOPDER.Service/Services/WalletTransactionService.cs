@@ -92,7 +92,8 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _walletTransactionRepository.QueryableAsync();
 
-            var queryDTO = await queryable.Include(x => x.Wallet)
+            var queryDTO = await queryable
+                .Include(x => x.Wallet)
                 .ThenInclude(x => x.UidNavigation)
                 .FirstOrDefaultAsync(x => x.TransactionId == transactionId);
 

@@ -74,9 +74,9 @@ namespace TOPDER.API.Controllers
             return BadRequest(new { message = "Cập nhật số dư thất bại." });
         }
 
-        [HttpPut("CheckRecharge/{transactionId}")]
+        [HttpPut("CheckRecharge")]
         [SwaggerOperation(Summary = "Khi đã chuyển khoản xong thì sẽ trả về trạng thái thanh toán, sau đó sẽ check xem là thanh toán (Cancelled or Successful)")]
-        public async Task<IActionResult> CheckRecharge(int transactionId, [FromBody] string status)
+        public async Task<IActionResult> CheckRecharge(int transactionId, string status)
         {
             if (string.IsNullOrEmpty(status))
             {
@@ -94,6 +94,7 @@ namespace TOPDER.API.Controllers
             if (status.Equals(Payment_Status.SUCCESSFUL))
             {
                 var getWalletBalance = await _walletTransactionService.GetWalletBalanceAsync(transactionId);
+
                 var updateWallet = await _walletService.UpdateWalletBalanceAsync(getWalletBalance);
 
                 if (updateWallet)
@@ -155,7 +156,7 @@ namespace TOPDER.API.Controllers
             if (result != null)
             {
                 string linkPayment = string.Empty;
-
+                int walletTransactionId = result.TransactionId;
                 // Xử lý cho VietQR
                 if (rechargeWalletTransaction.PaymentGateway.Equals(PaymentGateway.VIETQR))
                 {
@@ -169,8 +170,8 @@ namespace TOPDER.API.Controllers
                         amount: (int)rechargeWalletTransaction.TransactionAmount,
                         description: Payment_Descriptions.RechargeDescription(userInformation.Name, userInformation.Id),
                         items: items,
-                        cancelUrl: "https://yourapp.com/cancel",
-                        returnUrl: "https://yourapp.com/return"
+                        cancelUrl: $"http://localhost:3000/user-profile/status-transaction?status=cancel&transactionId={walletTransactionId}",
+                        returnUrl: $"http://localhost:3000/user-profile/status-transaction?status=success&transactionId={walletTransactionId}"
                     );
 
                     CreatePaymentResult createPayment = await _paymentGatewayService.CreatePaymentUrlPayOS(paymentData);
@@ -192,7 +193,11 @@ namespace TOPDER.API.Controllers
 
                 if (!string.IsNullOrEmpty(linkPayment))
                 {
-                    return Ok(new { linkPayment });
+                    return Ok(new
+                    {
+                        linkPayment,
+                        walletTransactionId
+                    });
                 }
             }
 

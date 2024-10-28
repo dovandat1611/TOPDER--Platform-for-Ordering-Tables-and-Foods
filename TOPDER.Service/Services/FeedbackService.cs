@@ -41,7 +41,8 @@ namespace TOPDER.Service.Services
 
             var feedbacks = query
                 .Include(x => x.Restaurant)
-                .OrderByDescending(x => x.FeedbackId);
+                .OrderByDescending(x => x.FeedbackId)
+                .Where(x => x.CustomerId == customerId);
 
             var queryDTO = feedbacks.Select(r => _mapper.Map<FeedbackHistoryDto>(r));
 
