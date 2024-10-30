@@ -200,7 +200,7 @@ namespace TOPDER.API.Controllers
 
         [HttpPost("LoginWithGoogle")]
         [SwaggerOperation(Summary = "Login bằng google | Nếu chưa có tài khoản trong hệ thống thì sẽ tạo mới(Giống flow của RegisterCustomer)")]
-        public async Task<IActionResult> CheckAccessToken([FromBody] string accessToken)
+        public async Task<IActionResult> CheckAccessToken(string accessToken)
         {
             var result = await _identityService.AuthenticateWithGoogle(accessToken);
 
