@@ -460,7 +460,7 @@ namespace TOPDER.API.Controllers
                 TransactionType = Transaction_Type.SYSTEMSUBTRACT,
                 TransactionDate = DateTime.Now,
                 Description = Payment_Descriptions.SystemSubtractDescription(order.TotalAmount),
-                Status = Payment_Status.PENDING
+                Status = Payment_Status.SUCCESSFUL
             };
 
             // Add the wallet transaction
@@ -478,12 +478,21 @@ namespace TOPDER.API.Controllers
             };
 
             var updateWalletResult = await _walletService.UpdateWalletBalanceOrderAsync(walletBalanceOrder);
+
             if (!updateWalletResult)
             {
                 return BadRequest("Cập nhật số dư ví thất bại.");
             }
 
-            return Ok("Tạo đơn hàng thành công");
+            var updateStatusOrder = await _orderService.UpdateStatusAsync(order.OrderId, Order_Status.PAID);
+
+            if (!updateStatusOrder)
+            {
+                return BadRequest("Thay đổi trạng thái order thất bại.");
+            }
+
+
+            return Ok("Thanh toán đơn hàng thành công");
         }
 
         private async Task<IActionResult> HandleVietQRPayment(OrderDto order, List<OrderMenuDto> orderMenuDtos, decimal totalAmount)
@@ -533,6 +542,7 @@ namespace TOPDER.API.Controllers
                 AccountID = userInformation.Id.ToString(),
                 CustomerName = userInformation.Name,
                 Amount = (int)totalAmount,
+                PaymentType = "Order"
             };
 
             string linkPayment = await _paymentGatewayService.CreatePaymentUrlVnpay(paymentInformationModel, HttpContext);
@@ -543,7 +553,7 @@ namespace TOPDER.API.Controllers
         // có 2 status: 1 Successful (thành công) 2 Cancelled (thất bại)
         [HttpGet("CheckPayment/{orderID}")]
         [SwaggerOperation(Summary = "Khi chuyển khoản xong thì sẽ check status payment của đơn hàng đó Cancelled | Successful: Customer")]
-        public async Task<IActionResult> GetItemAsync(int orderID, [FromBody] string status)
+        public async Task<IActionResult> GetItemAsync(int orderID, string status)
         {
             if (string.IsNullOrEmpty(status))
             {

@@ -451,7 +451,11 @@ namespace TOPDER.Service.Services
                 {
                     return false;
                 }
-                if(status.Equals(Order_Status.CONFIRM)) {
+                if (status.Equals(Order_Status.PAID))
+                {
+                    order.PaidAt = DateTime.Now;
+                }
+                if (status.Equals(Order_Status.CONFIRM)) {
                     order.ConfirmedAt = DateTime.Now;
                 }
                 if (status.Equals(Order_Status.COMPLETE))

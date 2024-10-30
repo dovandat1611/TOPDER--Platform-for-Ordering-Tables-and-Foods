@@ -190,7 +190,8 @@ namespace TOPDER.API.Controllers
                         BookingID = result.TransactionId.ToString(),
                         AccountID = rechargeWalletTransaction.Uid.ToString(),
                         CustomerName = rechargeWalletTransaction.Uid.ToString(),
-                        Amount = (double)rechargeWalletTransaction.TransactionAmount
+                        Amount = (double)rechargeWalletTransaction.TransactionAmount,
+                        PaymentType = "Transaction"
                     };
 
                     linkPayment = await _paymentGatewayService.CreatePaymentUrlVnpay(paymentInformationModel, HttpContext);

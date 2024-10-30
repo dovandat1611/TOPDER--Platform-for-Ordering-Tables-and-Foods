@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,7 +47,17 @@ namespace TOPDER.Service.Services
         {
             try
             {
-                // Validate token and retrieve user info from Google API in one call
+
+                var tokenInfoUrl = $"https://www.googleapis.com/oauth2/v3/tokeninfo?access_token={accessToken}";
+                var response = await _httpClient.GetAsync(tokenInfoUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    return new ApiResponse { Success = false, Message = errorContent.ToUpper() };
+                }
+
+                var tokenInfo = await response.Content.ReadAsStringAsync();
                 var userInfoUrl = $"https://www.googleapis.com/oauth2/v1/userinfo?access_token={accessToken}";
                 var userInfoResponse = await _httpClient.GetAsync(userInfoUrl);
 

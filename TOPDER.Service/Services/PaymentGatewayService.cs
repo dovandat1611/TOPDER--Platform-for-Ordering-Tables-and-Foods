@@ -57,7 +57,18 @@ namespace TOPDER.Service.Services
             {
                 var timeNow = GetCurrentTimeInTimeZone();
 
+
                 var urlCallBack = $"{GetConfigValue("Vnpay:ReturnUrl")}/{requestDto.BookingID}";
+
+                if (requestDto.PaymentType.Equals("Order"))
+                {
+                    urlCallBack += "?paymentType=order";
+                }
+
+                if (requestDto.PaymentType.Equals("Transaction"))
+                {
+                    urlCallBack += "?paymentType=transaction";
+                }
 
                 AddVnPayRequestData(requestDto, timeNow, urlCallBack, httpContext);
 
