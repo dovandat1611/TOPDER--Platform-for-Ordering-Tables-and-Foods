@@ -10,6 +10,5 @@ namespace TOPDER.Service.Dtos.User
     {
         public int Id { get; set; }
         public int WalletId { get; set; }
-        public string Name { get; set; } = null!;
     }
 }

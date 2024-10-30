@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TOPDER.Service.Dtos.OrderMenu;
+using TOPDER.Service.Dtos.OrderTable;
 
 namespace TOPDER.Service.Dtos.Order
 {
@@ -29,5 +31,7 @@ namespace TOPDER.Service.Dtos.Order
         public DateTime? PaidAt { get; set; }
         public DateTime? CompletedAt { get; set; }
         public DateTime? CancelledAt { get; set; }
+        public List<OrderTableDto> OrderTables { get; set; } = new List<OrderTableDto> { };
+        public List<OrderMenuDto> OrderMenus { get; set; } = new List<OrderMenuDto> { };
     }
 }

@@ -15,6 +15,7 @@ using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.Dtos.WalletTransaction;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
@@ -45,7 +46,7 @@ namespace TOPDER.Service.Services
         }
 
 
-        public async Task<PaginatedList<WalletTransactionAdminDto>> GetAdminPagingAsync(int pageNumber, int pageSize, string? status)
+        public async Task<List<WalletTransactionAdminDto>> GetWalletTransactionWithDrawAsync(string? status)
         {
             var queryable = await _walletTransactionRepository.QueryableAsync();
 
@@ -53,38 +54,24 @@ namespace TOPDER.Service.Services
             {
                 queryable = queryable
                     .Include(x => x.Wallet)
-                    .Where(x => x.Status.Equals(status));
+                .Where(x => x.Status.Equals(status)).OrderByDescending(x => x.TransactionId);
             }
 
-            var queryDTO = queryable.Select(r => _mapper.Map<WalletTransactionAdminDto>(r));
+            var queryDTO = _mapper.Map<List<WalletTransactionAdminDto>>(queryable); ;
 
-            var paginatedDTOs = await PaginatedList<WalletTransactionAdminDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-            return paginatedDTOs;
+            return queryDTO;
         }
 
-        public async Task<PaginatedList<WalletTransactionDto>> GetPagingAsync(int pageNumber, int pageSize, int uid, string? status)
+        public async Task<List<WalletTransactionDto>> GetWalletTransactionHistoryAsync(int uid)
         {
             var queryable = await _walletTransactionRepository.QueryableAsync();
 
-            var query = queryable.Include(x => x.Wallet)
-                .Where(x => x.Wallet.Uid == uid);
+            var query = await queryable.Include(x => x.Wallet)
+                .Where(x => x.Wallet.Uid == uid).OrderByDescending(x => x.TransactionId).ToListAsync();
 
-            if (!string.IsNullOrEmpty(status))
-            {
-                query = query.Where(x => x.Status.Equals(status));
-            }
+            var valletTransactionDtos = _mapper.Map<List<WalletTransactionDto>>(query);
 
-            var paginatedDTOs = await PaginatedList<WalletTransactionDto>.CreateAsync(
-                query.Select(r => _mapper.Map<WalletTransactionDto>(r)).AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-
-            return paginatedDTOs;
+            return valletTransactionDtos;
         }
 
 

@@ -17,8 +17,8 @@ namespace TOPDER.Service.IServices
         Task<WalletTransaction> AddRechargeAsync(WalletTransactionDto walletTransactionDto);
         Task<bool> UpdateStatus(int TransactionId, string status);
         Task<WalletBalanceDto> GetWalletBalanceAsync(int transactionId);
-        Task<PaginatedList<WalletTransactionAdminDto>> GetAdminPagingAsync(int pageNumber, int pageSize, string? status);
-        Task<PaginatedList<WalletTransactionDto>> GetPagingAsync(int pageNumber, int pageSize,int uid, string? status);
+        Task<List<WalletTransactionAdminDto>> GetWalletTransactionWithDrawAsync(string? status);
+        Task<List<WalletTransactionDto>> GetWalletTransactionHistoryAsync(int uid);
 
     }
 }

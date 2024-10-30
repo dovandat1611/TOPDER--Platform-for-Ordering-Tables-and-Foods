@@ -178,7 +178,10 @@ namespace TOPDER.Service.Services
             }
 
             // Lấy ví của khách hàng
-            var wallet = order.Customer.UidNavigation.Wallets.FirstOrDefault(x => x.Uid == userID);
+            var wallet = order.Customer.UidNavigation.Wallets.FirstOrDefault(x => x.Uid == order.CustomerId);
+
+            var walletRestaurant = order.Restaurant.UidNavigation.Wallets.FirstOrDefault(x => x.Uid == order.RestaurantId);
+
 
             // Xác định vai trò của người dùng
             var isRestaurantUser = order.RestaurantId == userID;
@@ -189,15 +192,33 @@ namespace TOPDER.Service.Services
             {
                 OrderId = orderID,
                 CustomerID = order.CustomerId ?? 0,
+                RestaurantID = order.RestaurantId ?? 0,
+
+                // Info Restaurant
                 EmailRestaurant = order.Restaurant.UidNavigation.Email,
                 EmailCustomer = order.Customer.UidNavigation.Email,
+
+                // Info Customer
                 NameCustomer = order.Customer.Name,
                 NameRestaurant = order.Restaurant.NameRes,
+
+                // User Cancel
                 UserCancelID = isRestaurantUser ? order.RestaurantId ?? 0 : order.CustomerId ?? 0,
-                WalletCustomerId = role == User_Role.CUSTOMER ? (wallet?.WalletId ?? 0) : 0,
+
+                //WalletRestaurant
+                WalletRestaurantId = walletRestaurant?.WalletId ?? 0,
+                WalletBalanceRestaurant = walletRestaurant?.WalletBalance ?? 0,
+
+                // WalletCustomer
+                WalletCustomerId = wallet?.WalletId ?? 0,
                 WalletBalanceCustomer = wallet?.WalletBalance ?? 0, // Sử dụng toán tử null-coalescing để xử lý null
+
+                // CancellationFeePercent Restaurant
                 CancellationFeePercent = isRestaurantUser ? 100 : order.Restaurant.CancellationFeePercent,
-                TotalAmount = order.TotalAmount
+
+                TotalAmount = order.TotalAmount,
+
+                RoleName = role
             };
         }
 
@@ -342,7 +363,7 @@ namespace TOPDER.Service.Services
         }
 
 
-        public async Task<PaginatedList<OrderDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId, string? status, DateTime? month, DateTime? date)
+        public async Task<PaginatedList<OrderRestaurantDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId, string? status, DateTime? month, DateTime? date)
         {
             var queryable = await _orderRepository.QueryableAsync();
 
@@ -373,10 +394,10 @@ namespace TOPDER.Service.Services
             }
 
             // Chuyển sang DTO
-            var queryDTO = query.Select(r => _mapper.Map<OrderDto>(r));
+            var queryDTO = query.Select(r => _mapper.Map<OrderRestaurantDto>(r));
 
             // Tạo danh sách phân trang
-            var paginatedDTOs = await PaginatedList<OrderDto>.CreateAsync(
+            var paginatedDTOs = await PaginatedList<OrderRestaurantDto>.CreateAsync(
                 queryDTO.AsNoTracking(),
                 pageNumber > 0 ? pageNumber : 1,
                 pageSize > 0 ? pageSize : 10

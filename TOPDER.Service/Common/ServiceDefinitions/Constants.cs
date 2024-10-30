@@ -60,22 +60,28 @@ namespace TOPDER.Service.Common.ServiceDefinitions
 
         public class Payment_Descriptions
         {
-            public static string WithdrawalDescription(string name, int id)
+            public static string WithdrawalDescription(decimal price)
             {
-                return $"Tài khoản có tên {name} mang ID {id} rút tiền.";
+                return $"Tài khoản rút đăng ký rút số tiền {price}.";
             }
 
-            public static string RechargeDescription(string name, int id)
+            public static string RechargeDescription(decimal price)
             {
-                return $"Tài khoản có tên {name} mang ID {id} nạp tiền.";
+                return $"Tài khoản nạp số tiền {price}.";
             }
-            public static string SystemSubtractDescription(string name, int id)
+
+            public static string RechargeVIETQRDescription()
             {
-                return $"Hệ thống trừ tiền tài khoản có tên {name} mang ID {id}.";
+                return $"Tai khoan nap tien";
             }
-            public static string SystemAddtractDescription(string name, int id)
+
+            public static string SystemSubtractDescription(decimal price)
             {
-                return $"Hệ thống cộng tiền tài khoản có tên {name} mang ID {id}.";
+                return $"Hệ thống trừ {price} vào ví.";
+            }
+            public static string SystemAddtractDescription(decimal price)
+            {
+                return $"Hệ thống cộng {price} vào ví.";
             }
         }
 
@@ -155,6 +161,10 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string PaymentContent (int id, int restaurantID)
             {
                 return $"Tài khoản mang ID {id} đặt bàn ở nhà hàng có ID {restaurantID}.";
+            }
+            public static string PaymentContentVIETQR()
+            {
+                return $"Thanh toan dat ban TOPDER";
             }
         }
 

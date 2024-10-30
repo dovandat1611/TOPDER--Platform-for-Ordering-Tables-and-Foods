@@ -12,6 +12,7 @@ using TOPDER.Service.Dtos.VNPAY;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.Dtos.WalletTransaction;
 using TOPDER.Service.IServices;
+using TOPDER.Service.Utils;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.API.Controllers
@@ -23,45 +24,58 @@ namespace TOPDER.API.Controllers
         private readonly IWalletTransactionService _walletTransactionService;
         private readonly IWalletService _walletService;
         private readonly IPaymentGatewayService _paymentGatewayService;
-        private readonly IUserService _userService;
+        private readonly IConfiguration _configuration;
 
 
         public WalletTransactionController(IWalletTransactionService walletTransactionService, 
-            IWalletService walletService, IPaymentGatewayService paymentGatewayService, IUserService userService)
+            IWalletService walletService, IPaymentGatewayService paymentGatewayService, IConfiguration configuration)
         {
             _walletTransactionService = walletTransactionService;
             _walletService = walletService;
             _paymentGatewayService = paymentGatewayService;
-            _userService = userService;
+            _configuration = configuration;
         }
 
         [HttpPost("Withdraw")]
         [SwaggerOperation(Summary = "Rút tiền ra khỏi ví: Customer")]
-        public async Task<IActionResult> Withdraw([FromBody] WalletTransactionDto walletTransactionDto)
+        public async Task<IActionResult> Withdraw([FromBody] WalletTransactionWithDrawDto walletTransactionWithDraw)
         {
-            var balance = await _walletService.GetBalanceAsync(walletTransactionDto.WalletId, walletTransactionDto.Uid);
+
+            var balance = await _walletService.GetBalanceAsync(walletTransactionWithDraw.WalletId, walletTransactionWithDraw.Uid);
 
             if (balance <= 0)
             {
                 return BadRequest(new { message = "Tạo giao dịch thất bại: Số dư trong ví không hợp lệ." });
             }
 
-            if (balance < walletTransactionDto.TransactionAmount)
+            if (balance < walletTransactionWithDraw.TransactionAmount)
             {
                 return BadRequest(new { message = "Số dư trong ví không đủ để thực hiện giao dịch." });
             }
 
             WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
             {
-                Uid = walletTransactionDto.Uid,
-                WalletId = walletTransactionDto.WalletId,
-                WalletBalance = balance - walletTransactionDto.TransactionAmount
+                Uid = walletTransactionWithDraw.Uid,
+                WalletId = walletTransactionWithDraw.WalletId,
+                WalletBalance = balance - walletTransactionWithDraw.TransactionAmount
             };
 
             var updateWallet = await _walletService.UpdateWalletBalanceAsync(walletBalanceDto);
 
             if (updateWallet)
             {
+                WalletTransactionDto walletTransactionDto = new WalletTransactionDto()
+                {
+                    TransactionId = 0,
+                    Uid = walletTransactionWithDraw.Uid,
+                    WalletId = walletTransactionWithDraw.WalletId,
+                    TransactionAmount = walletTransactionWithDraw.TransactionAmount,
+                    TransactionDate = DateTime.Now,
+                    TransactionType = Transaction_Type.WITHDRAW,
+                    Description = Payment_Descriptions.WithdrawalDescription(walletTransactionWithDraw.TransactionAmount),
+                    Status = Payment_Status.PENDING
+                };
+
                 var result = await _walletTransactionService.AddAsync(walletTransactionDto);
 
                 if (result)
@@ -113,13 +127,13 @@ namespace TOPDER.API.Controllers
 
 
         [HttpPost("Recharge")]
-        [SwaggerOperation(Summary = "Nạp tiền:(Số tiền phải lớn hơn 0 và không được dưới 5.000VNĐ.) cổng thanh toán phải là VIETQR hoặc VNPAY")]
+        [SwaggerOperation(Summary = "Nạp tiền:(Số tiền phải lớn hơn 0 và không được dưới 10.000VNĐ.) cổng thanh toán phải là VIETQR hoặc VNPAY")]
         public async Task<IActionResult> Recharge([FromBody] RechargeWalletTransaction rechargeWalletTransaction)
         {
             // Kiểm tra số tiền
-            if (rechargeWalletTransaction.TransactionAmount <= 0 || rechargeWalletTransaction.TransactionAmount < 5000)
+            if (rechargeWalletTransaction.TransactionAmount <= 0 || rechargeWalletTransaction.TransactionAmount < 10000)
             {
-                return BadRequest(new { message = "Số tiền phải lớn hơn 0 và không được dưới 5.000VNĐ." });
+                return BadRequest(new { message = "Số tiền phải lớn hơn 0 và không được dưới 10.000VNĐ." });
             }
 
             // Kiểm tra cổng thanh toán
@@ -129,15 +143,6 @@ namespace TOPDER.API.Controllers
                 return BadRequest(new { message = "Cổng thanh toán không hợp lệ. Vui lòng chọn VietQR hoặc VNPay." });
             }
 
-            UserPayment userInformation;
-            try
-            {
-                userInformation = await _userService.GetInformationUserToPayment(rechargeWalletTransaction.Uid);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
 
             var walletTransactionDto = new WalletTransactionDto()
             {
@@ -147,7 +152,7 @@ namespace TOPDER.API.Controllers
                 TransactionAmount = rechargeWalletTransaction.TransactionAmount,
                 TransactionType = Transaction_Type.RECHARGE,
                 TransactionDate = DateTime.UtcNow,
-                Description = Payment_Descriptions.RechargeDescription(userInformation.Name, userInformation.Id),
+                Description = Payment_Descriptions.RechargeDescription(rechargeWalletTransaction.TransactionAmount),
                 Status = Payment_Status.PENDING
             };
 
@@ -166,12 +171,12 @@ namespace TOPDER.API.Controllers
                     };
 
                     var paymentData = new PaymentData(
-                        orderCode: result.TransactionId,
+                        orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(result.TransactionId, 2),
                         amount: (int)rechargeWalletTransaction.TransactionAmount,
-                        description: Payment_Descriptions.RechargeDescription(userInformation.Name, userInformation.Id),
+                        description: Payment_Descriptions.RechargeVIETQRDescription(),
                         items: items,
-                        cancelUrl: $"http://localhost:3000/user-profile/status-transaction?status=cancel&transactionId={walletTransactionId}",
-                        returnUrl: $"http://localhost:3000/user-profile/status-transaction?status=success&transactionId={walletTransactionId}"
+                        cancelUrl: _configuration["PayOSSettings:CancelUrl"]+$"&transactionId={walletTransactionId}",
+                        returnUrl: _configuration["PayOSSettings:ReturnUrl"]+$"&transactionId={walletTransactionId}"
                     );
 
                     CreatePaymentResult createPayment = await _paymentGatewayService.CreatePaymentUrlPayOS(paymentData);
@@ -183,8 +188,8 @@ namespace TOPDER.API.Controllers
                     var paymentInformationModel = new PaymentInformationModel()
                     {
                         BookingID = result.TransactionId.ToString(),
-                        AccountID = userInformation.Id.ToString(),
-                        CustomerName = userInformation.Name,
+                        AccountID = rechargeWalletTransaction.Uid.ToString(),
+                        CustomerName = rechargeWalletTransaction.Uid.ToString(),
                         Amount = (double)rechargeWalletTransaction.TransactionAmount
                     };
 
@@ -207,13 +212,12 @@ namespace TOPDER.API.Controllers
 
         [HttpGet("GetWalletTransactionList/{uid}")]
         [SwaggerOperation(Summary = "Xem lịch sử giao dịch của riêng user: Customer | Restaurant")]
-        public async Task<IActionResult> GetWalletTransactionList(int uid, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? status = null)
+        public async Task<IActionResult> GetWalletTransactionList(int uid)
         {
             try
             {
-                var result = await _walletTransactionService.GetPagingAsync(pageNumber, pageSize, uid, status);
-                var response = new PaginatedResponseDto<WalletTransactionDto>(result, result.PageIndex, result.TotalPages, result.HasPreviousPage, result.HasNextPage);
-                return Ok(response);
+                var result = await _walletTransactionService.GetWalletTransactionHistoryAsync(uid);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -224,19 +228,10 @@ namespace TOPDER.API.Controllers
 
         [HttpGet("GetWalletTransactionListForAdmin")]
         [SwaggerOperation(Summary = "Xem lịch sử giao dịch và đặc biệt là (Withdraw) phải làm thủ công bằng tay: Admin")]
-        public async Task<IActionResult> GetPaging([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? status = null)
+        public async Task<IActionResult> GetPaging(string? status)
         {
-            var result = await _walletTransactionService.GetAdminPagingAsync(pageNumber, pageSize, status);
-
-            var response = new PaginatedResponseDto<WalletTransactionAdminDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-
-            return Ok(response);
+            var result = await _walletTransactionService.GetWalletTransactionWithDrawAsync(status);
+            return Ok(result);
         }
 
         [HttpPut("UpdateStatus/{transactionId}")]

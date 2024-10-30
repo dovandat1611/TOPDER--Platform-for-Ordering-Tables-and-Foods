@@ -40,6 +40,7 @@ namespace TOPDER.API.Controllers
         private readonly IPaymentGatewayService _paymentGatewayService;
         private readonly ISendMailService _sendMailService;
         private readonly IDiscountMenuRepository _discountMenuRepository;
+        private readonly IConfiguration _configuration;
 
 
 
@@ -48,7 +49,8 @@ namespace TOPDER.API.Controllers
             IRestaurantRepository restaurantRepository, IDiscountRepository discountRepository,
             IUserService userService, IWalletTransactionService walletTransactionService,
             IPaymentGatewayService paymentGatewayService, ISendMailService sendMailService,
-            IOrderTableService orderTableService, IDiscountMenuRepository discountMenuRepository)
+            IOrderTableService orderTableService, IDiscountMenuRepository discountMenuRepository,
+            IConfiguration configuration)
         {
             _orderService = orderService;
             _orderMenuService = orderMenuService;
@@ -62,6 +64,7 @@ namespace TOPDER.API.Controllers
             _sendMailService = sendMailService;
             _orderTableService = orderTableService;
             _discountMenuRepository = discountMenuRepository;
+            _configuration = configuration;
         }
 
 
@@ -456,7 +459,7 @@ namespace TOPDER.API.Controllers
                 TransactionAmount = order.TotalAmount,
                 TransactionType = Transaction_Type.SYSTEMSUBTRACT,
                 TransactionDate = DateTime.Now,
-                Description = Payment_Descriptions.SystemSubtractDescription(userOrderIsBalance.Name, userOrderIsBalance.Id),
+                Description = Payment_Descriptions.SystemSubtractDescription(order.TotalAmount),
                 Status = Payment_Status.PENDING
             };
 
@@ -500,12 +503,12 @@ namespace TOPDER.API.Controllers
             }
 
             var paymentData = new PaymentData(
-                orderCode: order.OrderId,
+                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(order.OrderId, 1),
                 amount: (int)totalAmount,
-                description: Order_PaymentContent.PaymentContent(order.CustomerId ?? 0, order.RestaurantId ?? 0),
+                description: Order_PaymentContent.PaymentContentVIETQR(),
                 items: items,
-                cancelUrl: "https://yourapp.com/cancel",
-                returnUrl: "https://yourapp.com/return"
+                cancelUrl: _configuration["PaymentSettings:CancelUrl"]+$"&orderId={order.OrderId}",
+                returnUrl: _configuration["PaymentSettings:CancelUrl"]+$"&orderId={order.OrderId}"
             );
 
             CreatePaymentResult createPayment = await _paymentGatewayService.CreatePaymentUrlPayOS(paymentData);
@@ -597,7 +600,17 @@ namespace TOPDER.API.Controllers
         public async Task<IActionResult> GetCustomerPaging(int pageNumber, int pageSize, int customerId, string? status)
         {
             // Gọi service để lấy dữ liệu có phân trang
-            var result = await _orderService.GetCustomerPagingAsync(pageNumber, pageSize, customerId, status);
+            PaginatedList<OrderCustomerDto> result = await _orderService.GetCustomerPagingAsync(pageNumber, pageSize, customerId, status);
+
+
+            foreach(var item in result)
+            {
+                var orderTables = await _orderTableService.GetItemsByOrderAsync(item.OrderId);
+                var orderMenus = await _orderMenuService.GetItemsByOrderAsync(item.OrderId);
+                
+                item.OrderTables = orderTables;
+                item.OrderMenus = orderMenus;
+            }
 
             // Tạo response DTO
             var response = new PaginatedResponseDto<OrderCustomerDto>(
@@ -618,10 +631,19 @@ namespace TOPDER.API.Controllers
         public async Task<IActionResult> GetRestaurantPaging(int pageNumber, int pageSize, int restaurantId, string? status, DateTime? month, DateTime? date)
         {
             // Gọi service để lấy dữ liệu có phân trang
-            var result = await _orderService.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId, status, month, date);
+            PaginatedList<OrderRestaurantDto> result = await _orderService.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId, status, month, date);
+
+            foreach (var item in result)
+            {
+                var orderTables = await _orderTableService.GetItemsByOrderAsync(item.OrderId);
+                var orderMenus = await _orderMenuService.GetItemsByOrderAsync(item.OrderId);
+
+                item.OrderTables = orderTables;
+                item.OrderMenus = orderMenus;
+            }
 
             // Tạo response DTO
-            var response = new PaginatedResponseDto<OrderDto>(
+            var response = new PaginatedResponseDto<OrderRestaurantDto>(
                 result,
                 result.PageIndex,
                 result.TotalPages,
@@ -693,7 +715,7 @@ namespace TOPDER.API.Controllers
                                 TransactionAmount = completeOrder.TotalAmount,
                                 TransactionType = Transaction_Type.SYSTEMADD,
                                 TransactionDate = DateTime.Now,
-                                Description = Payment_Descriptions.SystemAddtractDescription(completeOrder.RestaurantName, completeOrder.RestaurantID),
+                                Description = Payment_Descriptions.SystemAddtractDescription(completeOrder.TotalAmount),
                                 Status = Payment_Status.SUCCESSFUL,
                             };
 
@@ -726,11 +748,46 @@ namespace TOPDER.API.Controllers
             // Lấy thông tin đơn hàng bị hủy
             var cancelOrder = await _orderService.GetInformationForCancelAsync(userID, orderID);
 
+            if(cancelOrder.TotalAmount <= 0)
+            {
+                return Ok($"Cập nhật trạng thái cho đơn hàng với ID {orderID} thành công.");
+            }
+
             // Xử lý tài khoản ví dựa trên vai trò người dùng
             var isCustomer = cancelOrder.RoleName.Equals(User_Role.CUSTOMER);
             var transactionAmount = isCustomer && cancelOrder.CancellationFeePercent.HasValue && cancelOrder.CancellationFeePercent > 0
                 ? cancelOrder.TotalAmount * (1 - (cancelOrder.CancellationFeePercent / 100))
                 : cancelOrder.TotalAmount;
+
+            var amountDifference = cancelOrder.TotalAmount - transactionAmount;
+
+            // Kiểm tra nếu khách hàng hủy thì sẽ cộng tiền cho nhà hàng
+            if (isCustomer && amountDifference > 0)
+            {
+                WalletBalanceDto walletBalanceRestaurantDto = new WalletBalanceDto()
+                {
+                    WalletId = cancelOrder.WalletRestaurantId,
+                    Uid = cancelOrder.RestaurantID,
+                    WalletBalance = cancelOrder.WalletBalanceRestaurant + amountDifference
+                };
+
+                var walletUpdateRestaurantResult = await _walletService.UpdateWalletBalanceAsync(walletBalanceRestaurantDto);
+                if (walletUpdateRestaurantResult)
+                {
+                    WalletTransactionDto walletTransactionRestaurantDto = new WalletTransactionDto()
+                    {
+                        TransactionId = 0,
+                        Uid = cancelOrder.RestaurantID,
+                        WalletId = cancelOrder.WalletRestaurantId,
+                        TransactionAmount = amountDifference ?? 0,
+                        TransactionType = Transaction_Type.SYSTEMADD,
+                        TransactionDate = DateTime.Now,
+                        Description = Payment_Descriptions.SystemAddtractDescription(amountDifference ?? 0),
+                        Status = Payment_Status.SUCCESSFUL,
+                    };
+                    await _walletTransactionService.AddAsync(walletTransactionRestaurantDto);
+                }
+            }
 
             WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
             {
@@ -753,7 +810,7 @@ namespace TOPDER.API.Controllers
                     TransactionAmount = transactionAmount ?? 0,
                     TransactionType = Transaction_Type.SYSTEMADD,
                     TransactionDate = DateTime.Now,
-                    Description = Payment_Descriptions.SystemAddtractDescription(cancelOrder.NameCustomer, cancelOrder.CustomerID),
+                    Description = Payment_Descriptions.SystemAddtractDescription(transactionAmount ?? 0),
                     Status = Payment_Status.SUCCESSFUL,
                 };
                 await _walletTransactionService.AddAsync(walletTransactionDto);
@@ -789,32 +846,32 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpGet("GetOrderTable/{orderId}")]
-        [SwaggerOperation(Summary = "Lấy danh sách order table cho đơn hàng: Restaurant | Customer")]
-        public async Task<IActionResult> GetTableItemsByOrder(int orderId)
-        {
-            var orderTables = await _orderTableService.GetItemsByOrderAsync(orderId);
+        //[HttpGet("GetOrderTable/{orderId}")]
+        //[SwaggerOperation(Summary = "Lấy danh sách order table cho đơn hàng: Restaurant | Customer")]
+        //public async Task<IActionResult> GetTableItemsByOrder(int orderId)
+        //{
+        //    var orderTables = await _orderTableService.GetItemsByOrderAsync(orderId);
 
-            if (orderTables == null || !orderTables.Any())
-            {
-                return NotFound("Không tìm thấy bàn cho đơn hàng này.");
-            }
-            return Ok(orderTables);
-        }
+        //    if (orderTables == null || !orderTables.Any())
+        //    {
+        //        return NotFound("Không tìm thấy bàn cho đơn hàng này.");
+        //    }
+        //    return Ok(orderTables);
+        //}
 
-        // ORDER MENU 
+        //// ORDER MENU 
 
-        [HttpGet("GetOrderMenu/{orderId}")]
-        [SwaggerOperation(Summary = "Lấy danh sách order menu cho đơn hàng: Restaurant | Customer")]
-        public async Task<IActionResult> GetMenuItemsByOrderAsync(int orderId)
-        {
-            var items = await _orderMenuService.GetItemsByOrderAsync(orderId);
-            if (items == null || !items.Any())
-            {
-                return NotFound("Không tìm thấy món cho đơn hàng này.");
-            }
-            return Ok(items);
-        }
+        //[HttpGet("GetOrderMenu/{orderId}")]
+        //[SwaggerOperation(Summary = "Lấy danh sách order menu cho đơn hàng: Restaurant | Customer")]
+        //public async Task<IActionResult> GetMenuItemsByOrderAsync(int orderId)
+        //{
+        //    var items = await _orderMenuService.GetItemsByOrderAsync(orderId);
+        //    if (items == null || !items.Any())
+        //    {
+        //        return NotFound("Không tìm thấy món cho đơn hàng này.");
+        //    }
+        //    return Ok(items);
+        //}
 
     }
 }
