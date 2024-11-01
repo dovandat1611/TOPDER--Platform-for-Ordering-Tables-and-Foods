@@ -226,15 +226,23 @@ namespace TOPDER.Service.Services
         {
             var queryableTables = await _restaurantTableRepository.QueryableAsync();
 
-            // Thêm điều kiện lọc cho nhà hàng, trạng thái đặt bàn và thời gian đặt bàn
+            DateTime reservationDateTime = dateReservation.Date + timeReservation;
+
             var filteredTables = await queryableTables
                 .Include(x => x.Room)
+                .Include(x => x.TableBookingSchedules)
+                .Include(x => x.OrderTables)
                 .Where(table => table.RestaurantId == restaurantId &&
                                 table.IsBookingEnabled == true &&
-                                (table.Room == null || table.Room.IsBookingEnabled == true) && // Kiểm tra Room có null hay không
+                                (table.Room == null || table.Room.IsBookingEnabled == true) &&
                                 !table.OrderTables.Any(orderTable =>
                                     orderTable.Order.DateReservation.Date == dateReservation.Date &&
-                                    orderTable.Order.TimeReservation == timeReservation)).ToListAsync();
+                                    orderTable.Order.TimeReservation == timeReservation) &&
+                                !table.TableBookingSchedules.Any(schedule =>
+                                    reservationDateTime > schedule.StartTime && reservationDateTime < schedule.EndTime
+                                )
+                )
+                .ToListAsync();
 
             var restaurantTable = _mapper.Map<List<RestaurantTableRestaurantDto>>(filteredTables);
 

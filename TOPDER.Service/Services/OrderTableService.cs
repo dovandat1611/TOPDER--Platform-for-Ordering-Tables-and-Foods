@@ -50,6 +50,10 @@ namespace TOPDER.Service.Services
             return await _orderTableRepository.CreateRangeAsync(orderTables);
         }
 
+        public Task<bool> ChangeTablesAsync(CreateRestaurantOrderTablesDto orderTablesDto)
+        {
+            throw new NotImplementedException();
+        }
 
         public async Task<List<OrderTableDto>> GetItemsByOrderAsync(int id)
         {

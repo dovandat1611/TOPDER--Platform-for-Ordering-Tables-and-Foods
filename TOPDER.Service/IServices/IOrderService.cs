@@ -21,7 +21,9 @@ namespace TOPDER.Service.IServices
         Task<OrderDto> GetItemAsync(int id, int Uid);
         Task<EmailForOrder> GetEmailForOrderAsync(int orderId, string role);
         Task<bool> UpdateStatusAsync(int orderID, string status);
-        Task<bool> UpdateStatusOrderPayment(int orderID, string status); 
+        Task<bool> UpdateStatusCancelAsync(int orderID, string status, string cancelReason);
+        Task<bool> UpdateStatusOrderPayment(int orderID, string status);
+        Task<bool> UpdateTotalIncomeChangeMenuAsync(int orderID, decimal totalAmount);
         Task<bool> CheckIsFirstOrderAsync(int customerId, int restaurantId);
         Task<bool> CheckIsLoyalCustomerAsync(int customerId, int restaurantId);
         Task<CompleteOrderDto> GetInformationForCompleteAsync(int orderID);

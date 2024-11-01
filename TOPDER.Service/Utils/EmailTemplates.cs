@@ -62,7 +62,7 @@ namespace TOPDER.Service.Utils
             <body style='font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;'>
                 <div style='margin: 20px auto; max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); overflow: hidden;'>
                     <div style='background-color: #f29034; padding: 20px; text-align: center; color: #ffffff; font-size: 1.5rem; font-weight: bold;'>
-                        Chào mừng đến với <span style='color: #ffffff;'>TOPDER!</span>
+                        OTP <span style='color: #ffffff;'>TOPDER!</span>
                     </div>
                     <div style='padding: 20px; text-align: center; color: #272241;'>
                         <img src='https://res.cloudinary.com/do9iyczi3/image/upload/v1726643328/LOGO-TOPDER_qonl9l.png' alt='Logo TOPDER' width='150' style='display: block; margin: 0 auto;' />
@@ -104,6 +104,38 @@ namespace TOPDER.Service.Utils
                             <p>Chào <span style='font-weight: bold; color: #272241;'>{name}</span>,</p>
                             <p>Cảm ơn bạn đã liên hệ với chúng tôi.</p>
                             <p>Chúng tôi đã nhận được yêu cầu của bạn và sẽ phản hồi sớm nhất có thể. Trong thời gian chờ đợi, bạn có thể truy cập <a href='https://www.topder.vn' style='color: #f29034; text-decoration: none;'>website</a> của chúng tôi để tìm hiểu thêm thông tin.</p>
+                            <p>Xin chân thành cảm ơn!</p>
+                            <p>Trân trọng,</p>
+                            <p style='font-weight: 700; color: #272241;'>Đội ngũ TOPDER</p>
+                        </div>
+                    </div>
+                    <div style='background-color: #f29034; padding: 10px; text-align: center; color: #ffffff; font-size: 0.875rem; font-weight: bold;'>
+                        © 2024 | Bản quyền thuộc về TOPDER.
+                    </div>
+                </div>
+            </body>
+            </html>";
+        }
+
+        public static string RegisterRestaurant(string name)
+        {
+            return $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta name='viewport' content='width=device-width, initial-scale=1'>
+            </head>
+            <body style='font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;'>
+                <div style='margin: 20px auto; max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); overflow: hidden;'>
+                    <div style='background-color: #f29034; padding: 20px; text-align: center; color: #ffffff; font-size: 1.5rem; font-weight: bold;'>
+                        Đăng ký nhà hàng với <span style='color: #ffffff;'>TOPDER</span>
+                    </div>
+                    <div style='padding: 20px; text-align: center; color: #272241;'>
+                        <img src='https://res.cloudinary.com/do9iyczi3/image/upload/v1726643328/LOGO-TOPDER_qonl9l.png' alt='Logo TOPDER' width='150' style='display: block; margin: 0 auto;' />
+                        <div style='background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 8px rgba(8, 120, 211, 0.1); text-align: left;'>
+                            <p>Chào <span style='font-weight: bold; color: #272241;'>{name}</span>,</p>
+                            <p>Cảm ơn bạn đã liên hệ với chúng tôi.</p>
+                            <p>Chúng tôi đã nhận được yêu cầu đăng ký nhà hàng của bạn, bạn có thể truy cập <a href='https://www.topder.vn' style='color: #f29034; text-decoration: none;'>website</a> của chúng tôi để tìm đăng ký nhà hàng ngay bây giờ!.</p>
                             <p>Xin chân thành cảm ơn!</p>
                             <p>Trân trọng,</p>
                             <p style='font-weight: 700; color: #272241;'>Đội ngũ TOPDER</p>

@@ -512,12 +512,12 @@ namespace TOPDER.API.Controllers
             }
 
             var paymentData = new PaymentData(
-                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(order.OrderId, 1),
+                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(order.OrderId, 11),
                 amount: (int)totalAmount,
                 description: Order_PaymentContent.PaymentContentVIETQR(),
                 items: items,
-                cancelUrl: _configuration["PaymentSettings:CancelUrl"]+$"&orderId={order.OrderId}",
-                returnUrl: _configuration["PaymentSettings:CancelUrl"]+$"&orderId={order.OrderId}"
+                cancelUrl: _configuration["PaymentSettings:CancelUrl"]+$"&transactionId={order.OrderId}&paymentType=order",
+                returnUrl: _configuration["PaymentSettings:CancelUrl"]+$"&transactionId={order.OrderId}&paymentType=order"
             );
 
             CreatePaymentResult createPayment = await _paymentGatewayService.CreatePaymentUrlPayOS(paymentData);
@@ -665,25 +665,6 @@ namespace TOPDER.API.Controllers
         }
 
 
-        //// cập nhật đơn hàng
-        //[HttpPut("Update")]
-        //[SwaggerOperation(Summary = "Cập nhật thông tin đơn hàng: Restaurant")]
-        //public async Task<IActionResult> UpdateOrder([FromBody] OrderDto orderDto)
-        //{
-        //    if (orderDto == null)
-        //    {
-        //        return BadRequest("Đơn hàng không thể là null.");
-        //    }
-
-        //    var result = await _orderService.UpdateAsync(orderDto);
-        //    if (result)
-        //    {
-        //        return Ok($"Cập nhật đơn hàng với ID {orderDto.OrderId} thành công."); // Trả về thông điệp thành công
-        //    }
-
-        //    return NotFound($"Đơn hàng với ID {orderDto.OrderId} không tồn tại."); // Thông báo không tìm thấy
-        //}
-
         // Cập nhật trạng thái đơn hàng
         [HttpPut("UpdateStatus/{orderID}")]
         [SwaggerOperation(Summary = "Cập nhật trạng thái đơn hàng (Confirm,Complete): Restaurant")]
@@ -745,10 +726,10 @@ namespace TOPDER.API.Controllers
 
         [HttpPut("CancelOrder/{userID}/{orderID}")]
         [SwaggerOperation(Summary = "Hủy đơn hàng: Restaurant | Customer")]
-        public async Task<IActionResult> CancelOrder(int userID, int orderID)
+        public async Task<IActionResult> CancelOrder(int userID, int orderID, string cancelReason)
         {
             // Cập nhật trạng thái đơn hàng
-            var result = await _orderService.UpdateStatusAsync(orderID, Order_Status.CANCEL);
+            var result = await _orderService.UpdateStatusCancelAsync(orderID, Order_Status.CANCEL, cancelReason);
 
             if (!result)
             {
@@ -856,32 +837,109 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        //[HttpGet("GetOrderTable/{orderId}")]
-        //[SwaggerOperation(Summary = "Lấy danh sách order table cho đơn hàng: Restaurant | Customer")]
-        //public async Task<IActionResult> GetTableItemsByOrder(int orderId)
-        //{
-        //    var orderTables = await _orderTableService.GetItemsByOrderAsync(orderId);
+        [HttpGet("GetOrderTable/{orderId}")]
+        [SwaggerOperation(Summary = "Lấy danh sách order table cho đơn hàng: Restaurant | Customer")]
+        public async Task<IActionResult> GetTableItemsByOrder(int orderId)
+        {
+            var orderTables = await _orderTableService.GetItemsByOrderAsync(orderId);
 
-        //    if (orderTables == null || !orderTables.Any())
-        //    {
-        //        return NotFound("Không tìm thấy bàn cho đơn hàng này.");
-        //    }
-        //    return Ok(orderTables);
-        //}
+            if (orderTables == null || !orderTables.Any())
+            {
+                return NotFound("Không tìm thấy bàn cho đơn hàng này.");
+            }
+            return Ok(orderTables);
+        }
 
         //// ORDER MENU 
+        [HttpGet("GetOrderMenu/{orderId}")]
+        [SwaggerOperation(Summary = "Lấy danh sách order menu cho đơn hàng: Restaurant | Customer")]
+        public async Task<IActionResult> GetMenuItemsByOrderAsync(int orderId)
+        {
+            var items = await _orderMenuService.GetItemsByOrderAsync(orderId);
+            if (items == null || !items.Any())
+            {
+                return NotFound("Không tìm thấy món cho đơn hàng này.");
+            }
+            return Ok(items);
+        }
 
-        //[HttpGet("GetOrderMenu/{orderId}")]
-        //[SwaggerOperation(Summary = "Lấy danh sách order menu cho đơn hàng: Restaurant | Customer")]
-        //public async Task<IActionResult> GetMenuItemsByOrderAsync(int orderId)
-        //{
-        //    var items = await _orderMenuService.GetItemsByOrderAsync(orderId);
-        //    if (items == null || !items.Any())
-        //    {
-        //        return NotFound("Không tìm thấy món cho đơn hàng này.");
-        //    }
-        //    return Ok(items);
-        //}
+        [HttpPut("ChangeMenus")]
+        public async Task<IActionResult> ChangeMenusAsync(ChangeOrderMenuDto changeOrderMenu)
+        {
+            if (changeOrderMenu.orderMenus == null || !changeOrderMenu.orderMenus.Any())
+            {
+                return BadRequest("Menu list cannot be empty.");
+            }
+
+            List<CreateOrUpdateOrderMenuDto> createOrUpdateOrderMenuDtos = new List<CreateOrUpdateOrderMenuDto>();
+            foreach (var orderMenu in changeOrderMenu.orderMenus)
+            {
+                var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
+                if (menu != null)
+                {
+                    createOrUpdateOrderMenuDtos.Add(new CreateOrUpdateOrderMenuDto
+                    {
+                        OrderMenuId = 0, // Bạn có thể cần thay đổi OrderMenuId nếu đang cập nhật
+                        OrderId = changeOrderMenu.OrderId,
+                        MenuId = orderMenu.MenuId,
+                        Quantity = orderMenu.Quantity,
+                        Price = menu.Price,
+                    });
+                }
+            }
+
+            if (createOrUpdateOrderMenuDtos.Count == 0)
+            {
+                return BadRequest("No valid menus found for the order.");
+            }
+
+            var result = await _orderMenuService.ChangeMenusAsync(changeOrderMenu.OrderId, createOrUpdateOrderMenuDtos);
+
+            if (!result)
+            {
+                return BadRequest("Failed to change menus.");
+            }
+
+            var restaurant = await _restaurantRepository.GetByIdAsync(changeOrderMenu.RestaurantId);
+            if (restaurant == null)
+            {
+                return NotFound("Restaurant does not exist.");
+            }
+
+            decimal totalAmount = 0;
+
+            if (restaurant.Price > 0)
+            {
+                totalAmount += restaurant.Price;
+
+                if (restaurant.Discount.HasValue && restaurant.Discount > 0)
+                {
+                    totalAmount *= (1 - (restaurant.Discount.Value / 100m));
+                }
+            }
+
+            CaculatorOrderDto caculatorOrder = new CaculatorOrderDto()
+            {
+                CustomerId = changeOrderMenu.CustomerId,
+                RestaurantId = changeOrderMenu.RestaurantId,
+                OrderMenus = changeOrderMenu.orderMenus
+            };
+
+            // Tính tổng tiền từ thực đơn
+            totalAmount += await CalculateMenuTotalForPreOrderAsync(caculatorOrder);
+
+            // Áp dụng phí dựa trên trạng thái khách hàng
+            totalAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, totalAmount);
+
+            var resultUpdateOrder = await _orderService.UpdateTotalIncomeChangeMenuAsync(changeOrderMenu.OrderId, totalAmount);
+
+            if (resultUpdateOrder)
+            {
+                return Ok("Successfully changed menus and updated the order.");
+            }
+
+            return BadRequest("Failed to update the order!");
+        }
 
     }
 }

@@ -12,7 +12,7 @@ namespace TOPDER.Service.IServices
 {
     public interface IContactService
     {
-        Task<bool> AddAsync(ContactDto contactDto);
+        Task<bool> AddAsync(CreateContactDto contactDto);
         Task<bool> RemoveAsync(int id);
         Task<PaginatedList<ContactDto>> SearchPagingAsync(int pageNumber, int pageSize, string? contactContent, string? topicContent);
     }

@@ -17,6 +17,7 @@ namespace TOPDER.Repository.Entities
             Orders = new HashSet<Order>();
             RestaurantRooms = new HashSet<RestaurantRoom>();
             RestaurantTables = new HashSet<RestaurantTable>();
+            TableBookingSchedules = new HashSet<TableBookingSchedule>();
             Wishlists = new HashSet<Wishlist>();
         }
 
@@ -28,7 +29,7 @@ namespace TOPDER.Repository.Entities
         public TimeSpan OpenTime { get; set; }
         public TimeSpan CloseTime { get; set; }
         public string? ProvinceCity { get; set; }
-        public string? District { get; set; } 
+        public string? District { get; set; }
         public string? Commune { get; set; }
         public string Address { get; set; } = null!;
         public string Phone { get; set; } = null!;
@@ -54,6 +55,7 @@ namespace TOPDER.Repository.Entities
         public virtual ICollection<Order> Orders { get; set; }
         public virtual ICollection<RestaurantRoom> RestaurantRooms { get; set; }
         public virtual ICollection<RestaurantTable> RestaurantTables { get; set; }
+        public virtual ICollection<TableBookingSchedule> TableBookingSchedules { get; set; }
         public virtual ICollection<Wishlist> Wishlists { get; set; }
     }
 }

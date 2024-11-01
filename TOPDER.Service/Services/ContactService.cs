@@ -27,10 +27,20 @@ namespace TOPDER.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<bool> AddAsync(ContactDto contactDto)
+        public async Task<bool> AddAsync(CreateContactDto contactDto)
         {
-            contactDto.ContactId = 0;
-            var contact = _mapper.Map<Contact>(contactDto);
+            Contact contact = new Contact()
+            {
+                ContactId = 0,
+                Uid = contactDto.Uid,
+                Email = contactDto.Email,
+                Name = contactDto.Name,
+                Phone = contactDto.Phone,
+                Topic = contactDto.Topic,
+                Content = contactDto.Content,
+                ContactDate = DateTime.Now,
+                Status = Common_Status.ACTIVE
+            };
             return await _contactRepository.CreateAsync(contact);
         }
 

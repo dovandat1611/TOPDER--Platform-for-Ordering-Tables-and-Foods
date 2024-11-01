@@ -472,6 +472,31 @@ namespace TOPDER.Service.Services
             return false;
         }
 
+        public async Task<bool> UpdateStatusCancelAsync(int orderID, string status, string cancelReason)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderID);
+
+            if (order == null)
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(order.StatusOrder))
+            {
+                if (order.StatusOrder.Equals(status))
+                {
+                    return false;
+                }
+                if (status.Equals(Order_Status.CANCEL))
+                {
+                    order.CancelledAt = DateTime.Now;
+                }
+                order.StatusOrder = status;
+                order.CancelReason = cancelReason;
+                return await _orderRepository.UpdateAsync(order);
+            }
+            return false;
+        }
 
         public async Task<bool> UpdateStatusOrderPayment(int orderID, string status)
         {
@@ -504,5 +529,16 @@ namespace TOPDER.Service.Services
             return false; 
         }
 
+        public async Task<bool> UpdateTotalIncomeChangeMenuAsync(int orderID, decimal totalAmount)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderID);
+
+            if (order == null) { return false;}
+
+            order.TotalAmount = totalAmount;
+            order.DiscountId = null;
+
+            return await _orderRepository.UpdateAsync(order);
+        }
     }
 }

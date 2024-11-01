@@ -98,6 +98,7 @@ builder.Services.AddScoped<IWalletTransactionRepository, WalletTransactionReposi
 builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
 builder.Services.AddScoped<IDiscountMenuRepository, DiscountMenuRepository>();
 builder.Services.AddScoped<IUserOtpRepository, UserOtpRepository>();
+builder.Services.AddScoped<ITableBookingScheduleRepository, TableBookingScheduleRepository>();
 
 
 
@@ -133,7 +134,7 @@ builder.Services.AddTransient<IWalletService, WalletService>();
 builder.Services.AddTransient<IWalletTransactionService, WalletTransactionService>();
 builder.Services.AddTransient<IWishlistService, WishlistService>();
 builder.Services.AddTransient<IWishlistService, WishlistService>();
-
+builder.Services.AddTransient<ITableBookingScheduleService, TableBookingScheduleService>();
 
 // Other: ASK CHAT GPT
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
@@ -141,7 +142,7 @@ builder.Services.AddScoped<ISendMailService, SendMailService>();
 builder.Services.AddTransient<IExcelService, ExcelService>();
 builder.Services.AddScoped<IPaymentGatewayService, PaymentGatewayService>();
 builder.Services.AddSingleton<JwtHelper>();
-builder.Services.AddHttpClient<IIdentityService, IdentityService>();
+builder.Services.AddScoped<IIdentityService, IdentityService>();
 
 
 // ADD CORS

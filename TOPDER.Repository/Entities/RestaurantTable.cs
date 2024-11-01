@@ -8,6 +8,7 @@ namespace TOPDER.Repository.Entities
         public RestaurantTable()
         {
             OrderTables = new HashSet<OrderTable>();
+            TableBookingSchedules = new HashSet<TableBookingSchedule>();
         }
 
         public int TableId { get; set; }
@@ -21,5 +22,6 @@ namespace TOPDER.Repository.Entities
         public virtual Restaurant Restaurant { get; set; } = null!;
         public virtual RestaurantRoom? Room { get; set; }
         public virtual ICollection<OrderTable> OrderTables { get; set; }
+        public virtual ICollection<TableBookingSchedule> TableBookingSchedules { get; set; }
     }
 }

@@ -21,6 +21,7 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string VERIFY = "Xác Thực Email - TOPDER";
             public static string OTP = "Mã Xác Nhận OTP - TOPDER";
             public static string CONTACT = "Liên Hệ Với TOPDER";
+            public static string CONTACT_REGISTER = "Đăng Ký Nhà Hàng Với TOPDER";
             public static string ORDERCONFIRM = "Xác Nhận Đặt Hàng - TOPDER";
             public static string UPDATESTATUS = "Cập Nhật Trạng Thái Đơn Hàng Của Bạn - TOPDER";
             public static string NEWORDER = "Cửa Hàng Của Bạn Có Đơn Hàng Mới - TOPDER";
@@ -49,6 +50,12 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string VNPAY = "VNPAY";
             public static string VIETQR = "VIETQR";
             public static string ISBALANCE = "ISBALANCE";
+        }
+
+        public class Contact_Topic
+        {
+            public static string RESTAURANT_REGISTER = "RestaurantRegister";
+            public static string OTHER = "Other";
         }
 
         public class Payment_Status

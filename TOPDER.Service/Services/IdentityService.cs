@@ -21,7 +21,8 @@ namespace TOPDER.Service.Services
 {
     public class IdentityService : IIdentityService
     {
-        private readonly HttpClient _httpClient;
+        //private readonly HttpClient _httpClient;
+        private static readonly HttpClient httpClient = new HttpClient();
         private readonly JwtHelper _jwtHelper;
         private readonly IUserService _userService;
         private readonly IWalletService _walletService;
@@ -31,11 +32,10 @@ namespace TOPDER.Service.Services
 
 
 
-        public IdentityService(HttpClient httpClient, JwtHelper jwtHelper,
+        public IdentityService(JwtHelper jwtHelper,
             IUserService userService, IWalletService walletService,
             ICustomerService customerService, IExternalLoginService externalLoginService)
         {
-            _httpClient = httpClient;
             _jwtHelper = jwtHelper;
             _userService = userService;
             _walletService = walletService;
@@ -49,7 +49,7 @@ namespace TOPDER.Service.Services
             {
 
                 var tokenInfoUrl = $"https://www.googleapis.com/oauth2/v3/tokeninfo?access_token={accessToken}";
-                var response = await _httpClient.GetAsync(tokenInfoUrl);
+                var response = await httpClient.GetAsync(tokenInfoUrl);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -59,7 +59,7 @@ namespace TOPDER.Service.Services
 
                 var tokenInfo = await response.Content.ReadAsStringAsync();
                 var userInfoUrl = $"https://www.googleapis.com/oauth2/v1/userinfo?access_token={accessToken}";
-                var userInfoResponse = await _httpClient.GetAsync(userInfoUrl);
+                var userInfoResponse = await httpClient.GetAsync(userInfoUrl);
 
                 if (!userInfoResponse.IsSuccessStatusCode)
                 {

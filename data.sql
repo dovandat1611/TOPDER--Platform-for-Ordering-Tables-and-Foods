@@ -353,17 +353,3 @@ INSERT INTO [dbo].[Wishlist] (customer_id, restaurant_id)
 VALUES (2, 3);
 GO
 
--- Thêm 10 feedback từ customer_id = 2 cho restaurant_id = 3
-INSERT INTO [dbo].[Feedback] (customer_id, restaurant_id, star, content, status)
-VALUES 
-(2, 3, 5, N'Thức ăn ngon, phục vụ chu đáo.', N'Approved'),
-(2, 3, 4, N'Không gian đẹp nhưng hơi ồn.', N'Approved'),
-(2, 3, 5, N'Rất hài lòng với dịch vụ.', N'Approved'),
-(2, 3, 3, N'Món ăn bình thường, chưa đặc sắc.', N'Pending'),
-(2, 3, 2, N'Nhân viên phục vụ không nhiệt tình.', N'Rejected'),
-(2, 3, 4, N'Giá cả hợp lý, sẽ quay lại.', N'Approved'),
-(2, 3, 1, N'Rất thất vọng về chất lượng.', N'Rejected'),
-(2, 3, 3, N'Cần cải thiện thời gian chuẩn bị món.', N'Pending'),
-(2, 3, 5, N'Món tráng miệng tuyệt vời.', N'Approved'),
-(2, 3, 4, N'Nhà hàng có nhiều món ngon.', N'Approved');
-GO

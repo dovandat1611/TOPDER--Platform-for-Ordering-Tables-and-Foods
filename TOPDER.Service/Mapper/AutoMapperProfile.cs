@@ -31,6 +31,7 @@ using TOPDER.Service.Dtos.Admin;
 using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.User;
 using TOPDER.Service.Dtos.Role;
+using TOPDER.Service.Dtos.TableBookingSchedule;
 
 namespace TOPDER.Service.Mapper
 {
@@ -434,6 +435,14 @@ namespace TOPDER.Service.Mapper
 
             // CUSTOMER
             CreateMap<CustomerProfileDto, Customer>().ReverseMap();
+
+            // Table Booking Schedule
+            CreateMap<TableBookingScheduleDto, TableBookingSchedule>().ReverseMap();
+
+            CreateMap<TableBookingSchedule, TableBookingScheduleViewDto>()
+                .ForMember(dest => dest.TableName,
+                           opt => opt.MapFrom(src =>
+                               src.Table != null ? src.Table.TableName : null));
 
 
         }

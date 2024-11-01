@@ -171,12 +171,12 @@ namespace TOPDER.API.Controllers
                     };
 
                     var paymentData = new PaymentData(
-                        orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(result.TransactionId, 2),
+                        orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(result.TransactionId, 12),
                         amount: (int)rechargeWalletTransaction.TransactionAmount,
                         description: Payment_Descriptions.RechargeVIETQRDescription(),
                         items: items,
-                        cancelUrl: _configuration["PayOSSettings:CancelUrl"]+$"&transactionId={walletTransactionId}",
-                        returnUrl: _configuration["PayOSSettings:ReturnUrl"]+$"&transactionId={walletTransactionId}"
+                        cancelUrl: _configuration["PayOSSettings:CancelUrl"]+$"&transactionId={walletTransactionId}&paymentType=transaction",
+                        returnUrl: _configuration["PayOSSettings:ReturnUrl"]+$"&transactionId={walletTransactionId}&paymentType=transaction"
                     );
 
                     CreatePaymentResult createPayment = await _paymentGatewayService.CreatePaymentUrlPayOS(paymentData);

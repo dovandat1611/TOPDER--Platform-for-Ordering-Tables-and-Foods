@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MailKit.Search;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,23 @@ namespace TOPDER.Service.Services
 
         public async Task<bool> AddRangeAsync(List<CreateOrUpdateOrderMenuDto> orderMenuDtos)
         {
+            var orderMenuDtoList = _mapper.Map<List<OrderMenu>>(orderMenuDtos);
+            return await _orderMenuRepository.CreateRangeAsync(orderMenuDtoList);
+        }
+
+        public async Task<bool> ChangeMenusAsync(int orderId, List<CreateOrUpdateOrderMenuDto> orderMenuDtos)
+        {
+            var queryable = await _orderMenuRepository.QueryableAsync();
+
+            var currentOrderMenus = await queryable
+                        .Include(x => x.Menu)
+                        .Where(x => x.OrderId == orderId).ToListAsync();
+
+            if (currentOrderMenus.Any())
+            {
+                await _orderMenuRepository.DeleteRangeAsync(currentOrderMenus);
+            }
+
             var orderMenuDtoList = _mapper.Map<List<OrderMenu>>(orderMenuDtos);
             return await _orderMenuRepository.CreateRangeAsync(orderMenuDtoList);
         }

@@ -25,7 +25,7 @@ namespace TOPDER.API.Controllers
 
         [HttpPost("Create")]
         [SwaggerOperation(Summary = "Tạo Contact: Customer | Guest")]
-        public async Task<IActionResult> AddContact([FromBody] ContactDto contactDto)
+        public async Task<IActionResult> AddContact([FromBody] CreateContactDto contactDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -33,7 +33,14 @@ namespace TOPDER.API.Controllers
             var result = await _contactService.AddAsync(contactDto);
             if (result)
             {
-                await _sendMailService.SendEmailAsync(contactDto.Email, Email_Subject.CONTACT, EmailTemplates.Contact(contactDto.Name));
+                if(contactDto.Topic.Equals(Contact_Topic.RESTAURANT_REGISTER))
+                {
+                    await _sendMailService.SendEmailAsync(contactDto.Email, Email_Subject.CONTACT_REGISTER, EmailTemplates.RegisterRestaurant(contactDto.Name));
+                }
+                else
+                {
+                    await _sendMailService.SendEmailAsync(contactDto.Email, Email_Subject.CONTACT, EmailTemplates.Contact(contactDto.Name));
+                }
                 return Ok($"Tạo liên hệ thành công.");
             }
             return BadRequest("Thêm liên hệ thất bại.");

@@ -90,6 +90,30 @@ namespace TOPDER.Repository.Repositories
             }
         }
 
+
+        public async Task<bool> DeleteRangeAsync(List<T> entities)
+        {
+            if (entities == null || !entities.Any())
+                return false;
+
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    _dbContext.Set<T>().RemoveRange(entities); // Xoá danh sách các thực thể
+                    int result = await _dbContext.SaveChangesAsync();
+
+                    await transaction.CommitAsync(); // Commit sau khi xoá thành công
+                    return result > 0;
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync(); // Rollback khi có lỗi
+                    throw;
+                }
+            }
+        }
+
         public async Task<IEnumerable<T>> GetAllAsync()
         {
             return await _dbContext.Set<T>().ToListAsync();

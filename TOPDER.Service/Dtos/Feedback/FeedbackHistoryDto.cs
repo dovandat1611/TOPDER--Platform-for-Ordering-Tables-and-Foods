@@ -9,6 +9,7 @@ namespace TOPDER.Service.Dtos.Feedback
     public class FeedbackHistoryDto
     {
         public int? RestaurantId { get; set; }
+        public int OrderId { get; set; }
         public string RestaurantName { get; set; } = null!;
         public string? RestaurantImage { get; set; } = null!;
         public int? Star { get; set; }
