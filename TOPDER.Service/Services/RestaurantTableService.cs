@@ -239,7 +239,8 @@ namespace TOPDER.Service.Services
                 .Include(x => x.OrderTables)
                 .Where(table => table.RestaurantId == restaurantId &&
                                 table.IsBookingEnabled == true &&
-                                (table.Room == null || table.Room.IsBookingEnabled == true) &&
+                                table.IsVisible == true &&
+                                (table.Room == null || (table.Room.IsBookingEnabled == true && table.Room.IsVisible == true)) &&
                                 !table.OrderTables.Any(orderTable =>
                                     orderTable.Order.DateReservation.Date == dateReservation.Date &&
                                     orderTable.Order.TimeReservation == timeReservation) &&
@@ -247,7 +248,9 @@ namespace TOPDER.Service.Services
                                     reservationDateTime > schedule.StartTime && reservationDateTime < schedule.EndTime
                                 )
                 )
+                .AsNoTracking()
                 .ToListAsync();
+
 
             var restaurantTable = _mapper.Map<List<RestaurantTableRestaurantDto>>(filteredTables);
 
@@ -262,7 +265,7 @@ namespace TOPDER.Service.Services
             // Build the query
             var query = queryable
                 .Include(x => x.Room)
-                .Where(x => x.RestaurantId == restaurantId);
+                .Where(x => x.RestaurantId == restaurantId && x.IsVisible == true);
 
             // Apply table name filtering only if it has a value
             if (!string.IsNullOrEmpty(tableName))

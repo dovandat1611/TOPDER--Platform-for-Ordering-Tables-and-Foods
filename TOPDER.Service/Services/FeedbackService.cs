@@ -42,7 +42,7 @@ namespace TOPDER.Service.Services
             var feedbacks = query
                 .Include(x => x.Restaurant)
                 .OrderByDescending(x => x.FeedbackId)
-                .Where(x => x.CustomerId == customerId);
+                .Where(x => x.CustomerId == customerId && x.IsVisible == true);
 
             var queryDTO = feedbacks.Select(r => _mapper.Map<FeedbackHistoryDto>(r));
 
@@ -78,7 +78,7 @@ namespace TOPDER.Service.Services
 
             var feedbacks = query
                 .Include(x => x.Customer)
-                .Where(x => x.RestaurantId == restaurantId);
+                .Where(x => x.RestaurantId == restaurantId && x.IsVisible == true);
 
             if (star.HasValue)
             {
@@ -107,7 +107,7 @@ namespace TOPDER.Service.Services
         {
             var query = await _feedbackRepository.QueryableAsync();
 
-            var feedbacks = query.AsQueryable();
+            var feedbacks = query.Where(x => x.IsVisible == true).AsQueryable();
 
             if (star.HasValue)
             {
@@ -143,7 +143,7 @@ namespace TOPDER.Service.Services
         {
             var query = await _feedbackRepository.QueryableAsync();
 
-            var feedbacks = query.Where(x => x.RestaurantId == restaurantId);
+            var feedbacks = query.Where(x => x.RestaurantId == restaurantId && x.IsVisible == true);
 
             if (star.HasValue)
             {

@@ -134,7 +134,7 @@ namespace TOPDER.Service.Services
                 .Include(m => m.CategoryMenu) // Kèm thông tin CategoryMenu
                 .Where(m =>
                     m.RestaurantId == restaurantId &&
-                    m.Status == Common_Status.ACTIVE)
+                    m.Status == Common_Status.ACTIVE && m.IsVisible == true)
                 .ToListAsync();
 
             // Nhóm các menu theo CategoryMenuId
@@ -163,7 +163,7 @@ namespace TOPDER.Service.Services
 
             var query = queryable
                 .Include (o => o.CategoryMenu)
-                .Where(x => x.RestaurantId == restaurantId);
+                .Where(x => x.RestaurantId == restaurantId && x.IsVisible == true);
 
             if (categoryMenuId.HasValue && categoryMenuId.Value > 0)
             {
