@@ -47,7 +47,7 @@ namespace TOPDER.Service.Services
             var blogGroup = await _blogGroupRepository.GetByIdAsync(id);
             if (blogGroup == null)
             {
-                return false; 
+                return false;
             }
 
             var blogs = await _blogRepository.QueryableAsync();
@@ -57,15 +57,17 @@ namespace TOPDER.Service.Services
 
             if (relatedBlogs.Any())
             {
-                foreach (var blog in relatedBlogs)
+                var deleteBlogsResult = await _blogRepository.DeleteRangeAsync(relatedBlogs);
+                if (!deleteBlogsResult)
                 {
-                    await _blogRepository.DeleteAsync(blog.BlogId);
+                    return false; 
                 }
             }
 
             var result = await _blogGroupRepository.DeleteAsync(id);
             return result;
         }
+
 
 
         public async Task<PaginatedList<BlogGroupDto>> ListPagingAsync(int pageNumber, int pageSize, string? blogGroupName)
@@ -95,8 +97,8 @@ namespace TOPDER.Service.Services
             {
                 return false;
             }
-            var blogGroup = _mapper.Map<BlogGroup>(blogGroupDto);
-            return await _blogGroupRepository.UpdateAsync(blogGroup);
+            existingBlogGroup.BloggroupName = blogGroupDto.BloggroupName;
+            return await _blogGroupRepository.UpdateAsync(existingBlogGroup);
         }
 
         public async Task<List<BlogGroupDto>> BlogGroupExistAsync()

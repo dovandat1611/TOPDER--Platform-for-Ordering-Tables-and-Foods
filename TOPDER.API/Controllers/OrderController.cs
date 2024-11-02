@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Net.payOS.Types;
 using Org.BouncyCastle.Utilities.Encoders;
 using Swashbuckle.AspNetCore.Annotations;
@@ -668,7 +669,7 @@ namespace TOPDER.API.Controllers
         // Cập nhật trạng thái đơn hàng
         [HttpPut("UpdateStatus/{orderID}")]
         [SwaggerOperation(Summary = "Cập nhật trạng thái đơn hàng (Confirm,Complete): Restaurant")]
-        public async Task<IActionResult> UpdateOrderStatus(int orderID, [FromBody] string status)
+        public async Task<IActionResult> UpdateOrderStatus(int orderID, string status)
         {
             if (string.IsNullOrEmpty(status))
             {
@@ -724,24 +725,31 @@ namespace TOPDER.API.Controllers
             return NotFound($"Đơn hàng với ID {orderID} không tồn tại hoặc trạng thái không thay đổi.");
         }
 
-        [HttpPut("CancelOrder/{userID}/{orderID}")]
+        [HttpPut("CancelOrder")]
         [SwaggerOperation(Summary = "Hủy đơn hàng: Restaurant | Customer")]
-        public async Task<IActionResult> CancelOrder(int userID, int orderID, string cancelReason)
+        public async Task<IActionResult> CancelOrder(CancelOrderRequest cancelOrderRequest)
         {
             // Cập nhật trạng thái đơn hàng
-            var result = await _orderService.UpdateStatusCancelAsync(orderID, Order_Status.CANCEL, cancelReason);
+            var result = await _orderService.UpdateStatusCancelAsync(cancelOrderRequest.OrderId, Order_Status.CANCEL, cancelOrderRequest.CancelReason);
 
             if (!result)
             {
-                return NotFound($"Đơn hàng với ID {orderID} không tồn tại hoặc trạng thái không thay đổi.");
+                return NotFound($"Đơn hàng với ID {cancelOrderRequest.OrderId} không tồn tại hoặc trạng thái không thay đổi.");
             }
 
             // Lấy thông tin đơn hàng bị hủy
-            var cancelOrder = await _orderService.GetInformationForCancelAsync(userID, orderID);
+            var cancelOrder = await _orderService.GetInformationForCancelAsync(cancelOrderRequest.UserId, cancelOrderRequest.OrderId);
 
             if(cancelOrder.TotalAmount <= 0)
             {
-                return Ok($"Cập nhật trạng thái cho đơn hàng với ID {orderID} thành công.");
+                return Ok($"Cập nhật trạng thái cho đơn hàng với ID {cancelOrderRequest.OrderId} thành công.");
+            }
+
+            var checkStatusOrder = await _orderService.GetItemAsync(cancelOrderRequest.OrderId,cancelOrderRequest.UserId);
+
+            if (checkStatusOrder.PaidAt == null && string.IsNullOrEmpty(checkStatusOrder.PaidAt.ToString()))
+            {
+                return Ok($"Cập nhật trạng thái cho đơn hàng với ID {cancelOrderRequest.OrderId} thành công.");
             }
 
             // Xử lý tài khoản ví dựa trên vai trò người dùng
@@ -813,7 +821,7 @@ namespace TOPDER.API.Controllers
             await _sendMailService.SendEmailAsync(recipientEmail, Email_Subject.UPDATESTATUS, EmailTemplates.OrderStatusUpdate(recipientName,
                 cancelOrder.OrderId.ToString(), Order_Status.CANCEL));
 
-            return Ok($"Cập nhật trạng thái cho đơn hàng với ID {orderID} thành công.");
+            return Ok($"Cập nhật trạng thái cho đơn hàng với ID {cancelOrderRequest.OrderId} thành công.");
         }
 
         // ORDER TABLE 

@@ -27,16 +27,23 @@ namespace TOPDER.Service.Services
             _chatRepository = chatRepository;
             _mapper = mapper;
         }
-        public async Task<bool> AddAsync(CreateorUpdateChatDto createChatDto)
+        public async Task<bool> AddAsync(CreateChatDto createChatDto)
         {
-            var chat = _mapper.Map<Chat>(createChatDto);
+            Chat chat = new Chat()
+            {
+                ChatId = 0,
+                ChatBoxId = createChatDto.ChatBoxId,
+                ChatBy = createChatDto.ChatBy,
+                ChatTime = DateTime.Now,
+                Content = createChatDto.Content
+            };
             return await _chatRepository.CreateAsync(chat);
         }
 
-        public async Task<CreateorUpdateChatDto> GetItemAsync(int id)
+        public async Task<CreateChatDto> GetItemAsync(int id)
         {
             var query = await _chatRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException($"Chat với id {id} không tồn tại.");
-            var createorUpdateChatDto = _mapper.Map<CreateorUpdateChatDto>(query);
+            var createorUpdateChatDto = _mapper.Map<CreateChatDto>(query);
             return createorUpdateChatDto;
         }
 
@@ -70,15 +77,15 @@ namespace TOPDER.Service.Services
             return result;
         }
 
-        public async Task<bool> UpdateAsync(CreateorUpdateChatDto createChatDto)
+        public async Task<bool> UpdateAsync(UpdateChatDto updateChat)
         {
-            var existingChat = await _chatRepository.GetByIdAsync(createChatDto.ChatId);
+            var existingChat = await _chatRepository.GetByIdAsync(updateChat.ChatId);
             if (existingChat == null)
             {
                 return false;
             }
-            var chat = _mapper.Map<Chat>(createChatDto);
-            return await _chatRepository.UpdateAsync(chat);
+            existingChat.Content = updateChat.Content;
+            return await _chatRepository.UpdateAsync(existingChat);
         }
     }
 }

@@ -25,6 +25,8 @@ namespace TOPDER.Repository.Entities
         public string? Description { get; set; }
         public bool? IsActive { get; set; }
         public int Quantity { get; set; }
+        public bool? IsVisible { get; set; }
+
 
         public virtual Restaurant Restaurant { get; set; } = null!;
         public virtual ICollection<DiscountMenu> DiscountMenus { get; set; }

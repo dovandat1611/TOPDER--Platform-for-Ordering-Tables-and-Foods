@@ -15,6 +15,7 @@ using TOPDER.Service.Dtos.DiscountMenu;
 using TOPDER.Service.Dtos.Feedback;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static System.Formats.Asn1.AsnWriter;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
@@ -108,7 +109,8 @@ namespace TOPDER.Service.Services
                                                      && x.Quantity > 0
                                                      && x.IsActive == true 
                                                      && x.StartDate <= DateTime.Now
-                                                     && x.EndDate >= DateTime.Now);
+                                                     && x.EndDate >= DateTime.Now
+                                                     && x.IsVisible == true);
 
             // Kiểm tra discount cho khách hàng mới
             if (query.Any(x => x.ApplicableTo == DiscountApplicableTo.NEW_CUSTOMER))
@@ -191,47 +193,127 @@ namespace TOPDER.Service.Services
         }
 
 
-        public async Task<DiscountDto> GetItemAsync(int id, int restaurantId)
+        public async Task<AvailableDiscountDto> GetItemAsync(int id, int restaurantId)
         {
             var query = await _discountRepository.GetByIdAsync(id);
+
             if (query == null)
             {
                 throw new KeyNotFoundException($"Discount với id {id} không tồn tại.");
             }
+
             if (query.RestaurantId != restaurantId)
             {
                 throw new UnauthorizedAccessException($"Discount với id {id} không thuộc về nhà hàng với id {restaurantId}.");
             }
-            var discount = _mapper.Map<DiscountDto>(query);
+
+            var discount = _mapper.Map<AvailableDiscountDto>(query);
+
+            if(discount.Scope == DiscountScope.PER_SERVICE)
+            {
+                var queryableDiscountMenu = await _discountMenuRepository.QueryableAsync();
+
+                var menuDiscounts = await queryableDiscountMenu
+                    .Include(x => x.Menu)
+                    .Where(x => x.DiscountId == discount.DiscountId)
+                    .Select(x => new DiscountMenuForAvailableDiscountDto
+                    {
+                        DiscountMenuId = x.DiscountMenuId,
+                        DiscountId = x.DiscountId,
+                        MenuId = x.MenuId,
+                        DishName = x.Menu.DishName,
+                        Price = x.Menu.Price,
+                        Image = x.Menu.Image,
+                        DiscountMenuPercentage = x.DiscountMenuPercentage
+                    })
+                    .ToListAsync();
+
+                discount.discountMenuDtos = menuDiscounts;
+            }
+
             return discount;
         }
 
-        public async Task<PaginatedList<DiscountDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId)
+
+        public async Task<List<AvailableDiscountDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId)
         {
             var queryable = await _discountRepository.QueryableAsync();
+            var queryableDiscountMenu = await _discountMenuRepository.QueryableAsync();
 
-            var query = queryable.Where(x => x.RestaurantId == restaurantId).OrderByDescending(x => x.DiscountId);
+            var query = queryable
+                .Where(x => x.RestaurantId == restaurantId && x.IsVisible == true)
+                .OrderByDescending(x => x.DiscountId);
 
-            var queryDTO = query.Select(r => _mapper.Map<DiscountDto>(r));
+            var queryDTO = _mapper.Map<List<AvailableDiscountDto>>(query);
 
-            var paginatedDTOs = await PaginatedList<DiscountDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-            return paginatedDTOs;
+            // Get discount IDs where the scope is PER_SERVICE
+            var discountScope = await query
+                .Where(x => x.Scope == DiscountScope.PER_SERVICE)
+                .Select(x => x.DiscountId)
+                .ToListAsync();
+
+            // Fetch related menu discounts
+            var menuDiscounts = await queryableDiscountMenu
+                .Include(x => x.Menu)
+                .Where(x => discountScope.Contains(x.DiscountId))  // Fixed this line
+                .Select(x => new DiscountMenuForAvailableDiscountDto
+                {
+                    DiscountMenuId = x.DiscountMenuId,
+                    DiscountId = x.DiscountId,
+                    MenuId = x.MenuId,
+                    DishName = x.Menu.DishName,
+                    Price = x.Menu.Price,
+                    Image = x.Menu.Image,
+                    DiscountMenuPercentage = x.DiscountMenuPercentage
+                })
+                .ToListAsync();
+
+            // Group menuDiscounts by DiscountId
+            var discountMenuGroups = menuDiscounts
+                .GroupBy(md => md.DiscountId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            // Assign menu discounts to each discount DTO
+            foreach (var discount in queryDTO)
+            {
+                if (discountMenuGroups.TryGetValue(discount.DiscountId, out var menus))
+                {
+                    discount.discountMenuDtos = menus;
+                }
+                else
+                {
+                    discount.discountMenuDtos = new List<DiscountMenuForAvailableDiscountDto>();
+                }
+            }
+
+            return queryDTO;
         }
 
-        public async Task<bool> RemoveAsync(int id, int restaurantId)
+        public async Task<bool> InvisibleAsync(int id, int restaurantId)
         {
-            var feedback = await _discountRepository.GetByIdAsync(id);
-            if (feedback == null || feedback.RestaurantId != restaurantId)
+            var discount = await _discountRepository.GetByIdAsync(id);
+            if (discount == null || discount.RestaurantId != restaurantId)
             {
                 return false;
             }
-            var result = await _discountRepository.DeleteAsync(id);
+
+            discount.IsVisible = false;
+            var result = await _discountRepository.UpdateAsync(discount);
             return result;
         }
+
+        public async Task<bool> ActiveAsync(ActiveDiscountDto activeDiscount)
+        {
+            var discount = await _discountRepository.GetByIdAsync(activeDiscount.Id);
+            if (discount == null || discount.RestaurantId != activeDiscount.RestaurantId)
+            {
+                return false;
+            }
+            discount.IsActive = activeDiscount.IsActive;
+            var result = await _discountRepository.UpdateAsync(discount);
+            return result;
+        }
+
 
         public async Task<bool> UpdateAsync(DiscountDto discountDto)
         {
@@ -240,8 +322,75 @@ namespace TOPDER.Service.Services
             {
                 return false;
             }
-            var discount = _mapper.Map<Discount>(discountDto);
-            return await _discountRepository.UpdateAsync(discount);
+
+            existingDiscount.RestaurantId = discountDto.RestaurantId;
+            existingDiscount.ApplicableTo = discountDto.ApplicableTo;
+            existingDiscount.ApplyType = discountDto.ApplyType;
+            existingDiscount.Scope = discountDto.Scope;
+            existingDiscount.StartDate = discountDto.StartDate;
+            existingDiscount.EndDate = discountDto.EndDate;
+            existingDiscount.Quantity = discountDto.Quantity;
+            existingDiscount.DiscountName = discountDto.DiscountName;
+            existingDiscount.IsActive = discountDto.IsActive;
+
+            if(discountDto.Scope == DiscountScope.PER_SERVICE)
+            {
+                existingDiscount.DiscountPercentage = null;
+                
+                // Xóa đi cái cũ
+                var query = await _discountMenuRepository.QueryableAsync();
+                var getMenuDiscount = await query.Where(x => x.DiscountId == existingDiscount.DiscountId).ToListAsync();
+
+                if(getMenuDiscount.Any())
+                {
+                    await _discountMenuRepository.DeleteRangeAsync(getMenuDiscount);
+                }
+
+                // Làm lại cái mới
+                List<DiscountMenu> discountMenus = new List<DiscountMenu>();
+                foreach (var item in discountDto.discountMenuDtos)
+                {
+                    DiscountMenu discountMenu = new DiscountMenu()
+                    {
+                        DiscountMenuId = 0,
+                        DiscountId = existingDiscount.DiscountId,
+                        MenuId = item.MenuId,
+                        DiscountMenuPercentage = item.DiscountMenuPercentage,
+                    };
+                    discountMenus.Add(discountMenu);
+                }
+                return await _discountMenuRepository.CreateRangeAsync(discountMenus);
+            }
+
+            if (discountDto.Scope == DiscountScope.ENTIRE_ORDER)
+            {
+
+                existingDiscount.DiscountPercentage = discountDto.DiscountPercentage;
+
+                // Xóa đi cái cũ
+                var query = await _discountMenuRepository.QueryableAsync();
+                var getMenuDiscount = await query.Where(x => x.DiscountId == existingDiscount.DiscountId).ToListAsync();
+
+                if (getMenuDiscount.Any())
+                {
+                    await _discountMenuRepository.DeleteRangeAsync(getMenuDiscount);
+                }
+
+            }
+
+            if (discountDto.ApplyType == DiscountApplyType.ORDER_VALUE_RANGE)
+            {
+                existingDiscount.MinOrderValue = discountDto.MinOrderValue;
+                existingDiscount.MaxOrderValue = discountDto.MaxOrderValue;
+            }
+            else
+            {
+                existingDiscount.MinOrderValue = null; 
+                existingDiscount.MaxOrderValue = null;
+            }
+
+            return await _discountRepository.UpdateAsync(existingDiscount);
         }
+
     }
 }

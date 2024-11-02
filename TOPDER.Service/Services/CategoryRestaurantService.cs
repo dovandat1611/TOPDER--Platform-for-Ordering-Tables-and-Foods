@@ -83,8 +83,8 @@ namespace TOPDER.Service.Services
             {
                 return false;
             }
-            var categoryRestaurant = _mapper.Map<CategoryRestaurant>(categoryRestaurantDto);
-            return await _categoryRestaurantRepository.UpdateAsync(categoryRestaurant);
+            existingCategoryRestaurant.CategoryRestaurantName = categoryRestaurantDto.CategoryRestaurantName;
+            return await _categoryRestaurantRepository.UpdateAsync(existingCategoryRestaurant);
         }
 
         public async Task<List<CategoryRestaurantDto>> CategoryExistAsync()

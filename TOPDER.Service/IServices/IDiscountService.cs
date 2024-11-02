@@ -12,9 +12,10 @@ namespace TOPDER.Service.IServices
     {
         Task<bool> AddAsync(DiscountDto discountDto);
         Task<bool> UpdateAsync(DiscountDto discountDto);
-        Task<bool> RemoveAsync(int id, int restaurantId);
-        Task<DiscountDto> GetItemAsync(int id, int restaurantId);
-        Task<PaginatedList<DiscountDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId);
+        Task<bool> InvisibleAsync(int id, int restaurantId);
+        Task<AvailableDiscountDto> GetItemAsync(int id, int restaurantId);
+        Task<bool> ActiveAsync(ActiveDiscountDto activeDiscount);
+        Task<List<AvailableDiscountDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId);
         Task<List<AvailableDiscountDto>> GetAvailableDiscountsAsync(int restaurantId, int customerId, decimal totalPrice);
     }
 }

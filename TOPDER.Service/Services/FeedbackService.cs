@@ -54,16 +54,19 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
-        public async Task<bool> RemoveAsync(int id)
+        public async Task<bool> InvisibleAsync(int id)
         {
             var feedback = await _feedbackRepository.GetByIdAsync(id);
             if (feedback == null)
             {
                 return false;
             }
-            var result = await _feedbackRepository.DeleteAsync(id);
+
+            feedback.IsVisible = false;
+            var result = await _feedbackRepository.UpdateAsync(feedback);
             return result;
         }
+
 
         public async Task<PaginatedList<FeedbackCustomerDto>> ListCustomerPagingAsync(
             int pageNumber,

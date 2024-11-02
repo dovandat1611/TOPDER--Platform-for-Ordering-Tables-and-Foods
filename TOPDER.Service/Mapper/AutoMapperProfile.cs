@@ -167,6 +167,7 @@ namespace TOPDER.Service.Mapper
 
             // DISCOUNT
             CreateMap<DiscountDto, Discount>().ReverseMap();
+            CreateMap<AvailableDiscountDto, Discount>().ReverseMap();
 
             // REPORT
             CreateMap<ReportDto, Report>().ReverseMap();
@@ -231,7 +232,7 @@ namespace TOPDER.Service.Mapper
                            opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Image : Is_Null.ISNULL));
 
             //CHAT
-            CreateMap<CreateorUpdateChatDto, Chat>().ReverseMap();
+            CreateMap<CreateChatDto, Chat>().ReverseMap();
 
             CreateMap<Chat, ChatDto>()
                 .ForMember(dest => dest.ChatByName,

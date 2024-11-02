@@ -50,7 +50,7 @@ namespace TOPDER.Service.Services
             return categoryMenuDto;
         }
 
-        public async Task<bool> RemoveAsync(int id)
+        public async Task<bool> InvisibleAsync(int id)
         {
             var categoryMenu = await _categoryMenuRepository.GetByIdAsync(id);
             if (categoryMenu == null)
@@ -60,26 +60,33 @@ namespace TOPDER.Service.Services
 
             var queryableMenus = await _menuRepository.QueryableAsync();
 
-            var associatedMenus = queryableMenus
+            var associatedMenus = await queryableMenus
                 .Where(m => m.CategoryMenuId == id)
-                .ToList(); 
+                .ToListAsync();
 
             if (associatedMenus.Any())
             {
                 foreach (var menu in associatedMenus)
                 {
-                    await _menuRepository.DeleteAsync(menu.MenuId);
+                    if(menu.IsVisible == true)
+                    {
+                        menu.IsVisible = false;
+                        await _menuRepository.UpdateAsync(menu);
+                    }
                 }
             }
-            return await _categoryMenuRepository.DeleteAsync(id);
+
+            categoryMenu.IsVisible = false; 
+            return await _categoryMenuRepository.UpdateAsync(categoryMenu);
         }
+
 
 
         public async Task<List<CategoryMenuDto>> GetAllCategoryMenuAsync(int restaurantId)
         {
             var query = await _categoryMenuRepository.QueryableAsync();
 
-            var categoryMenus = await query.Where(x => x.RestaurantId == restaurantId).ToListAsync();
+            var categoryMenus = await query.Where(x => x.RestaurantId == restaurantId && x.IsVisible == true).ToListAsync();
 
             if (categoryMenus == null || !categoryMenus.Any())
             {
@@ -95,7 +102,7 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _categoryMenuRepository.QueryableAsync();
 
-            var query = queryable.Where(x => x.RestaurantId == restaurantId);
+            var query = queryable.Where(x => x.RestaurantId == restaurantId && x.IsVisible == true);
 
             if (!string.IsNullOrEmpty(categoryMenuName))
             {
@@ -119,8 +126,8 @@ namespace TOPDER.Service.Services
             {
                 return false;
             }
-            var categoryMenu = _mapper.Map<CategoryMenu>(categoryMenuDto);
-            return await _categoryMenuRepository.UpdateAsync(categoryMenu);
+            existingCategoryMenu.CategoryMenuName = categoryMenuDto.CategoryMenuName;
+            return await _categoryMenuRepository.UpdateAsync(existingCategoryMenu);
         }
     }
 }

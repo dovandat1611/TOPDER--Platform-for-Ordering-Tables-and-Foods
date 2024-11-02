@@ -15,7 +15,7 @@ namespace TOPDER.Service.IServices
         Task<bool> AddAsync(RestaurantTableDto restaurantTableDto);
         Task<bool> AddRangeExcelAsync(CreateExcelRestaurantTableDto createExcelRestaurantTableDto);
         Task<bool> UpdateAsync(RestaurantTableDto restaurantTableDto);
-        Task<bool> RemoveAsync(int id, int restaurantId);
+        Task<bool> InvisibleAsync(int id, int restaurantId);
         Task<RestaurantTableRestaurantDto> GetItemAsync(int id, int restaurantId);
         Task<PaginatedList<RestaurantTableRestaurantDto>> GetTableListAsync(int pageNumber, int pageSize, int restaurantId, string? tableName);
 

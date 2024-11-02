@@ -14,6 +14,6 @@ namespace TOPDER.Service.IServices
         Task<bool> AddAsync(CreateChatBoxDto chatBoxDto);
         Task<bool> RemoveAsync(int id);
         Task<ChatBoxDto> GetItemAsync(int id);
-        Task<PaginatedList<ChatBoxDto>> GetPagingAsync(int pageNumber, int pageSize, int userId);
+        Task<List<ChatBoxDto>> GetChatListAsync(int userId);
     }
 }

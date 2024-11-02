@@ -135,7 +135,7 @@ namespace TOPDER.Service.Utils
                         <div style='background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 8px rgba(8, 120, 211, 0.1); text-align: left;'>
                             <p>Chào <span style='font-weight: bold; color: #272241;'>{name}</span>,</p>
                             <p>Cảm ơn bạn đã liên hệ với chúng tôi.</p>
-                            <p>Chúng tôi đã nhận được yêu cầu đăng ký nhà hàng của bạn, bạn có thể truy cập <a href='https://www.topder.vn' style='color: #f29034; text-decoration: none;'>website</a> của chúng tôi để tìm đăng ký nhà hàng ngay bây giờ!.</p>
+                            <p>Chúng tôi đã nhận được yêu cầu đăng ký nhà hàng của bạn, bạn có thể truy cập <a href='https://www.topder.vn' style='color: #f29034; text-decoration: none;'>Đăng Ký Nhà Hàng</a> của chúng tôi để tìm đăng ký nhà hàng ngay bây giờ!.</p>
                             <p>Xin chân thành cảm ơn!</p>
                             <p>Trân trọng,</p>
                             <p style='font-weight: 700; color: #272241;'>Đội ngũ TOPDER</p>

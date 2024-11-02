@@ -84,7 +84,8 @@ namespace TOPDER.Service.Services
         {
             var existingImage = await _imageRepository.GetByIdAsync(imageDto.ImageId);
 
-            if (existingImage == null || existingImage.RestaurantId != imageDto.RestaurantId)
+            if (existingImage == null || existingImage.RestaurantId != imageDto.RestaurantId
+                || string.IsNullOrEmpty(imageDto.ImageUrl))
             {
                 return false;
             }

@@ -13,7 +13,7 @@ namespace TOPDER.Service.IServices
     {
         Task<bool> AddAsync(FeedbackDto feedbackDto);
         Task<bool> UpdateAsync(FeedbackDto feedbackDto);
-        Task<bool> RemoveAsync(int id);
+        Task<bool> InvisibleAsync(int id);
         Task<PaginatedList<FeedbackAdminDto>> ListAdminPagingAsync(int pageNumber, int pageSize, int? star, string? content);
         Task<PaginatedList<FeedbackRestaurantDto>> ListRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId, int? star, string? content);
         Task<PaginatedList<FeedbackCustomerDto>> ListCustomerPagingAsync(int pageNumber, int pageSize, int restaurantId, int? star);

@@ -22,17 +22,31 @@ namespace TOPDER.Service.Services
         private readonly IMapper _mapper;
         private readonly IExcelService _excelService;
         private readonly IRestaurantRoomRepository _restaurantRoomRepository;
+        private readonly IRestaurantTableRepository _restaurantTableRepository;
 
-        public RestaurantRoomService(IRestaurantRoomRepository restaurantRoomRepository, IMapper mapper, IExcelService excelService)
+
+        public RestaurantRoomService(IRestaurantRoomRepository restaurantRoomRepository, IMapper mapper
+            , IExcelService excelService, IRestaurantTableRepository restaurantTableRepository)
         {
             _restaurantRoomRepository = restaurantRoomRepository;
             _mapper = mapper;
             _excelService = excelService;
+            _restaurantTableRepository = restaurantTableRepository;
         }
 
-        public async Task<bool> AddAsync(RestaurantRoomDto restaurantRoomDto)
+        public async Task<bool> AddAsync(CreateRestaurantRoomDto restaurantRoomDto)
         {
-            var restaurantRoom = _mapper.Map<RestaurantRoom>(restaurantRoomDto);
+            RestaurantRoom restaurantRoom = new RestaurantRoom()
+            {
+                RoomId = 0,
+                RestaurantId = restaurantRoomDto.RestaurantId,
+                CategoryRoomId = restaurantRoomDto.CategoryRoomId,
+                MaxCapacity = restaurantRoomDto.MaxCapacity,
+                Description = restaurantRoomDto.Description,
+                RoomName = restaurantRoomDto.RoomName,
+                IsBookingEnabled = true,
+                IsVisible = true,
+            };
             return await _restaurantRoomRepository.CreateAsync(restaurantRoom);
         }
 
@@ -66,6 +80,7 @@ namespace TOPDER.Service.Services
 
                     var restaurantRoom = new RestaurantRoom
                     {
+                        RoomId = 0,
                         RestaurantId = createExcelRestaurantRoom.RestaurantId,
                         RoomName = row["RoomName"],
                         MaxCapacity = Convert.ToInt32(row["MaxCapacity"]),
@@ -74,6 +89,7 @@ namespace TOPDER.Service.Services
                                         ? Convert.ToInt32(row["CategoryRoomId"]) 
                                         : (int?)null, 
                         IsBookingEnabled = true,
+                        IsVisible = true,
                     };
 
                     restaurantRooms.Add(restaurantRoom);
@@ -133,23 +149,46 @@ namespace TOPDER.Service.Services
         }
 
 
-        public async Task<bool> RemoveAsync(int id, int restaurantId)
+        public async Task<bool> InvisibleAsync(int id, int restaurantId)
         {
             var restaurantRoom = await _restaurantRoomRepository.GetByIdAsync(id);
 
+            // Kiểm tra sự tồn tại của phòng và khớp restaurantId
             if (restaurantRoom == null || restaurantRoom.RestaurantId != restaurantId)
             {
                 return false;
             }
-            return await _restaurantRoomRepository.DeleteAsync(id);
+
+            var queryableTables = await _restaurantTableRepository.QueryableAsync();
+
+            var associatedTables = await queryableTables
+                                .Where(t => t.RoomId == id)
+                                .ToListAsync();
+
+            if (associatedTables.Any())
+            {
+                foreach (var table in associatedTables)
+                {
+                    if(table.IsVisible == true)
+                    {
+                        table.IsVisible = false;
+                        await _restaurantTableRepository.UpdateAsync(table);
+                    }
+                }
+            }
+
+            // Cập nhật trường IsVisible thành false thay vì xóa
+            restaurantRoom.IsVisible = false;
+            return await _restaurantRoomRepository.UpdateAsync(restaurantRoom);
         }
+
 
         public async Task<PaginatedList<RestaurantRoomDto>> GetRoomListAsync(int pageNumber, int pageSize, int restaurantId, int? roomId, string? roomName)
         {
             var queryable = await _restaurantRoomRepository.QueryableAsync();
 
             // Chỉ truy vấn phòng thuộc nhà hàng cụ thể
-            var query = queryable.Where(x => x.RestaurantId == restaurantId);
+            var query = queryable.Where(x => x.RestaurantId == restaurantId && x.IsVisible == true);
 
             // Kiểm tra nếu roomId có giá trị hợp lệ
             if (roomId.HasValue && roomId.Value != 0)
@@ -176,15 +215,18 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
-        public async Task<bool> UpdateAsync(RestaurantRoomDto restaurantRoomDto)
+        public async Task<bool> UpdateAsync(UpdateRestaurantRoomDto restaurantRoomDto)
         {
             var existingRestaurantRoom = await _restaurantRoomRepository.GetByIdAsync(restaurantRoomDto.RoomId);
-            if (existingRestaurantRoom == null || existingRestaurantRoom.RestaurantId != existingRestaurantRoom.RestaurantId)
+            if (existingRestaurantRoom == null)
             {
                 return false;
             }
-            var restaurantRoom = _mapper.Map<RestaurantRoom>(restaurantRoomDto);
-            return await _restaurantRoomRepository.UpdateAsync(restaurantRoom);
+            existingRestaurantRoom.MaxCapacity = restaurantRoomDto.MaxCapacity;
+            existingRestaurantRoom.CategoryRoomId = restaurantRoomDto.CategoryRoomId;
+            existingRestaurantRoom.RoomName = restaurantRoomDto.RoomName;
+            existingRestaurantRoom.Description = restaurantRoomDto.Description;
+            return await _restaurantRoomRepository.UpdateAsync(existingRestaurantRoom);
         }
     }
 }

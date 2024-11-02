@@ -21,7 +21,7 @@ namespace TOPDER.API.Controllers
 
         [HttpPost("Create")]
         [SwaggerOperation(Summary = "Tạo Phòng: Restaurant")]
-        public async Task<IActionResult> Add([FromBody] RestaurantRoomDto restaurantRoomDto)
+        public async Task<IActionResult> Add([FromBody] CreateRestaurantRoomDto restaurantRoomDto)
         {
             if (!ModelState.IsValid)
             {
@@ -34,7 +34,7 @@ namespace TOPDER.API.Controllers
                 return BadRequest("Không thể thêm phòng.");
             }
 
-            return CreatedAtAction(nameof(GetItem), new { id = restaurantRoomDto.RoomId }, restaurantRoomDto);
+            return Ok("Tạo phòng thành công");
         }
 
         [HttpGet("GetRoom/{restaurantId}/{roomId}")]
@@ -58,26 +58,26 @@ namespace TOPDER.API.Controllers
 
         [HttpPut("Update")]
         [SwaggerOperation(Summary = "Cập nhật phòng: Restaurant")]
-        public async Task<IActionResult> Update([FromBody] RestaurantRoomDto restaurantRoomDto)
+        public async Task<IActionResult> Update([FromBody] UpdateRestaurantRoomDto restaurantRoomDto)
         {
             var result = await _restaurantRoomService.UpdateAsync(restaurantRoomDto);
             if (!result)
             {
                 return NotFound("Không tìm thấy phòng để cập nhật.");
             }
-            return NoContent();
+            return Ok("Update Room thành công");
         }
 
-        [HttpDelete("Delete/{restaurantId}/{roomId}")]
-        [SwaggerOperation(Summary = "Xóa phòng: Restaurant")]
-        public async Task<IActionResult> Remove(int restaurantId, int roomId)
+        [HttpPut("Invisible/{restaurantId}/{roomId}")]
+        [SwaggerOperation(Summary = "Ẩn/Xóa phòng: Restaurant")]
+        public async Task<IActionResult> SetInvisible(int restaurantId, int roomId)
         {
-            var result = await _restaurantRoomService.RemoveAsync(roomId, restaurantId);
+            var result = await _restaurantRoomService.InvisibleAsync(roomId, restaurantId);
             if (!result)
             {
                 return NotFound("Không tìm thấy phòng để xóa.");
             }
-            return NoContent();
+            return Ok($"Ẩn/Xóa Room và các bảng liên quan thành công.");
         }
 
         [HttpGet("GetRoomList/{restaurantId}")]
@@ -97,7 +97,7 @@ namespace TOPDER.API.Controllers
 
         [HttpPut("IsEnabledBooking/{restaurantId}/{roomId}")]
         [SwaggerOperation(Summary = "Thay đổi trạng thái Booking của Room: Restaurant")]
-        public async Task<IActionResult> IsEnabledBooking(int restaurantId, int roomId,[FromBody] bool isEnabledBooking)
+        public async Task<IActionResult> IsEnabledBooking(int restaurantId, int roomId, bool isEnabledBooking)
         {
             try
             {
@@ -107,7 +107,7 @@ namespace TOPDER.API.Controllers
                     return BadRequest("Không có sự thay đổi trạng thái đặt phòng.");
                 }
 
-                return NoContent();
+                return Ok($"Thay đổi trạng thái IsEnabledBooking: {isEnabledBooking} thành công.");
             }
             catch (KeyNotFoundException ex)
             {

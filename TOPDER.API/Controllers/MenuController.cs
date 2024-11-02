@@ -103,16 +103,16 @@ namespace TOPDER.API.Controllers
             return Ok("Menu items added successfully from Excel.");
         }
 
-        [HttpDelete("Delete/{restaurantId}/{menuId}")]
-        [SwaggerOperation(Summary = "Xóa món ăn : Restaurant")]
-        public async Task<IActionResult> RemoveMenu(int restaurantId, int menuId)
+        [HttpPut("Invisible/{restaurantId}/{menuId}")]
+        [SwaggerOperation(Summary = "Xóa/Ẩn món ăn : Restaurant")]
+        public async Task<IActionResult> GetInvisible(int restaurantId, int menuId)
         {
-            var result = await _menuService.RemoveAsync(menuId, restaurantId);
+            var result = await _menuService.InvisibleAsync(menuId, restaurantId);
             if (!result)
             {
                 return NotFound("Món ăn không được tìm thấy, không thuộc về nhà hàng đã chỉ định, hoặc đang được sử dụng trong một đơn hàng.");
             }
-            return Ok("Món ăn đã được xóa thành công.");
+            return Ok("Xóa/Ẩn Món ăn đã thành công.");
         }
 
         [HttpGet("GetMenuListForRestaurant/{restaurantId}")]

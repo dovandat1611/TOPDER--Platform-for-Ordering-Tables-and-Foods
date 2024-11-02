@@ -67,7 +67,7 @@ namespace TOPDER.Service.Services
             return categoryRoomDto;
         }
 
-        public async Task<bool> RemoveAsync(int id)
+        public async Task<bool> InvisibleAsync(int id)
         {
             var categoryRoom = await _categoryRoomRepository.GetByIdAsync(id);
             if (categoryRoom == null)
@@ -76,7 +76,6 @@ namespace TOPDER.Service.Services
             }
 
             var allRooms = await _restaurantRoomRepository.QueryableAsync();
-
             var associatedRooms = allRooms.Where(r => r.CategoryRoomId == id).ToList();
 
             if (associatedRooms.Any())
@@ -86,18 +85,28 @@ namespace TOPDER.Service.Services
                     var allTables = await _restaurantTableRepository.QueryableAsync();
                     var associatedTables = allTables.Where(t => t.RoomId == room.RoomId).ToList();
 
+                    // Cập nhật các bảng (table) thành IsVisible = false
                     foreach (var table in associatedTables)
                     {
-                        await _restaurantTableRepository.DeleteAsync(table.TableId);
+                        if(table.IsVisible == true)
+                        {
+                            table.IsVisible = false;
+                            await _restaurantTableRepository.UpdateAsync(table);
+                        }
                     }
 
-                    await _restaurantRoomRepository.DeleteAsync(room.RoomId);
+                    if(room.IsVisible == true)
+                    {
+                        room.IsVisible = false;
+                        await _restaurantRoomRepository.UpdateAsync(room);
+                    }
                 }
             }
 
-            return await _categoryRoomRepository.DeleteAsync(id);
+            // Cập nhật category room thành IsVisible = false
+            categoryRoom.IsVisible = false;
+            return await _categoryRoomRepository.UpdateAsync(categoryRoom);
         }
-
 
 
         public async Task<PaginatedList<CategoryRoomDto>> ListPagingAsync(int pageNumber, int pageSize, int restaurantId, string? categoryRoomName)

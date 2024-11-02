@@ -93,8 +93,6 @@ namespace TOPDER.Service.Services
         }
 
 
-
-
         public async Task<MenuRestaurantDto> GetItemAsync(int id, int restaurantId)
         {
             var menu = await _menuRepository.GetByIdAsync(id);
@@ -113,24 +111,20 @@ namespace TOPDER.Service.Services
         }
 
 
-        public async Task<bool> RemoveAsync(int id, int restaurantId)
+        public async Task<bool> InvisibleAsync(int id, int restaurantId)
         {
             var menu = await _menuRepository.GetByIdAsync(id);
-            if (menu == null || menu.RestaurantId != restaurantId)
-            {
-                return false;
-            }
 
-            var orders = await _orderMenuRepository.GetAllAsync(); 
-            var isUsedInOrders = orders.Any(o => o.MenuId == id);
-            if (isUsedInOrders)
+            if (menu == null || menu.RestaurantId != restaurantId)
             {
                 return false; 
             }
 
-            var result = await _menuRepository.DeleteAsync(id);
-            return result; 
+            menu.IsVisible = false;
+
+            return await _menuRepository.UpdateAsync(menu);
         }
+
 
         public async Task<List<MenuCustomerByCategoryMenuDto>> ListMenuCustomerByCategoryMenuAsync(int restaurantId)
         {

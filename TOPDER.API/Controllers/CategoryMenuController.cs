@@ -118,23 +118,16 @@ namespace TOPDER.API.Controllers
             return NotFound($"Category Menu với ID {categoryMenuDto.CategoryMenuId} không tồn tại.");
         }
 
-        [HttpDelete("Delete/{id}")]
-        [SwaggerOperation(Summary = "Xóa Category Menu: Restaurant")]
-        public async Task<IActionResult> RemoveCategoryMenu(int id)
+        [HttpPut("Invisible/{id}")]
+        [SwaggerOperation(Summary = "Ẩn/Xóa Category Menu và những bảng liên quan của Nhà Hàng: Restaurant")]
+        public async Task<IActionResult> SetInvisible(int id)
         {
-            try
+            var result = await _categoryMenuService.InvisibleAsync(id);
+            if (result)
             {
-                var result = await _categoryMenuService.RemoveAsync(id);
-                if (result)
-                {
-                    return Ok($"Xóa Category Menu với ID {id} thành công.");
-                }
-                return NotFound($"Category Menu với ID {id} không tồn tại.");
+                return Ok("CategoryMenu và các menu liên quan đã được ẩn thành công.");
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Đã xảy ra lỗi trong quá trình xử lý: {ex.Message}");
-            }
+            return NotFound("Không tìm thấy CategoryMenu với ID tương ứng.");
         }
 
     }

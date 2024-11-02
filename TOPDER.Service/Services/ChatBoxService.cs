@@ -13,6 +13,7 @@ using TOPDER.Service.Dtos.Chat;
 using TOPDER.Service.Dtos.ChatBox;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TOPDER.Service.Services
 {
@@ -42,7 +43,7 @@ namespace TOPDER.Service.Services
             return chatBoxDto;
         }
 
-        public async Task<PaginatedList<ChatBoxDto>> GetPagingAsync(int pageNumber, int pageSize, int userId)
+        public async Task<List<ChatBoxDto>> GetChatListAsync(int userId)
         {
             var queryable = await _chatBoxRepository.QueryableAsync();
 
@@ -51,16 +52,9 @@ namespace TOPDER.Service.Services
                 .Include(x => x.Customer)
                 .Where(x => x.CustomerId == userId || x.RestaurantId == userId);
 
+            var queryDTO = _mapper.Map<List<ChatBoxDto>>(filteredQuery);
 
-            var queryDTO = filteredQuery.Select(r => _mapper.Map<ChatBoxDto>(r));
-
-            var paginatedDTOs = await PaginatedList<ChatBoxDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-
-            return paginatedDTOs;
+            return queryDTO;
         }
 
         public async Task<bool> RemoveAsync(int id)

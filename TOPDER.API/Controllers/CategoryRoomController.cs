@@ -112,9 +112,9 @@ namespace TOPDER.API.Controllers
             return NotFound($"Category Room với ID {categoryRoomDto.CategoryRoomId} không tồn tại.");
         }
 
-        [HttpDelete("Delete/{categoryRoomId}")]
-        [SwaggerOperation(Summary = "Xóa Category Room của Nhà Hàng: Restaurant")]
-        public async Task<IActionResult> Remove(int categoryRoomId)
+        [HttpPut("Invisible/{categoryRoomId}")]
+        [SwaggerOperation(Summary = "Ẩn/Xóa Category Room -> Room -> Table của Nhà Hàng: Restaurant")]
+        public async Task<IActionResult> SetInvisible(int categoryRoomId)
         {
             if (categoryRoomId <= 0)
             {
@@ -123,10 +123,10 @@ namespace TOPDER.API.Controllers
 
             try
             {
-                var result = await _categoryRoomService.RemoveAsync(categoryRoomId);
+                var result = await _categoryRoomService.InvisibleAsync(categoryRoomId);
                 if (result)
                 {
-                    return Ok(new { message = "Xóa CategoryRoom thành công." });
+                    return Ok(new { message = "Ẩn CategoryRoom và những bảng liên quan thành công." });
                 }
                 return NotFound(new { message = "CategoryRoom không tìm thấy." });
             }

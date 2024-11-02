@@ -211,16 +211,21 @@ namespace TOPDER.Service.Services
         }
 
 
-        public async Task<bool> RemoveAsync(int id, int restaurantId)
+        public async Task<bool> InvisibleAsync(int id, int restaurantId)
         {
             var table = await _restaurantTableRepository.GetByIdAsync(id);
 
+            // Kiểm tra sự tồn tại của bàn và quyền truy cập
             if (table == null || table.RestaurantId != restaurantId)
             {
                 return false;
             }
-            return await _restaurantTableRepository.DeleteAsync(id);
+
+            // Đánh dấu là không hiển thị thay vì xóa
+            table.IsVisible = false;
+            return await _restaurantTableRepository.UpdateAsync(table);
         }
+
 
         public async Task<List<RestaurantTableRestaurantDto>> GetAvailableTablesAsync(int restaurantId, TimeSpan timeReservation, DateTime dateReservation)
         {
@@ -284,8 +289,11 @@ namespace TOPDER.Service.Services
             {
                 return false;
             }
-            var restaurantTable = _mapper.Map<RestaurantTable>(restaurantTableDto);
-            return await _restaurantTableRepository.UpdateAsync(restaurantTable);
+            existingRestaurantTable.RoomId = restaurantTableDto.RoomId;
+            existingRestaurantTable.TableName = restaurantTableDto.TableName;
+            existingRestaurantTable.MaxCapacity = restaurantTableDto.MaxCapacity;
+            existingRestaurantTable.Description = restaurantTableDto.Description;
+            return await _restaurantTableRepository.UpdateAsync(existingRestaurantTable);
         }
 
 

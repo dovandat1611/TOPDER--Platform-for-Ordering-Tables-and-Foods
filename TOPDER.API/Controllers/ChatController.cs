@@ -19,7 +19,7 @@ namespace TOPDER.API.Controllers
 
         [HttpPost("Create")]
         [SwaggerOperation(Summary = "Tạo tin nhắn: Customer | Restaurant")]
-        public async Task<IActionResult> CreateChat([FromBody] CreateorUpdateChatDto createChatDto)
+        public async Task<IActionResult> CreateChat([FromBody] CreateChatDto createChatDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -70,7 +70,7 @@ namespace TOPDER.API.Controllers
 
         [HttpPut("Update")]
         [SwaggerOperation(Summary = "Cập nhật tin nhắn: Customer | Restaurant")]
-        public async Task<IActionResult> UpdateChat([FromBody] CreateorUpdateChatDto updateChatDto)
+        public async Task<IActionResult> UpdateChat([FromBody] UpdateChatDto updateChatDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

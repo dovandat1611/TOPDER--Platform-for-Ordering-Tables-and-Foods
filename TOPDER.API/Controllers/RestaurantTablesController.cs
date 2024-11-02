@@ -68,21 +68,21 @@ namespace TOPDER.API.Controllers
             var result = await _restaurantTableService.UpdateAsync(restaurantTableDto);
             if (result)
             {
-                return NoContent();
+                return Ok("Update table thành công");
             }
 
             return NotFound($"Không tìm thấy bàn với ID {restaurantTableDto.TableId} hoặc không thuộc nhà hàng đã chỉ định.");
         }
 
 
-        [HttpDelete("Delete/{restaurantId}/{tableId}")]
-        [SwaggerOperation(Summary = "Xóa bàn: Restaurant")]
-        public async Task<IActionResult> RemoveAsync(int restaurantId, int tableId)
+        [HttpPut("Invisible/{restaurantId}/{tableId}")]
+        [SwaggerOperation(Summary = "Xóa/Ẩn bàn: Restaurant")]
+        public async Task<IActionResult> SetInvisible(int restaurantId, int tableId)
         {
-            var result = await _restaurantTableService.RemoveAsync(tableId, restaurantId);
+            var result = await _restaurantTableService.InvisibleAsync(tableId, restaurantId);
             if (result)
             {
-                return NoContent();
+                return Ok($"Ẩn/Xóa Table thành công.");
             }
 
             return NotFound($"Không tìm thấy bàn với ID {tableId} hoặc không thuộc nhà hàng đã chỉ định.");

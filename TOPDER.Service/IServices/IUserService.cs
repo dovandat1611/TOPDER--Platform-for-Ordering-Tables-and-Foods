@@ -23,5 +23,6 @@ namespace TOPDER.Service.IServices
         Task<UserOrderIsBalance> GetInformationUserOrderIsBalance(int id);
         Task<bool> CheckExistEmail(string email);
         Task<bool> ChangePassword(ChangePasswordRequest changePassword);
+        Task<List<UserLoginDTO>> GetAllUsersAsync();
     }
 }

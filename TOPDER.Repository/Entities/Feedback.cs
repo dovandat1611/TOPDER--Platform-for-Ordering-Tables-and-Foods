@@ -13,6 +13,8 @@ namespace TOPDER.Repository.Entities
         public string? Content { get; set; }
         public DateTime CreateDate { get; set; }
         public string? Status { get; set; }
+        public bool? IsVisible { get; set; }
+
 
         public virtual Customer? Customer { get; set; }
         public virtual Order Order { get; set; } = null!;

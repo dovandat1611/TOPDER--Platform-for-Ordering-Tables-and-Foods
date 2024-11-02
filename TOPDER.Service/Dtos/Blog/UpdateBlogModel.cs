@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace TOPDER.Service.Dtos.Blog
     {
         public int BlogId { get; set; }
         public int? BloggroupId { get; set; }
+        public IFormFile? ImageFile { get; set; }
         public string? Image { get; set; }
         public string? Title { get; set; }
         public string Content { get; set; } = null!;

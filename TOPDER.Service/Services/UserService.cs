@@ -184,6 +184,21 @@ namespace TOPDER.Service.Services
             return _mapper.Map<UserLoginDTO>(user);
         }
 
+
+        public async Task<List<UserLoginDTO>> GetAllUsersAsync()
+        {
+            var users = await _userRepository.QueryableAsync();
+
+            var user = await users
+                .Include(x => x.Role)
+                .Include(x => x.Admin)
+                .Include(x => x.Customer)
+                .Include(x => x.Restaurant)
+                .ToListAsync();
+
+            return _mapper.Map<List<UserLoginDTO>>(user);
+        }
+
         public async Task<bool> Verify(int id)
         {
             var user = await _userRepository.GetByIdAsync(id);

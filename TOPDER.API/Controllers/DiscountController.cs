@@ -80,25 +80,17 @@ namespace TOPDER.API.Controllers
         public async Task<ActionResult> GetRestaurantPaging(int pageNumber, int pageSize, int restaurantId)
         {
             var result = await _discountService.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId);
-
-            var response = new PaginatedResponseDto<DiscountDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-            return Ok(response);
+            return Ok(result);
         }
 
-        [HttpDelete("Delete/{restaurantId}/{discountId}")]
-        [SwaggerOperation(Summary = "Xóa Discount của nhà hàng: Restaurant")]
-        public async Task<ActionResult> RemoveDiscount(int restaurantId, int discountId)
+        [HttpPut("Invisible/{restaurantId}/{discountId}")]
+        [SwaggerOperation(Summary = "Ẩn/Xóa Discount của nhà hàng: Restaurant")]
+        public async Task<ActionResult> SetInvisible(int restaurantId, int discountId)
         {
-            var result = await _discountService.RemoveAsync(discountId, restaurantId);
+            var result = await _discountService.InvisibleAsync(discountId, restaurantId);
             if (result)
             {
-                return Ok("Xóa Discount thành công.");
+                return Ok("Ẩn/Xóa Discount thành công.");
             }
             return NotFound("Giảm giá không tồn tại hoặc không thuộc về nhà hàng.");
         }
@@ -116,6 +108,23 @@ namespace TOPDER.API.Controllers
                 return Ok("Cập Nhật Discount thành công."); 
             }
             return NotFound("Giảm giá không tồn tại hoặc không thuộc về nhà hàng.");
+        }
+
+        [HttpPut("Active")]
+        public async Task<IActionResult> ActivateDiscount([FromBody] ActiveDiscountDto activeDiscountDto)
+        {
+            if (activeDiscountDto == null)
+            {
+                return BadRequest("Invalid discount data.");
+            }
+
+            var result = await _discountService.ActiveAsync(activeDiscountDto);
+            if (!result)
+            {
+                return NotFound("Discount not found or restaurant ID does not match.");
+            }
+
+            return Ok("Discount activation status updated successfully.");
         }
 
     }

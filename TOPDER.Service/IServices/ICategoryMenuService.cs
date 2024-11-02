@@ -13,7 +13,7 @@ namespace TOPDER.Service.IServices
     {
         Task<bool> AddAsync(CreateCategoryMenuDto createCategoryMenuDto);
         Task<bool> UpdateAsync(CategoryMenuDto categoryMenuDto);
-        Task<bool> RemoveAsync(int id);
+        Task<bool> InvisibleAsync(int id);
         Task<CategoryMenuDto> GetItemAsync(int id, int restaurantId);
         Task<List<CategoryMenuDto>> GetAllCategoryMenuAsync(int restaurantId);
         Task<PaginatedList<CategoryMenuDto>> ListPagingAsync(int pageNumber, int pageSize, int restaurantId ,string? categoryMenuName);

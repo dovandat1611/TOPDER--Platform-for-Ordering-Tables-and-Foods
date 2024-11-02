@@ -52,19 +52,11 @@ namespace TOPDER.API.Controllers
 
         [HttpGet("GetChatBoxList/{userId}")]
         [SwaggerOperation(Summary = "Lấy danh sách ChatBox của User: Restaurant | Customer")]
-        public async Task<IActionResult> GetChatBoxPaging(int pageNumber, int pageSize, int userId)
+        public async Task<IActionResult> GetChatBoxPaging(int userId)
         {
-            var result = await _chatBoxService.GetPagingAsync(pageNumber, pageSize, userId);
+            var result = await _chatBoxService.GetChatListAsync(userId);
 
-            var response = new PaginatedResponseDto<ChatBoxDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-
-            return Ok(response);
+            return Ok(result);
         }
 
         [HttpDelete("Delete/{id}")]

@@ -561,5 +561,20 @@ namespace TOPDER.API.Controllers
         }
 
 
+        [HttpGet("GetAllUser")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            try
+            {
+                var users = await _userService.GetAllUsersAsync();
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi khi lấy danh sách người dùng: {ex.Message}");
+            }
+        }
+
+
     }
 }

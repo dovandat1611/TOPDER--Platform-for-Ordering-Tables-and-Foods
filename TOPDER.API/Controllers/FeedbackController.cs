@@ -43,14 +43,14 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpDelete("Delete/{feedbackId}")]
-        [SwaggerOperation(Summary = "Xóa Feedback: Customer | Admin")]
-        public async Task<IActionResult> DeleteFeedback(int feedbackId)
+        [HttpPut("Invisible/{feedbackId}")]
+        [SwaggerOperation(Summary = "Ẩn/Xóa Feedback: Customer | Admin")]
+        public async Task<IActionResult> SetInvisible(int feedbackId)
         {
-            var result = await _feedbackService.RemoveAsync(feedbackId);
+            var result = await _feedbackService.InvisibleAsync(feedbackId);
             if (result)
             {
-                return Ok($"Feedback with ID {feedbackId} deleted successfully.");
+                return Ok($"Ẩn/Xóa Feedback thành công.");
             }
             return NotFound($"Feedback with ID {feedbackId} not found.");
         }

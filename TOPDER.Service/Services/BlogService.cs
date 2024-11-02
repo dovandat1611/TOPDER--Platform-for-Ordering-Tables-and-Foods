@@ -34,6 +34,8 @@ namespace TOPDER.Service.Services
         public async Task<bool> AddAsync(CreateBlogModel createBlogModel)
         {
             var blog = _mapper.Map<Blog>(createBlogModel);
+            blog.Status = Common_Status.ACTIVE;
+            blog.CreateDate = DateTime.Now;
             return await _blogRepository.CreateAsync(blog);
         }
 
@@ -175,8 +177,15 @@ namespace TOPDER.Service.Services
             {
                 return false;
             }
-            var blog = _mapper.Map<Blog>(updateBlogModel);
-            return await _blogRepository.UpdateAsync(blog);
+            existingBlog.BloggroupId = updateBlogModel.BloggroupId;
+            existingBlog.Title = updateBlogModel.Title;
+            existingBlog.Content = updateBlogModel.Content;
+            if (!string.IsNullOrEmpty(updateBlogModel.Image))
+            {
+                existingBlog.Image = updateBlogModel.Image;
+            }
+            return await _blogRepository.UpdateAsync(existingBlog);
         }
+
     }
 }

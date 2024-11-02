@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Service.Services;
 using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Blog;
@@ -14,10 +15,12 @@ namespace TOPDER.API.Controllers
     public class BlogController : ControllerBase
     {
         private readonly IBlogService _blogService;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public BlogController(IBlogService blogService)
+        public BlogController(IBlogService blogService, ICloudinaryService cloudinaryService)
         {
             _blogService = blogService;
+            _cloudinaryService = cloudinaryService;
         }
 
 
@@ -30,6 +33,13 @@ namespace TOPDER.API.Controllers
                 return BadRequest(ModelState);
             }
 
+            if (createBlogModel.ImageFile != null && createBlogModel.ImageFile.Length > 0)
+            {
+                var uploadResult = await _cloudinaryService.UploadImageAsync(createBlogModel.ImageFile);
+
+                createBlogModel.Image = uploadResult.SecureUrl.ToString();
+            }
+           
             var result = await _blogService.AddAsync(createBlogModel);
             if (!result)
             {
@@ -85,6 +95,13 @@ namespace TOPDER.API.Controllers
                 return BadRequest(ModelState);
             }
 
+            if (updateBlogModel.ImageFile != null && updateBlogModel.ImageFile.Length > 0)
+            {
+                var uploadResult = await _cloudinaryService.UploadImageAsync(updateBlogModel.ImageFile);
+
+                updateBlogModel.Image = uploadResult.SecureUrl.ToString();
+            }
+
             var result = await _blogService.UpdateAsync(updateBlogModel);
             if (!result)
             {
@@ -111,7 +128,7 @@ namespace TOPDER.API.Controllers
         [SwaggerOperation(Summary = "Danh sách Blog: Customer")]
         public async Task<IActionResult> CustomerBlogList(
             [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10,
+            [FromQuery] int pageSize = 1000,
             [FromQuery] int? blogGroupId = null,
             [FromQuery] string? title = null)
         {
@@ -131,7 +148,7 @@ namespace TOPDER.API.Controllers
         [SwaggerOperation(Summary = "Danh sách Blog: Admin")]
         public async Task<IActionResult> AdminBlogList(
             [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10,
+            [FromQuery] int pageSize = 1000,
             [FromQuery] int? blogGroupId = null,
             [FromQuery] string? title = null)
         {
