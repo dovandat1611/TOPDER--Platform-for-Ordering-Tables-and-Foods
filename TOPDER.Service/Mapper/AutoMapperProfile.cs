@@ -306,7 +306,9 @@ namespace TOPDER.Service.Mapper
                 .ForMember(dest => dest.RestaurantName,
                            opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.NameRes : Is_Null.ISNULL))
                 .ForMember(dest => dest.RestaurantPhone,
-                           opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.Phone : Is_Null.ISNULL));
+                           opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.Phone : Is_Null.ISNULL))
+                .ForMember(dest => dest.IsFeedback,
+                           opt => opt.MapFrom(src => src.Feedbacks != null && src.Feedbacks.Any()));
 
             CreateMap<OrderRestaurantDto, Order>().ReverseMap();
 

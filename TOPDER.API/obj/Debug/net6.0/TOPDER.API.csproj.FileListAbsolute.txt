@@ -88,3 +88,9 @@ C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\Microso
 C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\Microsoft.IdentityModel.Abstractions.dll
 C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.Google.dll
 C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\Swashbuckle.AspNetCore.Annotations.dll
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\Google.Apis.dll
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\Google.Apis.Auth.dll
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\Google.Apis.Core.dll
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\System.CodeDom.dll
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\System.Management.dll
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.API\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Management.dll

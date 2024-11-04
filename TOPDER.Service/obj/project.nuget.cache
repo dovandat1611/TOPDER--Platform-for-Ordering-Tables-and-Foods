@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "3hmXFMphOnNeDoFqeYtbTkB0iRY8LK+8nC0iZYvge/yjv9iX+WYm7OfFoiqGlZ+djkBk7LHJ+/xdq4YqSB8P/g==",
+  "dgSpecHash": "dLDRoFaY+UqCoe3jq/XG0OsaggdaIuN2xcTxVV+/egmiAWqiPleSQ3WasXXDeiOZgGqY//JmkjgrpSiNTJurhQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\Lenovo\\Documents\\C#\\CAPSTONE\\TOPDER\\TOPDER.Service\\TOPDER.Service.csproj",
   "expectedPackageFiles": [
@@ -11,6 +11,9 @@
     "C:\\Users\\Lenovo\\.nuget\\packages\\epplus\\6.2.19\\epplus.6.2.19.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\epplus.interfaces\\6.1.1\\epplus.interfaces.6.1.1.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\epplus.system.drawing\\6.1.1\\epplus.system.drawing.6.1.1.nupkg.sha512",
+    "C:\\Users\\Lenovo\\.nuget\\packages\\google.apis\\1.68.0\\google.apis.1.68.0.nupkg.sha512",
+    "C:\\Users\\Lenovo\\.nuget\\packages\\google.apis.auth\\1.68.0\\google.apis.auth.1.68.0.nupkg.sha512",
+    "C:\\Users\\Lenovo\\.nuget\\packages\\google.apis.core\\1.68.0\\google.apis.core.1.68.0.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\mailkit\\4.7.1.1\\mailkit.4.7.1.1.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\microsoft.aspnetcore.authentication.google\\6.0.32\\microsoft.aspnetcore.authentication.google.6.0.32.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\6.0.30\\microsoft.aspnetcore.authentication.jwtbearer.6.0.30.nupkg.sha512",
@@ -74,6 +77,7 @@
     "C:\\Users\\Lenovo\\.nuget\\packages\\runtime.ubuntu.16.04-x64.runtime.native.system.security.cryptography.openssl\\4.3.2\\runtime.ubuntu.16.04-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl\\4.3.2\\runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\system.buffers\\4.5.0\\system.buffers.4.5.0.nupkg.sha512",
+    "C:\\Users\\Lenovo\\.nuget\\packages\\system.codedom\\7.0.0\\system.codedom.7.0.0.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\system.collections\\4.3.0\\system.collections.4.3.0.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\system.collections.concurrent\\4.3.0\\system.collections.concurrent.4.3.0.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\system.collections.immutable\\6.0.0\\system.collections.immutable.6.0.0.nupkg.sha512",
@@ -91,6 +95,7 @@
     "C:\\Users\\Lenovo\\.nuget\\packages\\system.io.filesystem\\4.3.0\\system.io.filesystem.4.3.0.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\system.io.filesystem.primitives\\4.3.0\\system.io.filesystem.primitives.4.3.0.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\system.linq\\4.3.0\\system.linq.4.3.0.nupkg.sha512",
+    "C:\\Users\\Lenovo\\.nuget\\packages\\system.management\\7.0.2\\system.management.7.0.2.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\system.net.http\\4.3.4\\system.net.http.4.3.4.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\system.net.primitives\\4.3.0\\system.net.primitives.4.3.0.nupkg.sha512",
     "C:\\Users\\Lenovo\\.nuget\\packages\\system.reflection\\4.3.0\\system.reflection.4.3.0.nupkg.sha512",

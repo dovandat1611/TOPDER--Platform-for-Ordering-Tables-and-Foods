@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Google.Apis.Auth;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -16,57 +18,52 @@ namespace TOPDER.Service.Services
 {
     public class IdentityService : IIdentityService
     {
-        private static readonly HttpClient httpClient = new HttpClient();
         private readonly JwtHelper _jwtHelper;
         private readonly IUserService _userService;
         private readonly IWalletService _walletService;
         private readonly ICustomerService _customerService;
         private readonly IExternalLoginService _externalLoginService;
+        private readonly string _clientId;
+
 
         public IdentityService(JwtHelper jwtHelper,
             IUserService userService, IWalletService walletService,
-            ICustomerService customerService, IExternalLoginService externalLoginService)
+            ICustomerService customerService,
+            IExternalLoginService externalLoginService, IConfiguration configuration)
         {
             _jwtHelper = jwtHelper;
             _userService = userService;
             _walletService = walletService;
             _customerService = customerService;
             _externalLoginService = externalLoginService;
+            _clientId = configuration["Authentication:Google:ClientId"];
         }
 
         public async Task<ApiResponse> AuthenticateWithGoogle(string accessToken)
         {
             try
             {
-                // Sử dụng HttpClient đã khai báo ở lớp, không tạo mới mỗi lần gọi
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                var response = await httpClient.GetAsync("https://www.googleapis.com/oauth2/v3/userinfo");
-
-                if (!response.IsSuccessStatusCode)
+                var payload = await GoogleJsonWebSignature.ValidateAsync(accessToken, new GoogleJsonWebSignature.ValidationSettings
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    return new ApiResponse { Success = false, Message = errorContent.ToUpper() };
-                }
+                    Audience = new[] { _clientId } // Đảm bảo rằng client ID khớp
+                });
 
-                // Đọc dữ liệu từ phản hồi của Google
-                var userInfo = await response.Content.ReadAsStringAsync();
-                var user = JObject.Parse(userInfo);
-
-                var userResult = new
+                // Nếu xác thực thành công, trả về thông tin người dùng
+                UserInfoLoginGoole userInfoLogin =  new UserInfoLoginGoole()
                 {
-                    Id = user["sub"]?.ToString(),
-                    Email = user["email"]?.ToString(),
-                    Name = user["name"]?.ToString(),
-                    Picture = user["picture"]?.ToString()
+                    Id = payload.JwtId,
+                    Email = payload.Email,
+                    Name = payload.Name,
+                    Picture = payload.Picture
                 };
 
-                if (string.IsNullOrEmpty(userResult.Email))
+                if (string.IsNullOrEmpty(userInfoLogin.Email))
                 {
                     return new ApiResponse { Success = false, Message = "INVALID USER EMAIL" };
                 }
 
                 // Kiểm tra xem người dùng đã tồn tại trong hệ thống chưa
-                var existingUser = await _userService.GetUserByEmail(userResult.Email);
+                var existingUser = await _userService.GetUserByEmail(userInfoLogin.Email);
                 if (existingUser != null)
                 {
                     var isProfileComplete = await _customerService.CheckProfile(existingUser.Uid);
@@ -82,7 +79,7 @@ namespace TOPDER.Service.Services
                 // Tạo người dùng mới nếu chưa tồn tại
                 var userDto = new UserDto
                 {
-                    Email = userResult.Email,
+                    Email = userInfoLogin.Email,
                     RoleId = 3, // CUSTOMER
                     IsVerify = true,
                     Status = Common_Status.ACTIVE,
@@ -102,7 +99,7 @@ namespace TOPDER.Service.Services
                     Id = 0,
                     Uid = newUser.Uid,
                     ExternalProvider = ExternalProvider.GOOGLE,
-                    ExternalUserId = userResult.Id ?? Is_Null.ISNULL,
+                    ExternalUserId = userInfoLogin.Id ?? Is_Null.ISNULL,
                     AccessToken = accessToken
                 };
                 await _externalLoginService.AddAsync(externalLogin);
@@ -120,8 +117,8 @@ namespace TOPDER.Service.Services
                 var customerRequest = new CreateCustomerRequest
                 {
                     Uid = newUser.Uid,
-                    Name = userResult.Name,
-                    Image = userResult.Picture
+                    Name = userInfoLogin.Name,
+                    Image = userInfoLogin.Picture
                 };
                 var addedCustomer = await _customerService.AddAsync(customerRequest);
 
@@ -131,7 +128,7 @@ namespace TOPDER.Service.Services
                     {
                         Uid = newUser.Uid,
                         Email = newUser.Email,
-                        Name = userResult.Name,
+                        Name = userInfoLogin.Name,
                         Role = User_Role.CUSTOMER,
                     };
 

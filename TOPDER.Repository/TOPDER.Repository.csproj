@@ -11,6 +11,7 @@
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 		<PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
 		<PackageReference Include="EPPlus" Version="6.2.19" />
+		<PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
 		<PackageReference Include="MailKit" Version="4.7.1.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.32" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.30" />

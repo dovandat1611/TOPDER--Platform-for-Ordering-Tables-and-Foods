@@ -73,6 +73,7 @@ namespace TOPDER.Service.Services
             // Lọc theo CustomerId
             var query = queryable
                 .Include(x => x.Restaurant)
+                .Include(x => x.Feedbacks)
                 .Where(x => x.CustomerId == customerId);
 
             // Kiểm tra nếu có giá trị status thì lọc theo status
