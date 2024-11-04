@@ -51,6 +51,7 @@ namespace TOPDER.Service.Services
                 CustomerAgeGroup = customerAgeGroup,
                 ChartCategoryRestaurants = await GetChartCategoryRestaurantsAsync(),
                 MarketOverview = await GetMarketOverviewAdminAsync(orders, 0),
+                YearsContainOrders = await GetYearsWithOrdersAsync(null),
             };
         }
 
@@ -78,7 +79,10 @@ namespace TOPDER.Service.Services
 
         public async Task<DashboardRestaurantDto> GetDashboardRestaurantAsync(int restaurantId)
         {
-            var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
+            var query = await _restaurantRepository.QueryableAsync();
+
+            var restaurant = await query.Include(x => x.Feedbacks).FirstOrDefaultAsync(x => x.Uid == restaurantId);
+
             if (restaurant == null)
             {
                 throw new KeyNotFoundException($"Restaurant with ID {restaurantId} not found.");
@@ -92,31 +96,84 @@ namespace TOPDER.Service.Services
                 CustomerAgeGroup = await GetCustomerAgeGroupAsync(restaurantId),
                 FeedbackStars = await GetFeedbackStarsAsync(restaurantId),
                 MarketOverview = await GetMarketOverviewRestaurantAsync(restaurantId,0),
+                YearsContainOrders = await GetYearsWithOrdersAsync(restaurantId),
             };
+
+            dashboardDto.TaskBar.RestaurantBookingStatus = restaurant.IsBookingEnabled ?? true;
+
+            // Tính toán sao trung bình từ feedbacks
+            var feedbacks = restaurant.Feedbacks;
+            var averageStar = feedbacks != null && feedbacks.Any()
+                ? (int)Math.Round(feedbacks.Average(f => f.Star ?? 0))
+                : 0;
+
+            dashboardDto.TaskBar.Star = averageStar;
 
             return dashboardDto;
         }
+        public async Task<List<int>> GetYearsWithOrdersAsync(int? restaurantId)
+        {
+            // Lấy truy vấn từ repository
+            var query = await _orderRepository.QueryableAsync();
 
+            // Lọc các đơn hàng có CreatedAt không null
+            var yearsQuery = query
+                .Where(o => o.CreatedAt.HasValue);
 
+            // Nếu restaurantId có giá trị, thêm điều kiện lọc
+            if (restaurantId.HasValue && restaurantId != null)
+            {
+                yearsQuery = yearsQuery.Where(o => o.RestaurantId == restaurantId);
+            }
+
+            // Lấy năm từ CreatedAt, loại bỏ các năm trùng lặp và sắp xếp theo thứ tự tăng dần
+            var years = await yearsQuery
+                .Select(o => o.CreatedAt.Value.Year)
+                .Distinct()
+                .OrderBy(y => y)
+                .ToListAsync();
+
+            return years;
+        }
 
 
         private async Task<TaskBarRestaurantDTO> GetTaskBarDataAsync(int restaurantId)
         {
-            var queryableOrders = await _orderRepository.QueryableAsync(); // Awaiting here
-            var orders = await queryableOrders
-                .Where(o => o.RestaurantId == restaurantId) // Now we can use Where
-                .ToListAsync();
+            // Truy vấn các đơn hàng của nhà hàng dựa trên restaurantId
+            var queryableOrders = await _orderRepository.QueryableAsync();
 
-            // Calculate total orders and total income
-            var totalOrders = orders.Count();
-            var totalIncome = orders.Sum(o => o.TotalAmount);
+            // Lọc các đơn hàng theo nhà hàng và chỉ lấy các đơn hàng hoàn tất để tính toán thu nhập
+            var orders = queryableOrders.Where(o => o.RestaurantId == restaurantId);
+
+            // Tổng số đơn hàng và tổng thu nhập
+            var totalOrders = await orders.CountAsync();
+            var totalIncome = await orders.SumAsync(o => o.TotalAmount);
+
+            // Thu nhập và số lượng đơn hàng của tháng hiện tại
+            var currentMonthIncome = (double)(await orders
+                .Where(o => o.CompletedAt.HasValue && o.CompletedAt.Value.Month == DateTime.Now.Month)
+                .SumAsync(o => o.TotalAmount));
+
+            var currentMonthOrdersCount = await orders
+                .CountAsync(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == DateTime.Now.Month);
 
             return new TaskBarRestaurantDTO
             {
                 TotalOrder = totalOrders,
-                TotalIncome = (double)totalIncome
+                TotalIncome = (double)totalIncome,
+                CurrentMonthIncome = new CurrentMonthIncomeDTO
+                {
+                    CurrentMonthIncome = currentMonthIncome,
+                    IncomeGrowthRate = CalculateGrowthRate(orders, "Income")
+                },
+                CurrentMonthOrder = new CurrentMonthOrderDTO
+                {
+                    CurrentMonthOrder = currentMonthOrdersCount,
+                    OrderGrowthRate = CalculateGrowthRate(orders, "Order")
+                }
             };
         }
+
 
         private async Task<OrderStatusDTO> GetOrderStatusAsync(int restaurantId)
         {
@@ -465,14 +522,14 @@ namespace TOPDER.Service.Services
 
             if (type == "Order")
             {
-                if (!lastMonthOrders.Any()) return 0;
+                if (!lastMonthOrders.Any()) return 100;
                 return ((double)currentMonthOrders.Count() - lastMonthOrders.Count()) / lastMonthOrders.Count() * 100;
             }
             else if (type == "Income")
             {
                 var lastMonthIncome = lastMonthOrders.Sum(o => o.TotalAmount);
                 var currentMonthIncome = currentMonthOrders.Sum(o => o.TotalAmount);
-                if (lastMonthIncome == 0) return 0;
+                if (lastMonthIncome == 0) return 100;
                 return (double)((currentMonthIncome - lastMonthIncome) / lastMonthIncome * 100);
             }
 

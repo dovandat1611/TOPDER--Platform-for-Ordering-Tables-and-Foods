@@ -14,5 +14,6 @@ namespace TOPDER.Service.Dtos.Dashboard
         public CustomerAgeGroupDTO CustomerAgeGroup { get; set; } = null!;
         public FeedbackStarDTO FeedbackStars { get; set; } = null!;
         public MarketOverviewDTO MarketOverview { get; set; } = null!;
+        public List<int> YearsContainOrders { get; set; } = new List<int> {};
     }
 }
