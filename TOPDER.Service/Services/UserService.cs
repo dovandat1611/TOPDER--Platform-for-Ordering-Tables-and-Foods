@@ -181,6 +181,16 @@ namespace TOPDER.Service.Services
                 throw new UnauthorizedAccessException("Email hoặc mật khẩu không hợp lệ.");
             }
 
+            if(user.IsVerify == false)
+            {
+                throw new UnauthorizedAccessException("Email chưa được Verify.");
+            }
+
+            if (user.Status.Equals(Common_Status.INACTIVE))
+            {
+                throw new UnauthorizedAccessException("Tài khoản hiện không thể đăng nhập vào hệ thống.");
+            }
+
             return _mapper.Map<UserLoginDTO>(user);
         }
 

@@ -32,8 +32,5 @@ namespace TOPDER.Service.Dtos.Order
         public DateTime? PaidAt { get; set; }
         public DateTime? CompletedAt { get; set; }
         public DateTime? CancelledAt { get; set; }
-
-        public List<OrderTableDto> OrderTables { get; set; } = new List<OrderTableDto> { };
-        public List<OrderMenuDto> OrderMenus { get; set; } = new List<OrderMenuDto> { };
     }
 }

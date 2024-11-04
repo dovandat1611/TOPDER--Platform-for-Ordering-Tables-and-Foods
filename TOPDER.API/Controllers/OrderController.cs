@@ -249,7 +249,7 @@ namespace TOPDER.API.Controllers
                     }
                     else if (discount.Scope == DiscountScope.PER_SERVICE)
                     {
-                        await ApplyServiceDiscountAsync(orderModel, discount, totalAmount);
+                        totalAmount = await ApplyServiceDiscountAsync(orderModel, discount, totalAmount);
                     }
                 }
             }
@@ -265,7 +265,7 @@ namespace TOPDER.API.Controllers
         }
 
         // Phương thức áp dụng giảm giá theo menu
-        private async Task ApplyServiceDiscountAsync(OrderModel orderModel, Discount discount, decimal totalAmount)
+        private async Task<decimal> ApplyServiceDiscountAsync(OrderModel orderModel, Discount discount, decimal totalAmount)
         {
             var discountMenus = await _discountMenuRepository.QueryableAsync();
             var applicableMenus = await discountMenus
@@ -291,6 +291,7 @@ namespace TOPDER.API.Controllers
                     }
                 }
             }
+            return totalAmount;
         }
 
         // Phương thức tính tổng tiền theo menu
@@ -593,6 +594,10 @@ namespace TOPDER.API.Controllers
             try
             {
                 var orderDto = await _orderService.GetItemAsync(orderId, Uid);
+                var orderTables = await _orderTableService.GetItemsByOrderAsync(orderDto.OrderId);
+                var orderMenus = await _orderMenuService.GetItemsByOrderAsync(orderDto.OrderId);
+                orderDto.OrderTables = orderTables;
+                orderDto.OrderMenus = orderMenus;
                 return Ok(orderDto);
             }
             catch (KeyNotFoundException)
@@ -612,16 +617,6 @@ namespace TOPDER.API.Controllers
         {
             // Gọi service để lấy dữ liệu có phân trang
             PaginatedList<OrderCustomerDto> result = await _orderService.GetCustomerPagingAsync(pageNumber, pageSize, customerId, status);
-
-
-            foreach(var item in result)
-            {
-                var orderTables = await _orderTableService.GetItemsByOrderAsync(item.OrderId);
-                var orderMenus = await _orderMenuService.GetItemsByOrderAsync(item.OrderId);
-                
-                item.OrderTables = orderTables;
-                item.OrderMenus = orderMenus;
-            }
 
             // Tạo response DTO
             var response = new PaginatedResponseDto<OrderCustomerDto>(
@@ -643,15 +638,6 @@ namespace TOPDER.API.Controllers
         {
             // Gọi service để lấy dữ liệu có phân trang
             PaginatedList<OrderRestaurantDto> result = await _orderService.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId, status, month, date);
-
-            foreach (var item in result)
-            {
-                var orderTables = await _orderTableService.GetItemsByOrderAsync(item.OrderId);
-                var orderMenus = await _orderMenuService.GetItemsByOrderAsync(item.OrderId);
-
-                item.OrderTables = orderTables;
-                item.OrderMenus = orderMenus;
-            }
 
             // Tạo response DTO
             var response = new PaginatedResponseDto<OrderRestaurantDto>(
