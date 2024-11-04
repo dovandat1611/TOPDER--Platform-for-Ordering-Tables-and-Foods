@@ -32,5 +32,6 @@ namespace TOPDER.Service.Dtos.Order
         public DateTime? PaidAt { get; set; }
         public DateTime? CompletedAt { get; set; }
         public DateTime? CancelledAt { get; set; }
+        public bool IsTableBooking { get; set; }
     }
 }
