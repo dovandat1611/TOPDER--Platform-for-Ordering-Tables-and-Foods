@@ -243,6 +243,7 @@ namespace TOPDER.API.Controllers
                 {
                     if (discount.Scope == DiscountScope.ENTIRE_ORDER)
                     {
+                        totalAmount += await CalculateMenuTotalAsync(orderModel);
                         totalAmount *= (1 - (discount.DiscountPercentage / 100)) ?? 0;
                         discount.Quantity -= 1;
                         await _discountRepository.UpdateAsync(discount);
