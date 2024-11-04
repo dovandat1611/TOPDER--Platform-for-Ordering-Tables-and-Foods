@@ -59,7 +59,7 @@ namespace TOPDER.Service.Services
                     OrderCount = group.Count()
                 })
                 .OrderByDescending(x => x.OrderCount) 
-                .Take(5)
+                .Take(4)
                 .ToList();
 
             return customerOrderCounts.Any(x => x.CustomerId == customerId);

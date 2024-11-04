@@ -219,7 +219,7 @@ namespace TOPDER.Service.Services
                     Customer = g.Select(o => o.Customer).FirstOrDefault()
                 })
                 .OrderByDescending(c => c.TotalOrder)
-                .Take(5)
+                .Take(4)
                 .ToListAsync();
 
             return loyalCustomers.Select(c => new TopLoyalCustomerDTO
@@ -419,7 +419,7 @@ namespace TOPDER.Service.Services
         {
             return await restaurants
                 .OrderByDescending(r => r.Orders.Sum(o => o.TotalAmount))
-                .Take(5)
+                .Take(4)
                 .Select(r => new TopRestaurantDTO
                 {
                     RestaurantId = r.Uid,
