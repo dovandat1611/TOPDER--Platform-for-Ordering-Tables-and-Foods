@@ -369,7 +369,7 @@ namespace TOPDER.Service.Services
             var queryable = await _orderRepository.QueryableAsync();
 
             // Lọc theo restaurantId
-            var query = queryable.Include(x => x.OrderTables).Where(x => x.RestaurantId == restaurantId);
+            var query = queryable.Include(x => x.OrderTables).Include(x => x.Customer).Where(x => x.RestaurantId == restaurantId);
 
             // Lọc theo status nếu có
             if (!string.IsNullOrEmpty(status))

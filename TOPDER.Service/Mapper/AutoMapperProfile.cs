@@ -312,7 +312,11 @@ namespace TOPDER.Service.Mapper
 
             CreateMap<Order, OrderRestaurantDto>()
                 .ForMember(dest => dest.IsTableBooking,
-                           opt => opt.MapFrom(src => src.OrderTables != null && src.OrderTables.Any()));
+                           opt => opt.MapFrom(src => src.OrderTables != null && src.OrderTables.Any()))
+                .ForMember(dest => dest.CustomerName,
+                           opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Name : Is_Null.ISNULL))
+                .ForMember(dest => dest.CustomerImage,
+                           opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Image : Is_Null.ISNULL));
 
             // USER 
 
