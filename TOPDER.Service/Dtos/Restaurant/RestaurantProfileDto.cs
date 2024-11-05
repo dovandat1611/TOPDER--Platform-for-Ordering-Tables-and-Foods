@@ -14,6 +14,8 @@ namespace TOPDER.Service.Dtos.Restaurant
         public string? CategoryRestaurantName { get; set; }
         public string NameOwner { get; set; } = null!;
         public string NameRes { get; set; } = null!;
+        public string? Description { get; set; }
+        public string? Subdescription { get; set; }
         public string? Logo { get; set; }
         public TimeSpan OpenTime { get; set; }
         public TimeSpan CloseTime { get; set; }

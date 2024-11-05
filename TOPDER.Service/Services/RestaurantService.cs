@@ -112,6 +112,8 @@ namespace TOPDER.Service.Services
             existingRestaurant.Phone = restaurant.Phone;
             existingRestaurant.MaxCapacity = restaurant.MaxCapacity;
             existingRestaurant.Price = restaurant.Price;
+            existingRestaurant.Description = restaurant.Description;
+            existingRestaurant.Subdescription = restaurant.Subdescription;
             return await _restaurantRepository.UpdateAsync(existingRestaurant);
         }
 

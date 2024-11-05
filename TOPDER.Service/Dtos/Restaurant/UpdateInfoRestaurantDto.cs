@@ -26,5 +26,7 @@ namespace TOPDER.Service.Dtos.Restaurant
         public string Phone { get; set; } = null!;
         public int MaxCapacity { get; set; }
         public decimal Price { get; set; }
+        public string? Description { get; set; }
+        public string? Subdescription { get; set; }
     }
 }
