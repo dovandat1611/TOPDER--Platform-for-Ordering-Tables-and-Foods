@@ -179,5 +179,16 @@ namespace TOPDER.Service.Services
             var feedback = _mapper.Map<Feedback>(feedbackDto);
             return await _feedbackRepository.UpdateAsync(feedback);
         }
+
+        public async Task<FeedbackDto> GetFeedbackAsync(int orderId)
+        {
+            var query = await _feedbackRepository.QueryableAsync();
+
+            var feedback = await query.FirstOrDefaultAsync(x => x.OrderId == orderId);
+
+            var feedbackDto = _mapper.Map<FeedbackDto>(feedback);
+
+            return feedbackDto;
+        }
     }
 }

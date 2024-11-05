@@ -34,6 +34,26 @@ namespace TOPDER.API.Controllers
             return BadRequest("Failed to create feedback.");
         }
 
+        [HttpGet("GetFeedback/{orderId}")]
+        public async Task<IActionResult> GetFeedback(int orderId)
+        {
+            try
+            {
+                var feedbackDto = await _feedbackService.GetFeedbackAsync(orderId);
+
+                if (feedbackDto == null)
+                {
+                    return NotFound($"Feedback for Order ID {orderId} not found.");
+                }
+
+                return Ok(feedbackDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
         [HttpGet("GetFeedbacksHistory")]
         [SwaggerOperation(Summary = "Lấy ra cách feedback mà khách hàng từng tạo: Customer")]
         public async Task<IActionResult> GetHistoryCustomerPaging([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int customerId)

@@ -129,7 +129,8 @@ namespace TOPDER.Service.Services
             var enabledRestaurants = queryable
                 .Include(x => x.CategoryRestaurant)
                 .Include(x => x.Feedbacks)
-                .Where(r => r.IsBookingEnabled == true);
+                .Include(x => x.UidNavigation)
+                .Where(r => r.IsBookingEnabled == true && r.UidNavigation.Status == Common_Status.ACTIVE);
 
             var restaurantDtos = enabledRestaurants.Select(r => _mapper.Map<RestaurantDto>(r)).ToList();
 
@@ -164,7 +165,8 @@ namespace TOPDER.Service.Services
                 .Include(x => x.Feedbacks)
                 .Include(x => x.Images)
                 .Include(x => x.Menus)
-                .FirstOrDefaultAsync(x => x.Uid == id);
+                .Include(x => x.UidNavigation)
+                .FirstOrDefaultAsync(x => x.Uid == id && x.UidNavigation.Status == Common_Status.ACTIVE);
 
             if (restaurant == null)
             {
@@ -188,8 +190,9 @@ namespace TOPDER.Service.Services
             var relateRestaurants = await query
                 .Include(x => x.CategoryRestaurant)
                 .Include(x => x.Feedbacks)
+                .Include(x => x.UidNavigation)
                 .Where(x => x.CategoryRestaurantId == restaurantCategoryId
-                && x.Uid != restaurantId && x.IsBookingEnabled == true)
+                && x.Uid != restaurantId && x.IsBookingEnabled == true && x.UidNavigation.Status == Common_Status.ACTIVE)
                 .Take(10)
                 .ToListAsync();
 
@@ -208,7 +211,8 @@ namespace TOPDER.Service.Services
             queryable = queryable
                 .Include(x => x.CategoryRestaurant)
                 .Include(x => x.Feedbacks)
-                .Where(r => r.IsBookingEnabled == true);
+                .Include(x => x.UidNavigation)
+                .Where(r => r.IsBookingEnabled == true && r.UidNavigation.Status == Common_Status.ACTIVE);
 
             if (!string.IsNullOrEmpty(name))
             {
@@ -266,10 +270,6 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
-        public Task<bool> RemoveItemAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<bool> UpdateDiscountAndFeeAsync(int restaurantId, decimal? discountPrice, decimal? firstFeePercent, decimal? returningFeePercent, decimal? cancellationFeePercent)
         {
