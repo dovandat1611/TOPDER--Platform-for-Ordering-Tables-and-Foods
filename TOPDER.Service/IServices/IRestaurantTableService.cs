@@ -15,10 +15,13 @@ namespace TOPDER.Service.IServices
         Task<bool> AddAsync(RestaurantTableDto restaurantTableDto);
         Task<bool> AddRangeExcelAsync(CreateExcelRestaurantTableDto createExcelRestaurantTableDto);
         Task<bool> UpdateAsync(RestaurantTableDto restaurantTableDto);
-        Task<bool> RemoveAsync(int id, int restaurantId);
+        Task<bool> InvisibleAsync(int id, int restaurantId);
         Task<RestaurantTableRestaurantDto> GetItemAsync(int id, int restaurantId);
-        Task<PaginatedList<RestaurantTableRestaurantDto>> GetPagingAsync(int pageNumber, int pageSize, int restaurantId);
-        Task<PaginatedList<RestaurantTableRestaurantDto>> SearchPagingAsync(int pageNumber, int pageSize, int restaurantId, string tableName);
-        Task<PaginatedList<RestaurantTableCustomerDto>> GetAvailableTablesAsync(int pageNumber, int pageSize, int restaurantId, TimeSpan TimeReservation, DateTime DateReservation);
+        Task<PaginatedList<RestaurantTableRestaurantDto>> GetTableListAsync(int pageNumber, int pageSize, int restaurantId, string? tableName);
+        Task<List<RestaurantTableRestaurantDto>> GetTableScheduleAsync(int restaurantId);
+        Task<List<RestaurantTableRestaurantDto>> GetAvailableTablesAsync(int restaurantId, TimeSpan TimeReservation, DateTime DateReservation);
+
+        //Task<AvailableTablesDto> GetAvailableTablesAsync(int restaurantId, TimeSpan TimeReservation, DateTime DateReservation);
+        Task<bool> IsEnabledBookingAsync(int tableId, int restaurantId, bool isEnabledBooking);
     }
 }

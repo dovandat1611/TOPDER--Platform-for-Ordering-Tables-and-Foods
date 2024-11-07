@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services;
+using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Restaurant;
 using TOPDER.Service.IServices;
+using TOPDER.Service.Utils;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.API.Controllers
 {
@@ -12,82 +15,198 @@ namespace TOPDER.API.Controllers
     public class RestaurantController : ControllerBase
     {
         private readonly IRestaurantService _restaurantService;
-        private readonly CloudinaryService _cloudinaryService;
-        private readonly ISendMailService _sendMailService;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public RestaurantController(IRestaurantService restaurantService, CloudinaryService cloudinaryService, ISendMailService sendMailService)
+        public RestaurantController(IRestaurantService restaurantService, ICloudinaryService cloudinaryService)
         {
             _restaurantService = restaurantService;
             _cloudinaryService = cloudinaryService;
-            _sendMailService = sendMailService;
         }
 
-        [HttpGet("restaurant-home")]
-        public async Task<IActionResult> RestaurantHome(int pageNumber, int pageSize)
+        // CUSTOMER SITE
+        [HttpGet("ServiceForCustomerSite")]
+        [SwaggerOperation(Summary = "Trang dịch vụ để search nhà hàng theo (Address, Name, ProvinceCity,District,Commune, Price(min,max), Capacity, Category Restaurant): Customer")]
+        public async Task<IActionResult> GetItems([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10,
+            [FromQuery] string? name = null, [FromQuery] string? address = null,
+            [FromQuery] string? provinceCity = null, [FromQuery] string? district = null,
+            [FromQuery] string? commune = null, [FromQuery] int? restaurantCategory = null,
+            [FromQuery] decimal? minPrice = null, [FromQuery] decimal? maxPrice = null,
+            [FromQuery] int? maxCapacity = null)
         {
-            var paginatedDTOs = await _restaurantService.GetPagingAsync(pageNumber, pageSize);
+            var result = await _restaurantService.GetItemsAsync(pageNumber, pageSize, name, address, provinceCity,
+                district, commune, restaurantCategory, minPrice, maxPrice, maxCapacity);
 
-            var response = new PaginatedResponseDto<RestaurantHomeDto>(
-                paginatedDTOs,
-                paginatedDTOs.PageIndex,
-                paginatedDTOs.TotalPages,
-                paginatedDTOs.HasPreviousPage,
-                paginatedDTOs.HasNextPage
+            var response = new PaginatedResponseDto<RestaurantDto>(
+                result,
+                result.PageIndex,
+                result.TotalPages,
+                result.HasPreviousPage,
+                result.HasNextPage
             );
             return Ok(response);
         }
 
-
-        [HttpGet("send-mail")]
-        public async Task<IActionResult> SendMail(string to, string subject, string body)
+        [HttpGet("HomeForCustomerSite")]
+        [SwaggerOperation(Summary = "Trang Home chứa nhà hàng mới, nhà hàng uy tín, nhà hàng yêu thích, blog mới nhất... : Customer")]
+        public async Task<IActionResult> GetHomeItems()
         {
-            if (string.IsNullOrEmpty(to) || string.IsNullOrEmpty(subject) || string.IsNullOrEmpty(body))
-            {
-                return BadRequest("To, Subject, and Body are required.");
-            }
+            var result = await _restaurantService.GetHomeItemsAsync();
+            return Ok(result);
+        }
+
+        [HttpGet("RestaurantDetailForCustomerSite/{restaurantId}")]
+        [SwaggerOperation(Summary = "Xem chi tiết nhà hàng : Customer")]
+        public async Task<IActionResult> GetItem(int restaurantId)
+        {
             try
             {
-                await _sendMailService.SendEmailAsync(to, subject, body);
-                return Ok("Email sent successfully.");
+                var result = await _restaurantService.GetItemAsync(restaurantId);
+                return Ok(result);
             }
-            catch (Exception ex)
+            catch (KeyNotFoundException ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 
-        [HttpPost("register-restaurant")]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> Register([FromForm] CreateRestaurantRequest restaurantRequest)
+        // THÔNG TIN NHÀ HÀNG
+
+        [HttpPut("UpdateRestaurantInfo")]
+        [SwaggerOperation(Summary = "Cập nhật thông tin nhà hàng")]
+        public async Task<IActionResult> UpdateRestaurantInfo(UpdateInfoRestaurantDto restaurantDto)
         {
-            if (restaurantRequest.File == null || restaurantRequest.File.Length == 0)
-            {
-                return BadRequest("No file was uploaded.");
-            }
-
-            var uploadResult = await _cloudinaryService.UploadImageAsync(restaurantRequest.File);
-
-            if (uploadResult == null)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Image upload failed.");
-            }
-
-            restaurantRequest.Image = uploadResult.SecureUrl?.ToString();
-
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { Message = "Dữ liệu không hợp lệ." });
             }
+
+            var result = await _restaurantService.UpdateInfoRestaurantAsync(restaurantDto);
+
+            if (!result)
+            {
+                return NotFound(new { Message = "Không tìm thấy nhà hàng." });
+            }
+
+            return Ok(new { Message = "Cập nhật thông tin thành công." });
+        }
+
+
+
+        [HttpPut("UpdateDiscountAndFee/{restaurantId}")]
+        [SwaggerOperation(Summary = "Cập nhật giảm giá tiền đặt cọc, tiền đặt lần đầu, quay lại, hủy : Restaurant")]
+        public async Task<IActionResult> UpdateDiscountAndFee(
+            int restaurantId,
+            [FromQuery] decimal? discountPrice,
+            [FromQuery] decimal? firstFeePercent,
+            [FromQuery] decimal? returningFeePercent,
+            [FromQuery] decimal? cancellationFeePercent)
+        {
+            var result = await _restaurantService.UpdateDiscountAndFeeAsync(
+                restaurantId,
+                discountPrice,
+                firstFeePercent,
+                returningFeePercent,
+                cancellationFeePercent
+            );
+
+            if (result)
+            {
+                return Ok(new { message = "Cập nhật chiết khấu và phí thành công." });
+            }
+            else
+            {
+                return BadRequest(new { message = "Không có thay đổi nào được thực hiện." });
+            }
+        }
+
+        [HttpGet("GetDiscountAndFee/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy thông tin giảm giá tiền đặt cọc, tiền đặt lần đầu, quay lại, hủy : Restaurant")]
+        public async Task<IActionResult> GetDiscountAndFee(int restaurantId)
+        {
+            var discountAndFee = await _restaurantService.GetDiscountAndFeeAsync(restaurantId);
+
+            if (discountAndFee == null)
+            {
+                return NotFound(new { message = "Nhà hàng không tồn tại." });
+            }
+
+            return Ok(discountAndFee);
+        }
+
+
+        [HttpGet("GetRelateRestaurant/{restaurantId}/{categoryRestaurantId}")]
+        [SwaggerOperation(Summary = "Lấy ra những nhà hàng liên quan theo category(không tính nhà hàng hiện tại): Customer")]
+        public async Task<IActionResult> GetRelatedRestaurants(int restaurantId, int categoryRestaurantId)
+        {
             try
             {
-                var addedRestaurant = await _restaurantService.AddAsync(restaurantRequest);
-                return Ok(addedRestaurant);
+                var restaurants = await _restaurantService.GetRelateRestaurantByCategoryAsync(restaurantId, categoryRestaurantId);
+                return Ok(restaurants);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Failed to create restaurant: {ex.Message}");
+                return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
             }
         }
+
+
+        [HttpGet("GetDescription/{restaurantId}")]
+        [SwaggerOperation(Summary = "Lấy thông tin mô tả của nhà hàng : Restaurant")]
+        public async Task<IActionResult> GetDescription(int restaurantId)
+        {
+            var description = await _restaurantService.GetDescriptionAsync(restaurantId);
+
+            if (description == null)
+            {
+                return NotFound(new { message = "Nhà hàng không tồn tại." });
+            }
+
+            return Ok(description);
+        }
+
+        [HttpPut("UpdateDescription/{restaurantId}")]
+        [SwaggerOperation(Summary = "Cập nhật thông tin mô tả của nhà hàng : Restaurant")]
+        public async Task<IActionResult> UpdateDescription(
+            int restaurantId,
+            [FromQuery] string? description,
+            [FromQuery] string? subDescription)
+        {
+            var result = await _restaurantService.UpdateDescriptionAsync(restaurantId, description, subDescription);
+
+            if (result)
+            {
+                return Ok(new { message = "Cập nhật mô tả thành công." });
+            }
+            else
+            {
+                return BadRequest(new { message = "Không có thay đổi nào được thực hiện hoặc nhà hàng không tồn tại." });
+            }
+        }
+
+        [HttpPut("IsEnabledBooking/{restaurantId}")]
+        [SwaggerOperation(Summary = "Thay đổi trạng thái Booking của nhà hàng : Restaurant")]
+        public async Task<IActionResult> UpdateBookingEnabled(int restaurantId, [FromBody] bool isEnabledBooking)
+        {
+            try
+            {
+                bool result = await _restaurantService.IsEnabledBookingAsync(restaurantId, isEnabledBooking);
+                if (result)
+                {
+                    return Ok(new { Message = "Trạng thái đặt bàn đã được cập nhật thành công." });
+                }
+                return Ok(new { Message = "Trạng thái đặt bàn không có gì thay đổi." }); // Trả về 204 No Content nếu không có thay đổi
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = $"Đã xảy ra lỗi: {ex.Message}" }); // Trả về 400 Bad Request nếu có lỗi
+            }
+        }
+
+
 
 
     }

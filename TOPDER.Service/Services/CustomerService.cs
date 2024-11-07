@@ -26,6 +26,25 @@ namespace TOPDER.Service.Services
             _mapper = mapper;
         }
 
+        public async Task<Customer> AddAsync(CreateCustomerRequest customerRequest)
+        {
+            var customer = _mapper.Map<Customer>(customerRequest);
+            return await _customerRepository.CreateAndReturnAsync(customer);
+        }
+
+        public async Task<bool> CheckProfile(int uid)
+        {
+            var customer = await _customerRepository.GetByIdAsync(uid);
+
+            if (customer is null) return false;
+
+            return !string.IsNullOrWhiteSpace(customer.Name) &&
+                   !string.IsNullOrWhiteSpace(customer.Phone) &&
+                   customer.Dob.HasValue &&
+                   !string.IsNullOrWhiteSpace(customer.Gender);
+        }
+
+
         public async Task<PaginatedList<CustomerInfoDto>> GetPagingAsync(int pageNumber, int pageSize)
         {
             var query = await _customerRepository.QueryableAsync();
@@ -40,6 +59,45 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
+        public async Task<CustomerProfileDto?> Profile(int uid)
+        {
+            var customer = await _customerRepository.GetByIdAsync(uid);
+
+            if (customer == null) return null;
+
+            return _mapper.Map<CustomerProfileDto>(customer);
+        }
+
+
+        public async Task<bool> UpdateProfile(CustomerProfileDto customerProfile)
+        {
+            var existingCustomer = await _customerRepository.GetByIdAsync(customerProfile.Uid);
+            if (existingCustomer == null)
+            {
+                return false;
+            }
+            if (!string.IsNullOrEmpty(customerProfile.Name))
+            {
+                existingCustomer.Name = customerProfile.Name;
+            }
+            if (customerProfile.Gender != null)
+            {
+                existingCustomer.Gender = customerProfile.Gender;
+            }
+            if (!string.IsNullOrEmpty(customerProfile.Phone))
+            {
+                existingCustomer.Phone = customerProfile.Phone;
+            }
+            if (customerProfile.Dob != null)
+            {
+                existingCustomer.Dob = customerProfile.Dob;
+            }
+            if (!string.IsNullOrEmpty(customerProfile.Image))
+            {
+                existingCustomer.Image = customerProfile.Image;
+            }
+            return await _customerRepository.UpdateAsync(existingCustomer);
+        }
 
     }
 }

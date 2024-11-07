@@ -11,7 +11,10 @@
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 		<PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
 		<PackageReference Include="EPPlus" Version="6.2.19" />
+		<PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
 		<PackageReference Include="MailKit" Version="4.7.1.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.32" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.30" />
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.30" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.30">
@@ -20,8 +23,11 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
+		<PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.36.0" />
 		<PackageReference Include="MimeKit" Version="4.7.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="payOS" Version="1.0.6" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.36.0" />
 	</ItemGroup>
 
 </Project>

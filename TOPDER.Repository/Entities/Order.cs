@@ -8,6 +8,7 @@ namespace TOPDER.Repository.Entities
     {
         public Order()
         {
+            Feedbacks = new HashSet<Feedback>();
             OrderMenus = new HashSet<OrderMenu>();
             OrderTables = new HashSet<OrderTable>();
         }
@@ -16,6 +17,7 @@ namespace TOPDER.Repository.Entities
         public int? CustomerId { get; set; }
         public int? RestaurantId { get; set; }
         public int? DiscountId { get; set; }
+        public int? CategoryRoomId { get; set; }
         public string NameReceiver { get; set; } = null!;
         public string PhoneReceiver { get; set; } = null!;
         public TimeSpan TimeReservation { get; set; }
@@ -33,10 +35,13 @@ namespace TOPDER.Repository.Entities
         public DateTime? PaidAt { get; set; }
         public DateTime? CompletedAt { get; set; }
         public DateTime? CancelledAt { get; set; }
+        public string? CancelReason { get; set; }
 
+        public virtual CategoryRoom? CategoryRoom { get; set; }
         public virtual Customer? Customer { get; set; }
         public virtual Discount? Discount { get; set; }
         public virtual Restaurant? Restaurant { get; set; }
+        public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<OrderMenu> OrderMenus { get; set; }
         public virtual ICollection<OrderTable> OrderTables { get; set; }
     }

@@ -11,6 +11,7 @@ namespace TOPDER.Service.IServices
     public interface IImageService
     {
         Task<bool> AddAsync(ImageDto createImageDto);
+        Task<bool> AddRangeAsync(List<ImageDto> createImagesDto);
         Task<bool> UpdateAsync(ImageDto imageDto);
         Task<bool> RemoveAsync(int id, int restaurantId);
         Task<ImageDto> GetItemAsync(int id, int restaurantId);

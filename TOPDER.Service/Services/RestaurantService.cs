@@ -10,6 +10,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
+using TOPDER.Service.Dtos.Blog;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Microsoft.IdentityModel.Tokens;
+using TOPDER.Service.Dtos.Customer;
 
 namespace TOPDER.Service.Services
 {
@@ -17,26 +22,248 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly IRestaurantRepository _restaurantRepository;
+        private readonly IBlogRepository _blogRepository;
 
-        public RestaurantService(IRestaurantRepository restaurantRepository, IMapper mapper)
+        public RestaurantService(IRestaurantRepository restaurantRepository, IMapper mapper, IBlogRepository blogRepository)
         {
             _restaurantRepository = restaurantRepository;
             _mapper = mapper;
+            _blogRepository = blogRepository;
         }
 
-        public async Task<bool> AddAsync(CreateRestaurantRequest restaurantRequest)
+        public async Task<Restaurant> AddAsync(CreateRestaurantRequest restaurantRequest)
         {
             var restaurant = _mapper.Map<Restaurant>(restaurantRequest);
-            return await _restaurantRepository.CreateAsync(restaurant);
+            return await _restaurantRepository.CreateAndReturnAsync(restaurant);
         }
 
-        public async Task<PaginatedList<RestaurantHomeDto>> GetPagingAsync(int pageNumber, int pageSize)
+        public async Task<DiscountAndFeeRestaurant> GetDiscountAndFeeAsync(int restaurantId)
+        {
+            var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
+
+            DiscountAndFeeRestaurant discountAndFeeRestaurant = new DiscountAndFeeRestaurant()
+            {
+                RestaurantId = restaurantId,
+                DiscountRestaurant = restaurant.Discount,
+                FirstFeePercent = restaurant.FirstFeePercent,
+                ReturningFeePercent = restaurant.ReturningFeePercent,
+                CancellationFeePercent = restaurant.CancellationFeePercent
+            };
+
+            return discountAndFeeRestaurant;
+        }
+
+        public async Task<DescriptionRestaurant> GetDescriptionAsync(int restaurantId)
+        {
+            var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
+
+            DescriptionRestaurant descriptionRestaurant = new DescriptionRestaurant()
+            {
+                RestaurantId = restaurantId,
+                Description = restaurant.Description,
+                Subdescription = restaurant.Subdescription
+            };
+
+            return descriptionRestaurant;
+        }
+
+        public async Task<bool> UpdateDescriptionAsync(int restaurantId, string? description, string? subDescription)
+        {
+            var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
+
+            if (restaurant == null)
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(description))
+            {
+                restaurant.Description = description;
+            }
+
+            if (!string.IsNullOrEmpty(subDescription))
+            {
+                restaurant.Subdescription = subDescription;
+            }
+
+            return await _restaurantRepository.UpdateAsync(restaurant);
+        }
+
+        public async Task<bool> UpdateInfoRestaurantAsync(UpdateInfoRestaurantDto restaurant)
+        {
+            var existingRestaurant = await _restaurantRepository.GetByIdAsync(restaurant.Uid);
+            if (existingRestaurant == null)
+            {
+                return false;
+            }
+            existingRestaurant.CategoryRestaurantId = restaurant.CategoryRestaurantId;
+            existingRestaurant.NameOwner = restaurant.NameOwner;
+            existingRestaurant.NameRes = restaurant.NameRes;
+            if (!string.IsNullOrEmpty(restaurant.Logo))
+            {
+                existingRestaurant.Logo = restaurant.Logo;
+            }
+            existingRestaurant.OpenTime = restaurant.OpenTime;
+            existingRestaurant.CloseTime = restaurant.CloseTime;
+            existingRestaurant.ProvinceCity = restaurant.ProvinceCity;
+            existingRestaurant.District = restaurant.District;
+            existingRestaurant.Commune = restaurant.Commune;
+            existingRestaurant.Address = restaurant.Address;
+            existingRestaurant.Phone = restaurant.Phone;
+            existingRestaurant.MaxCapacity = restaurant.MaxCapacity;
+            existingRestaurant.Price = restaurant.Price;
+            existingRestaurant.Description = restaurant.Description;
+            existingRestaurant.Subdescription = restaurant.Subdescription;
+            return await _restaurantRepository.UpdateAsync(existingRestaurant);
+        }
+
+
+        public async Task<RestaurantHomeDto> GetHomeItemsAsync()
+        {
+            var queryable = await _restaurantRepository.QueryableAsync();
+            var queryableBlog = await _blogRepository.QueryableAsync();
+
+            var activeBlogs = queryableBlog
+                .Include(x => x.Bloggroup)
+                .Include(x => x.Admin)
+                .Where(x => x.Status == Common_Status.ACTIVE);
+
+            var enabledRestaurants = queryable
+                .Include(x => x.CategoryRestaurant)
+                .Include(x => x.Feedbacks)
+                .Include(x => x.UidNavigation)
+                .Where(r => r.IsBookingEnabled == true && r.UidNavigation.Status == Common_Status.ACTIVE);
+
+            var restaurantDtos = enabledRestaurants.Select(r => _mapper.Map<RestaurantDto>(r)).ToList();
+
+            var blogDtos = activeBlogs.Select(b => _mapper.Map<BlogListCustomerDto>(b)).ToList();
+
+            var topBookingRestaurants = restaurantDtos.OrderByDescending(x => x.TotalFeedbacks).Take(6).ToList();
+
+            var topStarRestaurants = restaurantDtos.OrderByDescending(x => x.Star)
+                                                   .ThenByDescending(x => x.TotalFeedbacks)
+                                                   .Take(6).ToList();
+
+            var newRestaurants = restaurantDtos.OrderByDescending(x => x.Uid).Take(6).ToList();
+
+            var topBlogs = blogDtos.OrderByDescending(x => x.BlogId).Take(6).ToList();
+
+            return new RestaurantHomeDto
+            {
+                TopBookingRestaurants = topBookingRestaurants,
+                TopRatingRestaurant = topStarRestaurants,
+                NewRestaurants = newRestaurants,
+                Blogs = topBlogs
+            };
+        }
+
+
+        public async Task<RestaurantDetailDto> GetItemAsync(int id)
         {
             var query = await _restaurantRepository.QueryableAsync();
 
-            var queryDTO = query.Select(r => _mapper.Map<RestaurantHomeDto>(r));
+            var restaurant = await query
+                .Include(x => x.CategoryRestaurant)
+                .Include(x => x.Feedbacks)
+                .Include(x => x.Images)
+                .Include(x => x.Menus)
+                .Include(x => x.UidNavigation)
+                .FirstOrDefaultAsync(x => x.Uid == id && x.UidNavigation.Status == Common_Status.ACTIVE);
 
-            var paginatedDTOs = await PaginatedList<RestaurantHomeDto>.CreateAsync(
+            if (restaurant == null)
+            {
+                throw new KeyNotFoundException($"Không tìm thấy nhà hàng với ID {id}.");
+            }
+
+            if (restaurant.IsBookingEnabled == false)
+            {
+                throw new InvalidOperationException("Nhà hàng này hiện không cho phép đặt chỗ.");
+            }
+
+            var restaurantDto = _mapper.Map<RestaurantDetailDto>(restaurant);
+
+            return restaurantDto;
+        }
+
+        public async Task<List<RestaurantDto>> GetRelateRestaurantByCategoryAsync(int restaurantId, int restaurantCategoryId)
+        {
+            var query = await _restaurantRepository.QueryableAsync();
+
+            var relateRestaurants = await query
+                .Include(x => x.CategoryRestaurant)
+                .Include(x => x.Feedbacks)
+                .Include(x => x.UidNavigation)
+                .Where(x => x.CategoryRestaurantId == restaurantCategoryId
+                && x.Uid != restaurantId && x.IsBookingEnabled == true && x.UidNavigation.Status == Common_Status.ACTIVE)
+                .Take(10)
+                .ToListAsync();
+
+            var relateRestaurantDto = _mapper.Map<List<RestaurantDto>>(relateRestaurants);
+
+            return relateRestaurantDto;
+        }
+
+
+
+        public async Task<PaginatedList<RestaurantDto>> GetItemsAsync(int pageNumber, int pageSize, string? name,
+            string? address, string? provinceCity, string? district, string? commune , int? restaurantCategory, decimal? minPrice, decimal? maxPrice, int? maxCapacity)
+        {
+            var queryable = await _restaurantRepository.QueryableAsync();
+
+            queryable = queryable
+                .Include(x => x.CategoryRestaurant)
+                .Include(x => x.Feedbacks)
+                .Include(x => x.UidNavigation)
+                .Where(r => r.IsBookingEnabled == true && r.UidNavigation.Status == Common_Status.ACTIVE);
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                queryable = queryable.Where(r => r.NameRes.Contains(name));
+            }
+
+            if (!string.IsNullOrEmpty(address))
+            {
+                queryable = queryable.Where(r => r.Address.Contains(address));
+            }
+
+            if (!string.IsNullOrEmpty(provinceCity))
+            {
+                queryable = queryable.Where(r => r.ProvinceCity == provinceCity);
+            }
+
+            if (!string.IsNullOrEmpty(district))
+            {
+                queryable = queryable.Where(r => r.District == district);
+            }
+
+            if (!string.IsNullOrEmpty(commune))
+            {
+                queryable = queryable.Where(r => r.Commune == commune);
+            }
+
+            if (restaurantCategory.HasValue)
+            {
+                queryable = queryable.Where(r => r.CategoryRestaurantId == restaurantCategory.Value);
+            }
+
+            if (minPrice.HasValue)
+            {
+                queryable = queryable.Where(r => r.Price >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                queryable = queryable.Where(r => r.Price <= maxPrice.Value);
+            }
+
+            if (maxCapacity.HasValue)
+            {
+                queryable = queryable.Where(r => r.MaxCapacity >= maxCapacity.Value);
+            }
+
+            var queryDTO = queryable.Select(r => _mapper.Map<RestaurantDto>(r));
+
+            var paginatedDTOs = await PaginatedList<RestaurantDto>.CreateAsync(
                 queryDTO.AsNoTracking(),
                 pageNumber > 0 ? pageNumber : 1,
                 pageSize > 0 ? pageSize : 10
@@ -45,67 +272,99 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
-        public async Task<IEnumerable<RestaurantHomeDto>> GetAllItemsAsync()
-        {
-            var restaurants = await _restaurantRepository.GetAllAsync();
-            var restaurantsDTO = _mapper.Map<IEnumerable<RestaurantHomeDto>>(restaurants);
-            return restaurantsDTO;
-        }
 
-        public async Task<RestaurantHomeDto> GetItemAsync(int id)
+        public async Task<bool> UpdateDiscountAndFeeAsync(int restaurantId, decimal? discountPrice, decimal? firstFeePercent, decimal? returningFeePercent, decimal? cancellationFeePercent)
         {
-            var queryableRestaurants = await _restaurantRepository.QueryableAsync();
-
-            var restaurant = await queryableRestaurants
-                .Include(r => r.Feedbacks) 
-                .FirstOrDefaultAsync(r => r.Uid == id);
+            // Lấy thông tin nhà hàng theo restaurantId
+            var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
 
             if (restaurant == null)
             {
-                throw new KeyNotFoundException($"Restaurant with ID {id} not found."); 
-            }
-
-            return _mapper.Map<RestaurantHomeDto>(restaurant);
-        }
-
-        public async Task<bool> RemoveItemAsync(int id)
-        {
-            return await _restaurantRepository.DeleteAsync(id);
-        }
-
-        public async Task<IEnumerable<RestaurantHomeDto>> SearchItemsByAddressAsync(string address)
-        {
-            var queryableRestaurants = await _restaurantRepository.QueryableAsync();
-
-            var restaurants = await queryableRestaurants
-                .Where(r => r.Address.Contains(address))
-                .Include(r => r.Feedbacks)
-                .ToListAsync();
-
-            return _mapper.Map<IEnumerable<RestaurantHomeDto>>(restaurants);
-        }
-
-        public async Task<IEnumerable<RestaurantHomeDto>> SearchItemsByNameAsync(string name)
-        {
-            var queryableRestaurants = await _restaurantRepository.QueryableAsync();
-
-            var restaurants = await queryableRestaurants
-                .Where(r => r.NameRes.Contains(name))
-                .Include(r => r.Feedbacks)
-                .ToListAsync();
-
-            return _mapper.Map<IEnumerable<RestaurantHomeDto>>(restaurants);
-        }
-
-        public async Task<bool> UpdateItemAsync(Restaurant restaurant)
-        {
-            var existingRestaurant = await _restaurantRepository.GetByIdAsync(restaurant.Uid);
-            if (existingRestaurant == null)
-            {
+                // Nếu không tìm thấy nhà hàng, trả về false
                 return false;
             }
-            return await _restaurantRepository.UpdateAsync(restaurant);
+
+            int count = 0;
+
+            // Kiểm tra và cập nhật giá trị discountPrice nếu hợp lệ
+            if (discountPrice.HasValue && discountPrice > 0 && discountPrice <= 100)
+            {
+                if (restaurant.Discount != discountPrice)
+                {
+                    restaurant.Discount = discountPrice;
+                    count++;
+                }
+            }
+
+            // Kiểm tra và cập nhật giá trị firstFeePercent nếu hợp lệ
+            if (firstFeePercent.HasValue && firstFeePercent > 0 && firstFeePercent <= 100)
+            {
+                if (restaurant.FirstFeePercent != firstFeePercent)
+                {
+                    restaurant.FirstFeePercent = firstFeePercent;
+                    count++;
+                }
+            }
+
+            // Kiểm tra và cập nhật giá trị returningFeePercent nếu hợp lệ
+            if (returningFeePercent.HasValue && returningFeePercent > 0 && returningFeePercent <= 100)
+            {
+                if (restaurant.ReturningFeePercent != returningFeePercent)
+                {
+                    restaurant.ReturningFeePercent = returningFeePercent;
+                    count++;
+                }
+            }
+
+            // Kiểm tra và cập nhật giá trị cancellationFeePercent nếu hợp lệ
+            if (cancellationFeePercent.HasValue && cancellationFeePercent > 0 && cancellationFeePercent <= 100)
+            {
+                if (restaurant.CancellationFeePercent != cancellationFeePercent)
+                {
+                    restaurant.CancellationFeePercent = cancellationFeePercent;
+                    count++;
+                }
+            }
+
+            // Chỉ cập nhật nếu có thay đổi (count > 0)
+            if (count > 0)
+            {
+                return await _restaurantRepository.UpdateAsync(restaurant);
+            }
+
+            return false;
         }
 
+
+
+        public async Task<bool> IsEnabledBookingAsync(int id, bool isEnabledBooking)
+        {
+            var existingRestaurant = await _restaurantRepository.GetByIdAsync(id);
+            if (existingRestaurant == null)
+            {
+                throw new Exception("Restaurant not found."); // Hoặc bạn có thể ném ra ngoại lệ cụ thể hơn
+            }
+
+            if (isEnabledBooking == existingRestaurant.IsBookingEnabled)
+            {
+                return false; // Không có sự thay đổi
+            }
+
+            existingRestaurant.IsBookingEnabled = isEnabledBooking;
+            return await _restaurantRepository.UpdateAsync(existingRestaurant);
+        }
+
+        public async Task<RestaurantProfileDto?> Profile(int uid)
+        {
+            var query = await _restaurantRepository.QueryableAsync();
+
+            var restaurant = query
+                .Include(x => x.CategoryRestaurant)
+                .FirstOrDefault(x => x.Uid == uid);
+
+            if (restaurant == null) return null;
+
+            return _mapper.Map<RestaurantProfileDto>(restaurant);
+        }
     }
 }

@@ -3,11 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TOPDER.API", "TOPDER.API\TOPDER.API.csproj", "{A6F38EB2-AD0D-4599-847E-36D433ABE249}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TOPDER.API", "TOPDER.API\TOPDER.API.csproj", "{A6F38EB2-AD0D-4599-847E-36D433ABE249}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TOPDER.Repository", "TOPDER.Repository\TOPDER.Repository.csproj", "{492FBB56-D7DF-4ED6-8F42-48E7079836F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TOPDER.Repository", "TOPDER.Repository\TOPDER.Repository.csproj", "{492FBB56-D7DF-4ED6-8F42-48E7079836F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TOPDER.Service", "TOPDER.Service\TOPDER.Service.csproj", "{49CE8005-03E8-4586-8728-61DD7AFB3E88}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TOPDER.Service", "TOPDER.Service\TOPDER.Service.csproj", "{49CE8005-03E8-4586-8728-61DD7AFB3E88}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7E683F88-39F9-4C87-A439-DDE4163CD6DB}"
+	ProjectSection(SolutionItems) = preProject
+		data.sql = data.sql
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

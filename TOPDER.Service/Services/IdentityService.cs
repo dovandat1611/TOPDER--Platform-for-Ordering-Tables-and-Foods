@@ -1,75 +1,73 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Google.Apis.Auth;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using TOPDER.Repository.Entities;
-using TOPDER.Repository.IRepositories;
+using TOPDER.Service.Dtos.Customer;
+using TOPDER.Service.Dtos.ExternalLogin;
 using TOPDER.Service.Dtos.User;
+using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.IServices;
+using TOPDER.Service.Utils;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
 {
-     public class IdentityService
+    public class IdentityService : IIdentityService
     {
-        private readonly HttpClient _httpClient;
-        private JwtService _jwtService;
-        private UserService _userService;
+        private readonly JwtHelper _jwtHelper;
+        private readonly IUserService _userService;
+        private readonly IWalletService _walletService;
+        private readonly ICustomerService _customerService;
+        private readonly IExternalLoginService _externalLoginService;
+        private readonly string _clientId;
 
-        public IdentityService (HttpClient httpClient, JwtService jwtService, UserService userService)
+
+        public IdentityService(JwtHelper jwtHelper,
+            IUserService userService, IWalletService walletService,
+            ICustomerService customerService,
+            IExternalLoginService externalLoginService, IConfiguration configuration)
         {
-            _httpClient = httpClient;
-            _jwtService = jwtService;
+            _jwtHelper = jwtHelper;
             _userService = userService;
+            _walletService = walletService;
+            _customerService = customerService;
+            _externalLoginService = externalLoginService;
+            _clientId = configuration["Authentication:Google:ClientId"];
         }
-        public async Task<ApiResponse> CheckAccessToken(string accessToken)
+
+        public async Task<ApiResponse> AuthenticateWithGoogle(string accessToken)
         {
             try
             {
-                // Kiểm tra token trên Google API
-                var tokenInfoUrl = $"https://www.googleapis.com/oauth2/v3/tokeninfo?access_token={accessToken}";
-                var tokenResponse = await _httpClient.GetAsync(tokenInfoUrl);
-
-                if (!tokenResponse.IsSuccessStatusCode)
+                var payload = await GoogleJsonWebSignature.ValidateAsync(accessToken, new GoogleJsonWebSignature.ValidationSettings
                 {
-                    var errorContent = await tokenResponse.Content.ReadAsStringAsync();
-                    return new ApiResponse { Success = false, Message = errorContent.ToUpper() };
-                }
+                    Audience = new[] { _clientId } // Đảm bảo rằng client ID khớp
+                });
 
-                // Lấy thông tin người dùng từ Google API
-                var userInfoUrl = $"https://www.googleapis.com/oauth2/v1/userinfo?access_token={accessToken}";
-                var userInfoResponse = await _httpClient.GetAsync(userInfoUrl);
-
-                if (!userInfoResponse.IsSuccessStatusCode)
+                // Nếu xác thực thành công, trả về thông tin người dùng
+                UserInfoLoginGoole userInfoLogin =  new UserInfoLoginGoole()
                 {
-                    var userInfoError = await userInfoResponse.Content.ReadAsStringAsync();
-                    return new ApiResponse { Success = false, Message = userInfoError.ToUpper() };
-                }
-
-                // Phân tích dữ liệu JSON từ phản hồi
-                var userInfo = await userInfoResponse.Content.ReadAsStringAsync();
-                var user = JObject.Parse(userInfo);
-
-                var userResult = new
-                {
-                    Id = user["id"]?.ToString(),
-                    Email = user["email"]?.ToString(),
-                    Name = user["name"]?.ToString(),
-                    Picture = user["picture"]?.ToString()
+                    Id = payload.JwtId,
+                    Email = payload.Email,
+                    Name = payload.Name,
+                    Picture = payload.Picture
                 };
 
-                // Kiểm tra xem người dùng đã tồn tại trong hệ thống hay chưa
-                var existingUser = await _userService.GetUserByEmail(userResult.Email);
-                var handler = new JwtSecurityTokenHandler();
+                if (string.IsNullOrEmpty(userInfoLogin.Email))
+                {
+                    return new ApiResponse { Success = false, Message = "INVALID USER EMAIL" };
+                }
 
+                // Kiểm tra xem người dùng đã tồn tại trong hệ thống chưa
+                var existingUser = await _userService.GetUserByEmail(userInfoLogin.Email);
                 if (existingUser != null)
                 {
-                    // Người dùng đã tồn tại, tạo token và trả về
-                    var generatedToken = _jwtService.GenerateToken(existingUser);
+                    var isProfileComplete = await _customerService.CheckProfile(existingUser.Uid);
+                    var generatedToken = _jwtHelper.GenerateJwtToken(existingUser);
                     return new ApiResponse
                     {
                         Success = true,
@@ -78,35 +76,77 @@ namespace TOPDER.Service.Services
                     };
                 }
 
-                // Người dùng chưa tồn tại, tạo mới
+                // Tạo người dùng mới nếu chưa tồn tại
                 var userDto = new UserDto
                 {
-                    Email = userResult.Email,
-                    RoleId = 1,
+                    Email = userInfoLogin.Email,
+                    RoleId = 3, // CUSTOMER
                     IsVerify = true,
-                    Status = "1",
+                    Status = Common_Status.ACTIVE,
                     CreatedAt = DateTime.UtcNow,
                     IsExternalLogin = true
                 };
 
-                await _userService.AddAsync(userDto);
-
-                var newUserLoginDto = new UserLoginDTO
+                var newUser = await _userService.AddAsync(userDto);
+                if (newUser == null)
                 {
-                    CreateDate = userDto.CreatedAt ?? DateTime.UtcNow,
-                    Email = userResult.Email,
-                    RoleId = userDto.RoleId,
-                    Status = userDto.Status,
-                };
+                    return new ApiResponse { Success = false, Message = "USER CREATION FAILED" };
+                }
 
-                // Tạo token mới cho người dùng mới
-                var token = _jwtService.GenerateToken(newUserLoginDto);
-                return new ApiResponse
+                // Thêm thông tin đăng nhập ngoại
+                var externalLogin = new ExternalLoginDto
                 {
-                    Success = true,
-                    Data = token,
-                    Message = "Authentication success"
+                    Id = 0,
+                    Uid = newUser.Uid,
+                    ExternalProvider = ExternalProvider.GOOGLE,
+                    ExternalUserId = userInfoLogin.Id ?? Is_Null.ISNULL,
+                    AccessToken = accessToken
                 };
+                await _externalLoginService.AddAsync(externalLogin);
+
+                // Thêm ví
+                var walletBalanceDto = new WalletBalanceDto
+                {
+                    WalletId = 0,
+                    Uid = newUser.Uid,
+                    WalletBalance = 0
+                };
+                await _walletService.AddWalletBalanceAsync(walletBalanceDto);
+
+                // Thêm thông tin khách hàng
+                var customerRequest = new CreateCustomerRequest
+                {
+                    Uid = newUser.Uid,
+                    Name = userInfoLogin.Name,
+                    Image = userInfoLogin.Picture
+                };
+                var addedCustomer = await _customerService.AddAsync(customerRequest);
+
+                if (addedCustomer != null)
+                {
+                    var newUserLoginDto = new UserLoginDTO
+                    {
+                        Uid = newUser.Uid,
+                        Email = newUser.Email,
+                        Name = userInfoLogin.Name,
+                        Role = User_Role.CUSTOMER,
+                    };
+
+                    // Tạo JWT token cho người dùng mới
+                    var token = _jwtHelper.GenerateJwtToken(newUserLoginDto);
+                    return new ApiResponse
+                    {
+                        Success = true,
+                        Data = token,
+                        Message = "Authentication success"
+                    };
+                }
+
+                return new ApiResponse { Success = false, Message = "USER CREATION FAILED" };
+            }
+            catch (HttpRequestException httpEx)
+            {
+                return new ApiResponse { Success = false, Message = httpEx.Message.ToUpper() };
             }
             catch (Exception ex)
             {

@@ -32,13 +32,19 @@ namespace TOPDER.Service.Services
             return await _imageRepository.CreateAsync(image);
         }
 
+        public async Task<bool> AddRangeAsync(List<ImageDto> createImagesDto)
+        {
+            var images = _mapper.Map<List<Image>>(createImagesDto);
+            return await _imageRepository.CreateRangeAsync(images);
+        }
+
         public async Task<ImageDto> GetItemAsync(int imageId, int restaurantId)
         {
             var check = await _imageRepository.GetByIdAsync(imageId);
 
             if (check == null || check.RestaurantId != restaurantId)
             {
-                throw new KeyNotFoundException($"No image with ImageId {imageId} found for RestaurantId {restaurantId}.");
+                throw new KeyNotFoundException($"Không tìm thấy hình ảnh với Id {imageId} cho nhà hàng với Id {restaurantId}.");
             }
             var image = _mapper.Map<ImageDto>(check);
             return image;
@@ -78,13 +84,14 @@ namespace TOPDER.Service.Services
         {
             var existingImage = await _imageRepository.GetByIdAsync(imageDto.ImageId);
 
-            if (existingImage == null || existingImage.RestaurantId != imageDto.RestaurantId)
+            if (existingImage == null || existingImage.RestaurantId != imageDto.RestaurantId
+                || string.IsNullOrEmpty(imageDto.ImageUrl))
             {
                 return false;
             }
 
-            var image = _mapper.Map<Image>(imageDto);
-            return await _imageRepository.UpdateAsync(image);
+            existingImage.ImageUrl = imageDto.ImageUrl;
+            return await _imageRepository.UpdateAsync(existingImage);
         }
 
     }
