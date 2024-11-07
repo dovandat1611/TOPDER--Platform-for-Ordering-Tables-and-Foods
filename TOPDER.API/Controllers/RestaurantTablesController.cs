@@ -105,6 +105,15 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetTableScheduleList/{restaurantId}")]
+        [SwaggerOperation(Summary = "lấy ra danh sách tất cả các bàn của nhà hàng: Restaurant")]
+        public async Task<IActionResult> GetTableScheduleList(int restaurantId)
+        {
+            var result = await _restaurantTableService.GetTableScheduleAsync(restaurantId);
+            return Ok(result);
+        }
+
+
         // API để lấy danh sách bàn có sẵn
         [HttpGet("GetAvailableTables")]
         [SwaggerOperation(Summary = "Lấy ra những bàn hợp lệ ví dụ như thời gian, enable booking table (or room if exist): Customer | Restaurant")]

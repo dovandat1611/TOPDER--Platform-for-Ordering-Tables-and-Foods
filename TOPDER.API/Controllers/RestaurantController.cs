@@ -77,20 +77,11 @@ namespace TOPDER.API.Controllers
 
         [HttpPut("UpdateRestaurantInfo")]
         [SwaggerOperation(Summary = "Cập nhật thông tin nhà hàng")]
-        public async Task<IActionResult> UpdateRestaurantInfo([FromForm] UpdateInfoRestaurantDto restaurantDto)
+        public async Task<IActionResult> UpdateRestaurantInfo(UpdateInfoRestaurantDto restaurantDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(new { Message = "Dữ liệu không hợp lệ." });
-            }
-
-            if (restaurantDto.File != null && restaurantDto.File.Length > 0)
-            {
-                var uploadResult = await _cloudinaryService.UploadImageAsync(restaurantDto.File);
-                if(uploadResult != null)
-                {
-                    restaurantDto.Logo = uploadResult.SecureUrl.ToString();
-                }
             }
 
             var result = await _restaurantService.UpdateInfoRestaurantAsync(restaurantDto);

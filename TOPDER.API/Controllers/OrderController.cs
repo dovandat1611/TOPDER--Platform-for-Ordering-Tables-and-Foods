@@ -640,14 +640,11 @@ namespace TOPDER.API.Controllers
             // Gọi service để lấy dữ liệu có phân trang
             PaginatedList<OrderRestaurantDto> result = await _orderService.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId, status, month, date);
 
-            var tasks = result.Select(async item =>
+            foreach(var item in result)
             {
                 item.OrderMenus = await _orderMenuService.GetItemsByOrderAsync(item.OrderId);
                 item.OrderTables = await _orderTableService.GetItemsByOrderAsync(item.OrderId);
-                return item;
-            }).ToList();
-
-            await Task.WhenAll(tasks);
+            }
 
             // Tạo response DTO
             var response = new PaginatedResponseDto<OrderRestaurantDto>(

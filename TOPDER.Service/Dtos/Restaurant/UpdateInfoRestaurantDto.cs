@@ -16,7 +16,6 @@ namespace TOPDER.Service.Dtos.Restaurant
         public string NameOwner { get; set; } = null!;
         public string NameRes { get; set; } = null!;
         public string? Logo { get; set; }
-        public IFormFile? File { get; set; }
         public TimeSpan OpenTime { get; set; }
         public TimeSpan CloseTime { get; set; }
         public string? ProvinceCity { get; set; }

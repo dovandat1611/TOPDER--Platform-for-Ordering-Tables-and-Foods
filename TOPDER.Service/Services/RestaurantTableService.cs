@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Service.Services;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -299,6 +300,16 @@ namespace TOPDER.Service.Services
             return await _restaurantTableRepository.UpdateAsync(existingRestaurantTable);
         }
 
+        public async Task<List<RestaurantTableRestaurantDto>> GetTableScheduleAsync(int restaurantId)
+        {
+            var queryable = await _restaurantTableRepository.QueryableAsync();
+
+            var query = queryable
+                .Include(x => x.Room)
+                .Where(x => x.RestaurantId == restaurantId && x.IsVisible == true && x.IsBookingEnabled == true);
+            var restaurantTableRestaurants = _mapper.Map<List<RestaurantTableRestaurantDto>>(query);
+            return restaurantTableRestaurants;
+        }
 
     }
 }
