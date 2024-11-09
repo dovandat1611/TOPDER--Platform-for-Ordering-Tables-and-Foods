@@ -23,25 +23,6 @@ namespace TOPDER.Repository.Repositories
             return await Task.FromResult(_dbContext.Set<T>().AsQueryable());
         }
 
-        public async Task<T> CreateAndReturnAsync(T entity)
-        {
-            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
-            {
-                try
-                {
-                    await _dbContext.Set<T>().AddAsync(entity);
-                    await _dbContext.SaveChangesAsync();
-
-                    await transaction.CommitAsync(); // Commit sau khi thành công
-                    return entity;
-                }
-                catch (Exception)
-                {
-                    await transaction.RollbackAsync(); // Rollback nếu có lỗi
-                    throw;
-                }
-            }
-        }
         public async Task<bool> CreateAsync(T entity)
         {
             if (entity == null)
@@ -85,7 +66,6 @@ namespace TOPDER.Repository.Repositories
             }
         }
 
-        
         public async Task<bool> DeleteAsync(int id)
         {
             using (var transaction = await _dbContext.Database.BeginTransactionAsync())

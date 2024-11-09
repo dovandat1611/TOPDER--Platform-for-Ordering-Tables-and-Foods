@@ -25,9 +25,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"], 
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])) 
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
     })
     .AddGoogle(options =>
@@ -51,12 +51,12 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.EnableAnnotations(); 
+    c.EnableAnnotations();
 });
 
 
 builder.Services.AddDbContext<TopderDBContext>(options =>
-  options.UseSqlServer(builder.Configuration.GetConnectionString("Dat_Connection"))
+  options.UseSqlServer(builder.Configuration.GetConnectionString("Minh_Connection"))
 );
 
 builder.Services.AddDistributedMemoryCache();

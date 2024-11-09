@@ -12,6 +12,7 @@ using TOPDER.Service.Dtos.User;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
@@ -39,7 +40,7 @@ namespace TOPDER.Service.Services
             _clientId = configuration["Authentication:Google:ClientId"];
         }
 
-        public async Task<ApiResponse> AuthenticateWithGoogle(string accessToken)
+        public async Task<Repository.Entities.ApiResponse> AuthenticateWithGoogle(string accessToken)
         {
             try
             {
@@ -49,7 +50,7 @@ namespace TOPDER.Service.Services
                 });
 
                 // Nếu xác thực thành công, trả về thông tin người dùng
-                UserInfoLoginGoole userInfoLogin =  new UserInfoLoginGoole()
+                UserInfoLoginGoole userInfoLogin = new UserInfoLoginGoole()
                 {
                     Id = payload.JwtId,
                     Email = payload.Email,
@@ -59,7 +60,7 @@ namespace TOPDER.Service.Services
 
                 if (string.IsNullOrEmpty(userInfoLogin.Email))
                 {
-                    return new ApiResponse { Success = false, Message = "INVALID USER EMAIL" };
+                    return new Repository.Entities.ApiResponse { Success = false, Message = "INVALID USER EMAIL" };
                 }
 
                 // Kiểm tra xem người dùng đã tồn tại trong hệ thống chưa
@@ -68,7 +69,7 @@ namespace TOPDER.Service.Services
                 {
                     var isProfileComplete = await _customerService.CheckProfile(existingUser.Uid);
                     var generatedToken = _jwtHelper.GenerateJwtToken(existingUser);
-                    return new ApiResponse
+                    return new Repository.Entities.ApiResponse
                     {
                         Success = true,
                         Data = generatedToken,
@@ -90,7 +91,7 @@ namespace TOPDER.Service.Services
                 var newUser = await _userService.AddAsync(userDto);
                 if (newUser == null)
                 {
-                    return new ApiResponse { Success = false, Message = "USER CREATION FAILED" };
+                    return new Repository.Entities.ApiResponse { Success = false, Message = "USER CREATION FAILED" };
                 }
 
                 // Thêm thông tin đăng nhập ngoại
@@ -134,7 +135,7 @@ namespace TOPDER.Service.Services
 
                     // Tạo JWT token cho người dùng mới
                     var token = _jwtHelper.GenerateJwtToken(newUserLoginDto);
-                    return new ApiResponse
+                    return new Repository.Entities.ApiResponse
                     {
                         Success = true,
                         Data = token,
@@ -142,15 +143,15 @@ namespace TOPDER.Service.Services
                     };
                 }
 
-                return new ApiResponse { Success = false, Message = "USER CREATION FAILED" };
+                return new Repository.Entities.ApiResponse { Success = false, Message = "USER CREATION FAILED" };
             }
             catch (HttpRequestException httpEx)
             {
-                return new ApiResponse { Success = false, Message = httpEx.Message.ToUpper() };
+                return new Repository.Entities.ApiResponse { Success = false, Message = httpEx.Message.ToUpper() };
             }
             catch (Exception ex)
             {
-                return new ApiResponse { Success = false, Message = ex.Message.ToUpper() };
+                return new Repository.Entities.ApiResponse { Success = false, Message = ex.Message.ToUpper() };
             }
         }
     }

@@ -16,7 +16,10 @@ namespace TOPDER.Service.Utils
     public class JwtHelper
     {
         private readonly IConfiguration _config;
-
+        
+        public JwtHelper()
+        {
+        }
         public JwtHelper(IConfiguration config)
         {
             _config = config;

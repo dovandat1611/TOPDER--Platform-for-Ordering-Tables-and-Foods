@@ -13,12 +13,5 @@ namespace TOPDER.Service.Dtos.User
         public string Password { get; set; }
 
     }
-    public class UserLoginDTO
-    {
-        public string Email { get; set; }
-        public int RoleId { get; set; }
-        public string Status { get; set; }
-        public DateTime CreateDate { get; set; }
-
-    }
+    
 }

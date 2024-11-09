@@ -1,0 +1,7 @@
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test1\bin\Debug\net6.0\CoverletSourceRootsMapping
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test1\obj\Debug\net6.0\TOPDER.Test1.csproj.AssemblyReference.cache
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test1\obj\Debug\net6.0\TOPDER.Test1.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test1\obj\Debug\net6.0\TOPDER.Test1.AssemblyInfoInputs.cache
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test1\obj\Debug\net6.0\TOPDER.Test1.AssemblyInfo.cs
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test1\obj\Debug\net6.0\TOPDER.Test1.csproj.CoreCompileInputs.cache
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test1\obj\Debug\net6.0\TOPDER.Test1.sourcelink.json

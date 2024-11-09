@@ -176,7 +176,7 @@ namespace TOPDER.API.Controllers
 
                 var token = _jwtHelper.GenerateJwtToken(userLoginDto);
 
-                return Ok(new ApiResponse
+                return Ok(new Repository.Entities.ApiResponse
                 {
                     Success = true,
                     Message = "Authentication success.",

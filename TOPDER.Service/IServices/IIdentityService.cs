@@ -9,6 +9,6 @@ namespace TOPDER.Service.IServices
 {
     public interface IIdentityService
     {
-        Task<ApiResponse> AuthenticateWithGoogle(string accessToken);
+        Task<Repository.Entities.ApiResponse> AuthenticateWithGoogle(string accessToken);
     }
 }
