@@ -41,7 +41,17 @@ namespace TOPDER.API.Controllers
             var paginatedWishlists = await _wishlistService.GetPagingAsync(pageNumber, pageSize, customerId);
             return Ok(paginatedWishlists);
         }
+        // DELETE: api/wishlist/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Remove(int id, [FromQuery] int customerId)
+        {
+            var result = await _wishlistService.RemoveAsync(id, customerId);
+            if (result)
+            {
+                return Ok("Xóa nhà hàng ra khỏi Wishlist thành công");
+            }
+            return NotFound("Wishlist item not found or does not belong to the customer.");
+        }
 
-    
     }
 }

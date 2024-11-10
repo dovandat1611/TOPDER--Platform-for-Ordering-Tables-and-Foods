@@ -35,7 +35,7 @@ namespace TOPDER.API.Controllers
             return Ok($"Tạo Blog thành công.");
         }
 
-        [HttpGet("{id}")]
+    /*    [HttpGet("{id}")]
         public async Task<IActionResult> GetBlogById(int id)
         {
             try
@@ -48,7 +48,7 @@ namespace TOPDER.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-
+*/
         [HttpPut]
         public async Task<IActionResult> UpdateBlog([FromBody] UpdateBlogModel updateBlogModel)
         {

@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "C:\\Users\\dell\\Downloads\\SEP490\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\bloggroupcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\bloggroupcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\blogcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\blogcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\wishlistcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\wishlistcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -18,7 +26,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 67,
+          "SelectedChildIndex": 69,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,7 +46,27 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
+              "Name": "ST:11:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:10:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:9:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:8:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:7:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:12:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
             {
               "$type": "Bookmark",
@@ -170,10 +198,6 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:7:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
-            },
-            {
-              "$type": "Bookmark",
               "Name": "ST:16:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
             {
@@ -187,10 +211,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:11:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:12:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
             {
               "$type": "Bookmark",
@@ -270,40 +290,62 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:9:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:10:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
-            },
-            {
-              "$type": "Bookmark",
               "Name": "ST:7:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:8:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
             },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:14:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:14:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "BlogGroupController.cs",
+              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BlogGroupController.cs",
+              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\BlogGroupController.cs",
+              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BlogGroupController.cs",
+              "RelativeToolTip": "TOPDER.API\\Controllers\\BlogGroupController.cs",
+              "ViewState": "AQIAABUAAAAAAAAAAAA1wDUAAAAaAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-10T02:03:33.178Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "BlogController.cs",
+              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BlogController.cs",
+              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\BlogController.cs",
+              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BlogController.cs",
+              "RelativeToolTip": "TOPDER.API\\Controllers\\BlogController.cs",
+              "ViewState": "AQIAABgAAAAAAAAAAAAYwC0AAAArAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-10T02:03:18.171Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "WishlistController.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\WishlistController.cs",
               "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\WishlistController.cs",
               "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\WishlistController.cs",
               "RelativeToolTip": "TOPDER.API\\Controllers\\WishlistController.cs",
-              "ViewState": "AQIAABQAAAAAAAAAAAA+wC8AAAAAAAAA",
+              "ViewState": "AQIAABUAAAAAAAAAAAAqwC0AAABTAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-08T07:05:57.022Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "DashboardService.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.Service\\Services\\DashboardService.cs",
               "RelativeDocumentMoniker": "TOPDER.Service\\Services\\DashboardService.cs",
@@ -311,8 +353,11 @@
               "RelativeToolTip": "TOPDER.Service\\Services\\DashboardService.cs",
               "ViewState": "AQIAAJIBAAAAAAAAAAAAAGEAAAAuAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-08T07:05:42.857Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-08T07:05:42.857Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:15:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
             }
           ]
         },
@@ -320,14 +365,6 @@
           "DockedWidth": 1052,
           "SelectedChildIndex": -1,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:12:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:13:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:10:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
@@ -390,11 +427,15 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:13:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+              "Name": "ST:12:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:13:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
             }
           ]
         },
