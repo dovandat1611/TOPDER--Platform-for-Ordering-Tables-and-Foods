@@ -30,7 +30,7 @@ namespace TOPDER.Test2.BlogGroupTest
             // Arrange
             var blogGroupDto = new BlogGroupDto
             {
-                BloggroupId = 1,
+                BloggroupId = 0,
                 BloggroupName = "Technology"
             };
 
@@ -54,7 +54,7 @@ namespace TOPDER.Test2.BlogGroupTest
             var blogGroupDto = new BlogGroupDto
             {
                 BloggroupId = 0,  // Invalid BloggroupId to trigger model validation failure
-                BloggroupName = "Invalid BlogGroup"
+                BloggroupName = ""
             };
 
             // Add a model error to simulate invalid ModelState
