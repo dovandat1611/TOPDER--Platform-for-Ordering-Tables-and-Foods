@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\dell\\Downloads\\SEP490\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\menucontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\menucontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\bloggroupcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\bloggroupcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -307,19 +311,32 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "MenuController.cs",
+              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\MenuController.cs",
+              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\MenuController.cs",
+              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\MenuController.cs",
+              "RelativeToolTip": "TOPDER.API\\Controllers\\MenuController.cs",
+              "ViewState": "AQIAAD0AAAAAAAAAAAAcwFAAAAAnAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-11T13:55:13.326Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "BlogGroupController.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BlogGroupController.cs",
               "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\BlogGroupController.cs",
               "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BlogGroupController.cs",
               "RelativeToolTip": "TOPDER.API\\Controllers\\BlogGroupController.cs",
-              "ViewState": "AQIAABUAAAAAAAAAAAA1wDUAAAAaAAAA",
+              "ViewState": "AQIAABYAAAAAAAAAAAAQwDUAAAAaAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-10T02:03:33.178Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "BlogController.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BlogController.cs",
               "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\BlogController.cs",
@@ -327,12 +344,11 @@
               "RelativeToolTip": "TOPDER.API\\Controllers\\BlogController.cs",
               "ViewState": "AQIAABgAAAAAAAAAAAAYwC0AAAArAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-10T02:03:18.171Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-10T02:03:18.171Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "WishlistController.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\WishlistController.cs",
               "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\WishlistController.cs",
@@ -340,12 +356,11 @@
               "RelativeToolTip": "TOPDER.API\\Controllers\\WishlistController.cs",
               "ViewState": "AQIAABUAAAAAAAAAAAAqwC0AAABTAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-08T07:05:57.022Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-08T07:05:57.022Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "DashboardService.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.Service\\Services\\DashboardService.cs",
               "RelativeDocumentMoniker": "TOPDER.Service\\Services\\DashboardService.cs",
