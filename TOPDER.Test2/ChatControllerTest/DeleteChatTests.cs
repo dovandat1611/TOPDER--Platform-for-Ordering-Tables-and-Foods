@@ -76,37 +76,20 @@ namespace TOPDER.Test2.ChatControllerTest
         }
 
         [TestMethod]
-        public async Task DeleteChat_WithInvalidId_ReturnsInternalServerError()
+        public async Task DeleteChat_WithNonexistentId_ReturnsNotFound()
         {
             // Arrange
-            int id = -1; // Invalid ID
-            _mockChatService.Setup(service => service.RemoveAsync(id))
-                .ThrowsAsync(new Exception("An error occurred")); // Simulate an internal error
+            int invalidId = -1;
+            _mockChatService.Setup(service => service.RemoveAsync(invalidId))
+                .ReturnsAsync(false); // Simulate chat not found
 
             // Act
-            var result = await _controller.DeleteChat(id) as ObjectResult;
+            var result = await _controller.DeleteChat(invalidId) as NotFoundObjectResult;
 
             // Assert
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(500, result.StatusCode); // Expecting 500 Internal Server Error
-        }
-
-        // Test for null ID (if nullable ID is allowed)
-        [TestMethod]
-        public async Task DeleteChat_WithNullId_ReturnsInternalServerError()
-        {
-            // Arrange
-            int? id = null; // Null ID
-            _mockChatService.Setup(service => service.RemoveAsync(id.Value))
-                .ThrowsAsync(new Exception("An error occurred")); // Simulate an internal error
-
-            // Act
-            var result = await _controller.DeleteChat(id.Value) as ObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(500, result.StatusCode); // Expecting 500 Internal Server Error
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual($"Đã xảy ra lỗi trong quá trình xử lý yêu cầu: An error occurred", result.Value); // Expected error message
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, result.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual($"Chat với ID {invalidId} không tồn tại.", result.Value);
         }
     }
 

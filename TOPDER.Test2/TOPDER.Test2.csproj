@@ -30,4 +30,8 @@
     <ProjectReference Include="..\TOPDER.Service\TOPDER.Service.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DashboardControllerTest\" />
+  </ItemGroup>
+
 </Project>
