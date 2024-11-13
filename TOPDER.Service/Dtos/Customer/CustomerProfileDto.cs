@@ -16,6 +16,7 @@ namespace TOPDER.Service.Dtos.Customer
         public IFormFile? ImageFile { get; set; }
         public DateTime? Dob { get; set; }
         public string? Gender { get; set; }
+        public string? Role { get; set; }
         public decimal? WalletBalance { get; set; }
     }
 }

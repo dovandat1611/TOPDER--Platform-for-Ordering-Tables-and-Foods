@@ -65,6 +65,7 @@ namespace TOPDER.API.Controllers
             {
                 var profile = await _customerService.Profile(uid);
                 profile.WalletBalance = role.WalletBalance;
+                profile.Role = role.Role;
                 if (profile == null)
                     return NotFound(new { Message = "Không tìm thấy khách hàng." });
 
@@ -76,7 +77,7 @@ namespace TOPDER.API.Controllers
                 var profile = await _restaurantService.Profile(uid);
 
                 profile.WalletBalance = role.WalletBalance;
-
+                profile.Role = role.Role;
                 if (profile == null)
                     return NotFound(new { Message = "Không tìm thấy nhà hàng." });
 
@@ -86,6 +87,7 @@ namespace TOPDER.API.Controllers
             if (role.Role.Equals(User_Role.ADMIN))
             {
                 var profile = await _adminService.Profile(uid);
+                profile.Role = role.Role;
 
                 if (profile == null)
                     return NotFound(new { Message = "Không tìm thấy admin." });
