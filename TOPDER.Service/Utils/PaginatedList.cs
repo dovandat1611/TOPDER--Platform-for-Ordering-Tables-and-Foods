@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TOPDER.Service.Dtos.Feedback;
 
 namespace TOPDER.Service.Utils
 {
@@ -40,6 +41,11 @@ namespace TOPDER.Service.Utils
                 (pageIndex - 1) * pageSize)
                 .Take(pageSize).ToListAsync();
             return new PaginatedList<T>(items, count, pageIndex, pageSize);
+        }
+
+        public static PaginatedList<FeedbackCustomerDto> Create(IQueryable<FeedbackCustomerDto> feedbackCustomerDtos, int pageNumber, int pageSize)
+        {
+            throw new NotImplementedException();
         }
     }
 }
