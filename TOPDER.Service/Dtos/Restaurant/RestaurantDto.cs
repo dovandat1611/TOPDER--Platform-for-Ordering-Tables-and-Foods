@@ -14,6 +14,7 @@ namespace TOPDER.Service.Dtos.Restaurant
         public int? CategoryRestaurantId { get; set; }
         public string CategoryName { get; set; } = null!;
         public decimal? Discount { get; set; }
+        public int? ReputationScore { get; set; }
         public decimal Price { get; set; }
         public int TotalFeedbacks { get; set; }
         public int Star { get; set; }

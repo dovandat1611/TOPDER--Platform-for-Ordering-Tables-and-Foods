@@ -88,9 +88,15 @@ namespace TOPDER.Service.Services
                 throw new KeyNotFoundException($"Restaurant with ID {restaurantId} not found.");
             }
 
+            // Tính toán sao trung bình từ feedbacks
+            var feedbacks = restaurant.Feedbacks;
+            var averageStar = feedbacks != null && feedbacks.Any()
+                ? (int)Math.Round(feedbacks.Average(f => f.Star ?? 0))
+                : 0;
+            
             var dashboardDto = new DashboardRestaurantDto
             {
-                TaskBar = await GetTaskBarDataAsync(restaurantId),
+                Star = averageStar,
                 OrderStatus = await GetOrderStatusAsync(restaurantId),
                 LoyalCustomers = await GetLoyalCustomersAsync(restaurantId),
                 CustomerAgeGroup = await GetCustomerAgeGroupAsync(restaurantId),
@@ -98,16 +104,6 @@ namespace TOPDER.Service.Services
                 MarketOverview = await GetMarketOverviewRestaurantAsync(restaurantId,0),
                 YearsContainOrders = await GetYearsWithOrdersAsync(restaurantId),
             };
-
-            dashboardDto.TaskBar.RestaurantBookingStatus = restaurant.IsBookingEnabled ?? true;
-
-            // Tính toán sao trung bình từ feedbacks
-            var feedbacks = restaurant.Feedbacks;
-            var averageStar = feedbacks != null && feedbacks.Any()
-                ? (int)Math.Round(feedbacks.Average(f => f.Star ?? 0))
-                : 0;
-
-            dashboardDto.TaskBar.Star = averageStar;
 
             return dashboardDto;
         }
@@ -136,31 +132,24 @@ namespace TOPDER.Service.Services
             return years;
         }
 
-
-        private async Task<TaskBarRestaurantDTO> GetTaskBarDataAsync(int restaurantId)
+        // DATA 
+        public async Task<TaskBarMonthRestaurantDTO> GetTaskBarMonthDataAsync(int restaurantId, DateTime searchMonth)
         {
-            // Truy vấn các đơn hàng của nhà hàng dựa trên restaurantId
             var queryableOrders = await _orderRepository.QueryableAsync();
 
             // Lọc các đơn hàng theo nhà hàng và chỉ lấy các đơn hàng hoàn tất để tính toán thu nhập
             var orders = queryableOrders.Where(o => o.RestaurantId == restaurantId);
 
-            // Tổng số đơn hàng và tổng thu nhập
-            var totalOrders = await orders.CountAsync();
-            var totalIncome = await orders.SumAsync(o => o.TotalAmount);
-
             // Thu nhập và số lượng đơn hàng của tháng hiện tại
             var currentMonthIncome = (double)(await orders
-                .Where(o => o.CompletedAt.HasValue && o.CompletedAt.Value.Month == DateTime.Now.Month)
+                .Where(o => o.CompletedAt.HasValue && o.CompletedAt.Value.Month == searchMonth.Month && o.CompletedAt.Value.Year == searchMonth.Year)
                 .SumAsync(o => o.TotalAmount));
 
             var currentMonthOrdersCount = await orders
-                .CountAsync(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == DateTime.Now.Month);
+                .CountAsync(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == searchMonth.Month && o.CreatedAt.Value.Year == searchMonth.Year);
 
-            return new TaskBarRestaurantDTO
+            return new TaskBarMonthRestaurantDTO
             {
-                TotalOrder = totalOrders,
-                TotalIncome = (double)totalIncome,
                 CurrentMonthIncome = new CurrentMonthIncomeDTO
                 {
                     CurrentMonthIncome = currentMonthIncome,
@@ -171,6 +160,28 @@ namespace TOPDER.Service.Services
                     CurrentMonthOrder = currentMonthOrdersCount,
                     OrderGrowthRate = CalculateGrowthRate(orders, "Order")
                 }
+            };
+        }
+
+        public async Task<TaskBarDayRestaurantDTO> GetTaskBarDayDataAsync(int restaurantId, DateTime searchDay)
+        {
+            var queryableOrders = await _orderRepository.QueryableAsync();
+
+            var orders = queryableOrders.Where(o => o.RestaurantId == restaurantId);
+
+
+            // Thu nhập và số lượng đơn hàng của tháng hiện tại
+            var totalIncome = (double)(await orders
+                .Where(o => o.CompletedAt.HasValue && o.CompletedAt.Value.Month == searchDay.Month && o.CompletedAt.Value.Year == searchDay.Year && o.CompletedAt.Value.Day == searchDay.Day)
+                .SumAsync(o => o.TotalAmount));
+
+            var totalOrders = await orders
+                .CountAsync(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == searchDay.Month && o.CreatedAt.Value.Year == searchDay.Year && o.CreatedAt.Value.Day == searchDay.Day);
+
+            return new TaskBarDayRestaurantDTO
+            {
+                DayOrders = totalOrders,
+                DayIncome = (double)totalIncome,
             };
         }
 

@@ -64,7 +64,7 @@ namespace TOPDER.Service.Services
             new ExcelColumnConfiguration { ColumnName = "RoomName", Position = 1, IsRequired = true },
             new ExcelColumnConfiguration { ColumnName = "MaxCapacity", Position = 2, IsRequired = true },
             new ExcelColumnConfiguration { ColumnName = "Description", Position = 3, IsRequired = false },
-            new ExcelColumnConfiguration { ColumnName = "CategoryRoomId", Position = 4, IsRequired = false }
+            //new ExcelColumnConfiguration { ColumnName = "CategoryRoomId", Position = 4, IsRequired = false }
         };
 
                 var data = await _excelService.ReadFromExcelAsync(createExcelRestaurantRoom.File, columnConfigurations);
@@ -85,9 +85,7 @@ namespace TOPDER.Service.Services
                         RoomName = row["RoomName"],
                         MaxCapacity = Convert.ToInt32(row["MaxCapacity"]),
                         Description = row.ContainsKey("Description") ? row["Description"] : null,
-                        CategoryRoomId = row.ContainsKey("CategoryRoomId") && !string.IsNullOrEmpty(row["CategoryRoomId"])
-                                        ? Convert.ToInt32(row["CategoryRoomId"]) 
-                                        : (int?)null, 
+                        CategoryRoomId = null, 
                         IsBookingEnabled = true,
                         IsVisible = true,
                     };
@@ -201,6 +199,8 @@ namespace TOPDER.Service.Services
             {
                 query = query.Where(x => x.RoomName.Contains(roomName));
             }
+
+            query = query.OrderByDescending(x => x.RoomId);
 
             // Chọn các DTO từ các thực thể
             var queryDTO = query.Select(r => _mapper.Map<RestaurantRoomDto>(r));

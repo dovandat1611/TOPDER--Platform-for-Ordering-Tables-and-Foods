@@ -41,41 +41,49 @@ namespace TOPDER.Service.Services
             return await _restaurantTableRepository.CreateAsync(restaurantTable);
         }
 
-        public async Task<bool> AddRangeExcelAsync(CreateExcelRestaurantTableDto createExcelRestaurantTableDto)
+        public async Task<(bool IsSuccess, string Message)> AddRangeExcelAsync(CreateExcelRestaurantTableDto createExcelRestaurantTableDto)
         {
             if (createExcelRestaurantTableDto.File == null || createExcelRestaurantTableDto.File.Length == 0)
             {
-                return false;
+                return (false, "File không tồn tại hoặc rỗng.");
             }
+
+            if (createExcelRestaurantTableDto.RestaurantId <= 0)
+            {
+                return (false, "RestaurantId không hợp lệ.");
+            }
+
             try
             {
                 var columnConfigurations = new List<ExcelColumnConfiguration>
-                {
-                    new ExcelColumnConfiguration { ColumnName = "TableName", Position = 1, IsRequired = true },
-                    new ExcelColumnConfiguration { ColumnName = "MaxCapacity", Position = 2, IsRequired = true },
-                    new ExcelColumnConfiguration { ColumnName = "Description", Position = 3, IsRequired = false },
-                    new ExcelColumnConfiguration { ColumnName = "RoomId", Position = 4, IsRequired = false }
-                };
+        {
+            new ExcelColumnConfiguration { ColumnName = "Tên bàn", Position = 1, IsRequired = true },
+            new ExcelColumnConfiguration { ColumnName = "Sức chứa", Position = 2, IsRequired = true },
+            new ExcelColumnConfiguration { ColumnName = "Mô tả", Position = 3, IsRequired = false },
+        };
 
                 var data = await _excelService.ReadFromExcelAsync(createExcelRestaurantTableDto.File, columnConfigurations);
+
+                if (data == null || data.Count == 0)
+                {
+                    return (false, "Không có dữ liệu hợp lệ trong file Excel.");
+                }
 
                 var restaurantTables = new List<RestaurantTable>();
                 foreach (var row in data)
                 {
-                    if (row == null ||
-                        !row.ContainsKey("TableName") ||
-                        !row.ContainsKey("MaxCapacity"))
+                    if (row == null || !row.ContainsKey("Tên bàn") || !row.ContainsKey("Sức chứa"))
                     {
-                        continue; 
+                        continue;
                     }
 
                     var restaurantTable = new RestaurantTable
                     {
                         RestaurantId = createExcelRestaurantTableDto.RestaurantId,
-                        TableName = row["TableName"],
-                        MaxCapacity = Convert.ToInt32(row["MaxCapacity"]),
-                        Description = row.ContainsKey("Description") ? row["Description"] : null,
-                        RoomId = row.ContainsKey("RoomId") && !string.IsNullOrEmpty(row["RoomId"]) ? (int?)Convert.ToInt32(row["RoomId"]) : null,
+                        TableName = row["Tên bàn"],
+                        MaxCapacity = int.TryParse(row["Sức chứa"], out var maxCapacity) ? maxCapacity : throw new FormatException("MaxCapacity không hợp lệ."),
+                        Description = row.ContainsKey("Mô tả") ? row["Mô tả"] : null,
+                        RoomId = null,
                         IsBookingEnabled = true,
                     };
 
@@ -84,14 +92,20 @@ namespace TOPDER.Service.Services
 
                 if (restaurantTables.Any())
                 {
-                    await _restaurantTableRepository.CreateRangeAsync(restaurantTables);
+                    var result = await _restaurantTableRepository.CreateRangeAsync(restaurantTables);
+                    return (result, result ? "Thêm danh sách bàn thành công." : "Lỗi khi thêm danh sách bàn.");
                 }
 
-                return true;
+                return (false, "Không có bàn nào hợp lệ để thêm.");
             }
-            catch (Exception)
+            catch (FormatException ex)
             {
-                return false;
+                return (false, $"Lỗi định dạng dữ liệu: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi nếu cần thiết
+                return (false, $"Lỗi khi xử lý file Excel: {ex.Message}");
             }
         }
 
@@ -274,6 +288,8 @@ namespace TOPDER.Service.Services
                 query = query.Where(x => x.TableName.Contains(tableName));
             }
 
+            query = query.OrderByDescending(x => x.TableId);
+
             var queryDTO = query.Select(r => _mapper.Map<RestaurantTableRestaurantDto>(r));
 
             var paginatedDTOs = await PaginatedList<RestaurantTableRestaurantDto>.CreateAsync(
@@ -297,6 +313,7 @@ namespace TOPDER.Service.Services
             existingRestaurantTable.TableName = restaurantTableDto.TableName;
             existingRestaurantTable.MaxCapacity = restaurantTableDto.MaxCapacity;
             existingRestaurantTable.Description = restaurantTableDto.Description;
+            existingRestaurantTable.IsBookingEnabled = restaurantTableDto.IsBookingEnabled;
             return await _restaurantTableRepository.UpdateAsync(existingRestaurantTable);
         }
 

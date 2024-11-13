@@ -140,20 +140,16 @@ namespace TOPDER.API.Controllers
         }
 
         [HttpPost("CreateByExcel")]
-        [SwaggerOperation(Summary = "Tạo danh sách bàn bằng excel: Restaurant")]
-        public async Task<IActionResult> AddRangeExcel([FromForm] CreateExcelRestaurantTableDto createExcelRestaurantTableDto)
+        [Consumes("multipart/form-data")]
+        [SwaggerOperation(Summary = "Tạo một list bàn ăn thông qua file excel: Restaurant")]
+        public async Task<IActionResult> AddRangeFromExcel([FromForm] CreateExcelRestaurantTableDto createExcelRestaurantTableDto)
         {
-            if (createExcelRestaurantTableDto.File == null || createExcelRestaurantTableDto.File.Length == 0)
+            var (isSuccess, message) = await _restaurantTableService.AddRangeExcelAsync(createExcelRestaurantTableDto);
+            if (!isSuccess)
             {
-                return BadRequest("Không có tệp nào được tải lên.");
+                return StatusCode(500, message);
             }
-
-            var result = await _restaurantTableService.AddRangeExcelAsync(createExcelRestaurantTableDto);
-            if (result)
-            {
-                return Ok("Tạo danh sách bàn thành công.");
-            }
-            return BadRequest("Không thể tạo danh sách bàn từ Excel.");
+            return Ok(message);
         }
 
         [HttpPut("IsEnabledBooking/{restaurantId}/{roomId}")]

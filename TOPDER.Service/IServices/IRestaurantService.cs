@@ -27,7 +27,7 @@ namespace TOPDER.Service.IServices
         // DISCOUNT AND FEE
         Task<DiscountAndFeeRestaurant> GetDiscountAndFeeAsync(int restaurantId);
         Task<bool> UpdateDiscountAndFeeAsync(int restaurantId, decimal? discountPrice, decimal? firstFeePercent, decimal? returningFeePercent, decimal? cancellationFeePercent);
-
+        Task<bool> UpdateReputationScore(int uid);
 
         // DESCRIPTION 
         Task<bool> UpdateDescriptionAsync(int restaurantId, string? description, string? subDescription);

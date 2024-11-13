@@ -78,6 +78,8 @@ namespace TOPDER.Service.Services
                 ? queryable 
                 : queryable.Where(x => x.BloggroupName.Contains(blogGroupName));
 
+            query = query.OrderByDescending(x => x.BloggroupId);
+
             var queryDTO = query.Select(r => _mapper.Map<BlogGroupDto>(r));
 
             var paginatedDTOs = await PaginatedList<BlogGroupDto>.CreateAsync(

@@ -86,7 +86,9 @@ namespace TOPDER.Service.Services
         {
             var query = await _categoryMenuRepository.QueryableAsync();
 
-            var categoryMenus = await query.Where(x => x.RestaurantId == restaurantId && x.IsVisible == true).ToListAsync();
+            var categoryMenus = await query.Where(x => x.RestaurantId == restaurantId && x.IsVisible == true)
+                .OrderByDescending(x => x.CategoryMenuId)
+                .ToListAsync();
 
             if (categoryMenus == null || !categoryMenus.Any())
             {
@@ -108,6 +110,8 @@ namespace TOPDER.Service.Services
             {
                 query = query.Where(bg => bg.CategoryMenuName != null && bg.CategoryMenuName.Contains(categoryMenuName)); 
             }
+
+            query = query.OrderByDescending(x => x.CategoryMenuId);
 
             var queryDTO = query.Select(r => _mapper.Map<CategoryMenuDto>(r));
 

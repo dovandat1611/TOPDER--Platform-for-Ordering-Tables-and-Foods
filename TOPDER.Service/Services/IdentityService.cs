@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using TOPDER.Repository.Entities;
 using TOPDER.Service.Dtos.Customer;
@@ -64,8 +65,36 @@ namespace TOPDER.Service.Services
 
                 // Kiểm tra xem người dùng đã tồn tại trong hệ thống chưa
                 var existingUser = await _userService.GetUserByEmail(userInfoLogin.Email);
+
                 if (existingUser != null)
                 {
+                    if (existingUser.Role == User_Role.RESTAURANT || existingUser.Role == User_Role.ADMIN)
+                    {
+                        return new ApiResponse
+                        {
+                            Success = false,
+                            Message = "Tài phải đăng nhập bằng form tài khoản mật khẩu!"
+                        };
+                    }
+                    var user = await _userService.GetUserByEmailToLoginGoogle(existingUser.Uid);
+                    if (existingUser.Role == User_Role.CUSTOMER && user.Status == Common_Status.INACTIVE)
+                       {
+                                return new ApiResponse
+                                {
+                                    Success = false,
+                                    Message = "Tài khoản hiện không thể đăng nhập vào hệ thống!"
+                                };
+                       }
+
+                    if (existingUser.Role == User_Role.CUSTOMER && user.IsVerify == false)
+                    {
+                        return new ApiResponse
+                        {
+                            Success = false,
+                            Message = "Tài khoản hiện chưa được xác thực!"
+                        };
+                    }
+
                     var isProfileComplete = await _customerService.CheckProfile(existingUser.Uid);
                     var generatedToken = _jwtHelper.GenerateJwtToken(existingUser);
                     return new ApiResponse
@@ -79,6 +108,7 @@ namespace TOPDER.Service.Services
                 // Tạo người dùng mới nếu chưa tồn tại
                 var userDto = new UserDto
                 {
+                    Uid = 0,
                     Email = userInfoLogin.Email,
                     RoleId = 3, // CUSTOMER
                     IsVerify = true,
@@ -88,6 +118,7 @@ namespace TOPDER.Service.Services
                 };
 
                 var newUser = await _userService.AddAsync(userDto);
+
                 if (newUser == null)
                 {
                     return new ApiResponse { Success = false, Message = "USER CREATION FAILED" };
@@ -102,6 +133,7 @@ namespace TOPDER.Service.Services
                     ExternalUserId = userInfoLogin.Id ?? Is_Null.ISNULL,
                     AccessToken = accessToken
                 };
+                Console.WriteLine($"Uid: {externalLogin.Uid}, ExternalProvider: {externalLogin.ExternalProvider}, ExternalUserId: {externalLogin.ExternalUserId}");
                 await _externalLoginService.AddAsync(externalLogin);
 
                 // Thêm ví
@@ -113,7 +145,6 @@ namespace TOPDER.Service.Services
                 };
                 await _walletService.AddWalletBalanceAsync(walletBalanceDto);
 
-                // Thêm thông tin khách hàng
                 var customerRequest = new CreateCustomerRequest
                 {
                     Uid = newUser.Uid,
@@ -150,7 +181,8 @@ namespace TOPDER.Service.Services
             }
             catch (Exception ex)
             {
-                return new ApiResponse { Success = false, Message = ex.Message.ToUpper() };
+                var errorMessage = ex.InnerException?.Message ?? ex.Message;
+                return new ApiResponse { Success = false, Message = errorMessage.ToUpper() };
             }
         }
     }

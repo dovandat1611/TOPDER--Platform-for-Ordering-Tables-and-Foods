@@ -46,49 +46,64 @@ namespace TOPDER.Service.Services
             return await _menuRepository.CreateAsync(menu);
         }
 
-        public async Task<bool> AddRangeExcelAsync(CreateExcelMenuDto createExcelMenuDto)
+        public async Task<(bool IsSuccess, string Message)> AddRangeExcelAsync(CreateExcelMenuDto createExcelMenuDto)
         {
             if (createExcelMenuDto.File == null || createExcelMenuDto.File.Length == 0)
             {
-                return false;
+                return (false, "File không tồn tại hoặc rỗng.");
+            }
+
+            if (createExcelMenuDto.RestaurantId <= 0)
+            {
+                return (false, "RestaurantId không hợp lệ.");
             }
 
             try
             {
                 var columnConfigurations = new List<ExcelColumnConfiguration>
-                    {
-                        new ExcelColumnConfiguration { ColumnName = "DishName", Position = 1, IsRequired = true },
-                        new ExcelColumnConfiguration { ColumnName = "Price", Position = 2, IsRequired = true },
-                        new ExcelColumnConfiguration { ColumnName = "Description", Position = 3, IsRequired = false },
-                        new ExcelColumnConfiguration { ColumnName = "CategoryMenuId", Position = 4, IsRequired = false },
-
-                    };
+        {
+            new ExcelColumnConfiguration { ColumnName = "Tên món ăn", Position = 1, IsRequired = true },
+            new ExcelColumnConfiguration { ColumnName = "Giá tiền", Position = 2, IsRequired = true },
+            new ExcelColumnConfiguration { ColumnName = "Mô tả", Position = 3, IsRequired = false },
+            new ExcelColumnConfiguration { ColumnName = "Ảnh (đường dẫn ảnh)", Position = 4, IsRequired = false },
+        };
 
                 var data = await _excelService.ReadFromExcelAsync(createExcelMenuDto.File, columnConfigurations);
 
+                if (data == null || data.Count == 0)
+                {
+                    return (false, "Không có dữ liệu hợp lệ trong file Excel.");
+                }
+
                 var menuItems = data
-                    .Where(row => row != null && row.ContainsKey("DishName") && row.ContainsKey("Price"))
+                    .Where(row => row != null && row.ContainsKey("Tên món ăn") && row.ContainsKey("Giá tiền"))
                     .Select(row => new Menu
                     {
                         RestaurantId = createExcelMenuDto.RestaurantId,
-                        DishName = row["DishName"],
-                        Price = Convert.ToDecimal(row["Price"]),
-                        Description = row.TryGetValue("Description", out var description) ? description : null,
-                        CategoryMenuId = row.ContainsKey("CategoryMenuId") && !string.IsNullOrEmpty(row["CategoryMenuId"]) ? (int?)Convert.ToInt32(row["CategoryMenuId"]) : null, 
+                        DishName = row["Tên món ăn"],
+                        Price = decimal.TryParse(row["Giá tiền"], out var price) ? price : throw new FormatException("Giá tiền không hợp lệ."),
+                        Description = row.TryGetValue("Mô tả", out var description) ? description : null,
+                        CategoryMenuId = null,
+                        Image = row.TryGetValue("Ảnh (đường dẫn ảnh)", out var imageUrl) ? imageUrl : null,
                         Status = Common_Status.ACTIVE
                     })
                     .ToList();
 
                 if (menuItems.Count > 0)
                 {
-                    await _menuRepository.CreateRangeAsync(menuItems);
+                    var result = await _menuRepository.CreateRangeAsync(menuItems);
+                    return (result, result ? "Thêm danh sách món ăn thành công." : "Lỗi khi thêm danh sách món ăn.");
                 }
-
-                return true;
+                return (false, "Không có món ăn nào hợp lệ để thêm.");
             }
-            catch (Exception)
-            {   
-                return false;
+            catch (FormatException ex)
+            {
+                return (false, $"Lỗi định dạng dữ liệu: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi nếu cần thiết
+                return (false, $"Lỗi khi xử lý file Excel: {ex.Message}");
             }
         }
 
@@ -125,6 +140,22 @@ namespace TOPDER.Service.Services
             return await _menuRepository.UpdateAsync(menu);
         }
 
+        public async Task<bool> IsActiveAsync(int id, string status)
+        {
+            var menu = await _menuRepository.GetByIdAsync(id);
+
+            if (menu == null)
+            {
+                return false;
+            }
+
+            if(status == Common_Status.ACTIVE || status == Common_Status.INACTIVE)
+            {
+                menu.Status = status;
+                return await _menuRepository.UpdateAsync(menu);
+            };
+            return false;
+        }
 
         public async Task<List<MenuCustomerByCategoryMenuDto>> ListMenuCustomerByCategoryMenuAsync(int restaurantId)
         {
@@ -175,6 +206,8 @@ namespace TOPDER.Service.Services
                 query = query.Where(x => x.DishName != null && x.DishName.Contains(menuName));
             }
 
+            query = query.OrderByDescending(x => x.MenuId);
+
             var queryDTO = query.Select(r => _mapper.Map<MenuRestaurantDto>(r));
 
             var paginatedDTOs = await PaginatedList<MenuRestaurantDto>.CreateAsync(
@@ -193,8 +226,16 @@ namespace TOPDER.Service.Services
             {
                 return false;
             }
-            var menu = _mapper.Map<Menu>(menuDto);
-            return await _menuRepository.UpdateAsync(menu);
+            existingMenu.CategoryMenuId = menuDto.CategoryMenuId;
+            existingMenu.DishName = menuDto.DishName;
+            existingMenu.Price = menuDto.Price;
+            if(menuDto.Image != null && !string.IsNullOrEmpty(menuDto.Image))
+            {
+                existingMenu.Image = menuDto.Image;
+            }
+            existingMenu.Description = menuDto.Description;
+            return await _menuRepository.UpdateAsync(existingMenu);
         }
+
     }
 }

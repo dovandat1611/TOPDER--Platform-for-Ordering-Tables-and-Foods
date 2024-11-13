@@ -16,6 +16,7 @@ namespace TOPDER.Service.IServices
         Task<Order> AddAsync(OrderDto orderDto);
         //Task<bool> UpdateAsync(OrderDto orderDto);
         Task<bool> UpdatePaidOrderAsync(OrderDto orderDto);
+        Task<bool> UpdatePendingOrdersAsync(MultiStatusOrders multiStatus);
         Task<OrderPaidEmail> GetOrderPaid(int orderID); 
         Task<bool> RemoveAsync(int id);
         Task<OrderDto> GetItemAsync(int id, int Uid);
@@ -30,5 +31,7 @@ namespace TOPDER.Service.IServices
         Task<CancelOrderDto> GetInformationForCancelAsync(int userID, int orderID);
         Task<PaginatedList<OrderRestaurantDto>> GetRestaurantPagingAsync(int pageNumber, int pageSize, int restaurantId, string? status, DateTime? month, DateTime? date);
         Task<PaginatedList<OrderCustomerDto>> GetCustomerPagingAsync(int pageNumber, int pageSize, int customerId, string? status);
+        Task<List<OrderDto>> GetAdminPagingAsync();
+
     }
 }

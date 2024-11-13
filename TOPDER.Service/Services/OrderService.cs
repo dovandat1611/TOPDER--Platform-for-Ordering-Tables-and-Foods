@@ -3,6 +3,7 @@ using MailKit.Search;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
@@ -65,6 +66,21 @@ namespace TOPDER.Service.Services
             return customerOrderCounts.Any(x => x.CustomerId == customerId);
         }
 
+        public async Task<List<OrderDto>> GetAdminPagingAsync()
+        {
+            var queryable = await _orderRepository.QueryableAsync();
+
+            var query = await queryable
+                .Include(x => x.OrderMenus)
+                .Include(x => x.OrderTables)
+                .Include(x => x.Customer)
+                .Include(x => x.Restaurant)
+                .OrderByDescending(x => x.OrderId)
+                .ToListAsync();
+
+            var orderDto = _mapper.Map<List<OrderDto>>(query);
+            return orderDto;
+        }
 
         public async Task<PaginatedList<OrderCustomerDto>> GetCustomerPagingAsync(int pageNumber, int pageSize, int customerId, string? status)
         {
@@ -81,6 +97,8 @@ namespace TOPDER.Service.Services
             {
                 query = query.Where(x => x.StatusOrder == status); // Điều kiện lọc theo status
             }
+
+            query = query.OrderByDescending(x => x.OrderId);
 
             // Chuyển sang DTO
             var queryDTO = query.Select(r => _mapper.Map<OrderCustomerDto>(r));
@@ -394,6 +412,8 @@ namespace TOPDER.Service.Services
                 query = query.Where(x => x.CreatedAt.Value.Day == selectedDay && x.CreatedAt.Value.Month == selectedMonth && x.CreatedAt.Value.Year == selectedYear);
             }
 
+            query = query.OrderByDescending(x => x.OrderId);
+
             // Chuyển sang DTO
             var queryDTO = query.Select(r => _mapper.Map<OrderRestaurantDto>(r));
 
@@ -425,6 +445,38 @@ namespace TOPDER.Service.Services
             existingOrder.ContentPayment = orderDto.ContentPayment;
 
             return await _orderRepository.UpdateAsync(existingOrder);
+        }
+
+        public async Task<bool> UpdatePendingOrdersAsync(MultiStatusOrders multiStatus)
+        {
+            if (string.IsNullOrEmpty(multiStatus.Status))
+            {
+                return false;
+            }
+            int count = 0;
+            foreach (var item in multiStatus.OrderID)
+            {
+                var order = await _orderRepository.GetByIdAsync(item);
+                if (order == null)
+                {
+                    continue;
+                }
+                if (multiStatus.Status.Equals(Order_Status.CONFIRM))
+                {
+                    order.StatusOrder = multiStatus.Status;
+                    order.ConfirmedAt = DateTime.Now;
+                    var checkUpdate = await _orderRepository.UpdateAsync(order);
+                    if(checkUpdate == true)
+                    {
+                        count++;
+                    }
+                }
+            }
+            if(count > 0)
+            {
+                return true;
+            }
+            return false;
         }
 
         public async Task<bool> UpdateStatusAsync(int orderID, string status)

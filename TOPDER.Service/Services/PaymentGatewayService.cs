@@ -70,6 +70,11 @@ namespace TOPDER.Service.Services
                     urlCallBack += "?paymentType=transaction";
                 }
 
+                if (requestDto.PaymentType.Equals("Booking"))
+                {
+                    urlCallBack += "?paymentType=booking";
+                }
+
                 AddVnPayRequestData(requestDto, timeNow, urlCallBack, httpContext);
 
                 var paymentUrl = _vnPay.CreateRequestUrl(GetConfigValue("Vnpay:BaseUrl"), GetConfigValue("Vnpay:HashSecret"));

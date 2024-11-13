@@ -174,6 +174,13 @@ namespace TOPDER.Service.Common.ServiceDefinitions
                 return $"Thanh toan dat ban TOPDER";
             }
         }
+        public class Booking_PaymentContent
+        {
+            public static string PaymentContentVIETQR()
+            {
+                return $"quang cao TOPDER";
+            }
+        }
 
 
     }

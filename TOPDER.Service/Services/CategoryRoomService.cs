@@ -40,7 +40,9 @@ namespace TOPDER.Service.Services
         {
             var query = await _categoryRoomRepository.QueryableAsync();
 
-            var categoryRooms = await query.Where(x => x.RestaurantId == restaurantId && x.IsVisible == true).ToListAsync();
+            var categoryRooms = await query.Where(x => x.RestaurantId == restaurantId && x.IsVisible == true)
+                .OrderByDescending(x => x.CategoryRoomId)
+                .ToListAsync();
 
             if (categoryRooms == null || !categoryRooms.Any())
             {
@@ -119,6 +121,8 @@ namespace TOPDER.Service.Services
             {
                 query = query.Where(x => x.CategoryName != null && x.CategoryName.Contains(categoryRoomName));
             }
+
+            query = query.OrderByDescending(x => x.CategoryRoomId);
 
             var queryDTO = query.Select(r => _mapper.Map<CategoryRoomDto>(r));
 

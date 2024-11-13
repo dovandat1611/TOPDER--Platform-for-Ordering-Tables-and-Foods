@@ -25,28 +25,13 @@ namespace TOPDER.API.Controllers
 
 
         [HttpPost("Create")]
-        [Consumes("multipart/form-data")]
         [SwaggerOperation(Summary = "Tạo món ăn ở nhà hàng: Restaurant")]
-        public async Task<IActionResult> Create([FromForm] MenuDto menuDto, IFormFile File)
+        public async Task<IActionResult> Create([FromBody] MenuDto menuDto)
         {
-            if (File == null || File.Length == 0)
-            {
-                return BadRequest("No file was uploaded.");
-            }
-
-            var uploadResult = await _cloudinaryService.UploadImageAsync(File);
-            if (uploadResult == null)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Image upload failed.");
-            }
-
-            menuDto.Image = uploadResult.SecureUrl?.ToString();
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
             try
             {
                 var addMenu = await _menuService.AddAsync(menuDto);
@@ -59,25 +44,13 @@ namespace TOPDER.API.Controllers
         }
 
         [HttpPut("Update")]
-        [Consumes("multipart/form-data")]
         [SwaggerOperation(Summary = "Cập Nhật món ăn ở nhà hàng: Restaurant")]
-        public async Task<IActionResult> Update([FromForm] MenuDto menuDto, IFormFile File)
+        public async Task<IActionResult> Update([FromBody] MenuDto menuDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            if (File != null && File.Length > 0)
-            {
-                var uploadResult = await _cloudinaryService.UploadImageAsync(File);
-                if (uploadResult == null)
-                {
-                    return StatusCode(StatusCodes.Status500InternalServerError, "Image upload failed.");
-                }
-                menuDto.Image = uploadResult.SecureUrl?.ToString();
-            }
-
             try
             {
                 var updatedMenu = await _menuService.UpdateAsync(menuDto);
@@ -91,17 +64,19 @@ namespace TOPDER.API.Controllers
 
         [HttpPost("CreateByExcel")]
         [Consumes("multipart/form-data")]
-        [SwaggerOperation(Summary = "Tạo một list món ăn thông qua file excel : Restaurant")]
+        [SwaggerOperation(Summary = "Tạo một list món ăn thông qua file Excel: Restaurant")]
         public async Task<IActionResult> AddRangeFromExcel([FromForm] CreateExcelMenuDto createExcelMenuDto)
         {
-            var result = await _menuService.AddRangeExcelAsync(createExcelMenuDto);
-            if (!result)
+            var (isSuccess, message) = await _menuService.AddRangeExcelAsync(createExcelMenuDto);
+
+            if (!isSuccess)
             {
-                return StatusCode(500, "Failed to add menu items from Excel.");
+                return BadRequest(new { Error = message });
             }
 
-            return Ok("Menu items added successfully from Excel.");
+            return Ok(new { Message = "Menu items added successfully from Excel." });
         }
+
 
         [HttpPut("Invisible/{restaurantId}/{menuId}")]
         [SwaggerOperation(Summary = "Xóa/Ẩn món ăn : Restaurant")]
@@ -148,6 +123,20 @@ namespace TOPDER.API.Controllers
         {
             var result = await _menuService.ListMenuCustomerByCategoryMenuAsync(restaurantId);
             return Ok(result);
+        }
+
+
+        [HttpPut("IsActive/{menuId}")]
+        public async Task<IActionResult> UpdateMenuStatus(int menuId, [FromQuery] string status)
+        {
+            var isUpdated = await _menuService.IsActiveAsync(menuId, status);
+
+            if (isUpdated)
+            {
+                return Ok(new { message = "Menu status updated successfully." });
+            }
+
+            return BadRequest(new { message = "Failed to update menu status. Please check the menu ID and status value." });
         }
 
     }

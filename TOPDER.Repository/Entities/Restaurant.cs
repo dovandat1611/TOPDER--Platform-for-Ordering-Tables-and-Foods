@@ -7,6 +7,7 @@ namespace TOPDER.Repository.Entities
     {
         public Restaurant()
         {
+            BookingAdvertisements = new HashSet<BookingAdvertisement>();
             CategoryMenus = new HashSet<CategoryMenu>();
             CategoryRooms = new HashSet<CategoryRoom>();
             ChatBoxes = new HashSet<ChatBox>();
@@ -37,6 +38,7 @@ namespace TOPDER.Repository.Entities
         public string? Subdescription { get; set; }
         public decimal? Discount { get; set; }
         public int MaxCapacity { get; set; }
+        public int? ReputationScore { get; set; }
         public decimal Price { get; set; }
         public bool? IsBookingEnabled { get; set; }
         public decimal? FirstFeePercent { get; set; }
@@ -45,6 +47,7 @@ namespace TOPDER.Repository.Entities
 
         public virtual CategoryRestaurant? CategoryRestaurant { get; set; }
         public virtual User UidNavigation { get; set; } = null!;
+        public virtual ICollection<BookingAdvertisement> BookingAdvertisements { get; set; }
         public virtual ICollection<CategoryMenu> CategoryMenus { get; set; }
         public virtual ICollection<CategoryRoom> CategoryRooms { get; set; }
         public virtual ICollection<ChatBox> ChatBoxes { get; set; }
