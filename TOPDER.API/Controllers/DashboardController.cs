@@ -61,7 +61,7 @@ namespace TOPDER.API.Controllers
 
         // API lấy dữ liệu thống kê tháng
         [HttpGet("TaskBarSearchByMonthRestaurant/{restaurantId}")]
-        public async Task<IActionResult> GetTaskBarMonthData(int restaurantId, [FromQuery] DateTime searchMonth)
+        public async Task<IActionResult> GetTaskBarMonthData(int restaurantId, [FromQuery] DateTime? searchMonth)
         {
             try
             {
@@ -76,7 +76,7 @@ namespace TOPDER.API.Controllers
 
         // API lấy dữ liệu thống kê ngày
         [HttpGet("TaskBarSearchByDayRestaurant/{restaurantId}")]
-        public async Task<IActionResult> GetTaskBarDayData(int restaurantId, [FromQuery] DateTime searchDay)
+        public async Task<IActionResult> GetTaskBarDayData(int restaurantId, [FromQuery] DateTime? searchDay)
         {
             try
             {
