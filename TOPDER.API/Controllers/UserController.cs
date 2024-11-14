@@ -207,7 +207,6 @@ namespace TOPDER.API.Controllers
 
             if (result.Success)
             {   
-
                 return Ok(result);
             }
             else
@@ -230,7 +229,7 @@ namespace TOPDER.API.Controllers
             bool exists = await _userService.CheckExistEmail(restaurantRequest.Email);
             if (exists)
             {
-                return BadRequest(new { message = "Email đã tồn tại trong hệ thống vui lòng thử một email khác ." });
+                return BadRequest(new { message = "Email đã tồn tại trong hệ thống vui lòng thử một email khác." });
             }
 
             var uploadResult = await _cloudinaryService.UploadImageAsync(restaurantRequest.File);
@@ -459,7 +458,10 @@ namespace TOPDER.API.Controllers
                 return Ok("Người dùng đã có trạng thái này.");
             }
 
-            var update = await _userRepository.ChangeStatusAsync(uid, status);
+            user.Status = status;
+
+            var update = await _userRepository.UpdateAsync(user);
+
             if (update)
             {
                 return Ok("Cập nhật trạng thái người dùng thành công.");

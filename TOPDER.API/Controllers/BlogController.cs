@@ -7,6 +7,8 @@ using TOPDER.Service.Dtos.Blog;
 using TOPDER.Service.Dtos.Discount;
 using TOPDER.Service.Dtos.Restaurant;
 using TOPDER.Service.IServices;
+using TOPDER.Service.Services;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.API.Controllers
 {
@@ -161,6 +163,21 @@ namespace TOPDER.API.Controllers
                 result.HasNextPage
             );
             return Ok(response);
+        }
+
+        [HttpPut("Active/{blogId}")]
+        public async Task<IActionResult> Activate(int blogId, string status)
+        {
+            if (status != Common_Status.INACTIVE && status != Common_Status.ACTIVE)
+            {
+                return BadRequest($"Status phải giống {Common_Status.INACTIVE} hoặc {Common_Status.ACTIVE}.");
+            }
+            var result = await _blogService.UpdateStatusAsync(blogId, status);
+            if (!result)
+            {
+                return NotFound("Không tìm thấy Blog hoặc update lỗi!.");
+            }
+            return Ok("Blog đã được cập nhật.");
         }
 
     }

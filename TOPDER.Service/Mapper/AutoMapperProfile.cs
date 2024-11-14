@@ -360,8 +360,9 @@ namespace TOPDER.Service.Mapper
 
                 .ForMember(dest => dest.Dob,
                            opt => opt.MapFrom(src =>
-                               src.Admin != null ? src.Admin.Dob.ToString() :
-                               src.Customer != null ? src.Customer.Dob.ToString() : null))
+                               src.Admin != null ? src.Admin.Dob :
+                               src.Customer != null && src.Customer.Dob != null ? src.Customer.Dob : null))
+
 
                 .ForMember(dest => dest.Gender,
                            opt => opt.MapFrom(src =>

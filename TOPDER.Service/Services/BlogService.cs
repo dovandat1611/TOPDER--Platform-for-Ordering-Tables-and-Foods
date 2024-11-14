@@ -187,5 +187,16 @@ namespace TOPDER.Service.Services
             return await _blogRepository.UpdateAsync(existingBlog);
         }
 
+        public async Task<bool> UpdateStatusAsync(int blogId, string status)
+        {
+            var existingBlog = await _blogRepository.GetByIdAsync(blogId);
+            if (existingBlog == null)
+            {
+                return false;
+            }
+            existingBlog.Status = status;
+            return await _blogRepository.UpdateAsync(existingBlog);
+        }
+
     }
 }

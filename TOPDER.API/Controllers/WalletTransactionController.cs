@@ -237,7 +237,7 @@ namespace TOPDER.API.Controllers
 
         [HttpPut("UpdateStatus/{transactionId}")]
         [SwaggerOperation(Summary = "Cập nhật lại trạng thái thanh toán rút tiền (Cancelled, Successful hoặc Pending): Admin")]
-        public async Task<IActionResult> UpdateStatus(int transactionId, [FromBody] string status)
+        public async Task<IActionResult> UpdateStatus(int transactionId, string status)
         {
             if (string.IsNullOrEmpty(status))
             {
