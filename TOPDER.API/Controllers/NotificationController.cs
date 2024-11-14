@@ -32,7 +32,7 @@ namespace TOPDER.API.Controllers
                 return Ok("Thêm thông báo thành công.");
             }
             return BadRequest("Thêm thông báo thất bại.");
-        }
+        }   
 
         [HttpGet("GetNotification/{userId}/{notificationId}")]
         [SwaggerOperation(Summary = "Lấy thông tin chi tiết thông báo")]

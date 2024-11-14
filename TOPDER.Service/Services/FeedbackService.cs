@@ -132,39 +132,39 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
-        public async Task<PaginatedList<FeedbackRestaurantDto>> ListRestaurantPagingAsync(
-            int pageNumber,
-            int pageSize,
-            int restaurantId,
-            int? star,
-            string? content)
-        {
-            var query = await _feedbackRepository.QueryableAsync();
-
-            var feedbacks = query.Include(x => x.Customer).Where(x => x.RestaurantId == restaurantId && x.IsVisible == true);
-
-            if (star.HasValue)
+            public async Task<PaginatedList<FeedbackRestaurantDto>> ListRestaurantPagingAsync(
+                int pageNumber,
+                int pageSize,
+                int restaurantId,
+                int? star,
+                string? content)
             {
-                feedbacks = feedbacks.Where(x => x.Star == star.Value);
+                var query = await _feedbackRepository.QueryableAsync();
+
+                var feedbacks = query.Include(x => x.Customer).Where(x => x.RestaurantId == restaurantId && x.IsVisible == true);
+
+                if (star.HasValue)
+                {
+                    feedbacks = feedbacks.Where(x => x.Star == star.Value);
+                }
+
+                if (!string.IsNullOrWhiteSpace(content))
+                {
+                    feedbacks = feedbacks.Where(x => x.Content != null && x.Content.Contains(content));
+                }
+
+                var queryDTO = feedbacks
+                    .OrderByDescending(x => x.FeedbackId)
+                    .Select(r => _mapper.Map<FeedbackRestaurantDto>(r));
+
+                var paginatedDTOs = await PaginatedList<FeedbackRestaurantDto>.CreateAsync(
+                    queryDTO.AsNoTracking(),
+                    pageNumber > 0 ? pageNumber : 1,
+                    pageSize > 0 ? pageSize : 10
+                );
+
+                return paginatedDTOs;
             }
-
-            if (!string.IsNullOrWhiteSpace(content))
-            {
-                feedbacks = feedbacks.Where(x => x.Content != null && x.Content.Contains(content));
-            }
-
-            var queryDTO = feedbacks
-                .OrderByDescending(x => x.FeedbackId)
-                .Select(r => _mapper.Map<FeedbackRestaurantDto>(r));
-
-            var paginatedDTOs = await PaginatedList<FeedbackRestaurantDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-
-            return paginatedDTOs;
-        }
 
 
         public async Task<bool> UpdateAsync(FeedbackDto feedbackDto)

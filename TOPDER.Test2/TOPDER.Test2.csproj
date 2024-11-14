@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <Folder Include="DashboardControllerTest\" />
+    <Folder Include="OrderControllerTest\" />
   </ItemGroup>
 
 </Project>
