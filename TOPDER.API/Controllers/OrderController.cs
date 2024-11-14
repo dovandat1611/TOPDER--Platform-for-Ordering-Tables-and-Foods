@@ -518,7 +518,7 @@ namespace TOPDER.API.Controllers
             }
 
             var paymentData = new PaymentData(
-                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(order.OrderId, 11),
+                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(order.OrderId, 26112002),
                 amount: (int)totalAmount,
                 description: Order_PaymentContent.PaymentContentVIETQR(),
                 items: items,

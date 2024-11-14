@@ -50,42 +50,45 @@ namespace TOPDER.Service.Services
             return await _restaurantRoomRepository.CreateAsync(restaurantRoom);
         }
 
-        public async Task<bool> AddRangeExcelAsync(CreateExcelRestaurantRoomDto createExcelRestaurantRoom)
+        public async Task<(bool IsSuccess, string Message)> AddRangeExcelAsync(CreateExcelRestaurantRoomDto createExcelRestaurantRoom)
         {
             if (createExcelRestaurantRoom.File == null || createExcelRestaurantRoom.File.Length == 0)
             {
-                return false;
+                return (false, "Tệp Excel không có dữ liệu hoặc không tồn tại.");
             }
 
             try
             {
                 var columnConfigurations = new List<ExcelColumnConfiguration>
         {
-            new ExcelColumnConfiguration { ColumnName = "RoomName", Position = 1, IsRequired = true },
-            new ExcelColumnConfiguration { ColumnName = "MaxCapacity", Position = 2, IsRequired = true },
-            new ExcelColumnConfiguration { ColumnName = "Description", Position = 3, IsRequired = false },
-            //new ExcelColumnConfiguration { ColumnName = "CategoryRoomId", Position = 4, IsRequired = false }
+            new ExcelColumnConfiguration { ColumnName = "Tên Phòng", Position = 1, IsRequired = true },
+            new ExcelColumnConfiguration { ColumnName = "Sức chứa", Position = 2, IsRequired = true },
+            new ExcelColumnConfiguration { ColumnName = "Mô tả", Position = 3, IsRequired = false },
         };
 
                 var data = await _excelService.ReadFromExcelAsync(createExcelRestaurantRoom.File, columnConfigurations);
 
+                if (data == null || !data.Any())
+                {
+                    return (false, "Không có dữ liệu hợp lệ trong tệp Excel.");
+                }
+
                 var restaurantRooms = new List<RestaurantRoom>();
                 foreach (var row in data)
                 {
-                    // Check if the row is valid
-                    if (row == null || !row.ContainsKey("RoomName") || !row.ContainsKey("MaxCapacity"))
+                    if (row == null || !row.ContainsKey("Tên Phòng") || !row.ContainsKey("Sức chứa"))
                     {
-                        continue; // Skip invalid rows
+                        return (false, "Một số hàng trong tệp Excel thiếu thông tin bắt buộc như Tên Phòng hoặc Sức chứa.");
                     }
 
                     var restaurantRoom = new RestaurantRoom
                     {
                         RoomId = 0,
                         RestaurantId = createExcelRestaurantRoom.RestaurantId,
-                        RoomName = row["RoomName"],
-                        MaxCapacity = Convert.ToInt32(row["MaxCapacity"]),
-                        Description = row.ContainsKey("Description") ? row["Description"] : null,
-                        CategoryRoomId = null, 
+                        RoomName = row["Tên Phòng"],
+                        MaxCapacity = Convert.ToInt32(row["Sức chứa"]),
+                        Description = row.ContainsKey("Mô tả") ? row["Mô tả"] : null,
+                        CategoryRoomId = null,
                         IsBookingEnabled = true,
                         IsVisible = true,
                     };
@@ -95,14 +98,19 @@ namespace TOPDER.Service.Services
 
                 if (restaurantRooms.Any())
                 {
-                    await _restaurantRoomRepository.CreateRangeAsync(restaurantRooms);
+                    bool result = await _restaurantRoomRepository.CreateRangeAsync(restaurantRooms);
+                    return result
+                        ? (true, "Tải lên và lưu trữ dữ liệu thành công.")
+                        : (false, "Không thể lưu trữ dữ liệu vào hệ thống.");
                 }
-
-                return true;
+                else
+                {
+                    return (false, "Dữ liệu không hợp lệ hoặc không đủ điều kiện để lưu.");
+                }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                return (false, $"Đã xảy ra lỗi trong quá trình tải lên: {ex.Message}");
             }
         }
 

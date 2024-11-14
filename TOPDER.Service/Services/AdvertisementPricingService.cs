@@ -59,8 +59,8 @@ namespace TOPDER.Service.Services
             }
             existingAdvertisementPricing.DurationHours = advertisementPricing.DurationHours;
             existingAdvertisementPricing.Description = advertisementPricing.Description;
-            existingAdvertisementPricing.Price = existingAdvertisementPricing.Price;
-            existingAdvertisementPricing.PricingName = existingAdvertisementPricing.PricingName;
+            existingAdvertisementPricing.Price = advertisementPricing.Price;
+            existingAdvertisementPricing.PricingName = advertisementPricing.PricingName;
             return await _advertisementPricingRepository.UpdateAsync(existingAdvertisementPricing);
         }
     }

@@ -74,6 +74,29 @@ namespace TOPDER.API.Controllers
             return Ok(bookingAdvertisements);
         }
 
+
+        [HttpGet]
+        [Route("GetBookingAdvertisementForAdmin")]
+        public async Task<ActionResult<List<BookingAdvertisementAdminDto>>> GetAllBookingAdvertisementForAdmin()
+        {
+            var bookingAdvertisements = await _bookingAdvertisementService.GetAllBookingAdvertisementForAdminAsync();
+            return Ok(bookingAdvertisements);
+        }
+
+        [HttpPut("UpdateStatus/{bookingId}")]
+        public async Task<IActionResult> UpdateStatus(int bookingId, [FromQuery] string status)
+        {
+            var isUpdated = await _bookingAdvertisementService.UpdateStatusAsync(bookingId, status);
+
+            if (isUpdated)
+            {
+                return Ok(new { message = "Status updated successfully." });
+            }
+
+            return BadRequest(new { message = "Failed to update status. Please check the booking ID and status value." });
+        }
+
+
         [HttpGet]
         [Route("GetBookingAdvertisementForRestaurant/{restaurantId}")]
         public async Task<ActionResult<List<BookingAdvertisementDto>>> GetAllBookingAdvertisementForRestaurant(int restaurantId)
@@ -198,12 +221,12 @@ namespace TOPDER.API.Controllers
             items.Add(new ItemData("Đặt quảng cáo",1, (int)bookingAdvertisement.TotalAmount));
 
             var paymentData = new PaymentData(
-                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(bookingAdvertisement.BookingId, 99),
+                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(bookingAdvertisement.BookingId, 16112002),
                 amount: (int)bookingAdvertisement.TotalAmount,
                 description: Booking_PaymentContent.PaymentContentVIETQR(),
                 items: items,
-                cancelUrl: _configuration["PaymentSettings:CancelUrl"] + $"&transactionId={bookingAdvertisement.BookingId}&paymentType=booking",
-                returnUrl: _configuration["PaymentSettings:CancelUrl"] + $"&transactionId={bookingAdvertisement.BookingId}&paymentType=booking"
+                cancelUrl: _configuration["PayOSSettings:CancelUrl"] + $"&transactionId={bookingAdvertisement.BookingId}&paymentType=booking",
+                returnUrl: _configuration["PayOSSettings:CancelUrl"] + $"&transactionId={bookingAdvertisement.BookingId}&paymentType=booking"
             );
 
             CreatePaymentResult createPayment = await _paymentGatewayService.CreatePaymentUrlPayOS(paymentData);

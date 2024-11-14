@@ -12,6 +12,7 @@ namespace TOPDER.Service.Dtos.BookingAdvertisement
         public int Uid { get; set; }
         public string? Logo { get; set; }
         public string NameRes { get; set; } = null!;
+        public string? Title { get; set; }
         public int? CategoryRestaurantId { get; set; }
         public string CategoryName { get; set; } = null!;
     }

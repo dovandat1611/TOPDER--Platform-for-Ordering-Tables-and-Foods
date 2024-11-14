@@ -107,7 +107,7 @@ namespace TOPDER.Service.Services
             _vnPay.AddRequestData("vnp_OrderInfo", $"Khach hang: {requestDto.CustomerName} thanh toan hoa don {requestDto.BookingID}");
             _vnPay.AddRequestData("vnp_OrderType", "other");
             _vnPay.AddRequestData("vnp_ReturnUrl", urlCallBack);
-            _vnPay.AddRequestData("vnp_TxnRef", requestDto.BookingID);
+            _vnPay.AddRequestData("vnp_TxnRef", requestDto.BookingID + "TOPDERFOREVER");
         }
     }
 }

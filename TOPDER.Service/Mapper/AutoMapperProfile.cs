@@ -478,6 +478,11 @@ namespace TOPDER.Service.Mapper
                                                ? src.Restaurant.CategoryRestaurant.CategoryRestaurantName
                                                : null));
 
+            CreateMap<BookingAdvertisement, BookingAdvertisementAdminDto>()
+           .ForMember(dest => dest.RestaurantName,
+                      opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.NameRes : null))
+           .ForMember(dest => dest.RestaurantImage,
+                      opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.Logo : null));
 
 
 

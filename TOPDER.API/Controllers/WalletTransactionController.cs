@@ -171,7 +171,7 @@ namespace TOPDER.API.Controllers
                     };
 
                     var paymentData = new PaymentData(
-                        orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(result.TransactionId, 12),
+                        orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(result.TransactionId, 36112002),
                         amount: (int)rechargeWalletTransaction.TransactionAmount,
                         description: Payment_Descriptions.RechargeVIETQRDescription(),
                         items: items,

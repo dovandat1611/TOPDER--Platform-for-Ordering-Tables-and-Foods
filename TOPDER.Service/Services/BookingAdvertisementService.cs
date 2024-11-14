@@ -49,7 +49,7 @@ namespace TOPDER.Service.Services
                 StartTime = bookingAdvertisementDto.StartTime,
                 EndTime = bookingAdvertisementDto.EndTime,
                 Title = bookingAdvertisementDto.Title,
-                Status = Common_Status.ACTIVE,
+                Status = Common_Status.INACTIVE,
                 CreatedAt = DateTime.Now,
                 StatusPayment = Payment_Status.PENDING,
                 TotalAmount = totalAmount,
@@ -65,7 +65,7 @@ namespace TOPDER.Service.Services
 
             var bookingAdvertisements = await query.Include(x => x.Restaurant)
                 .ThenInclude(x => x.CategoryRestaurant)
-                .Where(x => x.StatusPayment == Payment_Status.SUCCESSFUL
+                .Where(x => x.StatusPayment == Payment_Status.SUCCESSFUL && x.Status == Common_Status.ACTIVE
                 && currentTime >= x.StartTime
                 && currentTime <= x.EndTime)
                 .ToListAsync();  
@@ -90,6 +90,34 @@ namespace TOPDER.Service.Services
         }
 
 
+        public async Task<List<BookingAdvertisementAdminDto>> GetAllBookingAdvertisementForAdminAsync()
+        {
+            var query = await _bookingAdvertisementRepository.QueryableAsync();
+
+            var bookingAdvertisements = await query.Include(x => x.Restaurant).OrderByDescending(x => x.BookingId).ToListAsync();
+
+            var listBookingAdvertisements = _mapper.Map<List<BookingAdvertisementAdminDto>>(bookingAdvertisements);
+
+            return listBookingAdvertisements;
+        }
+
+        public async Task<bool> UpdateStatusAsync(int bookingId, string status)
+        {
+            var existingAdvertisement = await _bookingAdvertisementRepository.GetByIdAsync(bookingId);
+
+            if (existingAdvertisement == null)
+            {
+                return false;
+            }
+
+            if (status == Booking_Status.INACTIVE || status == Booking_Status.ACTIVE || status == Booking_Status.CANCELLED)
+            {
+                existingAdvertisement.Status = status;
+                return await _bookingAdvertisementRepository.UpdateAsync(existingAdvertisement);
+            }
+            return false;
+        }
+
         public async Task<bool> UpdateStatusPaymentAsync(int bookingId, string status)
         {
             var existingAdvertisement = await _bookingAdvertisementRepository.GetByIdAsync(bookingId);
@@ -106,6 +134,9 @@ namespace TOPDER.Service.Services
             }
             return false; 
         }
+
+
+
 
     }
 }
