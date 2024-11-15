@@ -37,7 +37,7 @@ namespace TOPDER.API.Controllers
                 district, commune, restaurantCategory, minPrice, maxPrice, maxCapacity);
 
             var response = new PaginatedResponseDto<RestaurantDto>(
-                result,
+                result,                 
                 result.PageIndex,
                 result.TotalPages,
                 result.HasPreviousPage,

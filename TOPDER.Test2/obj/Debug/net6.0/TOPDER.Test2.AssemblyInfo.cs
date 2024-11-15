@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TOPDER.Test2")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bfbdbc454574817bc78fd324c333387b470652cf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+51d661a51c7e15c10a748b976e4fb63de816611a")]
 [assembly: System.Reflection.AssemblyProductAttribute("TOPDER.Test2")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TOPDER.Test2")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
