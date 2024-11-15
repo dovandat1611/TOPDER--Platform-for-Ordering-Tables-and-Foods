@@ -56,7 +56,7 @@ namespace TOPDER.API.Controllers
             }
         }
 
-       /* [HttpPut]
+        [HttpPut]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Update([FromForm] MenuDto menuDto, IFormFile File)
         {
@@ -85,7 +85,7 @@ namespace TOPDER.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Failed to update restaurant menu: {ex.Message}");
             }
         }
-*/
+
         [HttpPost("import-excel")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> AddRangeFromExcel([FromForm] CreateExcelMenuDto createExcelMenuDto)
