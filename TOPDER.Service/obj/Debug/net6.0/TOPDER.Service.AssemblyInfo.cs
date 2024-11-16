@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TOPDER.Service")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bfbdbc454574817bc78fd324c333387b470652cf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+97380cb5d4d4d75cd703e23dacec4a277e3e3f7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("TOPDER.Service")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TOPDER.Service")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
