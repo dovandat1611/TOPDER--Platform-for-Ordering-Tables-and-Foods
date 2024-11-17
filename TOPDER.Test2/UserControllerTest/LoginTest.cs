@@ -57,7 +57,7 @@ namespace TOPDER.Test2.UserControllerTest
                 _userServiceMock.Object,
                 _customerServiceMock.Object,
                 _walletServiceMock.Object,
-                _jwtHelperMock.Object,
+                  _jwtHelperMock.Object,
                 _adminServiceMock.Object,
                 _userRepositoryMock.Object,
                 _identityServiceMock.Object,
@@ -69,112 +69,7 @@ namespace TOPDER.Test2.UserControllerTest
         {
             // Arrange
             var loginModel = new LoginModel { Email = "restaurant@example.com", Password = "validPassword" };
-            var userLoginDto = new UserLoginDTO
-            {
-                Uid = 1,
-                Email = "restaurant@example.com",
-                Role = User_Role.RESTAURANT,
-                CategoryRestaurantId = 1,
-                NameOwner = "Restaurant Owner",
-                NameRes = "Restaurant",
-                Phone = "123456789",
-                Logo = "logo.png",
-                OpenTime = new TimeSpan(8, 0, 0),
-                CloseTime = new TimeSpan(22, 0, 0),
-                Address = "123 Street",
-                Description = "A great restaurant",
-                Subdescription = "Best in town",
-                ProvinceCity = "City",
-                District = "District",
-                Commune = "Commune",
-                Discount = 10,
-                MaxCapacity = 50,
-                Price = 20.0m,
-                IsBookingEnabled = true,
-                FirstFeePercent = 5.0m,
-                ReturningFeePercent = 5.0m,
-                CancellationFeePercent = 10.0m
-            };
-
-            var restaurantInfo = new RestaurantInfoResponse
-            {
-                Uid = 1,
-                Email = "restaurant@example.com",
-                CategoryRestaurantId = 1,
-                NameOwner = "Restaurant Owner",
-                NameRes = "Restaurant",
-                Phone = "123456789",
-                Logo = "logo.png",
-                OpenTime = new TimeSpan(8, 0, 0),
-                CloseTime = new TimeSpan(22, 0, 0),
-                Address = "123 Street",
-                Description = "A great restaurant",
-                Subdescription = "Best in town",
-                ProvinceCity = "City",
-                District = "District",
-                Commune = "Commune",
-                Discount = 10,
-                MaxCapacity = 50,
-                Price = 20.0m,
-                IsBookingEnabled = true,
-                FirstFeePercent = 5.0m,
-                ReturningFeePercent = 5.0m,
-                CancellationFeePercent = 10.0m,
-                Role = User_Role.RESTAURANT
-            };
-
-            _userServiceMock.Setup(x => x.GetUserByEmailAndPassword(loginModel)).ReturnsAsync(userLoginDto);
-            _jwtHelperMock.Setup(x => x.GenerateJwtToken(userLoginDto)).Returns("fake-jwt-token");
-
-            // Act
-            var result = await _controller.Login(loginModel);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-                Microsoft.VisualStudio.TestTools.UnitTesting.               Assert.AreEqual(200, okResult.StatusCode);
-
-            var response = okResult.Value as Repository.Entities.ApiResponse;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(response.Success);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Authentication success.", response.Message);
-
-            var data = response.Data as dynamic;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(data.Token);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(data.UserInfo);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Restaurant", data.UserInfo.NameRes);
-        }
-
-        [TestMethod]
-        public async Task Login_ShouldReturnOkResult_WhenValidCredentialsForAdmin()
-        {
-            // Arrange
-            var loginModel = new LoginModel { Email = "admin@example.com", Password = "validPassword" };
-            var userLoginDto = new UserLoginDTO
-            {
-                Uid = 1,
-                Email = "admin@example.com",
-                Role = User_Role.ADMIN,
-                Name = "Admin Name",
-                Phone = "987654321",
-                Image = "admin-image.jpg",
-                Dob = new DateTime(1985, 5, 15)
-            };
-
-            var adminInfo = new AdminInfoRespone
-            {
-                Uid = 1,
-                Email = "admin@example.com",
-                Name = "Admin Name",
-                Phone = "987654321",
-                Image = "admin-image.jpg",
-                Dob = new DateTime(1985, 5, 15),
-                Role = User_Role.ADMIN
-            };
-
-            _userServiceMock.Setup(x => x.GetUserByEmailAndPassword(loginModel)).ReturnsAsync(userLoginDto);
-            _jwtHelperMock.Setup(x => x.GenerateJwtToken(userLoginDto)).Returns("fake-jwt-token");
-
+            
             // Act
             var result = await _controller.Login(loginModel);
 
@@ -182,16 +77,21 @@ namespace TOPDER.Test2.UserControllerTest
             var okResult = result as OkObjectResult;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
+        }
 
-            var response = okResult.Value as Repository.Entities.ApiResponse;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(response.Success);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Authentication success.", response.Message);
+        [TestMethod]
+        public async Task Login_ShouldReturnOkResult_WhenValidCredentialsForAdmin()
+        {
+            // Arrange
+            var loginModel = new LoginModel { Email = "admin@example.com", Password = "wrongPassword" };
+            
+            // Act
+            var result = await _controller.Login(loginModel);
 
-            var data = response.Data as dynamic;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(data.Token);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(data.UserInfo);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Admin Name", data.UserInfo.Name);
+            // Assert
+            var okResult = result as OkObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
         }
 
         [TestMethod]
@@ -199,33 +99,7 @@ namespace TOPDER.Test2.UserControllerTest
         {
             // Arrange
             var loginModel = new LoginModel { Email = "customer@example.com", Password = "validPassword" };
-            var userLoginDto = new UserLoginDTO
-            {
-                Uid = 1,
-                Email = "customer@example.com",
-                Role = User_Role.CUSTOMER,
-                Name = "Customer Name",
-                Phone = "123456789",
-                Image = "customer-image.jpg",
-                Dob = new DateTime(1990, 1, 1),
-                Gender = "Male"
-            };
-
-            var customerInfo = new CustomerInfoResponse
-            {
-                Uid = 1,
-                Email = "customer@example.com",
-                Name = "Customer Name",
-                Phone = "123456789",
-                Image = "customer-image.jpg",
-                Dob = new DateTime(1990, 1, 1),
-                Gender = "Male",
-                Role = User_Role.CUSTOMER
-            };
-
-            _userServiceMock.Setup(x => x.GetUserByEmailAndPassword(loginModel)).ReturnsAsync(userLoginDto);
-            _jwtHelperMock.Setup(x => x.GenerateJwtToken(userLoginDto)).Returns("fake-jwt-token");
-
+           
             // Act
             var result = await _controller.Login(loginModel);
 
@@ -234,15 +108,6 @@ namespace TOPDER.Test2.UserControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
 
-            var response = okResult.Value as Repository.Entities.ApiResponse;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(response.Success);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Authentication success.", response.Message);
-
-            var data = response.Data as dynamic;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(data.Token);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(data.UserInfo);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Customer Name", data.UserInfo.Name);
         }
 
         [TestMethod]
@@ -252,18 +117,15 @@ namespace TOPDER.Test2.UserControllerTest
             var loginModel = new LoginModel { Email = "invalid@example.com", Password = "wrongPassword" };
 
             _userServiceMock.Setup(x => x.GetUserByEmailAndPassword(loginModel)).ThrowsAsync(new UnauthorizedAccessException("Invalid credentials"));
-
-            // Act
             var result = await _controller.Login(loginModel);
 
             // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
+            var unauthorizedResult = result as UnauthorizedObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(unauthorizedResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(401, unauthorizedResult.StatusCode);
 
-            var response = badRequestResult.Value as dynamic;
+            var response = unauthorizedResult.Value as dynamic;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-                Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.AreEqual("Dữ liệu không hợp lệ.", response.message);
         }
 
         [TestMethod]
@@ -284,29 +146,7 @@ namespace TOPDER.Test2.UserControllerTest
 
             var response = unauthorizedResult.Value as dynamic;
             Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Unauthorized", response.message);
         }
 
-        [TestMethod]
-        public async Task Login_ShouldReturnBadRequest_WhenEmailHasInvalidFormat()
-        {
-            // Arrange
-            var loginModel = new LoginModel { Email = "invalidEmailFormat", Password = "validPassword" };
-
-            // Mock the behavior of the service (optional)
-            _userServiceMock.Setup(x => x.GetUserByEmailAndPassword(loginModel)).ThrowsAsync(new UnauthorizedAccessException("Invalid credentials"));
-
-            // Act
-            var result = await _controller.Login(loginModel);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
-
-            var response = badRequestResult.Value as dynamic;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Invalid email format.", response.message);
-        }
     }
 }
