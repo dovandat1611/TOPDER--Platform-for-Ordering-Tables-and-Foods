@@ -251,3 +251,9 @@ C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test2\obj\Debug\net6.0\refint\
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test2\obj\Debug\net6.0\TOPDER.Test2.pdb
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test2\obj\Debug\net6.0\TOPDER.Test2.genruntimeconfig.cache
 C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test2\obj\Debug\net6.0\ref\TOPDER.Test2.dll
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\Microsoft.Extensions.Caching.Abstractions.dll
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\Microsoft.Extensions.Logging.dll
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\Microsoft.Extensions.Options.dll
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\Microsoft.Extensions.Primitives.dll
+C:\Users\minhd\OneDrive\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\System.Collections.Immutable.dll

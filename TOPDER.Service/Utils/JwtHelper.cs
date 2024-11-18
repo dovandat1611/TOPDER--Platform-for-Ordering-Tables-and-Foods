@@ -13,7 +13,7 @@ using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Utils
 {
-    public class JwtHelper
+    public class JwtHelper 
     {
         private readonly IConfiguration _config;
         
