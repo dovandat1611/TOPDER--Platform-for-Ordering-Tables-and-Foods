@@ -24,7 +24,7 @@ namespace TOPDER.API.Controllers
             return Ok(roles);
         }
 
-        // POST: api/Roles
+   /*     // POST: api/Roles
         [HttpPost]
         public async Task<IActionResult> CreateRole([FromBody] RoleDto roleDto)
         {
@@ -40,7 +40,7 @@ namespace TOPDER.API.Controllers
             }
 
             return StatusCode(StatusCodes.Status500InternalServerError, "Error creating new role.");
-        }
+        }*/
 
         // GET: api/Roles/{id}
         [HttpGet("{id}")]
