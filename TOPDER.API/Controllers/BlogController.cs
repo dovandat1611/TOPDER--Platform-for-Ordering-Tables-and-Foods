@@ -19,7 +19,7 @@ namespace TOPDER.API.Controllers
             _blogService = blogService;
         }
 
-        [HttpPost]
+    /*    [HttpPost]
         public async Task<IActionResult> CreateBlog([FromBody] CreateBlogModel createBlogModel)
         {
             if (!ModelState.IsValid)
@@ -33,7 +33,7 @@ namespace TOPDER.API.Controllers
                 return StatusCode(500, "Có lỗi xảy ra khi thêm bài viết.");
             }
             return Ok($"Tạo Blog thành công.");
-        }
+        }*/
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBlogById(int id)
