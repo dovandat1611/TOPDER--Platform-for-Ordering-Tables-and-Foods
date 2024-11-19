@@ -31,13 +31,10 @@ namespace TOPDER.Test2.ReportControllerTest
             // Arrange
             var reportDto = new ReportDto
             {
-                ReportId = 0,
                 ReportedBy = 1001,
                 ReportedOn = 1002,
                 ReportType = "Customer",
                 Description = "Spam message",
-                Status = "Pending",
-                CreatedAt = DateTime.Now
             };
 
             _reportService.Setup(service => service.AddAsync(It.IsAny<ReportDto>())).ReturnsAsync(true); // Simulate successful report addition
@@ -57,13 +54,10 @@ namespace TOPDER.Test2.ReportControllerTest
             // Arrange
             var reportDto = new ReportDto
             {
-                ReportId = 1,
                 ReportedBy = 1001,
                 ReportedOn = 1002,
                 ReportType = "Restaurant",
                 Description = "Inappropriate behavior",
-                Status = "Pending",
-                CreatedAt = DateTime.Now
             };
 
             _reportService.Setup(service => service.AddAsync(It.IsAny<ReportDto>())).ReturnsAsync(false); // Simulate failure to add report
@@ -83,13 +77,10 @@ namespace TOPDER.Test2.ReportControllerTest
             // Arrange: Create a report with Description set to empty string
             var reportDto = new ReportDto
             {
-                ReportId = 1,
                 ReportedBy = 3,
                 ReportedOn = 1002,
                 ReportType = "",
                 Description = "Description",  // Empty description
-                Status = "Status",
-                CreatedAt = DateTime.Now
             };
 
             // Act: Call the AddReport method
@@ -107,13 +98,10 @@ namespace TOPDER.Test2.ReportControllerTest
             // Arrange: Create a report with Description set to empty string
             var reportDto = new ReportDto
             {
-                ReportId = 1,
                 ReportedBy = 1001,
                 ReportedOn = 1002,
                 ReportType = "Customer",
                 Description = "",  // Empty description
-                Status = "Pending",
-                CreatedAt = DateTime.Now
             };
 
             // Act: Call the AddReport method
@@ -131,13 +119,10 @@ namespace TOPDER.Test2.ReportControllerTest
             // Arrange: Create a report with Description set to empty string
             var reportDto = new ReportDto
             {
-                ReportId = 1,
                 ReportedBy = 1001,
                 ReportedOn = 1002,
                 ReportType = "Customer",
                 Description = "Description",  // Empty description
-                Status = "",
-                CreatedAt = DateTime.Now
             };
 
             // Act: Call the AddReport method
@@ -154,13 +139,10 @@ namespace TOPDER.Test2.ReportControllerTest
             // Arrange: Create a report with Description set to empty string
             var reportDto = new ReportDto
             {
-                ReportId = 1,
                 ReportedBy = 0,
                 ReportedOn = 1002,
                 ReportType = "Customer",
                 Description = "Description",  // Empty description
-                Status = "Status",
-                CreatedAt = DateTime.Now
             };
 
             // Act: Call the AddReport method
@@ -178,13 +160,10 @@ namespace TOPDER.Test2.ReportControllerTest
             // Arrange: Create a report with Description set to empty string
             var reportDto = new ReportDto
             {
-                ReportId = 1,
                 ReportedBy = 2,
                 ReportedOn = 0,
                 ReportType = "Customer",
                 Description = "Description",  // Empty description
-                Status = "Status",
-                CreatedAt = DateTime.Now
             };
 
             // Act: Call the AddReport method

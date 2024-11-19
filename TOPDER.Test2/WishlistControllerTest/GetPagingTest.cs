@@ -52,7 +52,7 @@ namespace TOPDER.Test2.WishlistControllerTest
                 .ReturnsAsync(paginatedResult);
 
             // Act
-            var result = await _controller.GetPaging(customerId, pageNumber, pageSize);
+            var result = await _controller.GetWishlistList(customerId, pageNumber, pageSize);
 
             // Assert
             var okResult = result as OkObjectResult;
@@ -81,7 +81,7 @@ namespace TOPDER.Test2.WishlistControllerTest
                 .ReturnsAsync(paginatedResult);
 
             // Act
-            var result = await _controller.GetPaging(customerId, pageNumber, pageSize);
+            var result = await _controller.GetWishlistList(customerId, pageNumber, pageSize);
 
             // Assert
             var okResult = result as OkObjectResult;
@@ -110,7 +110,7 @@ namespace TOPDER.Test2.WishlistControllerTest
                 .ReturnsAsync(paginatedResult);
 
             // Act
-            var result = await _controller.GetPaging(customerId, pageNumber, pageSize);
+            var result = await _controller.GetWishlistList(customerId, pageNumber, pageSize);
 
             // Assert
             var okResult = result as OkObjectResult;

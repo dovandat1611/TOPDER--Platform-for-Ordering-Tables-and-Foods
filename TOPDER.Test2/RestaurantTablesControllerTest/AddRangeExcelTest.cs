@@ -27,88 +27,55 @@ namespace TOPDER.Test2.RestaurantTablesControllerTest
         }
 
         [TestMethod]
-        public async Task AddRangeExcel_NullFile_ReturnsBadRequest()
+        public async Task AddRangeFromExcel_ShouldReturnOk_WhenServiceReturnsSuccess()
         {
             // Arrange
-            var dto = new CreateExcelRestaurantTableDto
+            var createExcelRestaurantTableDto = new CreateExcelRestaurantTableDto
             {
-                File = null
+                // Initialize properties as needed
+                RestaurantId = 1,
+                File = new FormFile(new MemoryStream(), 0, 0, "Data", "test.xlsx") // Simulated file
             };
 
-            // Act
-            var result = await _controller.AddRangeExcel(dto);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Không có tệp nào được tải lên.", badRequestResult.Value);
-        }
-
-        [TestMethod]
-        public async Task AddRangeExcel_EmptyFile_ReturnsBadRequest()
-        {
-            // Arrange
-            var emptyFileMock = new Mock<IFormFile>();
-            emptyFileMock.Setup(f => f.Length).Returns(0);
-
-            var dto = new CreateExcelRestaurantTableDto
-            {
-                File = emptyFileMock.Object
-            };
+            _mockService
+                .Setup(s => s.AddRangeExcelAsync(createExcelRestaurantTableDto))
+                .ReturnsAsync((true, "Tables added successfully"));
 
             // Act
-            var result = await _controller.AddRangeExcel(dto);
+            var result = await _controller.AddRangeFromExcel(createExcelRestaurantTableDto);
 
             // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Không có tệp nào được tải lên.", badRequestResult.Value);
-        }
-
-        [TestMethod]
-        public async Task AddRangeExcel_Success_ReturnsOk()
-        {
-            // Arrange
-            var fileMock = new Mock<IFormFile>();
-            fileMock.Setup(f => f.Length).Returns(1024); // File has content
-
-            var dto = new CreateExcelRestaurantTableDto
-            {
-                File = fileMock.Object
-            };
-
-            _mockService.Setup(s => s.AddRangeExcelAsync(dto)).ReturnsAsync(true);
-
-            // Act
-            var result = await _controller.AddRangeExcel(dto);
-
-            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
             var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.           Assert.IsNotNull(okResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tạo danh sách bàn thành công.", okResult.Value);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tables added successfully", okResult.Value);
+
         }
 
         [TestMethod]
-        public async Task AddRangeExcel_Failure_ReturnsBadRequest()
+        public async Task AddRangeFromExcel_ShouldReturnServerError_WhenServiceReturnsFailure()
         {
             // Arrange
-            var fileMock = new Mock<IFormFile>();
-            fileMock.Setup(f => f.Length).Returns(1024); // File has content
-
-            var dto = new CreateExcelRestaurantTableDto
+            var createExcelRestaurantTableDto = new CreateExcelRestaurantTableDto
             {
-                File = fileMock.Object
+                // Initialize properties as needed
+                RestaurantId = 1,
+                File = new FormFile(new MemoryStream(), 0, 0, "Data", "test.xlsx") // Simulated file
             };
 
-            _mockService.Setup(s => s.AddRangeExcelAsync(dto)).ReturnsAsync(false);
+            _mockService
+                .Setup(s => s.AddRangeExcelAsync(createExcelRestaurantTableDto))
+                .ReturnsAsync((false, "Error adding tables"));
 
             // Act
-            var result = await _controller.AddRangeExcel(dto);
+            var result = await _controller.AddRangeFromExcel(createExcelRestaurantTableDto);
 
             // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Không thể tạo danh sách bàn từ Excel.", badRequestResult.Value);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(ObjectResult));
+            var objectResult = result as ObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(500, objectResult.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Error adding tables", objectResult.Value);
+
         }
+
     }
 }

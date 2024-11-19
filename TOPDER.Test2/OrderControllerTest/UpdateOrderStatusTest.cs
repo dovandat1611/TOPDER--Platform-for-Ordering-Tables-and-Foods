@@ -9,8 +9,10 @@ using System.Text;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
 using TOPDER.Repository.IRepositories;
+using TOPDER.Service.Dtos.Email;
 using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.Wallet;
+using TOPDER.Service.Dtos.WalletTransaction;
 using TOPDER.Service.IServices;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
@@ -27,6 +29,7 @@ namespace TOPDER.Test2.OrderControllerTest
         private Mock<IMenuRepository> _menuRepositoryMock;
         private Mock<IRestaurantRepository> _restaurantRepositoryMock;
         private Mock<IUserService> _userServiceMock;
+        private Mock<IRestaurantService> _mockRestaurantService;
         private Mock<IWalletTransactionService> _walletTransactionServiceMock;
         private Mock<IPaymentGatewayService> _paymentGatewayServiceMock;
         private Mock<ISendMailService> _sendMailServiceMock;
@@ -47,6 +50,7 @@ namespace TOPDER.Test2.OrderControllerTest
             _menuRepositoryMock = new Mock<IMenuRepository>();
             _restaurantRepositoryMock = new Mock<IRestaurantRepository>();
             _userServiceMock = new Mock<IUserService>();
+            _mockRestaurantService = new Mock<IRestaurantService>();
             _walletTransactionServiceMock = new Mock<IWalletTransactionService>();
             _paymentGatewayServiceMock = new Mock<IPaymentGatewayService>();
             _sendMailServiceMock = new Mock<ISendMailService>();
@@ -67,7 +71,8 @@ namespace TOPDER.Test2.OrderControllerTest
                 _sendMailServiceMock.Object,
                 _orderTableServiceMock.Object,
                 _discountMenuRepositoryMock.Object,
-                _configurationMock.Object
+                _configurationMock.Object,
+                _mockRestaurantService.Object
             );
         }
 
@@ -164,64 +169,69 @@ namespace TOPDER.Test2.OrderControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, notFoundResult.StatusCode);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Đơn hàng với ID 1 không tồn tại hoặc trạng thái không thay đổi.", notFoundResult.Value);
         }
-
         [TestMethod]
-        public async Task UpdateOrderStatus_ShouldReturnOk_WhenStatusUpdatedToConfirm()
+        public async Task UpdateOrderStatus_ShouldReturnOk_WhenStatusIsConfirm()
         {
             // Arrange
-            _orderServiceMock.Setup(x => x.UpdateStatusAsync(1, Order_Status.CONFIRM))
-                             .ReturnsAsync(true);
-            _orderServiceMock.Setup(x => x.GetEmailForOrderAsync(1, User_Role.CUSTOMER))
-                             .ReturnsAsync(new EmailForOrder
-                             {
-                                 Email = "customer@example.com",
-                                 Name = "Customer Name",
-                             });
+            int orderID = 1;
+            string status = Order_Status.CONFIRM;
+
+            _orderServiceMock.Setup(os => os.UpdateStatusAsync(orderID, status)).ReturnsAsync(true);
+            _orderServiceMock.Setup(os => os.GetEmailForOrderAsync(orderID, User_Role.CUSTOMER))
+                             .ReturnsAsync(new EmailForOrder { Email = "customer@example.com" });
+            _orderServiceMock.Setup(os => os.GetOrderPaid(orderID)).ReturnsAsync(new OrderPaidEmail { OrderId = orderID.ToString() });
+            _sendMailServiceMock.Setup(sms => sms.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
 
             // Act
-            var result = await _controller.UpdateOrderStatus(1, Order_Status.CONFIRM);
+            var result = await _controller.UpdateOrderStatus(orderID, status);
 
             // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Cập nhật trạng thái cho đơn hàng với ID 1 thành công.", okResult.Value);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            _orderServiceMock.Verify(os => os.UpdateStatusAsync(orderID, status), Times.Once);
+            _sendMailServiceMock.Verify(sms => sms.SendEmailAsync(It.IsAny<string>(), Email_Subject.UPDATESTATUS, It.IsAny<string>()), Times.Once);
         }
 
         [TestMethod]
-        public async Task UpdateOrderStatus_ShouldReturnOk_WhenStatusUpdatedToComplete()
+        public async Task UpdateOrderStatus_ShouldReturnOk_WhenStatusIsComplete_AndWalletUpdateIsSuccessful()
         {
             // Arrange
-            _orderServiceMock.Setup(x => x.UpdateStatusAsync(1, Order_Status.COMPLETE))
-                             .ReturnsAsync(true);
-            _orderServiceMock.Setup(x => x.GetInformationForCompleteAsync(1))
-                             .ReturnsAsync(new CompleteOrderDto
+            int orderID = 1;
+            string status = Order_Status.COMPLETE;
+
+            // Mock dữ liệu trả về từ các service
+            _orderServiceMock.Setup(os => os.UpdateStatusAsync(orderID, status)).ReturnsAsync(true);
+            _orderServiceMock.Setup(os => os.GetEmailForOrderAsync(orderID, User_Role.CUSTOMER))
+                             .ReturnsAsync(new EmailForOrder { Email = "customer@example.com" });
+            _orderServiceMock.Setup(os => os.GetOrderPaid(orderID))
+                             .ReturnsAsync(new OrderPaidEmail
                              {
-                                 WalletId = 101,
-                                 RestaurantID = 1,
-                                 WalletBalance = 500,
+                                 OrderId = orderID.ToString(),
                                  TotalAmount = 100
                              });
-            _walletServiceMock.Setup(x => x.UpdateWalletBalanceAsync(It.IsAny<WalletBalanceDto>()))
-                              .ReturnsAsync(true);
-
-            _orderServiceMock.Setup(x => x.GetEmailForOrderAsync(1, User_Role.CUSTOMER))
-                            .ReturnsAsync(new EmailForOrder
-                            {
-                                Email = "customer@example.com",
-                                Name = "Customer Name",
-                            });
+            _orderServiceMock.Setup(os => os.GetInformationForCompleteAsync(orderID))
+                             .ReturnsAsync(new CompleteOrderDto
+                             {
+                                 WalletId = 1,
+                                 RestaurantID = 1,
+                                 WalletBalance = 1000,
+                                 TotalAmount = 100
+                             });
+            _walletServiceMock.Setup(ws => ws.UpdateWalletBalanceAsync(It.IsAny<WalletBalanceDto>())).ReturnsAsync(true);
+            _walletTransactionServiceMock.Setup(wts => wts.AddAsync(It.IsAny<WalletTransactionDto>())).ReturnsAsync(true);
+            _sendMailServiceMock.Setup(sms => sms.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
 
             // Act
-            var result = await _controller.UpdateOrderStatus(1, Order_Status.COMPLETE);
+            var result = await _controller.UpdateOrderStatus(orderID, status);
 
             // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.       Assert.AreEqual(200, okResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Cập nhật trạng thái cho đơn hàng với ID 1 thành công.", okResult.Value);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+
+            // Kiểm tra các mock được gọi đúng số lần
+            _orderServiceMock.Verify(os => os.UpdateStatusAsync(orderID, status), Times.Once);
+            _orderServiceMock.Verify(os => os.GetInformationForCompleteAsync(orderID), Times.Once);
+            _walletServiceMock.Verify(ws => ws.UpdateWalletBalanceAsync(It.IsAny<WalletBalanceDto>()), Times.Once);
+            _walletTransactionServiceMock.Verify(wts => wts.AddAsync(It.IsAny<WalletTransactionDto>()), Times.Once);
+            _sendMailServiceMock.Verify(sms => sms.SendEmailAsync(It.IsAny<string>(), Email_Subject.UPDATESTATUS, It.IsAny<string>()), Times.Once);
         }
-
-
     }
 }

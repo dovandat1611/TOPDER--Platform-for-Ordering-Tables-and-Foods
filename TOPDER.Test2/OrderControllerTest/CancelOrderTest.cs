@@ -8,11 +8,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
+using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
+using TOPDER.Service.Dtos.Email;
 using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.Dtos.WalletTransaction;
 using TOPDER.Service.IServices;
+using TOPDER.Service.Utils;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Test2.OrderControllerTest
@@ -28,6 +31,7 @@ namespace TOPDER.Test2.OrderControllerTest
         private Mock<IMenuRepository> _menuRepositoryMock;
         private Mock<IRestaurantRepository> _restaurantRepositoryMock;
         private Mock<IUserService> _userServiceMock;
+        private Mock<IRestaurantService> _mockRestaurantService;
         private Mock<IWalletTransactionService> _walletTransactionServiceMock;
         private Mock<IPaymentGatewayService> _paymentGatewayServiceMock;
         private Mock<ISendMailService> _sendMailServiceMock;
@@ -48,6 +52,7 @@ namespace TOPDER.Test2.OrderControllerTest
             _menuRepositoryMock = new Mock<IMenuRepository>();
             _restaurantRepositoryMock = new Mock<IRestaurantRepository>();
             _userServiceMock = new Mock<IUserService>();
+            _mockRestaurantService = new Mock<IRestaurantService>();
             _walletTransactionServiceMock = new Mock<IWalletTransactionService>();
             _paymentGatewayServiceMock = new Mock<IPaymentGatewayService>();
             _sendMailServiceMock = new Mock<ISendMailService>();
@@ -68,7 +73,8 @@ namespace TOPDER.Test2.OrderControllerTest
                 _sendMailServiceMock.Object,
                 _orderTableServiceMock.Object,
                 _discountMenuRepositoryMock.Object,
-                _configurationMock.Object
+                _configurationMock.Object,
+                _mockRestaurantService.Object
             );
         }
 
@@ -147,29 +153,57 @@ namespace TOPDER.Test2.OrderControllerTest
                 RestaurantID = 2,
                 WalletBalanceRestaurant = 1000,
                 RoleName = User_Role.CUSTOMER,
-                CancellationFeePercent = 10
+                CancellationFeePercent = 10,
+                EmailRestaurant = "restaurant@example.com",
+                EmailCustomer = "customer@example.com"
             };
+            var checkStatusOrder = new OrderDto
+            {
+                PaidAt = null // Đơn hàng chưa thanh toán
+            };
+            var orderDto = new OrderDto { PaidAt = DateTime.Now };
 
-            // Ensure it returns a Task<bool>, not just a bool.
-            _orderServiceMock.Setup(x => x.UpdateStatusCancelAsync(1, Order_Status.CANCEL, "Customer cancelled"))
+            // Mock các phương thức cần thiết
+            _orderServiceMock.Setup(os => os.UpdateStatusCancelAsync(cancelOrderRequest.OrderId, Order_Status.CANCEL, cancelOrderRequest.CancelReason))
                              .ReturnsAsync(true);
-            _orderServiceMock.Setup(x => x.GetInformationForCancelAsync(1, 1))
+            _orderServiceMock.Setup(os => os.GetInformationForCancelAsync(cancelOrderRequest.UserId, cancelOrderRequest.OrderId))
                              .ReturnsAsync(cancelOrderDto);
-            _orderServiceMock.Setup(x => x.GetItemAsync(1, 1))
-                             .ReturnsAsync(new OrderDto { PaidAt = DateTime.Now });
-            _walletServiceMock.Setup(x => x.UpdateWalletBalanceAsync(It.IsAny<WalletBalanceDto>()))
-                              .ReturnsAsync(true);
+            _orderServiceMock.Setup(os => os.GetItemAsync(cancelOrderRequest.OrderId, cancelOrderRequest.UserId))
+                             .ReturnsAsync(checkStatusOrder);
+            _walletServiceMock.Setup(ws => ws.UpdateWalletBalanceAsync(It.IsAny<WalletBalanceDto>())).ReturnsAsync(true);
+            _walletTransactionServiceMock.Setup(wts => wts.AddAsync(It.IsAny<WalletTransactionDto>())).ReturnsAsync(true);
+            _sendMailServiceMock.Setup(sms => sms.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                                .Returns(Task.CompletedTask);
+
             // Act
             var result = await _controller.CancelOrder(cancelOrderRequest);
 
             // Assert
             var okResult = result as OkObjectResult;
-                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Cập nhật trạng thái cho đơn hàng với ID 1 thành công.", okResult.Value);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual($"Cập nhật trạng thái cho đơn hàng với ID {cancelOrderRequest.OrderId} thành công.", okResult.Value);
+
+            // Verify that the wallet balance update methods were called
             _walletServiceMock.Verify(x => x.UpdateWalletBalanceAsync(It.IsAny<WalletBalanceDto>()), Times.Exactly(2));
+
+            // Verify that the wallet transaction methods were called
             _walletTransactionServiceMock.Verify(x => x.AddAsync(It.IsAny<WalletTransactionDto>()), Times.Exactly(2));
+
+            // Verify that SendEmailAsync was called once for customer
+            _sendMailServiceMock.Verify(x => x.SendEmailAsync(It.IsAny<string>(), Email_Subject.UPDATESTATUS, EmailTemplates.UpdateStatusOrder(It.IsAny<OrderPaidEmail>(), Order_Status.CANCEL)), Times.Once);
+
+            // Optionally, verify if the email sent to the restaurant or customer is correctly determined based on the role
+            if (cancelOrderDto.RoleName == User_Role.CUSTOMER)
+            {
+                _sendMailServiceMock.Verify(x => x.SendEmailAsync(cancelOrderDto.EmailRestaurant, Email_Subject.UPDATESTATUS, EmailTemplates.UpdateStatusOrder(It.IsAny<OrderPaidEmail>(), Order_Status.CANCEL)), Times.Once);
+            }
+            else
+            {
+                _sendMailServiceMock.Verify(x => x.SendEmailAsync(cancelOrderDto.EmailCustomer, Email_Subject.UPDATESTATUS, EmailTemplates.UpdateStatusOrderRestaurant(It.IsAny<OrderPaidEmail>(), Order_Status.CANCEL)), Times.Once);
+            }
         }
+
 
         [TestMethod]
         public async Task CancelOrder_ShouldSendEmail_WhenOrderCancelled()

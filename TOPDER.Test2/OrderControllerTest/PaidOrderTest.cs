@@ -32,6 +32,7 @@ namespace TOPDER.Test2.OrderControllerTest
         private Mock<IMenuRepository> _menuRepositoryMock;
         private Mock<IRestaurantRepository> _restaurantRepositoryMock;
         private Mock<IUserService> _userServiceMock;
+        private Mock<IRestaurantService> _mockRestaurantService;
         private Mock<IWalletTransactionService> _walletTransactionServiceMock;
         private Mock<IPaymentGatewayService> _paymentGatewayServiceMock;
         private Mock<ISendMailService> _sendMailServiceMock;
@@ -52,6 +53,7 @@ namespace TOPDER.Test2.OrderControllerTest
             _menuRepositoryMock = new Mock<IMenuRepository>();
             _restaurantRepositoryMock = new Mock<IRestaurantRepository>();
             _userServiceMock = new Mock<IUserService>();
+            _mockRestaurantService = new Mock<IRestaurantService>();
             _walletTransactionServiceMock = new Mock<IWalletTransactionService>();
             _paymentGatewayServiceMock = new Mock<IPaymentGatewayService>();
             _sendMailServiceMock = new Mock<ISendMailService>();
@@ -72,7 +74,8 @@ namespace TOPDER.Test2.OrderControllerTest
                 _sendMailServiceMock.Object,
                 _orderTableServiceMock.Object,
                 _discountMenuRepositoryMock.Object,
-                _configurationMock.Object
+                _configurationMock.Object,
+                _mockRestaurantService.Object
             );
         }
 

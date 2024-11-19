@@ -133,7 +133,7 @@ namespace TOPDER.Test2.UserControllerTest
             // Mô phỏng việc người dùng tồn tại và có trạng thái ACTIVE
             var user = new User { Uid = userId, Status = Common_Status.ACTIVE };
             _userRepositoryMock.Setup(x => x.GetByIdAsync(userId)).ReturnsAsync(user);
-            _userRepositoryMock.Setup(x => x.ChangeStatusAsync(userId, newStatus)).ReturnsAsync(true); // Cập nhật thành công
+            _userRepositoryMock.Setup(x => x.UpdateAsync(user)).ReturnsAsync(true); // Cập nhật thành công
 
             // Act
             var result = await _controller.UpdateStatus(userId, newStatus);
@@ -155,7 +155,7 @@ namespace TOPDER.Test2.UserControllerTest
             // Mô phỏng việc người dùng tồn tại và có trạng thái ACTIVE
             var user = new User { Uid = userId, Status = Common_Status.ACTIVE };
             _userRepositoryMock.Setup(x => x.GetByIdAsync(userId)).ReturnsAsync(user);
-            _userRepositoryMock.Setup(x => x.ChangeStatusAsync(userId, newStatus)).ReturnsAsync(false); // Cập nhật thất bại
+            _userRepositoryMock.Setup(x => x.UpdateAsync(user)).ReturnsAsync(false); // Cập nhật thất bại
 
             // Act
             var result = await _controller.UpdateStatus(userId, newStatus);

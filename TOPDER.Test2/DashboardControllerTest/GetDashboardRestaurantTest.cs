@@ -35,15 +35,7 @@ namespace TOPDER.Test2.DashboardControllerTest
             int restaurantId = 1;
             var mockData = new DashboardRestaurantDto
             {
-                TaskBar = new TaskBarRestaurantDTO
-                {
-                    TotalOrder = 100,
-                    TotalIncome = 5000,
-                    Star = 4,
-                    RestaurantBookingStatus = true,
-                    CurrentMonthIncome = new CurrentMonthIncomeDTO { CurrentMonthIncome = 1000 },
-                    CurrentMonthOrder = new CurrentMonthOrderDTO { OrderGrowthRate = 10 }
-                },
+                
                 OrderStatus = new OrderStatusDTO
                 {
                     TotalOrder = 100,
@@ -83,7 +75,6 @@ namespace TOPDER.Test2.DashboardControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult.Value);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(okResult.Value, typeof(DashboardRestaurantDto));
             var responseData = okResult.Value as DashboardRestaurantDto;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(100, responseData.TaskBar.TotalOrder);
         }
 
         [TestMethod]

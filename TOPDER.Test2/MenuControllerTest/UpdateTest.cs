@@ -32,13 +32,12 @@ namespace TOPDER.Test2.MenuControllerTest
         {
             // Arrange
             var menuDto = new MenuDto { DishName = "", Price = 10.5m, Description = "A sample description" }; // Invalid DishName
-            var file = new Mock<IFormFile>();
-            file.Setup(f => f.Length).Returns(1); // Valid file length
+           
 
             _controller.ModelState.AddModelError("DishName", "Dish name is required.");
 
             // Act
-            var result = await _controller.Update(menuDto, file.Object);
+            var result = await _controller.Update(menuDto);
 
             // Assert
             var badRequestResult = result as BadRequestObjectResult;
@@ -59,19 +58,17 @@ namespace TOPDER.Test2.MenuControllerTest
                 Price = 10.5m,
                 Description = "A sample description"
             };
-            var file = new Mock<IFormFile>();
-            file.Setup(f => f.Length).Returns(1); // Valid file length
 
-            _cloudinaryServiceMock.Setup(service => service.UploadImageAsync(file.Object)).ReturnsAsync((ImageUploadResult)null);
+            _menuServiceMock.Setup(service => service.UpdateAsync(It.IsAny<MenuDto>()))
+                            .ReturnsAsync(true);  // Simulate successful update
 
             // Act
-            var result = await _controller.Update(menuDto, file.Object);
+            var result = await _controller.Update(menuDto);
 
             // Assert
-            var internalServerErrorResult = result as ObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(internalServerErrorResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status500InternalServerError, internalServerErrorResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Image upload failed.", internalServerErrorResult.Value);
+            var okResult = result as OkObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(true, okResult.Value);
         }
 
         // Test khi cập nhật món ăn thành công
@@ -89,18 +86,12 @@ namespace TOPDER.Test2.MenuControllerTest
                 Description = "A sample description"
             };
 
-            var file = new Mock<IFormFile>();
-            file.Setup(f => f.Length).Returns(1); // Valid file length
-
-            var uploadResult = new ImageUploadResult { SecureUrl = new Uri("http://example.com/image.jpg") };
-            _cloudinaryServiceMock.Setup(service => service.UploadImageAsync(It.IsAny<IFormFile>()))
-                                  .ReturnsAsync(uploadResult);
 
             _menuServiceMock.Setup(service => service.UpdateAsync(It.IsAny<MenuDto>()))
                             .ReturnsAsync(true);  // Simulate successful update
 
             // Act
-            var result = await _controller.Update(menuDto, file.Object);
+            var result = await _controller.Update(menuDto);
 
             // Assert
             var okResult = result as OkObjectResult;
@@ -114,19 +105,18 @@ namespace TOPDER.Test2.MenuControllerTest
         {
             // Arrange
             var menuDto = new MenuDto { DishName = "Test Dish", Price = 10.5m, Description = "A sample description" };
-            var file = new Mock<IFormFile>();
-            file.Setup(f => f.Length).Returns(1); // Valid file length
 
-            _cloudinaryServiceMock.Setup(service => service.UploadImageAsync(file.Object)).ReturnsAsync((ImageUploadResult)null);
+
+            _menuServiceMock.Setup(service => service.UpdateAsync(It.IsAny<MenuDto>()))
+                             .ReturnsAsync(true);  // Simulate successful update
 
             // Act
-            var result = await _controller.Update(menuDto, file.Object);
+            var result = await _controller.Update(menuDto);
 
             // Assert
-            var internalServerErrorResult = result as ObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(internalServerErrorResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status500InternalServerError, internalServerErrorResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Image upload failed.", internalServerErrorResult.Value);
+            var okResult = result as OkObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(true, okResult.Value);
         }
 
         // Test khi không có ảnh upload
@@ -148,7 +138,7 @@ namespace TOPDER.Test2.MenuControllerTest
                             .ReturnsAsync(true);  // Simulate successful update without image
 
             // Act
-            var result = await _controller.Update(menuDto, null);  // No image file
+            var result = await _controller.Update(menuDto);  // No image file
 
             // Assert
             var okResult = result as OkObjectResult;
@@ -169,13 +159,10 @@ namespace TOPDER.Test2.MenuControllerTest
                 Price = 0,  // Price is zero
                 Description = "A sample description"
             };
-            var file = new Mock<IFormFile>();
-            file.Setup(f => f.Length).Returns(1); // Valid file length
-            _cloudinaryServiceMock.Setup(service => service.UploadImageAsync(file.Object))
-                                  .ReturnsAsync(new ImageUploadResult { SecureUrl = new Uri("http://example.com/image.jpg") });
+            
 
             // Act
-            var result = await _controller.Update(menuDto, file.Object);
+            var result = await _controller.Update(menuDto);
 
             // Assert
             var badRequestResult = result as OkObjectResult;
@@ -195,13 +182,9 @@ namespace TOPDER.Test2.MenuControllerTest
                 Price = 111110,  // Price is zero
                 Description = ""
             };
-            var file = new Mock<IFormFile>();
-            file.Setup(f => f.Length).Returns(1); // Valid file length
-            _cloudinaryServiceMock.Setup(service => service.UploadImageAsync(file.Object))
-                                  .ReturnsAsync(new ImageUploadResult { SecureUrl = new Uri("http://example.com/image.jpg") });
-
+            
             // Act
-            var result = await _controller.Create(menuDto, file.Object);
+            var result = await _controller.Create(menuDto);
 
             // Assert
             var badRequestResult = result as OkObjectResult;

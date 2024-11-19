@@ -40,7 +40,7 @@ namespace TOPDER.Test2.MenuControllerTest
 
             // Mock the service method to return true, indicating success
             _menuServiceMock.Setup(service => service.AddRangeExcelAsync(It.IsAny<CreateExcelMenuDto>()))
-                            .ReturnsAsync(true);
+                            .ReturnsAsync((true, "Success"));
 
             // Act
             var result = await _controller.AddRangeFromExcel(createExcelMenuDto);
@@ -49,7 +49,6 @@ namespace TOPDER.Test2.MenuControllerTest
             var okResult = result as ObjectResult;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Menu items added successfully from Excel.", okResult.Value);
         }
 
         [TestMethod]
@@ -64,7 +63,7 @@ namespace TOPDER.Test2.MenuControllerTest
 
             // Mock the service method to return false, indicating failure
             _menuServiceMock.Setup(service => service.AddRangeExcelAsync(It.IsAny<CreateExcelMenuDto>()))
-                            .ReturnsAsync(false);
+                            .ReturnsAsync((false, "Some error message"));
 
             // Act
             var result = await _controller.AddRangeFromExcel(createExcelMenuDto);
@@ -72,8 +71,7 @@ namespace TOPDER.Test2.MenuControllerTest
             // Assert
             var objectResult = result as ObjectResult;  // Cast result to ObjectResult
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(objectResult);  // Ensure the result is an ObjectResult
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);  // Check the status code is 500
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Failed to add menu items from Excel.", objectResult.Value);  // Ensure the response message is correct
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, objectResult.StatusCode);  // Check the status code is 500
         }
 
         

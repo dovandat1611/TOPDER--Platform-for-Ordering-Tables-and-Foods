@@ -13,6 +13,9 @@ using TOPDER.Service.IServices;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 using TOPDER.Service.Utils;
 using Microsoft.Extensions.Configuration;
+using TOPDER.Service.Dtos.Order;
+using TOPDER.Service.Dtos.OrderMenu;
+using TOPDER.Service.Dtos.OrderTable;
 
 namespace TOPDER.Test2.OrderControllerTest
 {
@@ -27,6 +30,7 @@ namespace TOPDER.Test2.OrderControllerTest
         private Mock<IMenuRepository> _menuRepositoryMock;
         private Mock<IRestaurantRepository> _restaurantRepositoryMock;
         private Mock<IUserService> _userServiceMock;
+        private Mock<IRestaurantService> _mockRestaurantService;
         private Mock<IWalletTransactionService> _walletTransactionServiceMock;
         private Mock<IPaymentGatewayService> _paymentGatewayServiceMock;
         private Mock<ISendMailService> _sendMailServiceMock;
@@ -47,6 +51,7 @@ namespace TOPDER.Test2.OrderControllerTest
             _menuRepositoryMock = new Mock<IMenuRepository>();
             _restaurantRepositoryMock = new Mock<IRestaurantRepository>();
             _userServiceMock = new Mock<IUserService>();
+            _mockRestaurantService = new Mock<IRestaurantService>();
             _walletTransactionServiceMock = new Mock<IWalletTransactionService>();
             _paymentGatewayServiceMock = new Mock<IPaymentGatewayService>();
             _sendMailServiceMock = new Mock<ISendMailService>();
@@ -67,111 +72,95 @@ namespace TOPDER.Test2.OrderControllerTest
                 _sendMailServiceMock.Object,
                 _orderTableServiceMock.Object,
                 _discountMenuRepositoryMock.Object,
-                _configurationMock.Object
+                _configurationMock.Object,
+                _mockRestaurantService.Object
             );
         }
 
         [TestMethod]
-        public async Task GetItemAsync_ShouldReturnBadRequest_WhenStatusIsNullOrEmpty()
+        public async Task GetItemAsync_ShouldReturnOk_WithOrderDetails()
         {
             // Arrange
-            string status = null;
-            int orderID = 123;
+            int orderId = 1;
+            int Uid = 2;
 
-            // Act
-            var result = await _controller.GetItemAsync(orderID, status);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-        }
-
-        [TestMethod]
-        public async Task GetItemAsync_ShouldReturnSuccess_WhenStatusIsCancelledAndUpdateIsSuccessful()
+            var orderDto = new OrderDto
+            {
+                OrderId = orderId,
+                CustomerId = Uid
+            };
+            var orderTables = new List<OrderTableDto>
         {
-            // Arrange
-            string status = Payment_Status.CANCELLED;
-            int orderID = 123;
-            _orderServiceMock.Setup(x => x.UpdateStatusOrderPayment(orderID, status)).ReturnsAsync(true);
+            new OrderTableDto { TableId = 1, TableName = "Table 1" }
+        };
+            var orderMenus = new List<OrderMenuDto>
+        {
+            new OrderMenuDto { MenuId = 1, MenuName = "Pizza", Quantity = 2 }
+        };
+
+            _orderServiceMock.Setup(s => s.GetItemAsync(orderId, Uid)).ReturnsAsync(orderDto);
+            _orderTableServiceMock.Setup(s => s.GetItemsByOrderAsync(orderId)).ReturnsAsync(orderTables);
+            _orderMenuServiceMock.Setup(s => s.GetItemsByOrderAsync(orderId)).ReturnsAsync(orderMenus);
 
             // Act
-            var result = await _controller.GetItemAsync(orderID, status);
+            var result = await _controller.GetItemAsync(Uid, orderId);
 
             // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
             var okResult = result as OkObjectResult;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(okResult.Value, typeof(OrderDto));
+            var returnedOrder = okResult.Value as OrderDto;
+
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(orderDto.OrderId, returnedOrder.OrderId);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(orderTables.Count, returnedOrder.OrderTables.Count);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(orderMenus.Count, returnedOrder.OrderMenus.Count);
+
+            _orderServiceMock.Verify(s => s.GetItemAsync(orderId, Uid), Times.Once);
+            _orderTableServiceMock.Verify(s => s.GetItemsByOrderAsync(orderId), Times.Once);
+            _orderMenuServiceMock.Verify(s => s.GetItemsByOrderAsync(orderId), Times.Once);
         }
 
         [TestMethod]
-        public async Task GetItemAsync_ShouldReturnBadRequest_WhenStatusIsCancelledAndUpdateFails()
+        public async Task GetItemAsync_ShouldReturnNotFound_WhenOrderDoesNotExist()
         {
             // Arrange
-            string status = Payment_Status.CANCELLED;
-            int orderID = 123;
-            _orderServiceMock.Setup(x => x.UpdateStatusOrderPayment(orderID, status)).ReturnsAsync(false);
+            int orderId = 999;
+            int Uid = 2;
+
+            _orderServiceMock.Setup(s => s.GetItemAsync(orderId, Uid)).ThrowsAsync(new KeyNotFoundException());
 
             // Act
-            var result = await _controller.GetItemAsync(orderID, status);
+            var result = await _controller.GetItemAsync(Uid, orderId);
 
             // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
+            var notFoundResult = result as NotFoundObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(notFoundResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual($"Đơn hàng với ID {orderId} không tồn tại.", notFoundResult.Value);
+
+            _orderServiceMock.Verify(s => s.GetItemAsync(orderId, Uid), Times.Once);
         }
 
         [TestMethod]
-        public async Task GetItemAsync_ShouldSendEmail_WhenStatusIsSuccessfulAndUpdateIsSuccessful()
+        public async Task GetItemAsync_ShouldReturnForbid_WhenUserNotAuthorized()
         {
             // Arrange
-            string status = Payment_Status.SUCCESSFUL;
-            int orderID = 123;
-            var orderPaidEmail = new OrderPaidEmail { Email = "customer@example.com" };
-            _orderServiceMock.Setup(x => x.UpdateStatusOrderPayment(orderID, status)).ReturnsAsync(true);
-            _orderServiceMock.Setup(x => x.GetOrderPaid(orderID)).ReturnsAsync(orderPaidEmail);
+            int orderId = 1;
+            int Uid = 2;
+
+            _orderServiceMock.Setup(s => s.GetItemAsync(orderId, Uid)).ThrowsAsync(new UnauthorizedAccessException());
 
             // Act
-            var result = await _controller.GetItemAsync(orderID, status);
+            var result = await _controller.GetItemAsync(Uid, orderId);
 
             // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(ForbidResult));
+            var forbidResult = result as ForbidResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(forbidResult);
+
+            _orderServiceMock.Verify(s => s.GetItemAsync(orderId, Uid), Times.Once);
         }
 
-        [TestMethod]
-        public async Task GetItemAsync_ShouldReturnBadRequest_WhenStatusIsSuccessfulAndUpdateFails()
-        {
-            // Arrange
-            string status = Payment_Status.SUCCESSFUL;
-            int orderID = 123;
-
-            // Mock the order update to fail
-            _orderServiceMock.Setup(x => x.UpdateStatusOrderPayment(orderID, status)).ReturnsAsync(false);
-
-            // Mock GetOrderPaid to return a valid OrderPaidEmail
-            var orderPaidEmail = new OrderPaidEmail { Email = "customer@example.com" };
-            _orderServiceMock.Setup(x => x.GetOrderPaid(orderID)).ReturnsAsync(orderPaidEmail);
-
-            // Act
-            var result = await _controller.GetItemAsync(orderID, status);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-
-        }
-
-        [TestMethod]
-        public async Task GetItemAsync_ShouldReturnBadRequest_WhenStatusIsInvalid()
-        {
-            // Arrange
-            string status = "InvalidStatus";
-            int orderID = 123;
-
-            // Act
-            var result = await _controller.GetItemAsync(orderID, status);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-        }
     }
 }

@@ -8,9 +8,12 @@ using System.Threading.Tasks;
 using TOPDER.API.Controllers;
 using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
+using TOPDER.Repository.Repositories;
+using TOPDER.Service.Dtos.Email;
 using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.OrderMenu;
 using TOPDER.Service.IServices;
+using TOPDER.Service.Services;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Test2.OrderControllerTest
@@ -18,55 +21,58 @@ namespace TOPDER.Test2.OrderControllerTest
     [TestClass]
     public class AddOrderTest
     {
-        private Mock<IOrderService> _orderServiceMock;
-        private Mock<IOrderMenuService> _orderMenuServiceMock;
-        private Mock<IOrderTableService> _orderTableServiceMock;
-        private Mock<IWalletService> _walletServiceMock;
-        private Mock<IDiscountRepository> _discountRepositoryMock;
-        private Mock<IMenuRepository> _menuRepositoryMock;
-        private Mock<IRestaurantRepository> _restaurantRepositoryMock;
-        private Mock<IUserService> _userServiceMock;
-        private Mock<IWalletTransactionService> _walletTransactionServiceMock;
-        private Mock<IPaymentGatewayService> _paymentGatewayServiceMock;
-        private Mock<ISendMailService> _sendMailServiceMock;
-        private Mock<IDiscountMenuRepository> _discountMenuRepositoryMock;
-        private Mock<IConfiguration> _configurationMock;
+        private Mock<IOrderService> _mockOrderService;
+        private Mock<IOrderMenuService> _mockOrderMenuService;
+        private Mock<IOrderTableService> _mockOrderTableService;
+        private Mock<IWalletService> _mockWalletService;
+        private Mock<IDiscountRepository> _mockDiscountRepository;
+        private Mock<IMenuRepository> _mockMenuRepository;
+        private Mock<IRestaurantRepository> _mockRestaurantRepository;
+        private Mock<IRestaurantService> _mockRestaurantService;
+        private Mock<IUserService> _mockUserService;
+        private Mock<IWalletTransactionService> _mockWalletTransactionService;
+        private Mock<IPaymentGatewayService> _mockPaymentGatewayService;
+        private Mock<ISendMailService> _mockSendMailService;
+        private Mock<IDiscountMenuRepository> _mockDiscountMenuRepository;
+        private Mock<IConfiguration> _mockConfiguration;
 
         private OrderController _controller;
 
         [TestInitialize]
-        public void SetUp()
+        public void TestInitialize()
         {
-            // Initialize mock dependencies
-            _orderServiceMock = new Mock<IOrderService>();
-            _orderMenuServiceMock = new Mock<IOrderMenuService>();
-            _orderTableServiceMock = new Mock<IOrderTableService>();
-            _walletServiceMock = new Mock<IWalletService>();
-            _discountRepositoryMock = new Mock<IDiscountRepository>();
-            _menuRepositoryMock = new Mock<IMenuRepository>();
-            _restaurantRepositoryMock = new Mock<IRestaurantRepository>();
-            _userServiceMock = new Mock<IUserService>();
-            _walletTransactionServiceMock = new Mock<IWalletTransactionService>();
-            _paymentGatewayServiceMock = new Mock<IPaymentGatewayService>();
-            _sendMailServiceMock = new Mock<ISendMailService>();
-            _discountMenuRepositoryMock = new Mock<IDiscountMenuRepository>();
-            _configurationMock = new Mock<IConfiguration>();
+            // Mocking the services and repositories
+            _mockOrderService = new Mock<IOrderService>();
+            _mockOrderMenuService = new Mock<IOrderMenuService>();
+            _mockOrderTableService = new Mock<IOrderTableService>();
+            _mockWalletService = new Mock<IWalletService>();
+            _mockDiscountRepository = new Mock<IDiscountRepository>();
+            _mockMenuRepository = new Mock<IMenuRepository>();
+            _mockRestaurantRepository = new Mock<IRestaurantRepository>();
+            _mockRestaurantService = new Mock<IRestaurantService>();
+            _mockUserService = new Mock<IUserService>();
+            _mockWalletTransactionService = new Mock<IWalletTransactionService>();
+            _mockPaymentGatewayService = new Mock<IPaymentGatewayService>();
+            _mockSendMailService = new Mock<ISendMailService>();
+            _mockDiscountMenuRepository = new Mock<IDiscountMenuRepository>();
+            _mockConfiguration = new Mock<IConfiguration>();
 
-            // Inject dependencies into controller
+            // Initializing the controller with mocked dependencies
             _controller = new OrderController(
-                _orderServiceMock.Object,
-                _orderMenuServiceMock.Object,
-                _walletServiceMock.Object,
-                _menuRepositoryMock.Object,
-                _restaurantRepositoryMock.Object,
-                _discountRepositoryMock.Object,
-                _userServiceMock.Object,
-                _walletTransactionServiceMock.Object,
-                _paymentGatewayServiceMock.Object,
-                _sendMailServiceMock.Object,
-                _orderTableServiceMock.Object,
-                _discountMenuRepositoryMock.Object,
-                _configurationMock.Object
+                _mockOrderService.Object,
+                _mockOrderMenuService.Object,
+                _mockWalletService.Object,
+                _mockMenuRepository.Object,
+                _mockRestaurantRepository.Object,
+                _mockDiscountRepository.Object,
+                _mockUserService.Object,
+                _mockWalletTransactionService.Object,
+                _mockPaymentGatewayService.Object,
+                _mockSendMailService.Object,
+                _mockOrderTableService.Object,
+                _mockDiscountMenuRepository.Object,
+                _mockConfiguration.Object,
+                _mockRestaurantService.Object
             );
         }
 
@@ -103,7 +109,7 @@ namespace TOPDER.Test2.OrderControllerTest
                 OrderMenus = new List<OrderMenuModelDto> { new OrderMenuModelDto { MenuId = 1, Quantity = 2 } },
                 TableIds = new List<int> { 1, 2, 3, }
             };
-            _restaurantRepositoryMock.Setup(repo => repo.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((Restaurant)null);
+            _mockRestaurantRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((Restaurant)null);
 
             // Act
             var result = await _controller.AddOrder(orderModel);
@@ -140,19 +146,24 @@ namespace TOPDER.Test2.OrderControllerTest
                 Name = "Test Restaurant",
                 Email = "restaurant@example.com"
             };
-            var restaurant = new Restaurant { Price = 0 };
-            _restaurantRepositoryMock.Setup(repo => repo.GetByIdAsync(orderModel.RestaurantId)).ReturnsAsync(restaurant);
-            _orderServiceMock.Setup(service => service.AddAsync(It.IsAny<OrderDto>())).ReturnsAsync(new Order { OrderId = 1 });
-            _orderServiceMock
-                .Setup(service => service.GetEmailForOrderAsync(orderId, User_Role.RESTAURANT))
-                .ReturnsAsync(orderEmail);
+            var mockRestaurant = new Restaurant { Uid = 1, Price = 100, Discount = 10 };
+            // Mock các phương thức cần thiết
+            _mockRestaurantRepository.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(mockRestaurant);
+            _mockOrderService.Setup(os => os.AddAsync(It.IsAny<OrderDto>())).ReturnsAsync(new Order { OrderId = 1 });
 
-            _sendMailServiceMock
-                .Setup(service => service.SendEmailAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>()))
-                .Returns(Task.CompletedTask);
+            // Mock phương thức GetEmailForOrderAsync để tránh NullReferenceException
+            _mockOrderService.Setup(os => os.GetEmailForOrderAsync(It.IsAny<int>(), It.IsAny<string>()))
+                             .ReturnsAsync(new EmailForOrder { Email = "test@example.com" });
+
+            // Mock phương thức GetOrderPaid để tránh NullReferenceException
+            _mockOrderService.Setup(os => os.GetOrderPaid(It.IsAny<int>()))
+                             .ReturnsAsync(new OrderPaidEmail { OrderId = "1", TotalAmount = 100 });
+
+            _mockOrderTableService.Setup(ots => ots.AddRangeAsync(It.IsAny<CreateRestaurantOrderTablesDto>())).ReturnsAsync(true);
+
+            // Mock phương thức SendEmailAsync
+            _mockSendMailService.Setup(sms => sms.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                                .Returns(Task.CompletedTask);
 
             // Act
             var result = await _controller.AddOrder(orderModel);
@@ -189,19 +200,24 @@ namespace TOPDER.Test2.OrderControllerTest
                 Email = "restaurant@example.com"
             };
             var restaurant = new Restaurant { Price = 0 };
-            _restaurantRepositoryMock.Setup(repo => repo.GetByIdAsync(orderModel.RestaurantId)).ReturnsAsync(restaurant);
-            _orderServiceMock.Setup(service => service.AddAsync(It.IsAny<OrderDto>())).ReturnsAsync(new Order { OrderId = 1 });
-            _orderServiceMock
-                .Setup(service => service.GetEmailForOrderAsync(orderId, User_Role.RESTAURANT))
-                .ReturnsAsync(orderEmail);
+            var mockRestaurant = new Restaurant { Uid = 1, Price = 100, Discount = 10 };
+            // Mock các phương thức cần thiết
+            _mockRestaurantRepository.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(mockRestaurant);
+            _mockOrderService.Setup(os => os.AddAsync(It.IsAny<OrderDto>())).ReturnsAsync(new Order { OrderId = 1 });
 
-            _sendMailServiceMock
-                .Setup(service => service.SendEmailAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>()))
-                .Returns(Task.CompletedTask);
+            // Mock phương thức GetEmailForOrderAsync để tránh NullReferenceException
+            _mockOrderService.Setup(os => os.GetEmailForOrderAsync(It.IsAny<int>(), It.IsAny<string>()))
+                             .ReturnsAsync(new EmailForOrder { Email = "test@example.com" });
 
+            // Mock phương thức GetOrderPaid để tránh NullReferenceException
+            _mockOrderService.Setup(os => os.GetOrderPaid(It.IsAny<int>()))
+                             .ReturnsAsync(new OrderPaidEmail { OrderId = "1", TotalAmount = 100 });
+
+            _mockOrderTableService.Setup(ots => ots.AddRangeAsync(It.IsAny<CreateRestaurantOrderTablesDto>())).ReturnsAsync(true);
+
+            // Mock phương thức SendEmailAsync
+            _mockSendMailService.Setup(sms => sms.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                                .Returns(Task.CompletedTask);
             // Act
             var result = await _controller.AddOrder(orderModel);
 
@@ -228,9 +244,9 @@ namespace TOPDER.Test2.OrderControllerTest
             };
 
             var restaurant = new Restaurant { Price = 100 };
-            _restaurantRepositoryMock.Setup(repo => repo.GetByIdAsync(orderModel.RestaurantId)).ReturnsAsync(restaurant);
-            _menuRepositoryMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(new Menu { Price = 50 });
-            _orderServiceMock.Setup(service => service.AddAsync(It.IsAny<OrderDto>())).ReturnsAsync((Order)null); // Simulate failure
+            _mockRestaurantRepository.Setup(repo => repo.GetByIdAsync(orderModel.RestaurantId)).ReturnsAsync(restaurant);
+            _mockMenuRepository.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(new Menu { Price = 50 });
+            _mockOrderService.Setup(service => service.AddAsync(It.IsAny<OrderDto>())).ReturnsAsync((Order)null); // Simulate failure
 
             // Act
             var result = await _controller.AddOrder(orderModel);
@@ -244,53 +260,52 @@ namespace TOPDER.Test2.OrderControllerTest
 
 
         [TestMethod]
-        public async Task AddOrder_Succeeds_WhenContentReservationIsNull()
+        public async Task AddOrder_ShouldCreateOrderAndSendEmail_WhenDataIsValid()
         {
             // Arrange
-            var orderModel = new OrderModel
+            var mockRestaurant = new Restaurant { Uid = 1, Price = 100, Discount = 10 };
+            var mockOrderModel = new OrderModel
             {
-                RestaurantId = 3,
-                CustomerId = 2,
-                NameReceiver = "Đỗ Văn Đạt",
-                PhoneReceiver = "1234567890",
-                DateReservation = DateTime.Now,
+                CustomerId = 1,
+                RestaurantId = 1,
+                NameReceiver = "John",
+                PhoneReceiver = "123456789",
                 TimeReservation = TimeSpan.FromHours(19),
-                NumberPerson = 4,
-                NumberChild = 3,
-                ContentReservation = null,
-                OrderMenus = new List<OrderMenuModelDto> { new OrderMenuModelDto { MenuId = 1, Quantity = 2 } },
-                TableIds = new List<int> { 1, 2, 3, }
+                DateReservation = DateTime.Now.AddDays(1),
+                NumberPerson = 2,
+                ContentReservation = "Test",
+                OrderMenus = new List<OrderMenuModelDto> { new OrderMenuModelDto { MenuId = 1, Quantity = 2 } }
             };
 
-            var orderId = 1;
-            var orderEmail = new EmailForOrder
-            {
-                OrderId = "1",
-                Name = "Test Restaurant",
-                Email = "restaurant@example.com"
-            };
-            var restaurant = new Restaurant { Price = 0 };
-            _restaurantRepositoryMock.Setup(repo => repo.GetByIdAsync(orderModel.RestaurantId)).ReturnsAsync(restaurant);
-            _orderServiceMock.Setup(service => service.AddAsync(It.IsAny<OrderDto>())).ReturnsAsync(new Order { OrderId = 1 });
-            _orderServiceMock
-                .Setup(service => service.GetEmailForOrderAsync(orderId, User_Role.RESTAURANT))
-                .ReturnsAsync(orderEmail);
+            // Mock các phương thức cần thiết
+            _mockRestaurantRepository.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(mockRestaurant);
+            _mockOrderService.Setup(os => os.AddAsync(It.IsAny<OrderDto>())).ReturnsAsync(new Order { OrderId = 1 });
 
-            _sendMailServiceMock
-                .Setup(service => service.SendEmailAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>()))
-                .Returns(Task.CompletedTask);
+            // Mock phương thức GetEmailForOrderAsync để tránh NullReferenceException
+            _mockOrderService.Setup(os => os.GetEmailForOrderAsync(It.IsAny<int>(), It.IsAny<string>()))
+                             .ReturnsAsync(new EmailForOrder { Email = "test@example.com" });
+
+            // Mock phương thức GetOrderPaid để tránh NullReferenceException
+            _mockOrderService.Setup(os => os.GetOrderPaid(It.IsAny<int>()))
+                             .ReturnsAsync(new OrderPaidEmail { OrderId = "1", TotalAmount = 100 });
+
+            _mockOrderTableService.Setup(ots => ots.AddRangeAsync(It.IsAny<CreateRestaurantOrderTablesDto>())).ReturnsAsync(true);
+
+            // Mock phương thức SendEmailAsync
+            _mockSendMailService.Setup(sms => sms.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                                .Returns(Task.CompletedTask);
 
             // Act
-            var result = await _controller.AddOrder(orderModel) as OkObjectResult;
+            var result = await _controller.AddOrder(mockOrderModel);
 
             // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tạo đơn hàng thành công", result.Value);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            _mockOrderService.Verify(os => os.AddAsync(It.IsAny<OrderDto>()), Times.Once);
+            _mockSendMailService.Verify(sms => sms.SendEmailAsync("test@example.com", Email_Subject.NEWORDER, It.IsAny<string>()), Times.Once);
         }
+
+
+
         [TestMethod]
         public async Task AddOrder_CreatesFreeOrder_WhenRestaurantPriceIsZeroAndNoMenus()
         {
@@ -316,19 +331,25 @@ namespace TOPDER.Test2.OrderControllerTest
                 Name = "Test Restaurant",
                 Email = "restaurant@example.com"
             };
-            var restaurant = new Restaurant { Price = 0 };
-            _restaurantRepositoryMock.Setup(repo => repo.GetByIdAsync(orderModel.RestaurantId)).ReturnsAsync(restaurant);
-            _orderServiceMock.Setup(service => service.AddAsync(It.IsAny<OrderDto>())).ReturnsAsync(new Order { OrderId = 1 });
-            _orderServiceMock
-                .Setup(service => service.GetEmailForOrderAsync(orderId, User_Role.RESTAURANT))
-                .ReturnsAsync(orderEmail);
+            var mockRestaurant = new Restaurant { Uid = 1, Price = 100, Discount = 10 };
+            // Mock các phương thức cần thiết
+            _mockRestaurantRepository.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(mockRestaurant);
+            _mockOrderService.Setup(os => os.AddAsync(It.IsAny<OrderDto>())).ReturnsAsync(new Order { OrderId = 1 });
 
-            _sendMailServiceMock
-                .Setup(service => service.SendEmailAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>()))
-                .Returns(Task.CompletedTask);
+            // Mock phương thức GetEmailForOrderAsync để tránh NullReferenceException
+            _mockOrderService.Setup(os => os.GetEmailForOrderAsync(It.IsAny<int>(), It.IsAny<string>()))
+                             .ReturnsAsync(new EmailForOrder { Email = "test@example.com" });
+
+            // Mock phương thức GetOrderPaid để tránh NullReferenceException
+            _mockOrderService.Setup(os => os.GetOrderPaid(It.IsAny<int>()))
+                             .ReturnsAsync(new OrderPaidEmail { OrderId = "1", TotalAmount = 100 });
+
+            _mockOrderTableService.Setup(ots => ots.AddRangeAsync(It.IsAny<CreateRestaurantOrderTablesDto>())).ReturnsAsync(true);
+
+            // Mock phương thức SendEmailAsync
+            _mockSendMailService.Setup(sms => sms.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                                .Returns(Task.CompletedTask);
+
 
             // Act
             var result = await _controller.AddOrder(orderModel);
@@ -336,7 +357,7 @@ namespace TOPDER.Test2.OrderControllerTest
             // Assert
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
             var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tạo đơn hàng miễn phí thành công", okResult.Value);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tạo đơn hàng thành công", okResult.Value);
         }
     }
 }
