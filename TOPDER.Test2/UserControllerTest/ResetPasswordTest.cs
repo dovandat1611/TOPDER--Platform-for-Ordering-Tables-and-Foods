@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -85,43 +86,83 @@ namespace TOPDER.Test2.UserControllerTest
         public async Task ResetPassword_Success_ReturnsOk()
         {
             // Arrange
-            var request = new ResetPasswordRequest { Email = "test@example.com", NewPassword = "NewPassword123" };
-            var user = new User { Email = request.Email, Password = "OldPassword123" };
-            // Mock the repository to return an empty IQueryable<User>
-            _userRepositoryMock.Setup(repo => repo.QueryableAsync())
-                .ReturnsAsync(Enumerable.Empty<User>().AsQueryable()); // Convert IEnumerable to IQueryable            _userRepositoryMock.Setup(repo => repo.UpdateAsync(It.IsAny<User>())).ReturnsAsync(true);
+            var resetPasswordRequest = new ResetPasswordRequest
+            {
+                Email = "test@example.com",
+                NewPassword = "NewSecurePassword123!"
+            };
+
+            var mockUser = new User
+            {
+                Uid = 1,
+                Email = resetPasswordRequest.Email,
+                Password = "OldHashedPassword"
+            };
+
+            var userQuery = new List<User> { mockUser }.AsQueryable();
+
+            _userRepositoryMock
+                .Setup(repo => repo.QueryableAsync())
+                .ReturnsAsync(userQuery);
+
+            _userRepositoryMock
+                .Setup(repo => repo.UpdateAsync(It.IsAny<User>()))
+                .ReturnsAsync(true);
 
             // Act
-            var result = await _controller.ResetPassword(request);
+            var result = await _controller.ResetPassword(resetPasswordRequest);
 
             // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
             var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.       Assert.IsNotNull(okResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Mật khẩu đã được đặt lại thành công.", okResult.Value);
+
+            // Verify password hashing and update
+            _userRepositoryMock.Verify(repo => repo.UpdateAsync(It.Is<User>(u =>
+                u.Email == resetPasswordRequest.Email &&
+                u.Password != "OldHashedPassword"  // Make sure the password has changed
+            )), Times.Once);
         }
 
         [TestMethod]
-        public async Task ResetPassword_FailToUpdate_ReturnsInternalServerError()
+        public async Task ResetPassword_UpdateFails_ReturnsServerError()
         {
             // Arrange
-            var request = new ResetPasswordRequest { Email = "test@example.com", NewPassword = "NewPassword123" };
-            var user = new User { Email = request.Email, Password = "OldPassword123" };
+            var resetPasswordRequest = new ResetPasswordRequest
+            {
+                Email = "test@example.com",
+                NewPassword = "NewSecurePassword123!"
+            };
 
-            // Mock the repository to return a user when querying
-            _userRepositoryMock.Setup(repo => repo.QueryableAsync())
-                .ReturnsAsync(new List<User> { user }.AsQueryable()); // Return a user with matching email
+            var mockUser = new User
+            {
+                Uid = 1,
+                Email = resetPasswordRequest.Email,
+                Password = "OldHashedPassword"
+            };
 
-            // Mock the UpdateAsync to return false, simulating a failure
-            _userRepositoryMock.Setup(repo => repo.UpdateAsync(It.IsAny<User>()))
-                .ReturnsAsync(false); // Simulate failure of password update
+            var userQuery = new List<User> { mockUser }.AsQueryable();
+
+            _userRepositoryMock
+                .Setup(repo => repo.QueryableAsync())
+                .ReturnsAsync(userQuery);
+
+            _userRepositoryMock
+                .Setup(repo => repo.UpdateAsync(It.IsAny<User>()))
+                .ReturnsAsync(false);
 
             // Act
-            var result = await _controller.ResetPassword(request);
+            var result = await _controller.ResetPassword(resetPasswordRequest);
 
             // Assert
-            var statusCodeResult = result as StatusCodeResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(statusCodeResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(500, statusCodeResult.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(ObjectResult));
+            var serverErrorResult = result as ObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status500InternalServerError, serverErrorResult.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Lỗi khi cập nhật mật khẩu.", serverErrorResult.Value);
         }
+
     }
 }

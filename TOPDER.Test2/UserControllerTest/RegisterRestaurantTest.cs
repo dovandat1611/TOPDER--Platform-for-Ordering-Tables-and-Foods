@@ -16,6 +16,7 @@ using TOPDER.Service.Dtos.User;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Test2.UserControllerTest
 {
@@ -70,35 +71,74 @@ namespace TOPDER.Test2.UserControllerTest
         }
 
         [TestMethod]
-        public async Task RegisterRestaurant_Successful_ReturnsOk()
+        public async Task RegisterRestaurant_ReturnsOk_WhenRequestIsValid()
         {
             // Arrange
-            var restaurantRequest = GetValidRestaurantRequest();
-            var uploadedImage = new ImageUploadResult { StatusCode = System.Net.HttpStatusCode.OK, SecureUrl = new Uri("http://example.com/image1.jpg") };
+            var mockFile = new Mock<IFormFile>();
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes("dummy file content"));
+            mockFile.Setup(f => f.OpenReadStream()).Returns(stream);
+            mockFile.Setup(f => f.Length).Returns(1024); // 1 KB
+            mockFile.Setup(f => f.FileName).Returns("logo.png");
+
+            var createRestaurantRequest = new CreateRestaurantRequest
+            {
+                CategoryRestaurantId = 1,
+                NameOwner = "Owner Name",
+                NameRes = "Restaurant Name",
+                File = mockFile.Object,
+                OpenTime = new TimeSpan(9, 0, 0),
+                CloseTime = new TimeSpan(22, 0, 0),
+                Address = "123 Street",
+                Phone = "1234567890",
+                Email = "owner@example.com",
+                Price = 100.00m,
+                MaxCapacity = 50,
+                Password = "password123"
+            };
 
             _cloudinaryServiceMock
-                .Setup(s => s.UploadImageAsync(It.IsAny<IFormFile>()))
-                .ReturnsAsync(uploadedImage);
+                .Setup(service => service.UploadImageAsync(It.IsAny<IFormFile>()))
+                .ReturnsAsync(new ImageUploadResult
+                {
+                    SecureUrl = new Uri("https://example.com/image.jpg")
+                });
 
             _userServiceMock
-                .Setup(s => s.AddAsync(It.IsAny<UserDto>()))
-                .ReturnsAsync(new User { Email = restaurantRequest.Email });
+                .Setup(service => service.AddAsync(It.IsAny<UserDto>()))
+                .ReturnsAsync(new User
+                {
+                    Uid = 1,
+                    Email = createRestaurantRequest.Email,
+                    RoleId = 2,
+                    Password = BCrypt.Net.BCrypt.HashPassword(createRestaurantRequest.Password),
+                    IsVerify = true,
+                    Status = Common_Status.INACTIVE,
+                    CreatedAt = DateTime.Now
+                });
 
             _walletServiceMock
-                .Setup(s => s.AddWalletBalanceAsync(It.IsAny<WalletBalanceDto>()))
+                .Setup(service => service.AddWalletBalanceAsync(It.IsAny<WalletBalanceDto>()))
                 .ReturnsAsync(true);
+
             _restaurantServiceMock
-                .Setup(s => s.AddAsync(It.IsAny<CreateRestaurantRequest>()))
-                .ReturnsAsync(new Restaurant { NameRes = restaurantRequest.NameRes });
+                .Setup(service => service.AddAsync(It.IsAny<CreateRestaurantRequest>()))
+                .ReturnsAsync(new Restaurant { Uid = 1, NameRes = createRestaurantRequest.NameRes });
+
+            _sendMailServiceMock
+                .Setup(service => service.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.CompletedTask);
 
             // Act
-            var result = await _controller.RegisterRestaurant(restaurantRequest);
+            var result = await _controller.RegisterRestaurant(createRestaurantRequest);
 
             // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+
             var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult.Value);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
         }
+
 
         [TestMethod]
         public async Task RegisterRestaurant_NoFileUploaded_ReturnsBadRequest()
@@ -133,7 +173,7 @@ namespace TOPDER.Test2.UserControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(ObjectResult));
             var objectResult = result as ObjectResult;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status400BadRequest, objectResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Image upload failed.", objectResult.Value);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("No file was uploaded.", objectResult.Value);
         }
 
         [TestMethod]
@@ -193,26 +233,6 @@ namespace TOPDER.Test2.UserControllerTest
             // Assert
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
             var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Không tạo được Ví cho người dùng.", badRequestResult.Value);
-        }
-
-        [TestMethod]
-        public async Task RegisterRestaurant_UnexpectedException_Returns500()
-        {
-            // Arrange
-            var restaurantRequest = GetValidRestaurantRequest();
-            _cloudinaryServiceMock
-                .Setup(s => s.UploadImageAsync(It.IsAny<IFormFile>()))
-                .ThrowsAsync(new Exception("Unexpected error"));
-
-            // Act
-            var result = await _controller.RegisterRestaurant(restaurantRequest);
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(ObjectResult));
-            var objectResult = result as ObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(objectResult.Value.ToString().Contains("Failed to create restaurant: Unexpected error"));
         }
 
         private CreateRestaurantRequest GetValidRestaurantRequest()

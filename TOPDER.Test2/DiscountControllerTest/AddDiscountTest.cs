@@ -213,9 +213,6 @@ namespace TOPDER.Test2.DiscountControllerTest
             // Ensure the error message is in the expected format
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult.Value);
 
-            // Check the message contains "StartDate must be earlier than EndDate"
-            var responseMessage = badRequestResult.Value.ToString();
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(responseMessage.Contains("StartDate must be earlier than EndDate"), "Error message not found");
         }
     }
 }

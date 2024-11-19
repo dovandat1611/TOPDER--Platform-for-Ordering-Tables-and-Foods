@@ -54,7 +54,8 @@ namespace TOPDER.Test2.CustomerControllerTest
             {
                 Uid = 1,
                 Name = "John Doe",
-                Phone = "1234567890"
+                Phone = "1234567890",
+                Gender = "Nam"
             };
 
             _mockCustomerService.Setup(service => service.UpdateProfile(customerProfile)).ReturnsAsync(true);

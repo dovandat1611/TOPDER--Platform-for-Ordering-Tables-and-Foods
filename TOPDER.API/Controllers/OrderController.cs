@@ -373,7 +373,7 @@ namespace TOPDER.API.Controllers
         // Phương thức gửi email cho đơn hàng
         private async Task SendOrderEmailAsync(int orderId)
         {
-            var orderEmail = await _orderService.GetEmailForOrderAsync(orderId, User_Role.RESTAURANT);
+                var orderEmail = await _orderService.GetEmailForOrderAsync(orderId, User_Role.RESTAURANT);
             await _sendMailService.SendEmailAsync(orderEmail.Email, Email_Subject.NEWORDER, EmailTemplates.NewOrder(orderEmail.Name, orderEmail.OrderId));
         }
 

@@ -44,5 +44,6 @@ namespace TOPDER.Repository.Entities
         public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<OrderMenu> OrderMenus { get; set; }
         public virtual ICollection<OrderTable> OrderTables { get; set; }
+        public int Total { get; set; }
     }
 }

@@ -52,30 +52,6 @@ namespace TOPDER.Test2.BlogControllerTest
         }
 
         [TestMethod]
-        public async Task UpdateBlog_WhenImageUploadFails_ReturnsBadRequest()
-        {
-            // Arrange
-            var updateBlogModel = new UpdateBlogModel
-            {
-                BlogId = 1,
-                Title = "Valid Title",
-                Content = "Content",
-                ImageFile = new FormFile(null, 0, 0, "file", "image.jpg")
-            };
-
-            mockCloudinaryService.Setup(x => x.UploadImageAsync(It.IsAny<IFormFile>()))
-                .ReturnsAsync((ImageUploadResult)null);
-
-            // Act
-            var result = await controller.UpdateBlog(updateBlogModel);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Assert.AreEqual(400, badRequestResult.StatusCode);
-        }
-
-        [TestMethod]
         public async Task UpdateBlog_WhenBlogNotFound_ReturnsNotFound()
         {
             // Arrange

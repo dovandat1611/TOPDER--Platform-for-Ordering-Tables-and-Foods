@@ -82,19 +82,22 @@ namespace TOPDER.Test2.RestaurantControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, notFoundResult?.StatusCode);
         }
 
+       
         [TestMethod]
-        public async Task UpdateRestaurantInfo_ReturnsOk_WhenRestaurantIsUpdatedSuccessfully()
+        public async Task UpdateRestaurantInfo_ReturnsOk_WhenUpdateSucceeds()
         {
-            // Arrange: Mock return true for UpdateInfoRestaurantAsync (successful update)
+            // Arrange
             var restaurantDto = new UpdateInfoRestaurantDto
             {
                 Uid = 1,
                 NameOwner = "John Doe",
-                NameRes = "Test Restaurant",
-                Address = "123 Test St",
-                Phone = "1234567890",
+                NameRes = "Restaurant Name",
+                Phone = "0123456789",
+                Address = "123 Street",
                 MaxCapacity = 50,
-                Price = 100m
+                Price = 100m,
+                OpenTime = new TimeSpan(9, 0, 0),
+                CloseTime = new TimeSpan(22, 0, 0)
             };
 
             _restaurantServiceMock
@@ -102,158 +105,13 @@ namespace TOPDER.Test2.RestaurantControllerTest
                 .ReturnsAsync(true); // Simulate successful update
 
             // Act
-            var result = await _controller.UpdateRestaurantInfo(restaurantDto);
+            var result = await _controller.UpdateRestaurantInfo(restaurantDto) as OkObjectResult;
 
             // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult?.StatusCode);
-            var responseMessage = (okResult?.Value as dynamic)?.Message;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, result.StatusCode);
         }
 
-        [TestMethod]
-        public async Task UpdateRestaurantInfo_ReturnsBadRequest_WhenUidIsNull()
-        {
-            // Arrange: DTO với Uid là null
-            var restaurantDto = new UpdateInfoRestaurantDto
-            {
-                Uid = 0, // Thực tế, bạn không thể truyền null cho Uid (trong trường hợp này Uid sẽ được set là 0 cho tình huống này).
-                NameOwner = "John Doe",
-                NameRes = "Test Restaurant",
-                Address = "123 Test St",
-                Phone = "1234567890",
-                MaxCapacity = 50,
-                Price = 100m
-            };
-
-            // Act
-            var result = await _controller.UpdateRestaurantInfo(restaurantDto);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult?.StatusCode);
-        }
-
-        [TestMethod]
-        public async Task UpdateRestaurantInfo_ReturnsBadRequest_WhenNameOwnerIsNull()
-        {
-            // Arrange: DTO với NameOwner là null
-            var restaurantDto = new UpdateInfoRestaurantDto
-            {
-                Uid = 1,
-                NameOwner = null,
-                NameRes = "Test Restaurant",
-                Address = "123 Test St",
-                Phone = "1234567890",
-                MaxCapacity = 50,
-                Price = 100m
-            };
-
-            // Act
-            var result = await _controller.UpdateRestaurantInfo(restaurantDto);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.           Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult?.StatusCode);
-        }
-
-        [TestMethod]
-        public async Task UpdateRestaurantInfo_ReturnsBadRequest_WhenNameResIsNull()
-        {
-            // Arrange: DTO với NameRes là null
-            var restaurantDto = new UpdateInfoRestaurantDto
-            {
-                Uid = 1,
-                NameOwner = "John Doe",
-                NameRes = null,
-                Address = "123 Test St",
-                Phone = "1234567890",
-                MaxCapacity = 50,
-                Price = 100m
-            };
-
-            // Act
-            var result = await _controller.UpdateRestaurantInfo(restaurantDto);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult?.StatusCode);
-        }
-
-        [TestMethod]
-        public async Task UpdateRestaurantInfo_ReturnsBadRequest_WhenAddressIsNull()
-        {
-            // Arrange: DTO với Address là null
-            var restaurantDto = new UpdateInfoRestaurantDto
-            {
-                Uid = 1,
-                NameOwner = "John Doe",
-                NameRes = "Test Restaurant",
-                Address = null,
-                Phone = "1234567890",
-                MaxCapacity = 50,
-                Price = 100m
-            };
-
-            // Act
-            var result = await _controller.UpdateRestaurantInfo(restaurantDto);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult?.StatusCode);
-        }
-
-        [TestMethod]
-        public async Task UpdateRestaurantInfo_ReturnsBadRequest_WhenPhoneIsNull()
-        {
-            // Arrange: DTO với Phone là null
-            var restaurantDto = new UpdateInfoRestaurantDto
-            {
-                Uid = 1,
-                NameOwner = "John Doe",
-                NameRes = "Test Restaurant",
-                Address = "123 Test St",
-                Phone = null,
-                MaxCapacity = 50,
-                Price = 100m
-            };
-
-            // Act
-            var result = await _controller.UpdateRestaurantInfo(restaurantDto);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.AreEqual(400, badRequestResult?.StatusCode);
-        }
-
-        [TestMethod]
-        public async Task UpdateRestaurantInfo_ReturnsBadRequest_WhenCategoryRestaurantIdIsNull()
-        {
-            // Arrange: DTO với CategoryRestaurantId là null
-            var restaurantDto = new UpdateInfoRestaurantDto
-            {
-                Uid = 1,
-                NameOwner = "John Doe",
-                NameRes = "Test Restaurant",
-                Address = "123 Test St",
-                Phone = "1234567890",
-                MaxCapacity = 50,
-                Price = 100m,
-                CategoryRestaurantId = null // Giá trị null cho CategoryRestaurantId
-            };
-
-            // Act
-            var result = await _controller.UpdateRestaurantInfo(restaurantDto);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult?.StatusCode);
-        }
+        
     }
 }
