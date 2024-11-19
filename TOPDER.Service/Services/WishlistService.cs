@@ -49,7 +49,7 @@ namespace TOPDER.Service.Services
                 .ThenInclude(r => r.Feedbacks)
                 .Include(x => x.Restaurant)
                 .ThenInclude(r => r.CategoryRestaurant)
-                .Where(x => x.CustomerId == customerId);
+                .Where(x => x.CustomerId == customerId).OrderByDescending(x => x.WishlistId);
 
             var queryDTO = query.Select(r => _mapper.Map<UserWishlistDto>(r));
 

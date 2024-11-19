@@ -62,7 +62,8 @@ namespace TOPDER.Service.Services
             var query = await queryable
                 .Include(x => x.Restaurant)
                 .Include(x => x.Table)
-                .Where(x => x.RestaurantId == restaurantId)
+                .Where(x => x.RestaurantId == restaurantId && x.Table.IsVisible == true)
+                .OrderByDescending(x => x.ScheduleId)
                 .ToListAsync();  
 
             var tableBookingSchedules = _mapper.Map<List<TableBookingScheduleViewDto>>(query);

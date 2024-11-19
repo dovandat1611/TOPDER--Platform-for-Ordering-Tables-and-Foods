@@ -12,6 +12,7 @@ using TOPDER.Service.Dtos.Blog;
 using TOPDER.Service.Dtos.Report;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
 {
@@ -28,6 +29,9 @@ namespace TOPDER.Service.Services
         public async Task<bool> AddAsync(ReportDto reportDto)
         {
             var report = _mapper.Map<Report>(reportDto);
+            report.ReportId = 0;
+            report.CreatedAt = DateTime.Now;
+            report.Status = Common_Status.ACTIVE;
             return await _reportRepository.CreateAsync(report);
         }
 

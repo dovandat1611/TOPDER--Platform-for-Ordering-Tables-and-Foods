@@ -15,5 +15,7 @@ namespace TOPDER.Service.IServices
         Task<DashboardRestaurantDto> GetDashboardRestaurantAsync(int restaurantId);
         Task<MarketOverviewDTO> GetMarketOverviewAdminAsync(IQueryable<Order> orders, int? filteredYear);
         Task<MarketOverviewDTO> GetMarketOverviewRestaurantAsync(int restaurantId, int? filteredYear);
+        Task<TaskBarMonthRestaurantDTO> GetTaskBarMonthDataAsync(int restaurantId, DateTime? searchMonth);
+        Task<TaskBarDayRestaurantDTO> GetTaskBarDayDataAsync(int restaurantId, DateTime? searchDay);
     } 
 }

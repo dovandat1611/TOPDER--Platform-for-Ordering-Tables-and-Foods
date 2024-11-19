@@ -61,11 +61,11 @@ namespace TOPDER.API.Controllers
         {
             var role = await _userService.GetRoleUserProfile(uid);
 
-
             if (role.Role.Equals(User_Role.CUSTOMER))
             {
                 var profile = await _customerService.Profile(uid);
                 profile.WalletBalance = role.WalletBalance;
+                profile.Role = role.Role;
                 if (profile == null)
                     return NotFound(new { Message = "Không tìm thấy khách hàng." });
 
@@ -77,7 +77,7 @@ namespace TOPDER.API.Controllers
                 var profile = await _restaurantService.Profile(uid);
 
                 profile.WalletBalance = role.WalletBalance;
-
+                profile.Role = role.Role;
                 if (profile == null)
                     return NotFound(new { Message = "Không tìm thấy nhà hàng." });
 
@@ -87,6 +87,7 @@ namespace TOPDER.API.Controllers
             if (role.Role.Equals(User_Role.ADMIN))
             {
                 var profile = await _adminService.Profile(uid);
+                profile.Role = role.Role;
 
                 if (profile == null)
                     return NotFound(new { Message = "Không tìm thấy admin." });
@@ -205,7 +206,7 @@ namespace TOPDER.API.Controllers
             var result = await _identityService.AuthenticateWithGoogle(accessToken);
 
             if (result.Success)
-            {
+            {   
                 return Ok(result);
             }
             else
@@ -223,6 +224,12 @@ namespace TOPDER.API.Controllers
             if (restaurantRequest.File == null || restaurantRequest.File.Length == 0)
             {
                 return BadRequest("No file was uploaded.");
+            }
+
+            bool exists = await _userService.CheckExistEmail(restaurantRequest.Email);
+            if (exists)
+            {
+                return BadRequest(new { message = "Email đã tồn tại trong hệ thống vui lòng thử một email khác." });
             }
 
             var uploadResult = await _cloudinaryService.UploadImageAsync(restaurantRequest.File);
@@ -247,7 +254,7 @@ namespace TOPDER.API.Controllers
                     RoleId = 2, // Restaurant
                     Password = BCrypt.Net.BCrypt.HashPassword(restaurantRequest.Password),
                     OtpCode = string.Empty,
-                    IsVerify = true,
+                    IsVerify = false,
                     Status = Common_Status.INACTIVE,
                     IsExternalLogin = false,
                     CreatedAt = DateTime.Now,
@@ -300,6 +307,13 @@ namespace TOPDER.API.Controllers
             {
                 return BadRequest(ModelState);
             }
+
+            bool exists = await _userService.CheckExistEmail(customerRequest.Email);
+            if (exists)
+            {
+                return BadRequest(new { message = "Email đã tồn tại trong hệ thống vui lòng thử một email khác ." });
+            }
+
             try
             {
                 var userDto = new UserDto()
@@ -444,7 +458,10 @@ namespace TOPDER.API.Controllers
                 return Ok("Người dùng đã có trạng thái này.");
             }
 
-            var update = await _userRepository.ChangeStatusAsync(uid, status);
+            user.Status = status;
+
+            var update = await _userRepository.UpdateAsync(user);
+
             if (update)
             {
                 return Ok("Cập nhật trạng thái người dùng thành công.");

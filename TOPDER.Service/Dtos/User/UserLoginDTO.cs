@@ -40,7 +40,6 @@ namespace TOPDER.Service.Dtos.User
 
         // ALL 
         public string? Role { get; set; } = string.Empty;
-
-        
+        public string Status { get; set; } = null!;
     }
 }

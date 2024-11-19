@@ -99,6 +99,8 @@ builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
 builder.Services.AddScoped<IDiscountMenuRepository, DiscountMenuRepository>();
 builder.Services.AddScoped<IUserOtpRepository, UserOtpRepository>();
 builder.Services.AddScoped<ITableBookingScheduleRepository, TableBookingScheduleRepository>();
+builder.Services.AddScoped<IAdvertisementPricingRepository, AdvertisementPricingRepository>();
+builder.Services.AddScoped<IBookingAdvertisementRepository, BookingAdvertisementRepository>();
 
 
 
@@ -135,6 +137,9 @@ builder.Services.AddTransient<IWalletTransactionService, WalletTransactionServic
 builder.Services.AddTransient<IWishlistService, WishlistService>();
 builder.Services.AddTransient<IWishlistService, WishlistService>();
 builder.Services.AddTransient<ITableBookingScheduleService, TableBookingScheduleService>();
+builder.Services.AddTransient<IBookingAdvertisementService, BookingAdvertisementService>();
+builder.Services.AddTransient<IAdvertisementPricingService, AdvertisementPricingService>();
+
 
 // Other: ASK CHAT GPT
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();

@@ -21,6 +21,7 @@ namespace TOPDER.Service.Dtos.Restaurant
         public TimeSpan CloseTime { get; set; }
         public string Address { get; set; } = null!;
         public decimal? Discount { get; set; }
+        public int? ReputationScore { get; set; }
         public decimal Price { get; set; }
         public decimal MinPriceMenu { get; set; }
         public decimal MaxPriceMenu { get; set; }

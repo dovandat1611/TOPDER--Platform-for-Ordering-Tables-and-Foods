@@ -331,6 +331,7 @@ namespace TOPDER.Service.Services
             existingDiscount.EndDate = discountDto.EndDate;
             existingDiscount.Quantity = discountDto.Quantity;
             existingDiscount.DiscountName = discountDto.DiscountName;
+            existingDiscount.Description = discountDto.Description;
             existingDiscount.IsActive = discountDto.IsActive;
 
             if(discountDto.Scope == DiscountScope.PER_SERVICE)
@@ -382,11 +383,6 @@ namespace TOPDER.Service.Services
             {
                 existingDiscount.MinOrderValue = discountDto.MinOrderValue;
                 existingDiscount.MaxOrderValue = discountDto.MaxOrderValue;
-            }
-            else
-            {
-                existingDiscount.MinOrderValue = null; 
-                existingDiscount.MaxOrderValue = null;
             }
 
             return await _discountRepository.UpdateAsync(existingDiscount);

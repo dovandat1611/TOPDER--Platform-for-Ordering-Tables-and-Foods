@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using TOPDER.Repository.Entities;
 using TOPDER.Service.Dtos.Customer;
@@ -12,7 +13,6 @@ using TOPDER.Service.Dtos.User;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
-
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
@@ -40,7 +40,7 @@ namespace TOPDER.Service.Services
             _clientId = configuration["Authentication:Google:ClientId"];
         }
 
-        public async Task<Repository.Entities.ApiResponse> AuthenticateWithGoogle(string accessToken)
+        public async Task<ApiResponse> AuthenticateWithGoogle(string accessToken)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace TOPDER.Service.Services
                 });
 
                 // Nếu xác thực thành công, trả về thông tin người dùng
-                UserInfoLoginGoole userInfoLogin = new UserInfoLoginGoole()
+                UserInfoLoginGoole userInfoLogin =  new UserInfoLoginGoole()
                 {
                     Id = payload.JwtId,
                     Email = payload.Email,
@@ -60,16 +60,44 @@ namespace TOPDER.Service.Services
 
                 if (string.IsNullOrEmpty(userInfoLogin.Email))
                 {
-                    return new Repository.Entities.ApiResponse { Success = false, Message = "INVALID USER EMAIL" };
+                    return new ApiResponse { Success = false, Message = "INVALID USER EMAIL" };
                 }
 
                 // Kiểm tra xem người dùng đã tồn tại trong hệ thống chưa
                 var existingUser = await _userService.GetUserByEmail(userInfoLogin.Email);
+
                 if (existingUser != null)
                 {
+                    if (existingUser.Role == User_Role.RESTAURANT || existingUser.Role == User_Role.ADMIN)
+                    {
+                        return new ApiResponse
+                        {
+                            Success = false,
+                            Message = "Tài phải đăng nhập bằng form tài khoản mật khẩu!"
+                        };
+                    }
+                    var user = await _userService.GetUserByEmailToLoginGoogle(existingUser.Uid);
+                    if (existingUser.Role == User_Role.CUSTOMER && user.Status == Common_Status.INACTIVE)
+                       {
+                                return new ApiResponse
+                                {
+                                    Success = false,
+                                    Message = "Tài khoản hiện không thể đăng nhập vào hệ thống!"
+                                };
+                       }
+
+                    if (existingUser.Role == User_Role.CUSTOMER && user.IsVerify == false)
+                    {
+                        return new ApiResponse
+                        {
+                            Success = false,
+                            Message = "Tài khoản hiện chưa được xác thực!"
+                        };
+                    }
+
                     var isProfileComplete = await _customerService.CheckProfile(existingUser.Uid);
                     var generatedToken = _jwtHelper.GenerateJwtToken(existingUser);
-                    return new Repository.Entities.ApiResponse
+                    return new ApiResponse
                     {
                         Success = true,
                         Data = generatedToken,
@@ -80,6 +108,7 @@ namespace TOPDER.Service.Services
                 // Tạo người dùng mới nếu chưa tồn tại
                 var userDto = new UserDto
                 {
+                    Uid = 0,
                     Email = userInfoLogin.Email,
                     RoleId = 3, // CUSTOMER
                     IsVerify = true,
@@ -89,9 +118,10 @@ namespace TOPDER.Service.Services
                 };
 
                 var newUser = await _userService.AddAsync(userDto);
+
                 if (newUser == null)
                 {
-                    return new Repository.Entities.ApiResponse { Success = false, Message = "USER CREATION FAILED" };
+                    return new ApiResponse { Success = false, Message = "USER CREATION FAILED" };
                 }
 
                 // Thêm thông tin đăng nhập ngoại
@@ -103,6 +133,7 @@ namespace TOPDER.Service.Services
                     ExternalUserId = userInfoLogin.Id ?? Is_Null.ISNULL,
                     AccessToken = accessToken
                 };
+                Console.WriteLine($"Uid: {externalLogin.Uid}, ExternalProvider: {externalLogin.ExternalProvider}, ExternalUserId: {externalLogin.ExternalUserId}");
                 await _externalLoginService.AddAsync(externalLogin);
 
                 // Thêm ví
@@ -114,7 +145,6 @@ namespace TOPDER.Service.Services
                 };
                 await _walletService.AddWalletBalanceAsync(walletBalanceDto);
 
-                // Thêm thông tin khách hàng
                 var customerRequest = new CreateCustomerRequest
                 {
                     Uid = newUser.Uid,
@@ -135,7 +165,7 @@ namespace TOPDER.Service.Services
 
                     // Tạo JWT token cho người dùng mới
                     var token = _jwtHelper.GenerateJwtToken(newUserLoginDto);
-                    return new Repository.Entities.ApiResponse
+                    return new ApiResponse
                     {
                         Success = true,
                         Data = token,
@@ -143,15 +173,16 @@ namespace TOPDER.Service.Services
                     };
                 }
 
-                return new Repository.Entities.ApiResponse { Success = false, Message = "USER CREATION FAILED" };
+                return new ApiResponse { Success = false, Message = "USER CREATION FAILED" };
             }
             catch (HttpRequestException httpEx)
             {
-                return new Repository.Entities.ApiResponse { Success = false, Message = httpEx.Message.ToUpper() };
+                return new ApiResponse { Success = false, Message = httpEx.Message.ToUpper() };
             }
             catch (Exception ex)
             {
-                return new Repository.Entities.ApiResponse { Success = false, Message = ex.Message.ToUpper() };
+                var errorMessage = ex.InnerException?.Message ?? ex.Message;
+                return new ApiResponse { Success = false, Message = errorMessage.ToUpper() };
             }
         }
     }

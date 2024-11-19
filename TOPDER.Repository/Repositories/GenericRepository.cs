@@ -172,36 +172,5 @@ namespace TOPDER.Repository.Repositories
                 }
             }
         }
-
-        public async Task<bool> ChangeStatusAsync(int id, string status)
-        {
-            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
-            {
-                try
-                {
-                    var entity = await GetByIdAsync(id);
-                    if (entity == null)
-                    {
-                        return false;
-                    }
-
-                    var property = typeof(T).GetProperty("Status");
-                    if (property != null && property.CanWrite)
-                    {
-                        property.SetValue(entity, status);
-                    }
-
-                    await UpdateAsync(entity);
-
-                    await transaction.CommitAsync(); // Commit sau khi cập nhật trạng thái
-                    return true;
-                }
-                catch (Exception)
-                {
-                    await transaction.RollbackAsync(); // Rollback khi có lỗi
-                    throw;
-                }
-            }
-        }
     }
 }

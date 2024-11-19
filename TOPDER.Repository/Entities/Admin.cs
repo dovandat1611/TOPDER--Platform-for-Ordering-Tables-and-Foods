@@ -7,6 +7,7 @@ namespace TOPDER.Repository.Entities
     {
         public Admin()
         {
+            AdvertisementPricings = new HashSet<AdvertisementPricing>();
             Blogs = new HashSet<Blog>();
         }
 
@@ -17,6 +18,7 @@ namespace TOPDER.Repository.Entities
         public string? Image { get; set; }
 
         public virtual User UidNavigation { get; set; } = null!;
+        public virtual ICollection<AdvertisementPricing> AdvertisementPricings { get; set; }
         public virtual ICollection<Blog> Blogs { get; set; }
     }
 }

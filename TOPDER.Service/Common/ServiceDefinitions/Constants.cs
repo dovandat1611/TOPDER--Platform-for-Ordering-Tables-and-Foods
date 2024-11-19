@@ -15,6 +15,13 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string INACTIVE = "In-Active";
         }
 
+        public class Booking_Status
+        {
+            public static string ACTIVE = "Active";
+            public static string INACTIVE = "In-Active";
+            public static string CANCELLED = "Cancelled";
+        }
+
         public class Email_Subject
         {
             public static string REGISTER = "Chào Mừng Bạn Đến Với TOPDER";
@@ -172,6 +179,13 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string PaymentContentVIETQR()
             {
                 return $"Thanh toan dat ban TOPDER";
+            }
+        }
+        public class Booking_PaymentContent
+        {
+            public static string PaymentContentVIETQR()
+            {
+                return $"quang cao TOPDER";
             }
         }
 

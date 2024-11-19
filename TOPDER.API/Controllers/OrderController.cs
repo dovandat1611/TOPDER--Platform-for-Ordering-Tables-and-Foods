@@ -36,6 +36,7 @@ namespace TOPDER.API.Controllers
         private readonly IDiscountRepository _discountRepository;
         private readonly IMenuRepository _menuRepository;
         private readonly IRestaurantRepository _restaurantRepository;
+        private readonly IRestaurantService _restaurantService;
         private readonly IUserService _userService;
         private readonly IWalletTransactionService _walletTransactionService;
         private readonly IPaymentGatewayService _paymentGatewayService;
@@ -51,7 +52,7 @@ namespace TOPDER.API.Controllers
             IUserService userService, IWalletTransactionService walletTransactionService,
             IPaymentGatewayService paymentGatewayService, ISendMailService sendMailService,
             IOrderTableService orderTableService, IDiscountMenuRepository discountMenuRepository,
-            IConfiguration configuration)
+            IConfiguration configuration, IRestaurantService restaurantService)
         {
             _orderService = orderService;
             _orderMenuService = orderMenuService;
@@ -66,6 +67,7 @@ namespace TOPDER.API.Controllers
             _orderTableService = orderTableService;
             _discountMenuRepository = discountMenuRepository;
             _configuration = configuration;
+            _restaurantService = restaurantService;
         }
 
 
@@ -373,8 +375,9 @@ namespace TOPDER.API.Controllers
         // Phương thức gửi email cho đơn hàng
         private async Task SendOrderEmailAsync(int orderId)
         {
-                var orderEmail = await _orderService.GetEmailForOrderAsync(orderId, User_Role.RESTAURANT);
-            await _sendMailService.SendEmailAsync(orderEmail.Email, Email_Subject.NEWORDER, EmailTemplates.NewOrder(orderEmail.Name, orderEmail.OrderId));
+            var orderEmail = await _orderService.GetEmailForOrderAsync(orderId, User_Role.RESTAURANT);
+            OrderPaidEmail orderPaidEmail = await _orderService.GetOrderPaid(orderId);
+            await _sendMailService.SendEmailAsync(orderEmail.Email, Email_Subject.NEWORDER, EmailTemplates.NewOrder(orderPaidEmail));
         }
 
 
@@ -515,7 +518,7 @@ namespace TOPDER.API.Controllers
             }
 
             var paymentData = new PaymentData(
-                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(order.OrderId, 11),
+                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(order.OrderId, 26112002),
                 amount: (int)totalAmount,
                 description: Order_PaymentContent.PaymentContentVIETQR(),
                 items: items,
@@ -556,7 +559,7 @@ namespace TOPDER.API.Controllers
         // có 2 status: 1 Successful (thành công) 2 Cancelled (thất bại)
         [HttpGet("CheckPayment/{orderID}")]
         [SwaggerOperation(Summary = "Khi chuyển khoản xong thì sẽ check status payment của đơn hàng đó Cancelled | Successful: Customer")]
-        public async Task<IActionResult> GetItemAsync(int orderID, string status)
+        public async Task<IActionResult> CheckPayment(int orderID, string status)
         {
             if (string.IsNullOrEmpty(status))
             {
@@ -658,6 +661,21 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetOrderListForAdmin")]
+        [SwaggerOperation(Summary = "Lấy ra tất cả thông tin đơn hàng của hệ thống: Admin")]
+        public async Task<IActionResult> GetOrderListForAdmin()
+        {
+            var result = await _orderService.GetAdminPagingAsync();
+
+            foreach (var item in result)
+            {
+                item.OrderMenus = await _orderMenuService.GetItemsByOrderAsync(item.OrderId);
+                item.OrderTables = await _orderTableService.GetItemsByOrderAsync(item.OrderId);
+            }
+
+            return Ok(result);
+        }
+
 
         // Cập nhật trạng thái đơn hàng
         [HttpPut("UpdateStatus/{orderID}")]
@@ -709,8 +727,9 @@ namespace TOPDER.API.Controllers
                     }
                 }
 
+                OrderPaidEmail orderPaidEmail = await _orderService.GetOrderPaid(orderID);
                 var orderEmail = await _orderService.GetEmailForOrderAsync(orderID, User_Role.CUSTOMER);
-                await _sendMailService.SendEmailAsync(orderEmail.Email, Email_Subject.UPDATESTATUS, EmailTemplates.OrderStatusUpdate(orderEmail.Name, orderEmail.OrderId, status));
+                await _sendMailService.SendEmailAsync(orderEmail.Email, Email_Subject.UPDATESTATUS, EmailTemplates.UpdateStatusOrder(orderPaidEmail, status));
 
                 return Ok($"Cập nhật trạng thái cho đơn hàng với ID {orderID} thành công.");
             }
@@ -747,6 +766,12 @@ namespace TOPDER.API.Controllers
 
             // Xử lý tài khoản ví dựa trên vai trò người dùng
             var isCustomer = cancelOrder.RoleName.Equals(User_Role.CUSTOMER);
+
+            if(isCustomer == false)
+            {
+                await _restaurantService.UpdateReputationScore(cancelOrder.RestaurantID);
+            };
+
             var transactionAmount = isCustomer && cancelOrder.CancellationFeePercent.HasValue && cancelOrder.CancellationFeePercent > 0
                 ? cancelOrder.TotalAmount * (1 - (cancelOrder.CancellationFeePercent / 100))
                 : cancelOrder.TotalAmount;
@@ -779,7 +804,7 @@ namespace TOPDER.API.Controllers
                     };
                     await _walletTransactionService.AddAsync(walletTransactionRestaurantDto);
                 }
-            }
+            };
 
             WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
             {
@@ -810,11 +835,38 @@ namespace TOPDER.API.Controllers
 
             // Gửi email thông báo
             var recipientEmail = isCustomer ? cancelOrder.EmailRestaurant : cancelOrder.EmailCustomer;
-            var recipientName = isCustomer ? cancelOrder.NameRestaurant : cancelOrder.NameCustomer;
-            await _sendMailService.SendEmailAsync(recipientEmail, Email_Subject.UPDATESTATUS, EmailTemplates.OrderStatusUpdate(recipientName,
-                cancelOrder.OrderId.ToString(), Order_Status.CANCEL));
 
+            OrderPaidEmail orderPaidEmail = await _orderService.GetOrderPaid(cancelOrderRequest.OrderId);
+            if (isCustomer == true)
+            {
+                await _sendMailService.SendEmailAsync(recipientEmail, Email_Subject.UPDATESTATUS, EmailTemplates.UpdateStatusOrder(orderPaidEmail, Order_Status.CANCEL));
+            }
+            else
+            {
+                await _sendMailService.SendEmailAsync(recipientEmail, Email_Subject.UPDATESTATUS, EmailTemplates.UpdateStatusOrderRestaurant(orderPaidEmail, Order_Status.CANCEL));
+            }
             return Ok($"Cập nhật trạng thái cho đơn hàng với ID {cancelOrderRequest.OrderId} thành công.");
+        }
+
+        [HttpPut("UpdateMultiStatusOrders")]
+        [SwaggerOperation(Summary = "Cập nhật một loạt trạng thái đơn hàng Pending: Restaurant")]
+        public async Task<IActionResult> AddTablesToOrder([FromBody] MultiStatusOrders statusOrders)
+        {
+            if (statusOrders == null || !statusOrders.OrderID.Any())
+            {
+                return BadRequest("Yêu cầu không hợp lệ: Cần có thông tin đơn hàng và id đơn hàng.");
+            }
+
+            var result = await _orderService.UpdatePendingOrdersAsync(statusOrders);
+
+            if (result)
+            {
+                return Ok("Cập nhật thành công.");
+            }
+            else
+            {
+                return StatusCode(500, "Cập nhật thất bại.");
+            }
         }
 
         // ORDER TABLE 

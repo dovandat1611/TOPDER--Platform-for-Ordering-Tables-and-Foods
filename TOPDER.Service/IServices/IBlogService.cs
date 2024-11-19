@@ -19,5 +19,6 @@ namespace TOPDER.Service.IServices
         Task<PaginatedList<BlogAdminDto>> AdminBlogListAsync(int pageNumber, int pageSize, int? blogGroupId, string? title);
         Task<PaginatedList<BlogListCustomerDto>> CustomerBlogListAsync(int pageNumber, int pageSize, int? blogGroupId, string? title);
         Task<BlogDetailDto> GetBlogByIdAsync(int blogId);
+        Task<bool> UpdateStatusAsync(int blogId, string status);
     }
 }

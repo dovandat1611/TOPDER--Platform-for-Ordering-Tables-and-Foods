@@ -171,7 +171,7 @@ namespace TOPDER.API.Controllers
                     };
 
                     var paymentData = new PaymentData(
-                        orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(result.TransactionId, 12),
+                        orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(result.TransactionId, 36112002),
                         amount: (int)rechargeWalletTransaction.TransactionAmount,
                         description: Payment_Descriptions.RechargeVIETQRDescription(),
                         items: items,
@@ -236,8 +236,8 @@ namespace TOPDER.API.Controllers
         }
 
         [HttpPut("UpdateStatus/{transactionId}")]
-        [SwaggerOperation(Summary = "Cập nhật lại trạng thái thanh toán rút tiền (Cancelled, Successful hoặc Pending)")]
-        public async Task<IActionResult> UpdateStatus(int transactionId, [FromBody] string status)
+        [SwaggerOperation(Summary = "Cập nhật lại trạng thái thanh toán rút tiền (Cancelled, Successful hoặc Pending): Admin")]
+        public async Task<IActionResult> UpdateStatus(int transactionId, string status)
         {
             if (string.IsNullOrEmpty(status))
             {
@@ -246,23 +246,37 @@ namespace TOPDER.API.Controllers
 
             var validStatuses = new List<string>
             {
-                Payment_Status.PENDING,
                 Payment_Status.CANCELLED,
                 Payment_Status.SUCCESSFUL
             };
 
             if (!validStatuses.Contains(status))
             {
-                return BadRequest(new { message = "Trạng thái không hợp lệ. Vui lòng chọn CANCELLED, SUCCESSFUL hoặc PENDING." });
+                return BadRequest(new { message = "Trạng thái không hợp lệ. Vui lòng chọn CANCELLED hoặc SUCCESSFUL." });
             }
 
             var result = await _walletTransactionService.UpdateStatus(transactionId, status);
 
             if (result)
-            {
-                return Ok(new { message = "Cập nhật trạng thái giao dịch thành công." });
-            }
+            {   
+                if (status.Equals(Payment_Status.CANCELLED))
+                {
 
+                    var getWalletBalance = await _walletTransactionService.GetWalletBalanceAsync(transactionId);
+
+                    var updateWallet = await _walletService.UpdateWalletBalanceAsync(getWalletBalance);
+
+                    if (updateWallet)
+                    {
+                        return Ok(new { message = "Cập nhật trạng thái giao dịch thành công." });
+                    }
+                }
+
+                if (status.Equals(Payment_Status.SUCCESSFUL))
+                {
+                    return Ok(new { message = "Cập nhật trạng thái giao dịch thành công." });
+                }
+            }
             return BadRequest(new { message = "Cập nhật trạng thái giao dịch thất bại." });
         }
 

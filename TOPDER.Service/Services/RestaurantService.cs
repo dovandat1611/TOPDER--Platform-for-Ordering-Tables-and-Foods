@@ -37,6 +37,7 @@ namespace TOPDER.Service.Services
             return await _restaurantRepository.CreateAndReturnAsync(restaurant);
         }
 
+
         public async Task<DiscountAndFeeRestaurant> GetDiscountAndFeeAsync(int restaurantId)
         {
             var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
@@ -138,9 +139,10 @@ namespace TOPDER.Service.Services
 
             var blogDtos = activeBlogs.Select(b => _mapper.Map<BlogListCustomerDto>(b)).ToList();
 
-            var topBookingRestaurants = restaurantDtos.OrderByDescending(x => x.TotalFeedbacks).Take(6).ToList();
+            var topBookingRestaurants = restaurantDtos.OrderByDescending(x => x.TotalFeedbacks).ThenByDescending(x => x.ReputationScore).Take(6).ToList();
 
             var topStarRestaurants = restaurantDtos.OrderByDescending(x => x.Star)
+                                                   .ThenByDescending(x => x.ReputationScore)
                                                    .ThenByDescending(x => x.TotalFeedbacks)
                                                    .Take(6).ToList();
 
@@ -196,6 +198,7 @@ namespace TOPDER.Service.Services
                 .Where(x => x.CategoryRestaurantId == restaurantCategoryId
                 && x.Uid != restaurantId && x.IsBookingEnabled == true && x.UidNavigation.Status == Common_Status.ACTIVE)
                 .Take(10)
+                .OrderByDescending(x => x.ReputationScore)
                 .ToListAsync();
 
             var relateRestaurantDto = _mapper.Map<List<RestaurantDto>>(relateRestaurants);
@@ -214,7 +217,8 @@ namespace TOPDER.Service.Services
                 .Include(x => x.CategoryRestaurant)
                 .Include(x => x.Feedbacks)
                 .Include(x => x.UidNavigation)
-                .Where(r => r.IsBookingEnabled == true && r.UidNavigation.Status == Common_Status.ACTIVE);
+                .Where(r => r.IsBookingEnabled == true && r.UidNavigation.Status == Common_Status.ACTIVE)
+                .OrderByDescending(x => x.ReputationScore);
 
             if (!string.IsNullOrEmpty(name))
             {
@@ -284,55 +288,31 @@ namespace TOPDER.Service.Services
                 return false;
             }
 
-            int count = 0;
-
             // Kiểm tra và cập nhật giá trị discountPrice nếu hợp lệ
-            if (discountPrice.HasValue && discountPrice > 0 && discountPrice <= 100)
+            if (discountPrice.HasValue && discountPrice >= 0 && discountPrice <= 100)
             {
-                if (restaurant.Discount != discountPrice)
-                {
                     restaurant.Discount = discountPrice;
-                    count++;
-                }
             }
 
             // Kiểm tra và cập nhật giá trị firstFeePercent nếu hợp lệ
-            if (firstFeePercent.HasValue && firstFeePercent > 0 && firstFeePercent <= 100)
+            if (firstFeePercent.HasValue && firstFeePercent >= 0 && firstFeePercent <= 100)
             {
-                if (restaurant.FirstFeePercent != firstFeePercent)
-                {
                     restaurant.FirstFeePercent = firstFeePercent;
-                    count++;
-                }
             }
 
             // Kiểm tra và cập nhật giá trị returningFeePercent nếu hợp lệ
-            if (returningFeePercent.HasValue && returningFeePercent > 0 && returningFeePercent <= 100)
+            if (returningFeePercent.HasValue && returningFeePercent >= 0 && returningFeePercent <= 100)
             {
-                if (restaurant.ReturningFeePercent != returningFeePercent)
-                {
                     restaurant.ReturningFeePercent = returningFeePercent;
-                    count++;
-                }
             }
 
             // Kiểm tra và cập nhật giá trị cancellationFeePercent nếu hợp lệ
-            if (cancellationFeePercent.HasValue && cancellationFeePercent > 0 && cancellationFeePercent <= 100)
+            if (cancellationFeePercent.HasValue && cancellationFeePercent >= 0 && cancellationFeePercent <= 100)
             {
-                if (restaurant.CancellationFeePercent != cancellationFeePercent)
-                {
                     restaurant.CancellationFeePercent = cancellationFeePercent;
-                    count++;
-                }
             }
 
-            // Chỉ cập nhật nếu có thay đổi (count > 0)
-            if (count > 0)
-            {
-                return await _restaurantRepository.UpdateAsync(restaurant);
-            }
-
-            return false;
+            return await _restaurantRepository.UpdateAsync(restaurant);
         }
 
 
@@ -365,6 +345,15 @@ namespace TOPDER.Service.Services
             if (restaurant == null) return null;
 
             return _mapper.Map<RestaurantProfileDto>(restaurant);
+        }
+
+        public async Task<bool> UpdateReputationScore(int uid)
+        {
+            var query = await _restaurantRepository.GetByIdAsync(uid);
+
+            query.ReputationScore = query.ReputationScore - 1;
+
+            return await _restaurantRepository.UpdateAsync(query);
         }
     }
 }

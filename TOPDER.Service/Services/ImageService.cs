@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,7 +55,7 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _imageRepository.QueryableAsync();
 
-            var query = queryable.Where(x => x.RestaurantId == restaurantId);
+            var query = queryable.Where(x => x.RestaurantId == restaurantId).OrderByDescending(x => x.ImageId);
 
             var queryDTO = query.Select(r => _mapper.Map<ImageDto>(r));
 

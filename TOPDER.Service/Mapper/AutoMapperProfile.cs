@@ -32,6 +32,8 @@ using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.User;
 using TOPDER.Service.Dtos.Role;
 using TOPDER.Service.Dtos.TableBookingSchedule;
+using TOPDER.Service.Dtos.AdvertisementPricing;
+using TOPDER.Service.Dtos.BookingAdvertisement;
 
 namespace TOPDER.Service.Mapper
 {
@@ -333,6 +335,9 @@ namespace TOPDER.Service.Mapper
 
             CreateMap<UserDto, User>().ReverseMap();
 
+            CreateMap<CheckValidateUserLoginGG, User>().ReverseMap();
+
+
             CreateMap<User, UserLoginDTO>()
                 .ForMember(dest => dest.Role,
                            opt => opt.MapFrom(src => src.Role != null ? src.Role.Name : null))
@@ -355,8 +360,9 @@ namespace TOPDER.Service.Mapper
 
                 .ForMember(dest => dest.Dob,
                            opt => opt.MapFrom(src =>
-                               src.Admin != null ? src.Admin.Dob.ToString() :
-                               src.Customer != null ? src.Customer.Dob.ToString() : null))
+                               src.Admin != null ? src.Admin.Dob :
+                               src.Customer != null && src.Customer.Dob != null ? src.Customer.Dob : null))
+
 
                 .ForMember(dest => dest.Gender,
                            opt => opt.MapFrom(src =>
@@ -452,6 +458,32 @@ namespace TOPDER.Service.Mapper
                 .ForMember(dest => dest.TableName,
                            opt => opt.MapFrom(src =>
                                src.Table != null ? src.Table.TableName : null));
+
+            // AdvertisementPricing
+            CreateMap<AdvertisementPricingDto, AdvertisementPricing>().ReverseMap();
+
+            // BookingAdvertisement
+            CreateMap<BookingAdvertisementDto, BookingAdvertisement>().ReverseMap();
+
+            CreateMap<BookingAdvertisement, BookingAdvertisementViewDto>()
+           .ForMember(dest => dest.Uid, opt => opt.MapFrom(src => src.RestaurantId))
+           .ForMember(dest => dest.NameRes,
+                      opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.NameRes : null))
+           .ForMember(dest => dest.Logo,
+                      opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.Logo : null))
+           .ForMember(dest => dest.CategoryRestaurantId,
+                      opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.CategoryRestaurantId : null))
+           .ForMember(dest => dest.CategoryName,
+                      opt => opt.MapFrom(src => src.Restaurant != null && src.Restaurant.CategoryRestaurant != null
+                                               ? src.Restaurant.CategoryRestaurant.CategoryRestaurantName
+                                               : null));
+
+            CreateMap<BookingAdvertisement, BookingAdvertisementAdminDto>()
+           .ForMember(dest => dest.RestaurantName,
+                      opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.NameRes : null))
+           .ForMember(dest => dest.RestaurantImage,
+                      opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.Logo : null));
+
 
 
         }

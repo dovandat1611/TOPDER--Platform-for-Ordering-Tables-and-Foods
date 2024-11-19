@@ -51,6 +51,8 @@ namespace TOPDER.Service.Services
                 queryable = queryable.Where(x => x.CategoryRestaurantName != null && x.CategoryRestaurantName.Contains(categoryRestaurantName));
             }
 
+            queryable = queryable.OrderByDescending(x => x.CategoryRestaurantId);
+
             var queryDTO = queryable.Select(r => _mapper.Map<CategoryRestaurantDto>(r));
 
             var paginatedDTOs = await PaginatedList<CategoryRestaurantDto>.CreateAsync(
@@ -70,6 +72,8 @@ namespace TOPDER.Service.Services
             {
                 return new List<CategoryRestaurantDto>();
             }
+
+            categoryRestaurants = categoryRestaurants.OrderByDescending(x => x.CategoryRestaurantId);
 
             var categoryRestaurantsDTO = _mapper.Map<List<CategoryRestaurantDto>>(categoryRestaurants);
 

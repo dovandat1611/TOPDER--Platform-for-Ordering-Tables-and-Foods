@@ -165,6 +165,15 @@ namespace TOPDER.Service.Services
             return _mapper.Map<UserLoginDTO>(user);
         }
 
+
+        public async Task<CheckValidateUserLoginGG> GetUserByEmailToLoginGoogle(int uid)
+        {
+            var user = await _userRepository.GetByIdAsync(uid);
+
+            return _mapper.Map<CheckValidateUserLoginGG>(user);
+        }
+
+
         public async Task<UserLoginDTO> GetUserByEmailAndPassword(LoginModel loginModel)
         {
             var users = await _userRepository.QueryableAsync();
@@ -204,6 +213,7 @@ namespace TOPDER.Service.Services
                 .Include(x => x.Admin)
                 .Include(x => x.Customer)
                 .Include(x => x.Restaurant)
+                .OrderByDescending(x => x.Uid)
                 .ToListAsync();
 
             return _mapper.Map<List<UserLoginDTO>>(user);

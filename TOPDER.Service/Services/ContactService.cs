@@ -63,7 +63,7 @@ namespace TOPDER.Service.Services
             var filteredContacts = query.Where(x =>
                 (string.IsNullOrEmpty(contactContent) || x.Content.Contains(contactContent)) &&
                 (string.IsNullOrEmpty(topicContent) || x.Topic.Contains(topicContent))
-            ).AsNoTracking(); // Sử dụng AsNoTracking trước khi Select()
+            ).OrderByDescending(x => x.ContactId).AsNoTracking(); // Sử dụng AsNoTracking trước khi Select()
 
             // Ánh xạ sang DTO
             var queryDTO = filteredContacts.Select(r => _mapper.Map<ContactDto>(r));

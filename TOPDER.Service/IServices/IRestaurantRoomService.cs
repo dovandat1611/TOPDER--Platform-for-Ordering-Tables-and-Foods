@@ -12,7 +12,7 @@ namespace TOPDER.Service.IServices
     public interface IRestaurantRoomService
     {
         Task<bool> AddAsync(CreateRestaurantRoomDto restaurantRoomDto);
-        Task<bool> AddRangeExcelAsync(CreateExcelRestaurantRoomDto createExcelRestaurantRoom);
+        Task<(bool IsSuccess, string Message)> AddRangeExcelAsync(CreateExcelRestaurantRoomDto createExcelRestaurantRoom);
         Task<bool> UpdateAsync(UpdateRestaurantRoomDto restaurantRoomDto);
         Task<bool> InvisibleAsync(int id, int restaurantId);
         Task<RestaurantRoomDto> GetItemAsync(int id, int restaurantId);

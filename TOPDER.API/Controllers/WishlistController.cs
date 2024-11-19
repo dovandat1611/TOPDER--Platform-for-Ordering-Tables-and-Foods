@@ -37,7 +37,7 @@ namespace TOPDER.API.Controllers
 
         [HttpGet("GetWishlistList/{customerId}")]
         [SwaggerOperation(Summary = "lấy danh sách Wishlist của khách hàng: Customer")]
-        public async Task<IActionResult> GetPaging(int customerId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetWishlistList(int customerId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             var paginatedWishlists = await _wishlistService.GetPagingAsync(pageNumber, pageSize, customerId);
             return Ok(paginatedWishlists);

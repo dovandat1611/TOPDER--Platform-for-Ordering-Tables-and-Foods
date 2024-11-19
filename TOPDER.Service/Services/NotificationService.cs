@@ -54,7 +54,7 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _notificationRepository.QueryableAsync();
 
-            var query = queryable.Where(x => x.Uid == userId);
+            var query = queryable.Where(x => x.Uid == userId).OrderByDescending(x => x.NotificationId);
 
             var queryDTO = query.Select(r => _mapper.Map<NotificationDto>(r));
 

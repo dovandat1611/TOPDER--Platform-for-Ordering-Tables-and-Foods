@@ -95,6 +95,24 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
+        [HttpPost("CreateByExcel")]
+        [Consumes("multipart/form-data")]
+        [SwaggerOperation(Summary = "Tạo một list phòng thông qua file excel: Restaurant")]
+        public async Task<IActionResult> UploadExcel([FromForm] CreateExcelRestaurantRoomDto createExcelRestaurantRoom)
+        {
+            var result = await _restaurantRoomService.AddRangeExcelAsync(createExcelRestaurantRoom);
+
+            if (result.IsSuccess)
+            {
+                return Ok(new { Message = result.Message });
+            }
+            else
+            {
+                return BadRequest(new { Message = result.Message });
+            }
+        }
+
+
         [HttpPut("IsEnabledBooking/{restaurantId}/{roomId}")]
         [SwaggerOperation(Summary = "Thay đổi trạng thái Booking của Room: Restaurant")]
         public async Task<IActionResult> IsEnabledBooking(int restaurantId, int roomId, bool isEnabledBooking)

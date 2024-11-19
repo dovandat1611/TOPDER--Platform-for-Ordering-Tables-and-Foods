@@ -11,7 +11,7 @@ namespace TOPDER.Service.Dtos.Feedback
         public int FeedbackId { get; set; }
         public int OrderId { get; set; }
         public int? CustomerId { get; set; }
-        public int? CustomerName { get; set; }
+        public string? CustomerName { get; set; }
         public int? Star { get; set; }
         public string? Content { get; set; }
         public DateTime CreateDate { get; set; }

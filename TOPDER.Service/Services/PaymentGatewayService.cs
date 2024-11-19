@@ -70,6 +70,11 @@ namespace TOPDER.Service.Services
                     urlCallBack += "?paymentType=transaction";
                 }
 
+                if (requestDto.PaymentType.Equals("Booking"))
+                {
+                    urlCallBack += "?paymentType=booking";
+                }
+
                 AddVnPayRequestData(requestDto, timeNow, urlCallBack, httpContext);
 
                 var paymentUrl = _vnPay.CreateRequestUrl(GetConfigValue("Vnpay:BaseUrl"), GetConfigValue("Vnpay:HashSecret"));
@@ -102,7 +107,7 @@ namespace TOPDER.Service.Services
             _vnPay.AddRequestData("vnp_OrderInfo", $"Khach hang: {requestDto.CustomerName} thanh toan hoa don {requestDto.BookingID}");
             _vnPay.AddRequestData("vnp_OrderType", "other");
             _vnPay.AddRequestData("vnp_ReturnUrl", urlCallBack);
-            _vnPay.AddRequestData("vnp_TxnRef", requestDto.BookingID);
+            _vnPay.AddRequestData("vnp_TxnRef", requestDto.BookingID + "TOPDERFOREVER");
         }
     }
 }

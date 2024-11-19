@@ -4,6 +4,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Dtos.Dashboard;
 using TOPDER.Service.IServices;
+using TOPDER.Service.Services;
 
 namespace TOPDER.API.Controllers
 {
@@ -57,6 +58,37 @@ namespace TOPDER.API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        // API lấy dữ liệu thống kê tháng
+        [HttpGet("TaskBarSearchByMonthRestaurant/{restaurantId}")]
+        public async Task<IActionResult> GetTaskBarMonthData(int restaurantId, [FromQuery] DateTime? searchMonth)
+        {
+            try
+            {
+                var result = await _dashboardService.GetTaskBarMonthDataAsync(restaurantId, searchMonth);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi khi lấy dữ liệu thống kê tháng: {ex.Message}");
+            }
+        }
+
+        // API lấy dữ liệu thống kê ngày
+        [HttpGet("TaskBarSearchByDayRestaurant/{restaurantId}")]
+        public async Task<IActionResult> GetTaskBarDayData(int restaurantId, [FromQuery] DateTime? searchDay)
+        {
+            try
+            {
+                var result = await _dashboardService.GetTaskBarDayDataAsync(restaurantId, searchDay);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi khi lấy dữ liệu thống kê ngày: {ex.Message}");
+            }
+        }
+
 
         [HttpGet("restaurant/overview/{restaurantId}")]
         public async Task<IActionResult> GetMarketOverview(int restaurantId, [FromQuery] int? filteredYear)

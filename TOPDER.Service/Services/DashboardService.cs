@@ -57,19 +57,17 @@ namespace TOPDER.Service.Services
 
         private async Task<List<ChartCategoryRestaurantDTO>> GetChartCategoryRestaurantsAsync()
         {
-            // Fetch all restaurants with their associated categories from the database
             var restaurants = await _restaurantRepository.QueryableAsync();
 
-            // Group by CategoryId and count the number of restaurants in each category
             var categoryRestaurantData = await restaurants
-                .Include(r => r.CategoryRestaurant) // Include the related CategoryRestaurant entity
-                .Where(r => r.CategoryRestaurant != null)  // Ensure category exists
-                .GroupBy(r => new { r.CategoryRestaurantId, r.CategoryRestaurant.CategoryRestaurantName })  // Group by CategoryRestaurantId and CategoryRestaurantName
+                .Include(r => r.CategoryRestaurant) 
+                .Where(r => r.CategoryRestaurant != null)  
+                .GroupBy(r => new { r.CategoryRestaurantId, r.CategoryRestaurant.CategoryRestaurantName })  
                 .Select(g => new ChartCategoryRestaurantDTO
                 {
-                    CategoryId = g.Key.CategoryRestaurantId ?? 0,  // Handle nullable CategoryRestaurantId
-                    CategoryName = g.Key.CategoryRestaurantName ?? Is_Null.ISNULL, // Ensure this matches the actual field
-                    RestaurantCount = g.Count()  // Count number of restaurants in each category
+                    CategoryId = g.Key.CategoryRestaurantId ?? 0, 
+                    CategoryName = g.Key.CategoryRestaurantName ?? Is_Null.ISNULL,
+                    RestaurantCount = g.Count() 
                 })
                 .ToListAsync();
 
@@ -88,9 +86,14 @@ namespace TOPDER.Service.Services
                 throw new KeyNotFoundException($"Restaurant with ID {restaurantId} not found.");
             }
 
+            var feedbacks = restaurant.Feedbacks;
+            var averageStar = feedbacks != null && feedbacks.Any()
+                ? (int)Math.Round(feedbacks.Average(f => f.Star ?? 0))
+                : 0;
+            
             var dashboardDto = new DashboardRestaurantDto
             {
-                TaskBar = await GetTaskBarDataAsync(restaurantId),
+                Star = averageStar,
                 OrderStatus = await GetOrderStatusAsync(restaurantId),
                 LoyalCustomers = await GetLoyalCustomersAsync(restaurantId),
                 CustomerAgeGroup = await GetCustomerAgeGroupAsync(restaurantId),
@@ -99,34 +102,20 @@ namespace TOPDER.Service.Services
                 YearsContainOrders = await GetYearsWithOrdersAsync(restaurantId),
             };
 
-            dashboardDto.TaskBar.RestaurantBookingStatus = restaurant.IsBookingEnabled ?? true;
-
-            // Tính toán sao trung bình từ feedbacks
-            var feedbacks = restaurant.Feedbacks;
-            var averageStar = feedbacks != null && feedbacks.Any()
-                ? (int)Math.Round(feedbacks.Average(f => f.Star ?? 0))
-                : 0;
-
-            dashboardDto.TaskBar.Star = averageStar;
-
             return dashboardDto;
         }
         public async Task<List<int>> GetYearsWithOrdersAsync(int? restaurantId)
         {
-            // Lấy truy vấn từ repository
             var query = await _orderRepository.QueryableAsync();
 
-            // Lọc các đơn hàng có CreatedAt không null
             var yearsQuery = query
                 .Where(o => o.CreatedAt.HasValue);
 
-            // Nếu restaurantId có giá trị, thêm điều kiện lọc
             if (restaurantId.HasValue && restaurantId != null)
             {
                 yearsQuery = yearsQuery.Where(o => o.RestaurantId == restaurantId);
             }
 
-            // Lấy năm từ CreatedAt, loại bỏ các năm trùng lặp và sắp xếp theo thứ tự tăng dần
             var years = await yearsQuery
                 .Select(o => o.CreatedAt.Value.Year)
                 .Distinct()
@@ -136,31 +125,24 @@ namespace TOPDER.Service.Services
             return years;
         }
 
-
-        private async Task<TaskBarRestaurantDTO> GetTaskBarDataAsync(int restaurantId)
+        // DATA 
+        public async Task<TaskBarMonthRestaurantDTO> GetTaskBarMonthDataAsync(int restaurantId, DateTime? searchMonth)
         {
-            // Truy vấn các đơn hàng của nhà hàng dựa trên restaurantId
+            var actualSearchMonth = searchMonth ?? DateTime.Now;
+
             var queryableOrders = await _orderRepository.QueryableAsync();
 
-            // Lọc các đơn hàng theo nhà hàng và chỉ lấy các đơn hàng hoàn tất để tính toán thu nhập
             var orders = queryableOrders.Where(o => o.RestaurantId == restaurantId);
 
-            // Tổng số đơn hàng và tổng thu nhập
-            var totalOrders = await orders.CountAsync();
-            var totalIncome = await orders.SumAsync(o => o.TotalAmount);
-
-            // Thu nhập và số lượng đơn hàng của tháng hiện tại
             var currentMonthIncome = (double)(await orders
-                .Where(o => o.CompletedAt.HasValue && o.CompletedAt.Value.Month == DateTime.Now.Month)
+                .Where(o => o.CompletedAt.HasValue && o.CompletedAt.Value.Month == actualSearchMonth.Month && o.CompletedAt.Value.Year == actualSearchMonth.Year)
                 .SumAsync(o => o.TotalAmount));
 
             var currentMonthOrdersCount = await orders
-                .CountAsync(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == DateTime.Now.Month);
+                .CountAsync(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == actualSearchMonth.Month && o.CreatedAt.Value.Year == actualSearchMonth.Year);
 
-            return new TaskBarRestaurantDTO
+            return new TaskBarMonthRestaurantDTO
             {
-                TotalOrder = totalOrders,
-                TotalIncome = (double)totalIncome,
                 CurrentMonthIncome = new CurrentMonthIncomeDTO
                 {
                     CurrentMonthIncome = currentMonthIncome,
@@ -171,6 +153,30 @@ namespace TOPDER.Service.Services
                     CurrentMonthOrder = currentMonthOrdersCount,
                     OrderGrowthRate = CalculateGrowthRate(orders, "Order")
                 }
+            };
+        }
+
+        public async Task<TaskBarDayRestaurantDTO> GetTaskBarDayDataAsync(int restaurantId, DateTime? searchDay)
+        {
+            var actualSearchDay = searchDay ?? DateTime.Now;
+
+            var queryableOrders = await _orderRepository.QueryableAsync();
+
+            var orders = queryableOrders.Where(o => o.RestaurantId == restaurantId);
+
+
+            // Thu nhập và số lượng đơn hàng của tháng hiện tại
+            var totalIncome = (double)(await orders
+                .Where(o => o.CompletedAt.HasValue && o.CompletedAt.Value.Month == actualSearchDay.Month && o.CompletedAt.Value.Year == actualSearchDay.Year && o.CompletedAt.Value.Day == actualSearchDay.Day)
+                .SumAsync(o => o.TotalAmount));
+
+            var totalOrders = await orders
+                .CountAsync(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == actualSearchDay.Month && o.CreatedAt.Value.Year == actualSearchDay.Year && o.CreatedAt.Value.Day == actualSearchDay.Day);
+
+            return new TaskBarDayRestaurantDTO
+            {
+                DayOrders = totalOrders,
+                DayIncome = (double)totalIncome,
             };
         }
 
@@ -243,10 +249,10 @@ namespace TOPDER.Service.Services
 
             // Filter orders by restaurant ID and the specified year
             var filteredOrdersForYear = orders.Where(o => o.RestaurantId == restaurantId
-                && o.CreatedAt.HasValue && o.CreatedAt.Value.Year == yearToFilter).ToList();
+                && o.CreatedAt.HasValue && o.CreatedAt.Value.Year == yearToFilter);
 
             var filteredIncomeForYear = orders.Where(o => o.RestaurantId == restaurantId
-                && o.CompletedAt.HasValue && o.CompletedAt.Value.Year == yearToFilter).ToList();
+                && o.CompletedAt.HasValue && o.CompletedAt.Value.Year == yearToFilter);
 
             // Monthly order data
             var monthlyOrderData = filteredOrdersForYear
@@ -276,6 +282,10 @@ namespace TOPDER.Service.Services
                                          TotalInComes = income?.TotalInComes ?? 0  // Use 0 if no income for the month
                                      }).ToList();
 
+            var orderGrowthRateForYear = CalculateGrowthRate(filteredOrdersForYear, "Order"); // Only use filtered orders
+            var incomeGrowthRateForYear = CalculateGrowthRate(filteredIncomeForYear, "Income"); // Only use filtered income
+
+
             // Calculate total income for the year, ensuring there are incomes
             double totalIncomeForYear = filteredIncomeForYear.Any() ? (double)filteredIncomeForYear.Sum(o => o.TotalAmount) : 0;
 
@@ -283,7 +293,9 @@ namespace TOPDER.Service.Services
             return new MarketOverviewDTO
             {
                 TotalInComeForYear = totalIncomeForYear,
+                TotalInComeGrowthRateForYear = incomeGrowthRateForYear,
                 OrderForYear = filteredOrdersForYear.Count(),
+                OrderGrowthRateForYear = orderGrowthRateForYear,
                 MonthlyData = mergedMonthlyData
             };
         }
