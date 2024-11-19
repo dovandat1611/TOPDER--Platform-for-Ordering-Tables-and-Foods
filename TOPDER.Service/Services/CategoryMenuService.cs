@@ -68,7 +68,7 @@ namespace TOPDER.Service.Services
             {
                 foreach (var menu in associatedMenus)
                 {
-                    await _menuRepository.DeleteAsync(menu.MenuId);
+                    
                 }
             }
             return await _categoryMenuRepository.DeleteAsync(id);
