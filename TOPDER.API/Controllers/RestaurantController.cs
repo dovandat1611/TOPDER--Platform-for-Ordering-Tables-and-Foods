@@ -189,7 +189,7 @@ namespace TOPDER.API.Controllers
 
         [HttpPut("IsEnabledBooking/{restaurantId}")]
         [SwaggerOperation(Summary = "Thay đổi trạng thái Booking của nhà hàng : Restaurant")]
-        public async Task<IActionResult> UpdateBookingEnabled(int restaurantId, [FromBody] bool isEnabledBooking)
+        public async Task<IActionResult> UpdateBookingEnabled(int restaurantId,bool isEnabledBooking)
         {
             try
             {

@@ -249,10 +249,10 @@ namespace TOPDER.Service.Services
 
             // Filter orders by restaurant ID and the specified year
             var filteredOrdersForYear = orders.Where(o => o.RestaurantId == restaurantId
-                && o.CreatedAt.HasValue && o.CreatedAt.Value.Year == yearToFilter).ToList();
+                && o.CreatedAt.HasValue && o.CreatedAt.Value.Year == yearToFilter);
 
             var filteredIncomeForYear = orders.Where(o => o.RestaurantId == restaurantId
-                && o.CompletedAt.HasValue && o.CompletedAt.Value.Year == yearToFilter).ToList();
+                && o.CompletedAt.HasValue && o.CompletedAt.Value.Year == yearToFilter);
 
             // Monthly order data
             var monthlyOrderData = filteredOrdersForYear
@@ -282,6 +282,10 @@ namespace TOPDER.Service.Services
                                          TotalInComes = income?.TotalInComes ?? 0  // Use 0 if no income for the month
                                      }).ToList();
 
+            var orderGrowthRateForYear = CalculateGrowthRate(filteredOrdersForYear, "Order"); // Only use filtered orders
+            var incomeGrowthRateForYear = CalculateGrowthRate(filteredIncomeForYear, "Income"); // Only use filtered income
+
+
             // Calculate total income for the year, ensuring there are incomes
             double totalIncomeForYear = filteredIncomeForYear.Any() ? (double)filteredIncomeForYear.Sum(o => o.TotalAmount) : 0;
 
@@ -289,7 +293,9 @@ namespace TOPDER.Service.Services
             return new MarketOverviewDTO
             {
                 TotalInComeForYear = totalIncomeForYear,
+                TotalInComeGrowthRateForYear = incomeGrowthRateForYear,
                 OrderForYear = filteredOrdersForYear.Count(),
+                OrderGrowthRateForYear = orderGrowthRateForYear,
                 MonthlyData = mergedMonthlyData
             };
         }

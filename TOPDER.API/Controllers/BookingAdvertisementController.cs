@@ -121,7 +121,7 @@ namespace TOPDER.API.Controllers
 
         [HttpPost("ChoosePaymentGatePaymentGateway")]
         [SwaggerOperation(Summary = "ISBALANCE | VIETQR | VNPAY")]
-        public async Task<IActionResult> PaidOrder(int bookingId, string paymentGateway)
+        public async Task<IActionResult> ChoosePaymentGatePaymentGateway(int bookingId, string paymentGateway)
         {
             BookingAdvertisement bookingAdvertisement;
 

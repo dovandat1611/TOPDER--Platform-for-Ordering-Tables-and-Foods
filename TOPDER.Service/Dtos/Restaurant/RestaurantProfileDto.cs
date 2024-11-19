@@ -28,5 +28,6 @@ namespace TOPDER.Service.Dtos.Restaurant
         public decimal Price { get; set; }
         public string? Role { get; set; } 
         public decimal? WalletBalance { get; set; }
+        public bool? IsBookingEnabled { get; set; }
     }
 }

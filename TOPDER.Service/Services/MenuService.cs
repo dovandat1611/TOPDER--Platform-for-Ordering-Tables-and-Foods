@@ -25,19 +25,14 @@ namespace TOPDER.Service.Services
         private readonly IMapper _mapper;
         private readonly IMenuRepository _menuRepository;
         private readonly IExcelService _excelService;
-        private readonly IOrderMenuRepository _orderMenuRepository;
-        private readonly ICategoryMenuRepository _categoryMenuRepository;
-
 
 
         public MenuService(IMenuRepository menuRepository, IMapper mapper, 
-            IExcelService excelService, IOrderMenuRepository orderMenuRepository, ICategoryMenuRepository categoryMenuRepository)
+            IExcelService excelService)
         {
             _menuRepository = menuRepository;
             _mapper = mapper;
             _excelService = excelService;
-            _orderMenuRepository = orderMenuRepository;
-            _categoryMenuRepository = categoryMenuRepository;
         }
         public async Task<bool> AddAsync(MenuDto menuDto)
         {

@@ -559,7 +559,7 @@ namespace TOPDER.API.Controllers
         // có 2 status: 1 Successful (thành công) 2 Cancelled (thất bại)
         [HttpGet("CheckPayment/{orderID}")]
         [SwaggerOperation(Summary = "Khi chuyển khoản xong thì sẽ check status payment của đơn hàng đó Cancelled | Successful: Customer")]
-        public async Task<IActionResult> GetItemAsync(int orderID, string status)
+        public async Task<IActionResult> CheckPayment(int orderID, string status)
         {
             if (string.IsNullOrEmpty(status))
             {
