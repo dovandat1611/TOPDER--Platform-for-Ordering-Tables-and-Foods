@@ -1,10 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Reflection.Metadata;
+using TOPDER.Repository.Entities;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Discount;
 using TOPDER.Service.Dtos.Feedback;
+using TOPDER.Service.Dtos.Notification;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.API.Controllers
 {
@@ -13,10 +19,15 @@ namespace TOPDER.API.Controllers
     public class FeedbackController : ControllerBase
     {
         private readonly IFeedbackService _feedbackService;
+        private readonly IHubContext<AppHub> _signalRHub;
+        private readonly INotificationService _notificationService;
 
-        public FeedbackController(IFeedbackService feedbackService)
+
+        public FeedbackController(IFeedbackService feedbackService, IHubContext<AppHub> signalRHub, INotificationService notificationService)
         {
             _feedbackService = feedbackService;
+            _signalRHub = signalRHub;
+            _notificationService = notificationService;
         }
 
         [HttpPost("Create")]
@@ -27,9 +38,26 @@ namespace TOPDER.API.Controllers
                 return BadRequest(ModelState);
 
             var result = await _feedbackService.AddAsync(feedbackDto);
-            if (result)
+            if (result != null)
             {
-                return Ok("Feedback created successfully.");
+                NotificationDto notificationDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = result.RestaurantId ?? 0,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.ADD_FEEDBACK(),
+                    Type = Notification_Type.ADD_FEEDBACK,
+                    IsRead = false,
+                };
+
+                var notification = await _notificationService.AddAsync(notificationDto);
+
+                if (notification != null)
+                {
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto.Uid, notificationDto);
+                }
+
+                return Ok(result);
             }
             return BadRequest("Failed to create feedback.");
         }

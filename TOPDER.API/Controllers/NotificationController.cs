@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Dtos.Notification;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 
 namespace TOPDER.API.Controllers
@@ -12,10 +14,12 @@ namespace TOPDER.API.Controllers
     public class NotificationController : ControllerBase
     {
         private readonly INotificationService _notificationService;
+        private readonly IHubContext<AppHub> _signalRHub;
 
-        public NotificationController(INotificationService notificationService)
+        public NotificationController(INotificationService notificationService, IHubContext<AppHub> signalRHub)
         {
             _notificationService = notificationService;
+            _signalRHub = signalRHub;
         }
 
         [HttpPost("Create")]
@@ -26,10 +30,17 @@ namespace TOPDER.API.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var result = await _notificationService.AddAsync(notificationDto);
-            if (result)
+            var notification = await _notificationService.AddAsync(notificationDto);
+            if (notification != null)
             {
-                return Ok("Thêm thông báo thành công.");
+
+                //await _signalRHub.Clients.User(notification.Uid.ToString())
+                //    .SendAsync("CreateNotification", notification.NotificationId, notification);
+
+                await _signalRHub.Clients.All
+                    .SendAsync("CreateNotification", notification.Uid, notification);
+
+                return Ok(notification);
             }
             return BadRequest("Thêm thông báo thất bại.");
         }

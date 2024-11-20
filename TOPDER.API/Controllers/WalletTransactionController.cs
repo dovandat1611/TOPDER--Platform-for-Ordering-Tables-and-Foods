@@ -1,17 +1,21 @@
 ﻿using CloudinaryDotNet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Net.payOS.Types;
 using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Contact;
+using TOPDER.Service.Dtos.Notification;
 using TOPDER.Service.Dtos.User;
 using TOPDER.Service.Dtos.VNPAY;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.Dtos.WalletTransaction;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
+using TOPDER.Service.Services;
 using TOPDER.Service.Utils;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
@@ -25,15 +29,20 @@ namespace TOPDER.API.Controllers
         private readonly IWalletService _walletService;
         private readonly IPaymentGatewayService _paymentGatewayService;
         private readonly IConfiguration _configuration;
+        private readonly IHubContext<AppHub> _signalRHub;
+        private readonly INotificationService _notificationService;
 
 
         public WalletTransactionController(IWalletTransactionService walletTransactionService, 
-            IWalletService walletService, IPaymentGatewayService paymentGatewayService, IConfiguration configuration)
+            IWalletService walletService, IPaymentGatewayService paymentGatewayService, IConfiguration configuration
+            , IHubContext<AppHub> signalRHub, INotificationService notificationService)
         {
             _walletTransactionService = walletTransactionService;
             _walletService = walletService;
             _paymentGatewayService = paymentGatewayService;
             _configuration = configuration;
+            _signalRHub = signalRHub;
+            _notificationService = notificationService;
         }
 
         [HttpPost("Withdraw")]
@@ -257,23 +266,57 @@ namespace TOPDER.API.Controllers
 
             var result = await _walletTransactionService.UpdateStatus(transactionId, status);
 
+            var getWalletBalance = await _walletTransactionService.GetWalletBalanceAsync(transactionId);
+
             if (result)
             {   
                 if (status.Equals(Payment_Status.CANCELLED))
                 {
-
-                    var getWalletBalance = await _walletTransactionService.GetWalletBalanceAsync(transactionId);
-
                     var updateWallet = await _walletService.UpdateWalletBalanceAsync(getWalletBalance);
 
                     if (updateWallet)
                     {
+                        NotificationDto notificationDto = new NotificationDto()
+                        {
+                            NotificationId = 0,
+                            Uid = getWalletBalance.Uid,
+                            CreatedAt = DateTime.Now,
+                            Content = Notification_Content.WITHDRAW_FAIL(),
+                            Type = Notification_Type.WITHDRAW,
+                            IsRead = false,
+                        };
+
+                        var notification = await _notificationService.AddAsync(notificationDto);
+
+                        if (notification != null)
+                        {
+                            await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto.Uid, notificationDto);
+                        }
+
                         return Ok(new { message = "Cập nhật trạng thái giao dịch thành công." });
                     }
                 }
 
                 if (status.Equals(Payment_Status.SUCCESSFUL))
                 {
+
+                    NotificationDto notificationDto = new NotificationDto()
+                    {
+                        NotificationId = 0,
+                        Uid = getWalletBalance.Uid,
+                        CreatedAt = DateTime.Now,
+                        Content = Notification_Content.WITHDRAW_SUCCESSFUL(),
+                        Type = Notification_Type.WITHDRAW,
+                        IsRead = false,
+                    };
+
+                    var notification = await _notificationService.AddAsync(notificationDto);
+
+                    if (notification != null)
+                    {
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto.Uid, notificationDto);
+                    }
+
                     return Ok(new { message = "Cập nhật trạng thái giao dịch thành công." });
                 }
             }

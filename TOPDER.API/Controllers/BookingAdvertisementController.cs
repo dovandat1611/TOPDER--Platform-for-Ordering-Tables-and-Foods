@@ -16,6 +16,9 @@ using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.Dtos.WalletTransaction;
 using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
+using Microsoft.AspNetCore.SignalR;
+using TOPDER.Service.Hubs;
+using TOPDER.Service.Dtos.Notification;
 
 namespace TOPDER.API.Controllers
 {
@@ -30,6 +33,8 @@ namespace TOPDER.API.Controllers
         private readonly IUserService _userService;
         private readonly IConfiguration _configuration;
         private readonly IPaymentGatewayService _paymentGatewayService;
+        private readonly INotificationService _notificationService;
+        private readonly IHubContext<AppHub> _signalRHub;
 
 
         public BookingAdvertisementController(IBookingAdvertisementService bookingAdvertisementService,
@@ -38,7 +43,7 @@ namespace TOPDER.API.Controllers
             IWalletService walletService,
             IUserService userService,
             IConfiguration configuration,
-            IPaymentGatewayService paymentGatewayService)
+            IPaymentGatewayService paymentGatewayService, INotificationService notificationService, IHubContext<AppHub> signalRHub)
         {
             _bookingAdvertisementService = bookingAdvertisementService;
             _bookingAdvertisementRepository = bookingAdvertisementRepository;
@@ -47,6 +52,8 @@ namespace TOPDER.API.Controllers
             _userService = userService;
             _configuration = configuration;
             _paymentGatewayService = paymentGatewayService;
+            _notificationService = notificationService;
+            _signalRHub = signalRHub;
         }
 
         [HttpPost]
@@ -88,8 +95,25 @@ namespace TOPDER.API.Controllers
         {
             var isUpdated = await _bookingAdvertisementService.UpdateStatusAsync(bookingId, status);
 
-            if (isUpdated)
+            if (isUpdated != null)
             {
+                NotificationDto notificationDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = isUpdated.RestaurantId,
+                    CreatedAt = DateTime.Now,
+                    Content = status == Booking_Status.CANCELLED ? Notification_Content.BOOKING_FAIL() : Notification_Content.BOOKING_SUCCRESSFUL(),
+                    Type = Notification_Type.BOOKING,
+                    IsRead = false,
+                };
+
+                var notification = await _notificationService.AddAsync(notificationDto);
+
+                if (notification != null)
+                {
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto.Uid, notificationDto);
+                }
+
                 return Ok(new { message = "Status updated successfully." });
             }
 
@@ -114,6 +138,7 @@ namespace TOPDER.API.Controllers
             {
                 return Ok(new { message = "Status updated successfully." });
             }
+
 
             return BadRequest(new { message = "Failed to update status. Please check the booking ID and status value." });
         }

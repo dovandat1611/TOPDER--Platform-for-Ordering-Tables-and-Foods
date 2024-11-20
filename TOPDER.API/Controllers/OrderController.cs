@@ -1,6 +1,7 @@
 ﻿using MailKit.Search;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Net.payOS.Types;
@@ -12,12 +13,14 @@ using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.BlogGroup;
 using TOPDER.Service.Dtos.Discount;
 using TOPDER.Service.Dtos.Email;
+using TOPDER.Service.Dtos.Notification;
 using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.OrderMenu;
 using TOPDER.Service.Dtos.User;
 using TOPDER.Service.Dtos.VNPAY;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.Dtos.WalletTransaction;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Services;
 using TOPDER.Service.Utils;
@@ -43,7 +46,8 @@ namespace TOPDER.API.Controllers
         private readonly ISendMailService _sendMailService;
         private readonly IDiscountMenuRepository _discountMenuRepository;
         private readonly IConfiguration _configuration;
-
+        private readonly INotificationService _notificationService;
+        private readonly IHubContext<AppHub> _signalRHub;
 
 
         public OrderController(IOrderService orderService, IOrderMenuService orderMenuService,
@@ -52,7 +56,9 @@ namespace TOPDER.API.Controllers
             IUserService userService, IWalletTransactionService walletTransactionService,
             IPaymentGatewayService paymentGatewayService, ISendMailService sendMailService,
             IOrderTableService orderTableService, IDiscountMenuRepository discountMenuRepository,
-            IConfiguration configuration, IRestaurantService restaurantService)
+            IConfiguration configuration, IRestaurantService restaurantService,
+            INotificationService notificationService,
+            IHubContext<AppHub> signalRHub)
         {
             _orderService = orderService;
             _orderMenuService = orderMenuService;
@@ -68,6 +74,8 @@ namespace TOPDER.API.Controllers
             _discountMenuRepository = discountMenuRepository;
             _configuration = configuration;
             _restaurantService = restaurantService;
+            _notificationService = notificationService;
+            _signalRHub = signalRHub;
         }
 
 
@@ -144,6 +152,24 @@ namespace TOPDER.API.Controllers
                         await _orderTableService.AddRangeAsync(orderTablesDto);
                     }
                     await SendOrderEmailAsync(orderToFree.OrderId);
+
+                    NotificationDto notificationDto = new NotificationDto()
+                    {
+                        NotificationId = 0,
+                        Uid = orderModel.RestaurantId,
+                        CreatedAt = DateTime.Now,
+                        Content = Notification_Content.ORDER_CREATE(0),
+                        Type = Notification_Type.ORDER,
+                        IsRead = false,
+                    };
+
+                    var notification = await _notificationService.AddAsync(notificationDto);
+
+                    if (notification != null)
+                    {
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto.Uid , notificationDto);
+                    }
+
                     return Ok("Tạo đơn hàng miễn phí thành công");
                 }
                 return BadRequest("Tạo đơn hàng miễn phí thất bại");
@@ -189,12 +215,34 @@ namespace TOPDER.API.Controllers
                 {
                     await AddOrderMenusAsync(order.OrderId, orderModel.OrderMenus);
                 }
+
+                NotificationDto notificationDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = orderModel.RestaurantId,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.ORDER_CREATE(totalAmount),
+                    Type = Notification_Type.ORDER,
+                    IsRead = false,
+                };
+
+                var notification = await _notificationService.AddAsync(notificationDto);
+
+                if (notification != null)
+                {
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto.Uid, notificationDto);
+                }
+
                 await SendOrderEmailAsync(order.OrderId);
+
                 return Ok("Tạo đơn hàng thành công");
             }
 
             return BadRequest("Tạo đơn hàng thất bại");
         }
+
+
+
 
         // Phương thức tạo đơn hàng miễn phí
         private async Task<Order> CreateFreeOrderAsync(OrderModel orderModel)

@@ -27,10 +27,15 @@ namespace TOPDER.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<bool> AddAsync(NotificationDto notificationDto)
+        public async Task<NotificationDto> AddAsync(NotificationDto notificationDto)
         {
             var notification = _mapper.Map<Notification>(notificationDto);
-            return await _notificationRepository.CreateAsync(notification);
+            var createNotification = await _notificationRepository.CreateAndReturnAsync(notification);
+            if(createNotification != null)
+            {
+                return _mapper.Map<NotificationDto>(createNotification);
+            }
+            return null;
         }
 
         public async Task<NotificationDto> GetItemAsync(int notificationId, int userId)

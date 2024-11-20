@@ -26,13 +26,18 @@ namespace TOPDER.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<bool> AddAsync(FeedbackDto feedbackDto)
+        public async Task<FeedbackDto> AddAsync(FeedbackDto feedbackDto)
         {
             feedbackDto.FeedbackId = 0;
             var feedback = _mapper.Map<Feedback>(feedbackDto);
             feedback.CreateDate = DateTime.Now;
             feedback.Status = Common_Status.ACTIVE;
-            return await _feedbackRepository.CreateAsync(feedback);
+            var createFeedback = await _feedbackRepository.CreateAndReturnAsync(feedback);
+            if (createFeedback != null)
+            {
+                return _mapper.Map<FeedbackDto>(feedbackDto);
+            }
+            return null;
         }
 
         public async Task<PaginatedList<FeedbackHistoryDto>> GetHistoryCustomerPagingAsync(int pageNumber, int pageSize, int customerId)
@@ -53,6 +58,7 @@ namespace TOPDER.Service.Services
             );
             return paginatedDTOs;
         }
+
 
         public async Task<bool> InvisibleAsync(int id)
         {

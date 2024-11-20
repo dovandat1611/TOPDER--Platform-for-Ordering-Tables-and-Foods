@@ -11,7 +11,7 @@ namespace TOPDER.Service.IServices
 {
     public interface INotificationService
     {
-        Task<bool> AddAsync(NotificationDto notificationDto);
+        Task<NotificationDto> AddAsync(NotificationDto notificationDto);
         Task<bool> UpdateAsync(NotificationDto notificationDto);
         Task<bool> IsReadAsync(int id);
         Task<bool> RemoveAsync(int id, int Uid);

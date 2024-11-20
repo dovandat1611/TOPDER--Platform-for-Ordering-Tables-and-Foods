@@ -103,7 +103,13 @@ namespace TOPDER.Service.Common.ServiceDefinitions
         {
             public static string SYSTEM_ADD = "Hệ Thống Cộng Tiền Vào Ví";
             public static string SYSTEM_SUB = "Hệ Thống Trừ Tiền Từ Ví";
+            public static string ADD_FEEDBACK = "Đánh Giá";
+            public static string WITHDRAW = "Rút Tiền";
+            public static string BOOKING = "Quảng Cáo";
+            public static string ORDER = "Đơn Hàng";
+
         }
+
 
         public class Notification_Content
         {
@@ -115,6 +121,34 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             {
                 return $"Hệ thống hỗ trợ rút số tiền {price} từ ví của bạn thành công.";
             }
+            public static string ADD_FEEDBACK()
+            {
+                return $"Bạn có một đánh giá mới!";
+            }
+            public static string WITHDRAW_SUCCESSFUL()
+            {
+                return $"Giao dịch rút tiền của bạn đã được xử lý.";
+            }
+            public static string WITHDRAW_FAIL()
+            {
+                return $"Giao dịch rút tiền của bạn bị hủy, số tiền được hoàn về ví.";
+            }
+            public static string BOOKING_SUCCRESSFUL()
+            {
+                return $"Liên hệ quảng cáo bị hủy.";
+            }
+            public static string BOOKING_FAIL()
+            {
+                return $"Liên hệ quảng cáo được chấp nhận.";
+            }
+            public static string ORDER_CREATE(decimal price)
+            {
+                return $"Bạn có một đơn hàng mới giá trị {price}đ.";
+            }
+            //public static string ORDER_UPDATESTATUS(string status)
+            //{
+            //    return $"Đơn hàng của bạn có thay đổi trạng thái.";
+            //}
         }
 
         public class Log_Type

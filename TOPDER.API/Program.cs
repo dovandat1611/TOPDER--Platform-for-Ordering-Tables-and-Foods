@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -8,6 +9,7 @@ using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Repository.Repositories;
 using TOPDER.Service.Dtos.Email;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Mapper;
 using TOPDER.Service.Services;
@@ -63,6 +65,9 @@ builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
+
+// ADD SIGNALR
+builder.Services.AddSignalR();
 
 // Register your repositories and services as transient
 
@@ -148,6 +153,7 @@ builder.Services.AddTransient<IExcelService, ExcelService>();
 builder.Services.AddScoped<IPaymentGatewayService, PaymentGatewayService>();
 builder.Services.AddSingleton<JwtHelper>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
+builder.Services.AddSingleton<AppHub>();
 
 
 // ADD CORS
@@ -170,7 +176,10 @@ if (app.Environment.IsDevelopment())
 app.UseCors(
     builder =>
     {
-        builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000", "https://topder.vercel.app")  // Thêm nhiều nguồn nếu cần
+       .AllowAnyHeader()
+       .AllowAnyMethod()
+       .AllowCredentials();
     });
 
 app.UseHttpsRedirection();
@@ -178,5 +187,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<AppHub>("/signalR");
 
 app.Run();

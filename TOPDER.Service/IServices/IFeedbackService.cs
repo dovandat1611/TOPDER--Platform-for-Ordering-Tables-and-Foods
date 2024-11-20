@@ -12,7 +12,7 @@ namespace TOPDER.Service.IServices
 {
     public interface IFeedbackService
     {
-        Task<bool> AddAsync(FeedbackDto feedbackDto);
+        Task<FeedbackDto> AddAsync(FeedbackDto feedbackDto);
         Task<bool> UpdateAsync(FeedbackDto feedbackDto);
         Task<bool> InvisibleAsync(int id);
         Task<FeedbackDto> GetFeedbackAsync(int orderId);
