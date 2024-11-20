@@ -84,7 +84,7 @@ namespace TOPDER.Test2.AdvertisementPricingControllerTest
         }
 
         [TestMethod]
-        public async Task Create_ShouldReturnBadRequest_WhenModelStateIsInvalid()
+        public async Task Create_ShouldReturnBadRequest_WhenPricingNameEmpty()
         {
             // Arrange
             var advertisementPricingDto = new AdvertisementPricingDto
@@ -109,5 +109,7 @@ namespace TOPDER.Test2.AdvertisementPricingControllerTest
 
             _advertisementPricingServiceMock.Verify(s => s.AddAsync(It.IsAny<AdvertisementPricingDto>()), Times.Never);
         }
+
+        
     }
 }

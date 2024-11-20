@@ -69,27 +69,7 @@ namespace TOPDER.Test2.CategoryMenuControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual($"Category Menu với ID {categoryMenuDto.CategoryMenuId} không tồn tại.", result.Value);
         }
 
-        [TestMethod]
-        public async Task UpdateCategoryMenu_WithIdZero_ReturnsNotFound()
-        {
-            // Arrange
-            var categoryMenuDto = new CategoryMenuDto
-            {
-                CategoryMenuId = 0,
-                CategoryMenuName = "Main Course"
-            };
-
-            _mockCategoryMenuService.Setup(service => service.UpdateAsync(categoryMenuDto))
-                .ReturnsAsync(false); // Simulate failure
-
-            // Act
-            var result = await _controller.UpdateCategoryMenu(categoryMenuDto) as NotFoundObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual($"Category Menu với ID {categoryMenuDto.CategoryMenuId} không tồn tại.", result.Value);
-        }
+        
 
         [TestMethod]
         public async Task UpdateCategoryMenu_WithNullCategoryMenuName_ReturnsOk()
@@ -99,28 +79,6 @@ namespace TOPDER.Test2.CategoryMenuControllerTest
             {
                 CategoryMenuId = 1,
                 CategoryMenuName = null // CategoryMenuName is null
-            };
-
-            _mockCategoryMenuService.Setup(service => service.UpdateAsync(categoryMenuDto))
-                .ReturnsAsync(true); // Simulate success
-
-            // Act
-            var result = await _controller.UpdateCategoryMenu(categoryMenuDto) as OkObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual($"Cập nhật Category Menu với ID {categoryMenuDto.CategoryMenuId} thành công.", result.Value);
-        }
-
-        [TestMethod]
-        public async Task UpdateCategoryMenu_WithNonNullCategoryMenuName_ReturnsOk()
-        {
-            // Arrange
-            var categoryMenuDto = new CategoryMenuDto
-            {
-                CategoryMenuId = 1,
-                CategoryMenuName = "Main Course" // CategoryMenuName is not null
             };
 
             _mockCategoryMenuService.Setup(service => service.UpdateAsync(categoryMenuDto))

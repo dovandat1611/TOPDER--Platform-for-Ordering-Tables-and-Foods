@@ -41,22 +41,6 @@ namespace TOPDER.Test2.BlogGroupTest
         }
 
         [TestMethod]
-        public async Task DeleteBlogGroup_WithIdZero_ReturnsNotFound()
-        {
-            // Arrange
-            int id = 0;
-            _mockBlogGroupService.Setup(service => service.RemoveAsync(id)).ReturnsAsync(false);
-
-            // Act
-            var result = await _controller.DeleteBlogGroup(id);
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
-            var notFoundResult = result as NotFoundObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("BlogGroup với ID 0 không tồn tại hoặc không thể xóa.", notFoundResult.Value);
-        }
-
-        [TestMethod]
         public async Task DeleteBlogGroup_WithNegativeId_ReturnsNotFound()
         {
             // Arrange

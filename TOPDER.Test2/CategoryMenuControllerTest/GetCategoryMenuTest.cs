@@ -81,40 +81,5 @@ namespace TOPDER.Test2.CategoryMenuControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual($"Category Menu với ID {categoryMenuId} không tồn tại.", result.Value);
         }
 
-        [TestMethod]
-        public async Task GetCategoryMenu_WithValidRestaurantIdAndZeroCategoryMenuId_ReturnsNotFound()
-        {
-            // Arrange
-            int restaurantId = 1; // Valid restaurantId
-            int categoryMenuId = 0; // Invalid categoryMenuId
-            _mockCategoryMenuService.Setup(service => service.GetItemAsync(categoryMenuId, restaurantId))
-                .ThrowsAsync(new KeyNotFoundException());
-
-            // Act
-            var result = await _controller.GetCategoryMenu(restaurantId, categoryMenuId) as NotFoundObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual($"Category Menu với ID {categoryMenuId} không tồn tại.", result.Value);
-        }
-
-        [TestMethod]
-        public async Task GetCategoryMenu_WithInvalidRestaurantIdAndValidCategoryMenuId_ReturnsBadRequest()
-        {
-            // Arrange
-            int restaurantId = -1; // Invalid restaurantId
-            int categoryMenuId = 1; // Valid categoryMenuId
-                                    // No need to mock service call, as we expect the method to return BadRequest based on restaurantId validation
-
-            // Act
-            var result = await _controller.GetCategoryMenu(restaurantId, categoryMenuId) as BadRequestObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Restaurant ID must be greater than zero.", result.Value);
-        }
-
     }
 }

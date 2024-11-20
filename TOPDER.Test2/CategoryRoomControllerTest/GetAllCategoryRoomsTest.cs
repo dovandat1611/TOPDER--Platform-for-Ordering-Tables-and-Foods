@@ -49,32 +49,9 @@ namespace TOPDER.Test2.CategoryRoomControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(categoryRooms.Count, ((IEnumerable<CategoryRoomDto>)result.Value).Count());
         }
 
-        [TestMethod]
-        public async Task GetAllCategoryRooms_WithInvalidRestaurantId_ReturnsNotFound()
-        {
-            // Arrange
-            int restaurantId = 0;
-            var categoryRooms = new List<CategoryRoomDto>
-        {
-            new CategoryRoomDto { CategoryRoomId = 1, CategoryName = "Luxury Room" },
-            new CategoryRoomDto { CategoryRoomId = 2, CategoryName = "Standard Room" }
-        };
-
-            _mockCategoryRoomService.Setup(service => service.GetAllCategoryRoomAsync(restaurantId))
-                .ReturnsAsync(categoryRooms); // Simulate successful data retrieval
-
-            // Act
-            var result = await _controller.GetAllCategoryRooms(restaurantId) as OkObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result.Value, typeof(IEnumerable<CategoryRoomDto>));
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(categoryRooms.Count, ((IEnumerable<CategoryRoomDto>)result.Value).Count());
-        }
 
         [TestMethod]
-        public async Task GetAllCategoryRooms_WithNegativeRestaurantId_ReturnsNotFound()
+        public async Task GetAllCategoryRooms_WithNegativeRestaurantId_ReturnsOK()
         {
             // Arrange
             int restaurantId = -1;

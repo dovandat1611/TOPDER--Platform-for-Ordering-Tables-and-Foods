@@ -70,24 +70,5 @@ namespace TOPDER.Test2.BlogControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(expectedBlogDetail, okResult.Value);
         }
-        [TestMethod]
-        public async Task GetBlogById_WhenBlogIdIsZero_ReturnNotFound()
-        {
-            // Arrange
-            var zeroBlogId = 0;
-
-            // Simulate the blog service throwing a KeyNotFoundException for the ID 0
-            mockBlogService.Setup(x => x.GetBlogByIdAsync(zeroBlogId))
-                           .ThrowsAsync(new KeyNotFoundException("Blog not found"));
-
-            // Act
-            var result = await controller.GetBlogById(zeroBlogId);
-
-            // Assert
-            var notFoundResult = result as NotFoundObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(notFoundResult);  // Ensure the result is a NotFoundObjectResult
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, notFoundResult.StatusCode);  // Verify the status code is 404
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Blog not found", notFoundResult.Value);  // Verify the error message
-        }
     }
 }

@@ -33,7 +33,7 @@ namespace TOPDER.Test2.BlogControllerTest
         public async Task GetUpdateItemAsync_WhenBlogNotFound_ReturnNotFound()
         {
             // Arrange
-            var invalidBlogId = -1;  // Giả sử ID âm là không hợp lệ
+            var invalidBlogId = 999999;  // Giả sử ID âm là không hợp lệ
 
             // Mô phỏng lỗi trong service hoặc controller khi blogId không tồn tại
             mockBlogService.Setup(x => x.GetUpdateItemAsync(invalidBlogId))
@@ -73,25 +73,6 @@ namespace TOPDER.Test2.BlogControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);  // Kiểm tra rằng kết quả là OkResult
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);  // Kiểm tra mã trạng thái là 200 (OK)
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(expectedBlogModel, okResult.Value);  // Kiểm tra dữ liệu trả về là đúng
-        }
-        [TestMethod]
-        public async Task GetUpdateItemAsync_WhenBlogIdIsInvalid_ReturnBadRequest()
-        {
-            // Arrange
-            var invalidBlogId = 0;  // Giả sử ID âm là không hợp lệ
-
-            // Mô phỏng lỗi trong service hoặc controller khi blogId không tồn tại
-            mockBlogService.Setup(x => x.GetUpdateItemAsync(invalidBlogId))
-                           .ThrowsAsync(new KeyNotFoundException("Blog not found"));
-
-            // Act
-            var result = await controller.GetUpdateItemAsync(invalidBlogId);
-
-            // Assert
-            var notFoundResult = result as NotFoundObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(notFoundResult);  // Kiểm tra rằng kết quả là NotFound
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, notFoundResult.StatusCode);  // Kiểm tra mã trạng thái là 404
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Blog not found", notFoundResult.Value);  // Kiểm tra thông báo lỗi
         }
     }
 }

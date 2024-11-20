@@ -29,49 +29,106 @@ namespace TOPDER.Test2.CategoryMenuControllerTest
         }
 
         [TestMethod]
-        public async Task ListPaging_WithRestaurantIdZero_ReturnsBadRequest()
+        public async Task ListPaging_ValidRequest_ReturnsOk()
         {
             // Arrange
-            int restaurantId = 0; // Invalid restaurantId
+            int restaurantId = 1;
+            int pageNumber = 1;
+            int pageSize = 10;
+            string? categoryMenuName = "Menu";
+
+            var mockPagedResult = new PaginatedList<CategoryMenuDto>(
+                items: new List<CategoryMenuDto> { new CategoryMenuDto { CategoryMenuId = 1, CategoryMenuName = "Sample Menu" } },
+                count: 1,
+                pageIndex: 1,
+                pageSize: 10);
+
+            _mockCategoryMenuService.Setup(service => service.ListPagingAsync(pageNumber, pageSize, restaurantId, categoryMenuName))
+                .ReturnsAsync(mockPagedResult);
 
             // Act
-            var result = await _controller.ListPaging(restaurantId) as BadRequestObjectResult;
+            var result = await _controller.ListPaging(restaurantId, pageNumber, pageSize, categoryMenuName);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(400, result.StatusCode);
-            Assert.AreEqual("Restaurant ID must be greater than zero.", result.Value);
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.AreEqual(200, okResult.StatusCode);
+
+            var response = okResult.Value as PaginatedResponseDto<CategoryMenuDto>;
+            Assert.IsNotNull(response);
+            Assert.AreEqual(1, response.Items.Count);
+            Assert.AreEqual("Sample Menu", response.Items.First().CategoryMenuName);
         }
 
         [TestMethod]
-        public async Task ListPaging_WithRestaurantIdNegative_ReturnsBadRequest()
+        public async Task ListPaging_InvalidRestaurantId_ReturnsBadRequest()
         {
             // Arrange
-            int restaurantId = -1; // Invalid restaurantId
+            int restaurantId = -1;
+            int pageNumber = 1;
+            int pageSize = 10;
 
             // Act
-            var result = await _controller.ListPaging(restaurantId) as BadRequestObjectResult;
+            var result = await _controller.ListPaging(restaurantId, pageNumber, pageSize);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(400, result.StatusCode);
-            Assert.AreEqual("Restaurant ID must be greater than zero.", result.Value);
+            var badRequestResult = result as BadRequestObjectResult;
+            Assert.IsNotNull(badRequestResult);
+            Assert.AreEqual(400, badRequestResult.StatusCode);
+            Assert.AreEqual("Restaurant ID must be greater than zero.", badRequestResult.Value);
         }
 
-        //[TestMethod]
-        //public async Task ListPaging_WithValidRestaurantIdAndNullCategoryMenuName_ReturnsStatus200()
-        //{
-        //    int restaurantId = 3;
-        //    int pageNumber = 1;
-        //    int pageSize = 10;
-        //    string? categoryMenuName = null;
+        [TestMethod]
+        public async Task ListPaging_ServiceThrowsException_ReturnsInternalServerError()
+        {
+            // Arrange
+            int restaurantId = 1;
+            int pageNumber = 1;
+            int pageSize = 10;
+            string? categoryMenuName = null;
 
-        //    // Act
-        //    var result = await _controller.ListPaging(restaurantId, pageNumber, pageSize, categoryMenuName) as OkObjectResult;
+            _mockCategoryMenuService.Setup(service => service.ListPagingAsync(pageNumber, pageSize, restaurantId, categoryMenuName))
+                .ThrowsAsync(new Exception("Database connection failed"));
 
-        //    // Assert
-        //    Assert.IsNotNull(result);
-        //    Assert.AreEqual(200, result.StatusCode);
-        //}
+            // Act
+            var result = await _controller.ListPaging(restaurantId, pageNumber, pageSize, categoryMenuName);
+
+            // Assert
+            var statusCodeResult = result as ObjectResult;
+            Assert.IsNotNull(statusCodeResult);
+            Assert.AreEqual(500, statusCodeResult.StatusCode);
+            Assert.AreEqual("Đã xảy ra lỗi trong quá trình xử lý: Database connection failed", statusCodeResult.Value);
+        }
+
+        [TestMethod]
+        public async Task ListPaging_EmptyResult_ReturnsOkWithEmptyList()
+        {
+            // Arrange
+            int restaurantId = 1;
+            int pageNumber = 1;
+            int pageSize = 10;
+            string? categoryMenuName = "NonExistingMenu";
+
+            var mockPagedResult = new PaginatedList<CategoryMenuDto>(
+                items: new List<CategoryMenuDto>(),
+                count: 0,
+                pageIndex: 1,
+                pageSize: 10);
+
+            _mockCategoryMenuService.Setup(service => service.ListPagingAsync(pageNumber, pageSize, restaurantId, categoryMenuName))
+                .ReturnsAsync(mockPagedResult);
+
+            // Act
+            var result = await _controller.ListPaging(restaurantId, pageNumber, pageSize, categoryMenuName);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.AreEqual(200, okResult.StatusCode);
+
+            var response = okResult.Value as PaginatedResponseDto<CategoryMenuDto>;
+            Assert.IsNotNull(response);
+            Assert.AreEqual(0, response.Items.Count);
+        }
     }
 }

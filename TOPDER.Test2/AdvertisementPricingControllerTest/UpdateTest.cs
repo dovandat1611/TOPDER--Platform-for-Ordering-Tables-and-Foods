@@ -60,7 +60,7 @@ namespace TOPDER.Test2.AdvertisementPricingControllerTest
             // Arrange
             var advertisementPricingDto = new AdvertisementPricingDto
             {
-                PricingId = 1,
+                PricingId = 999999,
                 AdminId = 1,
                 PricingName = "Updated Plan",
                 Description = "Updated description.",

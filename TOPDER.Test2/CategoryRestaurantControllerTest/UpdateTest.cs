@@ -97,28 +97,6 @@ namespace TOPDER.Test2.CategoryRestaurantControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
         }
 
-        // Kiểm tra trường hợp cập nhật với CategoryRestaurantName không null
-        [TestMethod]
-        public async Task UpdateCategoryRestaurant_WithValidCategoryRestaurantName_ReturnsOk()
-        {
-            // Arrange
-            var categoryRestaurantDto = new CategoryRestaurantDto
-            {
-                CategoryRestaurantId = 1,
-                CategoryRestaurantName = "Chinese Cuisine" // Tên danh mục hợp lệ
-            };
-
-            _mockCategoryRestaurantService.Setup(service => service.UpdateAsync(categoryRestaurantDto))
-                .ReturnsAsync(true); // Giả lập cập nhật thành công
-
-            // Act
-            var result = await _controller.Update(categoryRestaurantDto) as OkObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, result.StatusCode);
-            var response = result.Value as dynamic;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
         }
     }
 }

@@ -72,7 +72,7 @@ namespace TOPDER.Test2.CategoryMenuControllerTest
             // Arrange
             var categoryMenuDto = new CreateCategoryMenuDto
             {
-                RestaurantId = 1,
+                RestaurantId = -1,
                 CategoryMenuName = "Appetizers"
             };
             _mockCategoryMenuService.Setup(service => service.AddAsync(categoryMenuDto))

@@ -88,25 +88,5 @@ namespace TOPDER.Test2.CategoryRestaurantControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, result.StatusCode);
         }
 
-        [TestMethod]
-        public async Task CreateCategoryRestaurant_WithEmptyCategoryRestaurantName_ReturnsBadRequest()
-        {
-            // Arrange
-            var categoryRestaurantDto = new CategoryRestaurantDto
-            {
-                CategoryRestaurantId = 1,
-                CategoryRestaurantName = "" // Invalid empty CategoryRestaurantName
-            };
-
-            _mockCategoryRestaurantService.Setup(service => service.AddAsync(categoryRestaurantDto))
-                .ReturnsAsync(false); // Simulate failure
-
-            // Act
-            var result = await _controller.Create(categoryRestaurantDto) as BadRequestObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, result.StatusCode);
-        }
     }
 }

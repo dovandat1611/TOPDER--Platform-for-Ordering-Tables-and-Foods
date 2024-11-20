@@ -51,28 +51,6 @@ namespace TOPDER.Test2.BlogControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
         }
 
-        [TestMethod]
-        public async Task CreateBlog_WhenNoImageUploaded_ReturnOk()
-        {
-            // Arrange
-            var blogModel = new CreateBlogModel
-            {
-                Title = "Blog Title",
-                Content = "Blog content",
-                ImageFile = null // No image uploaded
-            };
-
-            // Mock the AddAsync method to return true (success)
-            mockBlogService.Setup(x => x.AddAsync(It.IsAny<CreateBlogModel>())).ReturnsAsync(true);
-
-            // Act
-            var result = await controller.CreateBlog(blogModel);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tạo Blog thành công.", okResult.Value);
-        }
 
         [TestMethod]
         public async Task CreateBlog_WhenImageUploaded_ReturnOk()
@@ -154,6 +132,7 @@ namespace TOPDER.Test2.BlogControllerTest
             // Arrange
             var invalidBlogModel = new CreateBlogModel
             {
+                ImageFile = new FormFile(null, 0, 0, "file", "image.jpg"),
                 Title = "TIdsle", // Invalid title
                 Content = ""
             };

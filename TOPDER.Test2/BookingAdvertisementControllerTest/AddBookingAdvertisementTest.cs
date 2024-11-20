@@ -76,16 +76,54 @@ namespace TOPDER.Test2.BookingAdvertisementControllerTest
         }
 
         [TestMethod]
-        public async Task AddBookingAdvertisement_ShouldReturnBadRequest_WhenDtoIsNull()
+        public async Task AddBookingAdvertisement_NullTitle_ReturnsInternalServerError()
         {
+            // Arrange
+            var invalidDto = new CreateBookingAdvertisementDto
+            {
+                RestaurantId = 1,
+                Title = null, // Title is null
+                StartTime = DateTime.Now,
+                EndTime = DateTime.Now.AddDays(7)
+            };
+
+            _mockBookingAdvertisementService.Setup(service => service.AddAsync(invalidDto)).ReturnsAsync(false);
+
             // Act
-            var result = await _controller.AddBookingAdvertisement(null);
+            var result = await _controller.AddBookingAdvertisement(invalidDto);
 
             // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Invalid data.", badRequestResult.Value);
+            var serverErrorResult = result as ObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(serverErrorResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(500, serverErrorResult.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("An error occurred while creating the booking advertisement.", serverErrorResult.Value);
         }
+
+        [TestMethod]
+        public async Task AddBookingAdvertisement_NullDates_ReturnsInternalServerError()
+        {
+            // Arrange
+            var invalidDto = new CreateBookingAdvertisementDto
+            {
+                RestaurantId = 1,
+                Title = "Special Offer",
+                StartTime = default, // StartTime is null (default value for DateTime)
+                EndTime = default // EndTime is null (default value for DateTime)
+            };
+
+            _mockBookingAdvertisementService.Setup(service => service.AddAsync(invalidDto)).ReturnsAsync(false);
+
+            // Act
+            var result = await _controller.AddBookingAdvertisement(invalidDto);
+
+            // Assert
+            var serverErrorResult = result as ObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(serverErrorResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(500, serverErrorResult.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("An error occurred while creating the booking advertisement.", serverErrorResult.Value);
+        }
+
+        
 
         [TestMethod]
         public async Task AddBookingAdvertisement_ShouldReturnInternalServerError_WhenCreationFails()

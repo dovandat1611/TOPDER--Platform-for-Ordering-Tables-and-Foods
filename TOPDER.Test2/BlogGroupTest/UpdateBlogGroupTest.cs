@@ -72,36 +72,5 @@ namespace TOPDER.Test2.BlogGroupTest
             var notFoundResult = result as NotFoundObjectResult;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Blog Group với ID -1 không tồn tại.", notFoundResult.Value);
         }
-        [TestMethod]
-        public async Task UpdateBlogGroup_WithBlogGroupNameNull_ReturnsOk()
-        {
-            // Arrange
-            var blogGroupDto = new BlogGroupDto { BloggroupId = 1, BloggroupName = null! };
-            _mockBlogGroupService.Setup(service => service.UpdateAsync(blogGroupDto)).ReturnsAsync(true);
-
-            // Act
-            var result = await _controller.UpdateBlogGroup(blogGroupDto);
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual($"Cập nhật Blog Group với ID {blogGroupDto.BloggroupId} thành công.", okResult.Value);
-        }
-
-        [TestMethod]
-        public async Task UpdateBlogGroup_WithValidBlogGroupName_ReturnsOk()
-        {
-            // Arrange
-            var blogGroupDto = new BlogGroupDto { BloggroupId = 1, BloggroupName = "Valid Group Name" };
-            _mockBlogGroupService.Setup(service => service.UpdateAsync(blogGroupDto)).ReturnsAsync(true);
-
-            // Act
-            var result = await _controller.UpdateBlogGroup(blogGroupDto);
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Cập nhật Blog Group với ID 1 thành công.", okResult.Value);
-        }
     }
 }

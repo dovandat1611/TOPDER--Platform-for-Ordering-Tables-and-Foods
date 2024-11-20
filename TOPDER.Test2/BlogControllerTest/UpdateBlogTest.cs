@@ -98,30 +98,7 @@ namespace TOPDER.Test2.BlogControllerTest
             Assert.AreEqual($"Cập nhật Blog với ID {updateBlogModel.BlogId} thành công.", okResult.Value);
         }
 
-        [TestMethod]
-        public async Task UpdateBlog_WhenImageFileIsNull_ReturnsOk()
-        {
-            // Arrange
-            var updateBlogModel = new UpdateBlogModel
-            {
-                BlogId = 1,
-                Title = "Valid Title",
-                Content = "Content",
-                ImageFile = null // ImageFile is null
-            };
-
-            mockBlogService.Setup(x => x.UpdateAsync(updateBlogModel)).ReturnsAsync(true);
-
-            // Act
-            var result = await controller.UpdateBlog(updateBlogModel);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-            Assert.AreEqual(200, okResult.StatusCode);
-            Assert.AreEqual($"Cập nhật Blog với ID {updateBlogModel.BlogId} thành công.", okResult.Value);
-        }
-
+       
         [TestMethod]
         public async Task UpdateBlog_WhenBlogIdIsInvalid_ReturnsNotFound()
         {

@@ -48,7 +48,7 @@ namespace TOPDER.Test2.AdvertisementPricingControllerTest
         public async Task Delete_ShouldReturnNotFound_WhenAdvertisementPricingNotFound()
         {
             // Arrange
-            int pricingId = 999; // Non-existent ID
+            int pricingId = -1; // Non-existent ID
             _advertisementPricingServiceMock
                 .Setup(s => s.RemoveAsync(pricingId))
                 .ReturnsAsync(false);

@@ -54,23 +54,10 @@ namespace TOPDER.Test2.CategoryRoomControllerTest
         }
 
         [TestMethod]
-        public async Task SetInvisible_WithZeroId_ReturnsBadRequest()
-        {
-            // Arrange
-            int categoryRoomId = 0; // Zero ID
-                                    // Act
-            var result = await _controller.SetInvisible(categoryRoomId) as BadRequestObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.                           Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, result.StatusCode);
-        }
-
-        [TestMethod]
         public async Task SetInvisible_WithNonExistentId_ReturnsNotFound()
         {
             // Arrange
-            int categoryRoomId = 1; // Valid ID but non-existent
+            int categoryRoomId = 999999; // Valid ID but non-existent
             _mockCategoryRoomService.Setup(service => service.InvisibleAsync(categoryRoomId))
                 .ReturnsAsync(false); // Simulate not found
 

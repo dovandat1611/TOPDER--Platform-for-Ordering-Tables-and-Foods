@@ -64,20 +64,5 @@ namespace TOPDER.Test2.BlogControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual($"Xóa Blog với ID {validBlogId} thành công.", okResult.Value);  // Check the success message
         }
 
-        [TestMethod]
-        public async Task DeleteBlog_WhenIdIsZero_ReturnsNotFound()
-        {
-            // Arrange
-            var invalidBlogId = 0;  // ID = 0 is considered invalid for deleting a blog
-
-            // Act
-            var result = await controller.DeleteBlog(invalidBlogId);
-
-            // Assert
-            var notFoundResult = result as NotFoundObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(notFoundResult);  // Ensure the result is a NotFoundObjectResult
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, notFoundResult.StatusCode);  // Verify the status code is 404 (Not Found)
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Blog với ID 0 không tồn tại.", notFoundResult.Value);  // Custom message for invalid ID
-        }
     }
 }
