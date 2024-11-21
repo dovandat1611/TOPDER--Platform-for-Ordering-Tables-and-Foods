@@ -84,6 +84,19 @@ namespace TOPDER.API.Controllers
             return NotFound("Không tìm thấy thông báo hoặc thông báo đã được đánh dấu là đã đọc.");
         }
 
+        [HttpPut("IsReadAll")]
+        [SwaggerOperation(Summary = "Đánh dấu tất cả thông báo là đã đọc")]
+        public async Task<IActionResult> MarkAsReadAll(List<int> notificationIds)
+        {
+            var result = await _notificationService.IsReadAllAsync(notificationIds);
+            if (result)
+            {
+                return Ok("Thông báo đã được đánh dấu là đã đọc.");
+            }
+            return NotFound("Không tìm thấy thông báo hoặc thông báo đã được đánh dấu là đã đọc.");
+        }
+
+
         [HttpPut("Update")]
         [SwaggerOperation(Summary = "Cập nhật dấu thông báo là đã đọc")]
         public async Task<IActionResult> Update([FromBody] NotificationDto notificationDto)

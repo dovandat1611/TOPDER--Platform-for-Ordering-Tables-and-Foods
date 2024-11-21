@@ -71,6 +71,24 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
+        public async Task<bool> IsReadAllAsync(List<int> notificationIds)
+        {
+            foreach(int notificationId in notificationIds)
+            {
+                var existingNotification = await _notificationRepository.GetByIdAsync(notificationId);
+                if (existingNotification == null || existingNotification.IsRead == true)
+                {
+                    continue;
+                }
+                if(existingNotification.IsRead == false)
+                {
+                    existingNotification.IsRead = true;
+                    await _notificationRepository.UpdateAsync(existingNotification);
+                }
+            }
+            return true;
+        }
+
         public async Task<bool> IsReadAsync(int id)
         {   
             var existingNotification = await _notificationRepository.GetByIdAsync(id);

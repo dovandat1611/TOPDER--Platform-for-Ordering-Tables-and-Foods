@@ -14,6 +14,7 @@ namespace TOPDER.Service.IServices
         Task<NotificationDto> AddAsync(NotificationDto notificationDto);
         Task<bool> UpdateAsync(NotificationDto notificationDto);
         Task<bool> IsReadAsync(int id);
+        Task<bool> IsReadAllAsync(List<int> notificationIds);
         Task<bool> RemoveAsync(int id, int Uid);
         Task<NotificationDto> GetItemAsync(int notificationId, int userId);
         Task<PaginatedList<NotificationDto>> GetPagingAsync(int pageNumber, int pageSize, int userId);

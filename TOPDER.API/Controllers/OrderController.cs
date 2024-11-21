@@ -568,11 +568,40 @@ namespace TOPDER.API.Controllers
 
             var updateStatusOrder = await _orderService.UpdateStatusAsync(order.OrderId, Order_Status.PAID);
 
-            if (updateStatusOrder != null)
+            if (updateStatusOrder == null)
             {
                 return BadRequest("Thay đổi trạng thái order thất bại.");
             }
 
+            // NOTI
+            NotificationDto notificationCusDto = new NotificationDto()
+            {
+                NotificationId = 0,
+                Uid = updateStatusOrder.CustomerId ?? 0,
+                CreatedAt = DateTime.Now,
+                Content = Notification_Content.ORDER_PAYMENT_WALLET(updateStatusOrder.TotalAmount),
+                Type = Notification_Type.ORDER,
+                IsRead = false,
+            };
+            NotificationDto notificationResDto = new NotificationDto()
+            {
+                NotificationId = 0,
+                Uid = updateStatusOrder.RestaurantId ?? 0,
+                CreatedAt = DateTime.Now,
+                Content = Notification_Content.ORDER_PAYMENT_WALLET(updateStatusOrder.TotalAmount),
+                Type = Notification_Type.ORDER,
+                IsRead = false,
+            };
+
+            var notificationCus = await _notificationService.AddAsync(notificationCusDto);
+            var notificationRes = await _notificationService.AddAsync(notificationResDto);
+
+
+            if (notificationCus != null && notificationRes != null)
+            {
+                List<NotificationDto> notifications = new List<NotificationDto> { notificationCus, notificationRes };
+                await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+            }
 
             return Ok("Thanh toán đơn hàng thành công");
         }
@@ -655,6 +684,36 @@ namespace TOPDER.API.Controllers
                 var result = await _orderService.UpdateStatusOrderPayment(orderID, status);
                 // SEND MAIL 
                 OrderPaidEmail orderPaidEmail = await _orderService.GetOrderPaid(orderID);
+
+                // NOTI
+                NotificationDto notificationCusDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = orderPaidEmail.CustomerId,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.ORDER_PAYMENT_THIRTPART(orderPaidEmail.TotalAmount),
+                    Type = Notification_Type.ORDER,
+                    IsRead = false,
+                };
+                NotificationDto notificationResDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = orderPaidEmail.RestaurantId,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.ORDER_PAYMENT_THIRTPART(orderPaidEmail.TotalAmount),
+                    Type = Notification_Type.ORDER,
+                    IsRead = false,
+                };
+
+                var notificationCus = await _notificationService.AddAsync(notificationCusDto);
+                var notificationRes = await _notificationService.AddAsync(notificationResDto);
+
+
+                if (notificationCus != null && notificationRes != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notificationCus, notificationRes };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
 
                 await _sendMailService.SendEmailAsync(orderPaidEmail.Email, Email_Subject.ORDERCONFIRM, EmailTemplates.Order(orderPaidEmail));
 
@@ -831,7 +890,7 @@ namespace TOPDER.API.Controllers
 
                 if (notification != null)
                 {
-                    List<NotificationDto> notifications = new List<NotificationDto> { notificationDto };
+                    List<NotificationDto> notifications = new List<NotificationDto> { notification };
                     await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
                 }
 
@@ -882,7 +941,7 @@ namespace TOPDER.API.Controllers
 
                     if (notification != null)
                     {
-                        List<NotificationDto> notifications = new List<NotificationDto> { notificationDtoFree };
+                        List<NotificationDto> notifications = new List<NotificationDto> { notification };
                         await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
                     }
                 }
@@ -895,7 +954,7 @@ namespace TOPDER.API.Controllers
 
                     if (notification != null)
                     {
-                        List<NotificationDto> notifications = new List<NotificationDto> { notificationDtoFree };
+                        List<NotificationDto> notifications = new List<NotificationDto> { notification };
                         await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
                     }
                 }
@@ -924,7 +983,7 @@ namespace TOPDER.API.Controllers
 
                     if (notification != null)
                     {
-                        List<NotificationDto> notifications = new List<NotificationDto> { notificationDtoFree };
+                        List<NotificationDto> notifications = new List<NotificationDto> { notification };
                         await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
                     }
                 }
@@ -937,7 +996,7 @@ namespace TOPDER.API.Controllers
 
                     if (notification != null)
                     {
-                        List<NotificationDto> notifications = new List<NotificationDto> { notificationDtoFree };
+                        List<NotificationDto> notifications = new List<NotificationDto> { notification };
                         await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
                     }
                 }
@@ -1034,7 +1093,7 @@ namespace TOPDER.API.Controllers
 
                 if (notification != null)
                 {
-                    List<NotificationDto> notifications = new List<NotificationDto> { notificationDto };
+                    List<NotificationDto> notifications = new List<NotificationDto> { notification };
                     await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
                 }
                 await _sendMailService.SendEmailAsync(recipientEmail, Email_Subject.UPDATESTATUS, EmailTemplates.UpdateStatusOrder(orderPaidEmail, Order_Status.CANCEL));
@@ -1048,7 +1107,7 @@ namespace TOPDER.API.Controllers
 
                 if (notification != null)
                 {
-                    List<NotificationDto> notifications = new List<NotificationDto> { notificationDto };
+                    List<NotificationDto> notifications = new List<NotificationDto> { notification };
                     await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
                 }
                 await _sendMailService.SendEmailAsync(recipientEmail, Email_Subject.UPDATESTATUS, EmailTemplates.UpdateStatusOrderRestaurant(orderPaidEmail, Order_Status.CANCEL));

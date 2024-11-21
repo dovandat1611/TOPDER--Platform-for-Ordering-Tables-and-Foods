@@ -74,7 +74,6 @@ namespace TOPDER.Service.Services
             return valletTransactionDtos;
         }
 
-
         public async Task<WalletBalanceDto> GetWalletBalanceAsync(int transactionId)
         {
             var queryable = await _walletTransactionRepository.QueryableAsync();
@@ -95,13 +94,12 @@ namespace TOPDER.Service.Services
             {
                 Uid = queryDTO.Wallet.UidNavigation.Uid, 
                 WalletId = queryDTO.WalletId,
-                WalletBalance = totalBalance 
+                WalletBalance = totalBalance,
+                TransactionAmount = queryDTO.TransactionAmount,
             };
 
             return walletBalanceDto;
         }
-
-
 
         public async Task<bool> UpdateStatus(int TransactionId, string status)
         {
@@ -115,7 +113,6 @@ namespace TOPDER.Service.Services
             {
                 return true;
             }
-
             walletTransaction.Status = status;
             return await _walletTransactionRepository.UpdateAsync(walletTransaction);
         }

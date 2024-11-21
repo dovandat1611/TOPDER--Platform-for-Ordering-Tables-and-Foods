@@ -122,6 +122,25 @@ namespace TOPDER.API.Controllers
 
                 if (updateWallet)
                 {
+                    // NOTI
+                    NotificationDto notificationDto = new NotificationDto()
+                    {
+                        NotificationId = 0,
+                        Uid = getWalletBalance.Uid,
+                        CreatedAt = DateTime.Now,
+                        Content = Notification_Content.RECHARGE(getWalletBalance.TransactionAmount ?? 0),
+                        Type = Notification_Type.RECHARGE,
+                        IsRead = false,
+                    };
+
+                    var notification = await _notificationService.AddAsync(notificationDto);
+
+                    if (notification != null)
+                    {
+                        List<NotificationDto> notifications = new List<NotificationDto> { notification};
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                    }
+
                     var result = await _walletTransactionService.UpdateStatus(transactionId, status);
                     return result
                         ? Ok(new { message = "Cập nhật trạng thái giao dịch thành công." })
@@ -281,7 +300,7 @@ namespace TOPDER.API.Controllers
                             NotificationId = 0,
                             Uid = getWalletBalance.Uid,
                             CreatedAt = DateTime.Now,
-                            Content = Notification_Content.WITHDRAW_FAIL(),
+                            Content = Notification_Content.WITHDRAW_FAIL(getWalletBalance.TransactionAmount ?? 0),
                             Type = Notification_Type.WITHDRAW,
                             IsRead = false,
                         };
@@ -290,7 +309,7 @@ namespace TOPDER.API.Controllers
 
                         if (notification != null)
                         {
-                            List<NotificationDto> notifications = new List<NotificationDto> { notificationDto };
+                            List<NotificationDto> notifications = new List<NotificationDto> { notification };
                             await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
                         }
 
@@ -306,7 +325,7 @@ namespace TOPDER.API.Controllers
                         NotificationId = 0,
                         Uid = getWalletBalance.Uid,
                         CreatedAt = DateTime.Now,
-                        Content = Notification_Content.WITHDRAW_SUCCESSFUL(),
+                        Content = Notification_Content.WITHDRAW_SUCCESSFUL(getWalletBalance.TransactionAmount ?? 0),
                         Type = Notification_Type.WITHDRAW,
                         IsRead = false,
                     };
@@ -315,7 +334,7 @@ namespace TOPDER.API.Controllers
 
                     if (notification != null)
                     {
-                        List<NotificationDto> notifications = new List<NotificationDto> { notificationDto };
+                        List<NotificationDto> notifications = new List<NotificationDto> { notification };
                         await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
                     }
 

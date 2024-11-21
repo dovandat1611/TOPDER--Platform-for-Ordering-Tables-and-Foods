@@ -338,6 +338,8 @@ namespace TOPDER.Service.Services
             // Khởi tạo email
             OrderPaidEmail orderPaidEmail = new OrderPaidEmail()
             {
+                RestaurantId = order.RestaurantId ?? 0,
+                CustomerId = order.CustomerId ?? 0,
                 Name = order.Customer.Name,
                 Email = order.Customer.UidNavigation.Email,
                 RestaurantName = order.Restaurant.NameRes,

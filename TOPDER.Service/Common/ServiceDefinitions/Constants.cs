@@ -107,6 +107,7 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string WITHDRAW = "Rút Tiền";
             public static string BOOKING = "Quảng Cáo";
             public static string ORDER = "Đơn Hàng";
+            public static string RECHARGE = "Nạp Tiền";
 
         }
 
@@ -125,13 +126,17 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             {
                 return $"Bạn có một đánh giá mới!";
             }
-            public static string WITHDRAW_SUCCESSFUL()
+            public static string WITHDRAW_SUCCESSFUL(decimal price)
             {
-                return $"Giao dịch rút tiền của bạn đã được xử lý.";
+                return $"Giao dịch rút tiền với số tiền  {price}đ của bạn đã được xử lý.";
             }
-            public static string WITHDRAW_FAIL()
+            public static string WITHDRAW_FAIL(decimal price)
             {
-                return $"Giao dịch rút tiền của bạn bị hủy, số tiền được hoàn về ví.";
+                return $"Giao dịch rút tiền của bạn bị hủy, {price}đ được hoàn về ví.";
+            }
+            public static string RECHARGE(decimal price)
+            {
+                return $"Bạn đã nạp thành công {price}đ vào Ví.";
             }
             public static string BOOKING_SUCCRESSFUL()
             {
@@ -145,7 +150,6 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             {
                 return $"Bạn có một liên hệ quảng cáo mới.";
             }
-
             public static string ORDER_CREATE(decimal price)
             {
                 return $"Bạn có một đơn hàng mới giá trị {price}đ.";
@@ -160,12 +164,18 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             {
                 return $"Đơn hàng có giá trị {price}đ đã bị hủy bởi {role}.";
             }
-
             public static string ORDER_UPDATESTATUS(decimal price, string status)
             {
                 return $"Đơn hàng có giá trị {price}đ của bạn {status}.";
             }
-
+            public static string ORDER_PAYMENT_THIRTPART(decimal price)
+            {
+                return $"Thanh toán thành công đơn hàng có giá trị {price}đ.";
+            }
+            public static string ORDER_PAYMENT_WALLET(decimal price)
+            {
+                return $"Thanh toán thành công đơn hàng có giá trị {price}đ từ Ví.";
+            }
         }
 
         public class Log_Type
