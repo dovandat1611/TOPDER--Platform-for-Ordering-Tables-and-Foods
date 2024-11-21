@@ -68,6 +68,24 @@ namespace TOPDER.API.Controllers
             bool isCreated = await _bookingAdvertisementService.AddAsync(bookingAdvertisementDto);
             if (isCreated)
             {
+                //NotificationDto notificationDto = new NotificationDto()
+                //{
+                //    NotificationId = 0,
+                //    Uid = 1,
+                //    CreatedAt = DateTime.Now,
+                //    Content = Notification_Content.BOOKING_CREATE(),
+                //    Type = Notification_Type.BOOKING,
+                //    IsRead = false,
+                //};
+
+                //var notification = await _notificationService.AddAsync(notificationDto);
+
+                //if (notification != null)
+                //{
+                //    List<NotificationDto> notifications = new List<NotificationDto> { notificationDto };
+                //    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                //}
+
                 return Ok("Booking advertisement created successfully.");
             }
             return StatusCode(500, "An error occurred while creating the booking advertisement.");
@@ -111,7 +129,8 @@ namespace TOPDER.API.Controllers
 
                 if (notification != null)
                 {
-                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto.Uid, notificationDto);
+                    List<NotificationDto> notifications = new List<NotificationDto> { notificationDto };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
                 }
 
                 return Ok(new { message = "Status updated successfully." });

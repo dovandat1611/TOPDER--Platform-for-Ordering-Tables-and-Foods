@@ -12,7 +12,7 @@ namespace TOPDER.Service.IServices
 {
     public interface IChatService
     {
-        Task<bool> AddAsync(CreateChatDto createChatDto);
+        Task<ChatDto> AddAsync(CreateChatDto createChatDto);
         Task<bool> UpdateAsync(UpdateChatDto updateChatDto);
         Task<bool> RemoveAsync(int id);
         Task<CreateChatDto> GetItemAsync(int id);

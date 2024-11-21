@@ -153,7 +153,7 @@ namespace TOPDER.API.Controllers
                     }
                     await SendOrderEmailAsync(orderToFree.OrderId);
 
-                    NotificationDto notificationDto = new NotificationDto()
+                    NotificationDto notificationResDto = new NotificationDto()
                     {
                         NotificationId = 0,
                         Uid = orderModel.RestaurantId,
@@ -163,11 +163,24 @@ namespace TOPDER.API.Controllers
                         IsRead = false,
                     };
 
-                    var notification = await _notificationService.AddAsync(notificationDto);
-
-                    if (notification != null)
+                    NotificationDto notificationCusDto = new NotificationDto()
                     {
-                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto.Uid , notificationDto);
+                        NotificationId = 0,
+                        Uid = orderModel.CustomerId,
+                        CreatedAt = DateTime.Now,
+                        Content = Notification_Content.ORDER_CREATE_CUS(0),
+                        Type = Notification_Type.ORDER,
+                        IsRead = false,
+                    };
+
+                    var notificationRes = await _notificationService.AddAsync(notificationResDto);
+
+                    var notificationCus = await _notificationService.AddAsync(notificationCusDto);
+
+                    if (notificationRes != null && notificationCus != null)
+                    {
+                        List<NotificationDto> notificationDto = new List<NotificationDto> { notificationRes, notificationCus };
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto);
                     }
 
                     return Ok("Tạo đơn hàng miễn phí thành công");
@@ -216,7 +229,7 @@ namespace TOPDER.API.Controllers
                     await AddOrderMenusAsync(order.OrderId, orderModel.OrderMenus);
                 }
 
-                NotificationDto notificationDto = new NotificationDto()
+                NotificationDto notificationResDto = new NotificationDto()
                 {
                     NotificationId = 0,
                     Uid = orderModel.RestaurantId,
@@ -226,11 +239,26 @@ namespace TOPDER.API.Controllers
                     IsRead = false,
                 };
 
-                var notification = await _notificationService.AddAsync(notificationDto);
-
-                if (notification != null)
+                NotificationDto notificationCusDto = new NotificationDto()
                 {
-                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto.Uid, notificationDto);
+                    NotificationId = 0,
+                    Uid = orderModel.CustomerId,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.ORDER_CREATE_CUS(totalAmount),
+                    Type = Notification_Type.ORDER,
+                    IsRead = false,
+                };
+
+                var notificationRes = await _notificationService.AddAsync(notificationResDto);
+
+                var notificationCus = await _notificationService.AddAsync(notificationCusDto);
+
+
+                if (notificationRes != null && notificationCus != null)
+                {
+                    List<NotificationDto> notificationDto = new List<NotificationDto> { notificationRes, notificationCus };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto);
+                    //await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationCus.Uid, notificationCus);
                 }
 
                 await SendOrderEmailAsync(order.OrderId);
@@ -540,7 +568,7 @@ namespace TOPDER.API.Controllers
 
             var updateStatusOrder = await _orderService.UpdateStatusAsync(order.OrderId, Order_Status.PAID);
 
-            if (!updateStatusOrder)
+            if (updateStatusOrder != null)
             {
                 return BadRequest("Thay đổi trạng thái order thất bại.");
             }
@@ -741,10 +769,24 @@ namespace TOPDER.API.Controllers
             }
 
             var result = await _orderService.UpdateStatusAsync(orderID, status);
-            if (result)
+            if (result != null)
             {
+                var notiStatus = string.Empty;
+
+                if (result.TotalAmount > 0 && status.Equals(Order_Status.CONFIRM))
+                {
+                    notiStatus = "đã được chấp nhận từ nhà hàng, hãy thanh toán thôi nào!";
+                }
+                
+                if(result.TotalAmount <= 0 && status.Equals(Order_Status.CONFIRM))
+                {
+                    notiStatus = "đã được chấp nhận từ nhà hàng.";
+                }
+
                 if (status.Equals(Order_Status.COMPLETE))
                 {
+                    notiStatus = "đã hoàn thành";
+
                     var completeOrder = await _orderService.GetInformationForCompleteAsync(orderID);
                     if (completeOrder != null)
                     {
@@ -775,6 +817,24 @@ namespace TOPDER.API.Controllers
                     }
                 }
 
+                NotificationDto notificationDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = result.CustomerId ?? 0,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.ORDER_UPDATESTATUS(result.TotalAmount, notiStatus),
+                    Type = Notification_Type.ORDER,
+                    IsRead = false,
+                };
+
+                var notification = await _notificationService.AddAsync(notificationDto);
+
+                if (notification != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notificationDto };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
+
                 OrderPaidEmail orderPaidEmail = await _orderService.GetOrderPaid(orderID);
                 var orderEmail = await _orderService.GetEmailForOrderAsync(orderID, User_Role.CUSTOMER);
                 await _sendMailService.SendEmailAsync(orderEmail.Email, Email_Subject.UPDATESTATUS, EmailTemplates.UpdateStatusOrder(orderPaidEmail, status));
@@ -800,8 +860,46 @@ namespace TOPDER.API.Controllers
             // Lấy thông tin đơn hàng bị hủy
             var cancelOrder = await _orderService.GetInformationForCancelAsync(cancelOrderRequest.UserId, cancelOrderRequest.OrderId);
 
-            if(cancelOrder.TotalAmount <= 0)
+            // Xử lý tài khoản ví dựa trên vai trò người dùng
+            var isCustomer = cancelOrder.RoleName.Equals(User_Role.CUSTOMER);
+
+            if (cancelOrder.TotalAmount <= 0)
             {
+                NotificationDto notificationDtoFree = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    CreatedAt = DateTime.Now,
+                    Type = Notification_Type.ORDER,
+                    IsRead = false,
+                };
+
+                if (isCustomer == true)
+                {
+                    notificationDtoFree.Uid = cancelOrder.RestaurantID;
+                    notificationDtoFree.Content = Notification_Content.ORDER_CANCEL(cancelOrder.TotalAmount, "khách hàng");
+
+                    var notification = await _notificationService.AddAsync(notificationDtoFree);
+
+                    if (notification != null)
+                    {
+                        List<NotificationDto> notifications = new List<NotificationDto> { notificationDtoFree };
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                    }
+                }
+                else
+                {
+                    notificationDtoFree.Uid = cancelOrder.CustomerID;
+                    notificationDtoFree.Content = Notification_Content.ORDER_CANCEL(cancelOrder.TotalAmount, "nhà hàng");
+
+                    var notification = await _notificationService.AddAsync(notificationDtoFree);
+
+                    if (notification != null)
+                    {
+                        List<NotificationDto> notifications = new List<NotificationDto> { notificationDtoFree };
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                    }
+                }
+
                 return Ok($"Cập nhật trạng thái cho đơn hàng với ID {cancelOrderRequest.OrderId} thành công.");
             }
 
@@ -809,11 +907,44 @@ namespace TOPDER.API.Controllers
 
             if (checkStatusOrder.PaidAt == null && string.IsNullOrEmpty(checkStatusOrder.PaidAt.ToString()))
             {
+                NotificationDto notificationDtoFree = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    CreatedAt = DateTime.Now,
+                    Type = Notification_Type.ORDER,
+                    IsRead = false,
+                };
+
+                if (isCustomer == true)
+                {
+                    notificationDtoFree.Uid = cancelOrder.RestaurantID;
+                    notificationDtoFree.Content = Notification_Content.ORDER_CANCEL(cancelOrder.TotalAmount, "khách hàng");
+
+                    var notification = await _notificationService.AddAsync(notificationDtoFree);
+
+                    if (notification != null)
+                    {
+                        List<NotificationDto> notifications = new List<NotificationDto> { notificationDtoFree };
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                    }
+                }
+                else
+                {
+                    notificationDtoFree.Uid = cancelOrder.CustomerID;
+                    notificationDtoFree.Content = Notification_Content.ORDER_CANCEL(cancelOrder.TotalAmount, "nhà hàng");
+
+                    var notification = await _notificationService.AddAsync(notificationDtoFree);
+
+                    if (notification != null)
+                    {
+                        List<NotificationDto> notifications = new List<NotificationDto> { notificationDtoFree };
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                    }
+                }
+
                 return Ok($"Cập nhật trạng thái cho đơn hàng với ID {cancelOrderRequest.OrderId} thành công.");
             }
 
-            // Xử lý tài khoản ví dựa trên vai trò người dùng
-            var isCustomer = cancelOrder.RoleName.Equals(User_Role.CUSTOMER);
 
             if(isCustomer == false)
             {
@@ -885,12 +1016,41 @@ namespace TOPDER.API.Controllers
             var recipientEmail = isCustomer ? cancelOrder.EmailRestaurant : cancelOrder.EmailCustomer;
 
             OrderPaidEmail orderPaidEmail = await _orderService.GetOrderPaid(cancelOrderRequest.OrderId);
+
+            NotificationDto notificationDto = new NotificationDto()
+            {
+                NotificationId = 0,
+                CreatedAt = DateTime.Now,
+                Type = Notification_Type.ORDER,
+                IsRead = false,
+            };
+
             if (isCustomer == true)
             {
+                notificationDto.Uid = cancelOrder.RestaurantID;
+                notificationDto.Content = Notification_Content.ORDER_CANCEL(cancelOrder.TotalAmount, "khách hàng");
+
+                var notification = await _notificationService.AddAsync(notificationDto);
+
+                if (notification != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notificationDto };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
                 await _sendMailService.SendEmailAsync(recipientEmail, Email_Subject.UPDATESTATUS, EmailTemplates.UpdateStatusOrder(orderPaidEmail, Order_Status.CANCEL));
             }
             else
             {
+                notificationDto.Uid = cancelOrder.CustomerID;
+                notificationDto.Content = Notification_Content.ORDER_CANCEL(cancelOrder.TotalAmount, "nhà hàng");
+
+                var notification = await _notificationService.AddAsync(notificationDto);
+
+                if (notification != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notificationDto };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
                 await _sendMailService.SendEmailAsync(recipientEmail, Email_Subject.UPDATESTATUS, EmailTemplates.UpdateStatusOrderRestaurant(orderPaidEmail, Order_Status.CANCEL));
             }
             return Ok($"Cập nhật trạng thái cho đơn hàng với ID {cancelOrderRequest.OrderId} thành công.");

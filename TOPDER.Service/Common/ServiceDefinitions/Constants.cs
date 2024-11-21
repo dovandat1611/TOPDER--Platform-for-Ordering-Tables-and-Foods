@@ -141,14 +141,31 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             {
                 return $"Liên hệ quảng cáo được chấp nhận.";
             }
+            public static string BOOKING_CREATE()
+            {
+                return $"Bạn có một liên hệ quảng cáo mới.";
+            }
+
             public static string ORDER_CREATE(decimal price)
             {
                 return $"Bạn có một đơn hàng mới giá trị {price}đ.";
             }
-            //public static string ORDER_UPDATESTATUS(string status)
-            //{
-            //    return $"Đơn hàng của bạn có thay đổi trạng thái.";
-            //}
+
+            public static string ORDER_CREATE_CUS(decimal price)
+            {
+                return $"Bạn đã tạo thành công đơn hàng có giá trị {price}đ.";
+            }
+
+            public static string ORDER_CANCEL(decimal price, string role)
+            {
+                return $"Đơn hàng có giá trị {price}đ đã bị hủy bởi {role}.";
+            }
+
+            public static string ORDER_UPDATESTATUS(decimal price, string status)
+            {
+                return $"Đơn hàng có giá trị {price}đ của bạn {status}.";
+            }
+
         }
 
         public class Log_Type

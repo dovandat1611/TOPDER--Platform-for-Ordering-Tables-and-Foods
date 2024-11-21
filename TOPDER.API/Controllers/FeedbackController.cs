@@ -54,7 +54,8 @@ namespace TOPDER.API.Controllers
 
                 if (notification != null)
                 {
-                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto.Uid, notificationDto);
+                    List<NotificationDto> notifications = new List<NotificationDto> { notificationDto};
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
                 }
 
                 return Ok(result);

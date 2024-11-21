@@ -18,6 +18,7 @@ using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.RestaurantRoom;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
@@ -479,20 +480,20 @@ namespace TOPDER.Service.Services
             return false;
         }
 
-        public async Task<bool> UpdateStatusAsync(int orderID, string status)
+        public async Task<OrderDto> UpdateStatusAsync(int orderID, string status)
         {
             var order = await _orderRepository.GetByIdAsync(orderID);
 
             if (order == null)
             {
-                return false;
+                return null;
             }
 
             if (!string.IsNullOrEmpty(order.StatusOrder))
             {
                 if (order.StatusOrder.Equals(status))
                 {
-                    return false;
+                    return null;
                 }
                 if (status.Equals(Order_Status.PAID))
                 {
@@ -510,9 +511,13 @@ namespace TOPDER.Service.Services
                     order.CancelledAt = DateTime.Now;
                 }
                 order.StatusOrder = status;
-                return await _orderRepository.UpdateAsync(order);
+                var updateOrder = await _orderRepository.UpdateAsync(order);
+                if(updateOrder == true)
+                {
+                    return _mapper.Map<OrderDto>(order); ;
+                }
             }
-            return false;
+            return null;
         }
 
         public async Task<bool> UpdateStatusCancelAsync(int orderID, string status, string cancelReason)

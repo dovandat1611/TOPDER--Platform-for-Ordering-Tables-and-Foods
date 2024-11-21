@@ -290,7 +290,8 @@ namespace TOPDER.API.Controllers
 
                         if (notification != null)
                         {
-                            await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto.Uid, notificationDto);
+                            List<NotificationDto> notifications = new List<NotificationDto> { notificationDto };
+                            await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
                         }
 
                         return Ok(new { message = "Cập nhật trạng thái giao dịch thành công." });
@@ -314,7 +315,8 @@ namespace TOPDER.API.Controllers
 
                     if (notification != null)
                     {
-                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto.Uid, notificationDto);
+                        List<NotificationDto> notifications = new List<NotificationDto> { notificationDto };
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
                     }
 
                     return Ok(new { message = "Cập nhật trạng thái giao dịch thành công." });

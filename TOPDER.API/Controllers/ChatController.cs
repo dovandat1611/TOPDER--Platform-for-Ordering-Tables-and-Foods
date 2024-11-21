@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Dtos.Chat;
+using TOPDER.Service.Dtos.Notification;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 
 namespace TOPDER.API.Controllers
@@ -11,10 +14,12 @@ namespace TOPDER.API.Controllers
     public class ChatController : ControllerBase
     {
         private readonly IChatService _chatService;
+        private readonly IHubContext<AppHub> _signalRHub;
 
-        public ChatController(IChatService chatService)
+        public ChatController(IChatService chatService, IHubContext<AppHub> signalRHub)
         {
             _chatService = chatService;
+            _signalRHub = signalRHub;
         }
 
         [HttpPost("Create")]
@@ -25,9 +30,10 @@ namespace TOPDER.API.Controllers
                 return BadRequest(ModelState);
 
             var result = await _chatService.AddAsync(createChatDto);
-            if (result)
+            if (result != null)
             {
-                return Ok("Tạo chat thành công.");
+                await _signalRHub.Clients.All.SendAsync("CreateChat", result);
+                return Ok(result);
             }
 
             return BadRequest("Tạo chat thất bại.");
