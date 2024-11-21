@@ -19,21 +19,21 @@ namespace TOPDER.API.Controllers
         }
 
         [HttpPost]
-        /*   public async Task<IActionResult> CreateCategoryMenu([FromBody] CreateCategoryMenuDto categoryMenuDto)
-           {
-               if (!ModelState.IsValid)
-                   return BadRequest(ModelState);
+        public async Task<IActionResult> CreateCategoryMenu([FromBody] CreateCategoryMenuDto categoryMenuDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-               var result = await _categoryMenuService.AddAsync(categoryMenuDto);
-               if (result)
-               {
-                   return Ok("Tạo Category Menu thành công.");
-               }
+            var result = await _categoryMenuService.AddAsync(categoryMenuDto);
+            if (result)
+            {
+                return Ok("Tạo Category Menu thành công.");
+            }
 
-               return BadRequest("Tạo Category Menu thất bại.");
-           }*/
+            return BadRequest("Tạo Category Menu thất bại.");
+        }
 
-    /*    [HttpGet("{restaurantId}/{id}")]
+        [HttpGet("{restaurantId}/{id}")]
         public async Task<IActionResult> GetCategoryMenu(int restaurantId, int id)
         {
             if (restaurantId <= 0)
@@ -54,7 +54,7 @@ namespace TOPDER.API.Controllers
             {
                 return Forbid($"Category Menu với ID {id} không thuộc về nhà hàng với ID {restaurantId}.");
             }
-        }*/
+        }
 
 
         [HttpGet("list/{restaurantId}")]
