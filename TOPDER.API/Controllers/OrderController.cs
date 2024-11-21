@@ -583,6 +583,7 @@ namespace TOPDER.API.Controllers
                 Type = Notification_Type.ORDER,
                 IsRead = false,
             };
+
             NotificationDto notificationResDto = new NotificationDto()
             {
                 NotificationId = 0,
@@ -593,13 +594,24 @@ namespace TOPDER.API.Controllers
                 IsRead = false,
             };
 
+            NotificationDto notificationWalletResDto = new NotificationDto()
+            {
+                NotificationId = 0,
+                Uid = updateStatusOrder.CustomerId ?? 0,
+                CreatedAt = DateTime.Now,
+                Content = Notification_Content.SYSTEM_SUB(updateStatusOrder.TotalAmount),
+                Type = Notification_Type.SYSTEM_SUB,
+                IsRead = false,
+            };
+
             var notificationCus = await _notificationService.AddAsync(notificationCusDto);
             var notificationRes = await _notificationService.AddAsync(notificationResDto);
+            var notificationWalletRes = await _notificationService.AddAsync(notificationWalletResDto);
 
 
-            if (notificationCus != null && notificationRes != null)
+            if (notificationCus != null && notificationRes != null && notificationWalletRes != null)
             {
-                List<NotificationDto> notifications = new List<NotificationDto> { notificationCus, notificationRes };
+                List<NotificationDto> notifications = new List<NotificationDto> { notificationCus, notificationRes, notificationWalletRes };
                 await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
             }
 
@@ -1029,6 +1041,24 @@ namespace TOPDER.API.Controllers
                 var walletUpdateRestaurantResult = await _walletService.UpdateWalletBalanceAsync(walletBalanceRestaurantDto);
                 if (walletUpdateRestaurantResult)
                 {
+                    NotificationDto notificationSYSTEMADD = new NotificationDto()
+                    {
+                        NotificationId = 0,
+                        Uid = walletBalanceRestaurantDto.Uid,
+                        CreatedAt = DateTime.Now,
+                        Content = Notification_Content.SYSTEM_ADD(amountDifference??0),
+                        Type = Notification_Type.SYSTEM_ADD,
+                        IsRead = false,
+                    };
+
+                    var notification = await _notificationService.AddAsync(notificationSYSTEMADD);
+
+                    if (notification != null)
+                    {
+                        List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                    }
+
                     WalletTransactionDto walletTransactionRestaurantDto = new WalletTransactionDto()
                     {
                         TransactionId = 0,
@@ -1056,6 +1086,24 @@ namespace TOPDER.API.Controllers
 
             if (walletUpdateResult)
             {
+                NotificationDto notificationSYSTEMADD = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = cancelOrder.CustomerID,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.SYSTEM_ADD(transactionAmount ?? 0),
+                    Type = Notification_Type.SYSTEM_ADD,
+                    IsRead = false,
+                };
+
+                var notification = await _notificationService.AddAsync(notificationSYSTEMADD);
+
+                if (notification != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
+
                 // Ghi lại giao dịch
                 WalletTransactionDto walletTransactionDto = new WalletTransactionDto()
                 {
@@ -1083,6 +1131,7 @@ namespace TOPDER.API.Controllers
                 Type = Notification_Type.ORDER,
                 IsRead = false,
             };
+
 
             if (isCustomer == true)
             {

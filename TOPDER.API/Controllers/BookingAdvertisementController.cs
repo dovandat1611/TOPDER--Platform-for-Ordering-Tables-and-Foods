@@ -153,8 +153,26 @@ namespace TOPDER.API.Controllers
         {
             var isUpdated = await _bookingAdvertisementService.UpdateStatusPaymentAsync(bookingId, status);
 
-            if (isUpdated)
+            if (isUpdated != null)
             {
+                NotificationDto notificationBookDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = isUpdated.RestaurantId,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.BOOKING_PAYEMT_SUCCRESSFUL(isUpdated.TotalAmount),
+                    Type = Notification_Type.SYSTEM_SUB,
+                    IsRead = false,
+                };
+
+                var notificationBook = await _notificationService.AddAsync(notificationBookDto);
+
+                if (notificationBook != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notificationBook };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
+
                 return Ok(new { message = "Status updated successfully." });
             }
 
@@ -250,9 +268,39 @@ namespace TOPDER.API.Controllers
 
             var isUpdated = await _bookingAdvertisementService.UpdateStatusPaymentAsync(bookingAdvertisement.BookingId, Payment_Status.SUCCESSFUL);
 
-            if (!isUpdated)
+            if (isUpdated == null)
             {
                  return BadRequest("Thay đổi trạng thái booking thất bại.");
+            }
+
+            NotificationDto notificationWalletDto = new NotificationDto()
+            {
+                NotificationId = 0,
+                Uid = userOrderIsBalance.Id,
+                CreatedAt = DateTime.Now,
+                Content = Notification_Content.SYSTEM_SUB(bookingAdvertisement.TotalAmount),
+                Type = Notification_Type.SYSTEM_SUB,
+                IsRead = false,
+            };
+
+            NotificationDto notificationBookDto = new NotificationDto()
+            {
+                NotificationId = 0,
+                Uid = userOrderIsBalance.Id,
+                CreatedAt = DateTime.Now,
+                Content = Notification_Content.BOOKING_PAYEMT_SUCCRESSFUL(bookingAdvertisement.TotalAmount),
+                Type = Notification_Type.SYSTEM_SUB,
+                IsRead = false,
+            };
+
+            var notificationWallet = await _notificationService.AddAsync(notificationWalletDto);
+            var notificationBook = await _notificationService.AddAsync(notificationBookDto);
+
+
+            if (notificationWallet != null && notificationBook != null)
+            {
+                List<NotificationDto> notifications = new List<NotificationDto> { notificationWallet, notificationBook };
+                await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
             }
 
             return Ok("Thanh toán booking thành công");

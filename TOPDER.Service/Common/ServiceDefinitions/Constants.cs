@@ -108,7 +108,6 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string BOOKING = "Quảng Cáo";
             public static string ORDER = "Đơn Hàng";
             public static string RECHARGE = "Nạp Tiền";
-
         }
 
 
@@ -116,12 +115,14 @@ namespace TOPDER.Service.Common.ServiceDefinitions
         {
             public static string SYSTEM_ADD(decimal price)
             {
-                return $"Hệ thống cộng số tiền {price} vào ví của bạn.";
+                return $"Hệ thống cộng số tiền {price}đ vào ví của bạn.";
             }
+
             public static string SYSTEM_SUB(decimal price)
             {
-                return $"Hệ thống hỗ trợ rút số tiền {price} từ ví của bạn thành công.";
+                return $"Hệ thống trừ tiền {price}đ từ ví của bạn.";
             }
+
             public static string ADD_FEEDBACK()
             {
                 return $"Bạn có một đánh giá mới!";
@@ -145,6 +146,10 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string BOOKING_FAIL()
             {
                 return $"Liên hệ quảng cáo được chấp nhận.";
+            }
+            public static string BOOKING_PAYEMT_SUCCRESSFUL(decimal price)
+            {
+                return $"Thanh toán thành công liên hệ quảng cáo với giá tiền {price}đ.";
             }
             public static string BOOKING_CREATE()
             {

@@ -16,7 +16,7 @@ namespace TOPDER.Service.IServices
         Task<List<BookingAdvertisementViewDto>> GetAllBookingAdvertisementAvailableAsync();
         Task<List<BookingAdvertisementAdminDto>> GetAllBookingAdvertisementForAdminAsync();
         Task<BookingAdvertisementDto> UpdateStatusAsync(int bookingId, string status);
-        Task<bool> UpdateStatusPaymentAsync(int bookingId, string status);
+        Task<BookingAdvertisementDto> UpdateStatusPaymentAsync(int bookingId, string status);
 
     }
 }
