@@ -35,7 +35,7 @@ namespace TOPDER.Service.Services
             var createFeedback = await _feedbackRepository.CreateAndReturnAsync(feedback);
             if (createFeedback != null)
             {
-                return _mapper.Map<FeedbackDto>(feedbackDto);
+                return _mapper.Map<FeedbackDto>(createFeedback);
             }
             return null;
         }

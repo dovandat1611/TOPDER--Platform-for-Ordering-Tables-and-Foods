@@ -16,6 +16,7 @@ namespace TOPDER.Service.IServices
         Task<bool> IsReadAsync(int id);
         Task<bool> IsReadAllAsync(int userId);
         Task<bool> RemoveAsync(int id, int Uid);
+        Task<bool> RemoveRangeAsync(int userId);
         Task<NotificationDto> GetItemAsync(int notificationId, int userId);
         Task<PaginatedList<NotificationDto>> GetPagingAsync(int pageNumber, int pageSize, int userId);
     }

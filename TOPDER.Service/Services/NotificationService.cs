@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using TOPDER.Repository.Entities;
@@ -110,6 +111,17 @@ namespace TOPDER.Service.Services
                 return false;
             }
             return await _notificationRepository.DeleteAsync(id);
+        }
+
+        public async Task<bool> RemoveRangeAsync(int userId)
+        {
+            var queryable = await _notificationRepository.QueryableAsync();
+            var notifications = await queryable.Where(x => x.Uid == userId).ToListAsync();
+            if(notifications.Count > 0)
+            {
+                return await _notificationRepository.DeleteRangeAsync(notifications);
+            }
+            return false;
         }
 
         public async Task<bool> UpdateAsync(NotificationDto notificationDto)

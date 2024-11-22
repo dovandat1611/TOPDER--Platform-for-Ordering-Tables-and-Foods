@@ -86,9 +86,9 @@ namespace TOPDER.API.Controllers
 
         [HttpPut("IsReadAll/{userId}")]
         [SwaggerOperation(Summary = "Đánh dấu tất cả thông báo là đã đọc")]
-        public async Task<IActionResult> MarkAsReadAll(int userID)
+        public async Task<IActionResult> MarkAsReadAll(int userId)
         {
-            var result = await _notificationService.IsReadAllAsync(userID);
+            var result = await _notificationService.IsReadAllAsync(userId);
             if (result)
             {
                 return Ok("Thông báo đã được đánh dấu là đã đọc.");
@@ -124,6 +124,20 @@ namespace TOPDER.API.Controllers
             }
             return NotFound("Không tìm thấy thông báo hoặc thông báo không thuộc về user.");
         }
+
+
+        [HttpDelete("DeleteDeleteAll/{userId}")]
+        [SwaggerOperation(Summary = "Xóa tất cả thông báo")]
+        public async Task<IActionResult> DeleteAll(int userId)
+        {
+            var result = await _notificationService.RemoveRangeAsync(userId);
+            if (result)
+            {
+                return Ok("Xóa thông báo thành công.");
+            }
+            return NotFound("Không tìm thấy thông báo hoặc thông báo không thuộc về user.");
+        }
+
 
     }
 }
