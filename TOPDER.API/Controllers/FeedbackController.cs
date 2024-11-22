@@ -40,7 +40,7 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpDelete("{id}")]
+   /*     [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFeedback(int id)
         {
             var result = await _feedbackService.RemoveAsync(id);
@@ -49,7 +49,7 @@ namespace TOPDER.API.Controllers
                 return Ok($"Feedback with ID {id} deleted successfully.");
             }
             return NotFound($"Feedback with ID {id} not found.");
-        }
+        }*/
 
         [HttpPut]
         public async Task<IActionResult> UpdateFeedback([FromBody] FeedbackDto feedbackDto)
