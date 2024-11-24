@@ -96,7 +96,5 @@ namespace TOPDER.Test2.CategoryRestaurantControllerTest
             var response = result.Value as dynamic;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
         }
-
-        }
     }
 }

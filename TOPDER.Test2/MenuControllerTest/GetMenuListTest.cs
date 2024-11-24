@@ -31,51 +31,157 @@ namespace TOPDER.Test2.MenuControllerTest
         }
 
         [TestMethod]
-        public async Task GetMenuList_ValidRequest_ReturnsOk()
+        public async Task GetMenuList_NoMenuFound_ReturnsNotFound()
         {
             // Arrange
             int restaurantId = 1;
             int pageNumber = 1;
             int pageSize = 10;
-            var menuItems = new List<MenuRestaurantDto> { new MenuRestaurantDto { MenuId = 1, DishName = "Dish1" } };
-            var paginatedList = new PaginatedList<MenuRestaurantDto>(menuItems, menuItems.Count, pageNumber, pageSize);
+            int? categoryMenuId = null;
+            string? menuName = null;
 
-            _menuServiceMock.Setup(service => service.ListRestaurantPagingAsync(pageNumber, pageSize, restaurantId, null, null))
-                .ReturnsAsync(paginatedList);
+            _menuServiceMock
+                .Setup(service => service.ListRestaurantPagingAsync(pageNumber, pageSize, restaurantId, categoryMenuId, menuName))
+                .ReturnsAsync((PaginatedList<MenuRestaurantDto>)null); // Không có món ăn nào
 
             // Act
-            var result = await _controller.GetMenuList(restaurantId, pageNumber, pageSize);
+            var result = await _controller.GetMenuList(restaurantId, pageNumber, pageSize, categoryMenuId, menuName);
 
             // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
-
-            var response = okResult.Value as PaginatedResponseDto<MenuRestaurantDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.Items.Count);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
+            var notFoundResult = result as NotFoundObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Không tìm thấy món ăn nào cho nhà hàng được chỉ định.", notFoundResult?.Value);
         }
 
         [TestMethod]
-        public async Task GetMenuList_RestaurantIdNotFound_ReturnsNotFound()
+        public async Task GetMenuList_MenuFound_ReturnsOk()
         {
             // Arrange
-            int restaurantId = 999999;  // Non-existent restaurant ID
+            int restaurantId = 1;
             int pageNumber = 1;
             int pageSize = 10;
+            int? categoryMenuId = null;
+            string? menuName = null;
 
-            // Giả lập không tìm thấy món ăn nào cho nhà hàng có `restaurantId = 999999`
-            _menuServiceMock.Setup(service => service.ListRestaurantPagingAsync(pageNumber, pageSize, restaurantId, null, null))
-                .ReturnsAsync(new PaginatedList<MenuRestaurantDto>(new List<MenuRestaurantDto>(), 0, pageNumber, pageSize));
+            var menuList = new PaginatedList<MenuRestaurantDto>(new List<MenuRestaurantDto>
+            {
+                new MenuRestaurantDto
+                {
+                    MenuId = 1,
+                    CategoryMenuId = 1,
+                    CategoryMenuName = "Appetizers",
+                    DishName = "Spring Rolls",
+                    Price = 50,
+                    Image = "springrolls.jpg",
+                    Description = "Crispy and delicious",
+                    Status = "Available"
+                },
+                new MenuRestaurantDto
+                {
+                    MenuId = 2,
+                    CategoryMenuId = 1,
+                    CategoryMenuName = "Appetizers",
+                    DishName = "Salad",
+                    Price = 30,
+                    Image = "salad.jpg",
+                    Description = "Fresh and healthy",
+                    Status = "Available"
+                }
+            }, 1, 1,10);
+
+            _menuServiceMock
+                .Setup(service => service.ListRestaurantPagingAsync(pageNumber, pageSize, restaurantId, categoryMenuId, menuName))
+                .ReturnsAsync(menuList);
 
             // Act
-            var result = await _controller.GetMenuList(restaurantId, pageNumber, pageSize);
+            var result = await _controller.GetMenuList(restaurantId, pageNumber, pageSize, categoryMenuId, menuName);
 
             // Assert
-            var notFoundResult = result as NotFoundObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(notFoundResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status404NotFound, notFoundResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Không tìm thấy món ăn nào cho nhà hàng được chỉ định.", notFoundResult.Value);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            var okResult = result as OkObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult?.Value);
+
+            var response = okResult?.Value as PaginatedResponseDto<MenuRestaurantDto>;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(2, response.Items.Count);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.PageIndex);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.TotalPages);
         }
+        [TestMethod]
+        public async Task GetMenuList_InvalidRestaurantId_ReturnsNotFound()
+        {
+            // Arrange
+            int restaurantId = 99999; // Không tồn tại
+            int pageNumber = 1;
+            int pageSize = 10;
+            int? categoryMenuId = null;
+            string? menuName = null;
+
+            _menuServiceMock
+                .Setup(service => service.ListRestaurantPagingAsync(pageNumber, pageSize, restaurantId, categoryMenuId, menuName))
+                .ReturnsAsync((PaginatedList<MenuRestaurantDto>)null);
+
+            // Act
+            var result = await _controller.GetMenuList(restaurantId, pageNumber, pageSize, categoryMenuId, menuName);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
+            var notFoundResult = result as NotFoundObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Không tìm thấy món ăn nào cho nhà hàng được chỉ định.", notFoundResult?.Value);
+        }
+        [TestMethod]
+        public async Task GetMenuList_CategoryMenuIdAndMenuNameProvided_ReturnsOk()
+        {
+            // Arrange
+            int restaurantId = 1;
+            int pageNumber = 1;
+            int pageSize = 10;
+            int? categoryMenuId = 1; // Specific category menu ID
+            string? menuName = "Spring Rolls"; // Specific menu name
+
+            var menuList = new PaginatedList<MenuRestaurantDto>(new List<MenuRestaurantDto>
+            {
+                new MenuRestaurantDto
+                {
+                    MenuId = 1,
+                    CategoryMenuId = 1,
+                    CategoryMenuName = "Appetizers",
+                    DishName = "Spring Rolls",
+                    Price = 50,
+                    Image = "springrolls.jpg",
+                    Description = "Crispy and delicious",
+                    Status = "Available"
+                },
+                new MenuRestaurantDto
+                {
+                    MenuId = 2,
+                    CategoryMenuId = 1,
+                    CategoryMenuName = "Appetizers",
+                    DishName = "Salad",
+                    Price = 30,
+                    Image = "salad.jpg",
+                    Description = "Fresh and healthy",
+                    Status = "Available"
+                }
+            }, 1, 1, 10);
+
+            _menuServiceMock
+                .Setup(service => service.ListRestaurantPagingAsync(pageNumber, pageSize, restaurantId, categoryMenuId, menuName))
+                .ReturnsAsync(menuList);
+
+            // Act
+            var result = await _controller.GetMenuList(restaurantId, pageNumber, pageSize, categoryMenuId, menuName);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            var okResult = result as OkObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult?.Value);
+
+        }
+
     }
 }

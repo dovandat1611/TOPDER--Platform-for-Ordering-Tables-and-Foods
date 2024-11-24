@@ -68,9 +68,9 @@ namespace TOPDER.Test2.RestaurantTablesControllerTest
             // Arrange
             var tableDto = new RestaurantTableDto
             {
-                TableId = 999,
+                TableId = -1,
                 RestaurantId = 10,
-                RoomId = null,
+                RoomId = 1,
                 TableName = "Non-existent Table",
                 MaxCapacity = 4,
                 Description = null,

@@ -51,7 +51,7 @@ namespace TOPDER.Test2.MenuControllerTest
         {
             // Arrange
             var menuId = 1;
-            var status = "INVALID";  // Invalid status
+            var status = "";  // Invalid status
 
             // Act
             var result = await _controller.UpdateMenuStatus(menuId, status);
@@ -66,7 +66,7 @@ namespace TOPDER.Test2.MenuControllerTest
         public async Task UpdateMenuStatus_MenuNotFound_ReturnsBadRequest()
         {
             // Arrange
-            var menuId = 99999;  // Simulate a non-existing menu ID
+            var menuId = -1;  // Simulate a non-existing menu ID
             var status = "ACTIVE";
 
             // Simulate failed update (e.g., menu not found)

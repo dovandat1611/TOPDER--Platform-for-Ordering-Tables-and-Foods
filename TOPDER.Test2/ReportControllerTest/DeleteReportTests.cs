@@ -42,7 +42,7 @@ namespace TOPDER.Test2.ReportControllerTest
         public async Task DeleteReport_ReturnsNotFoundResult_WhenReportDoesNotExist()
         {
             // Arrange
-            int reportId = 999; // Assume this ID does not exist
+            int reportId = -1; // Assume this ID does not exist
             _reportServiceMock
                 .Setup(service => service.RemoveAsync(reportId))
                 .ReturnsAsync(false); // Simulate deletion failure

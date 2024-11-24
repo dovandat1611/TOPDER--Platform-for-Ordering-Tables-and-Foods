@@ -605,7 +605,7 @@ namespace TOPDER.API.Controllers
                 return Ok(orderDto);
             }
             catch (KeyNotFoundException)
-            {
+            {   
                 return NotFound($"Đơn hàng với ID {orderId} không tồn tại.");
             }
             catch (UnauthorizedAccessException)
@@ -630,7 +630,6 @@ namespace TOPDER.API.Controllers
                 result.HasPreviousPage,
                 result.HasNextPage
             );
-
             return Ok(response);
         }
 

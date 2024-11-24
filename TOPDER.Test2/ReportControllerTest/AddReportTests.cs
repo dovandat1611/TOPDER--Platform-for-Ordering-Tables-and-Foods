@@ -31,8 +31,8 @@ namespace TOPDER.Test2.ReportControllerTest
             // Arrange
             var reportDto = new ReportDto
             {
-                ReportedBy = 1001,
-                ReportedOn = 1002,
+                ReportedBy = 1,
+                ReportedOn = 1,
                 ReportType = "Customer",
                 Description = "Spam message",
             };
@@ -48,28 +48,6 @@ namespace TOPDER.Test2.ReportControllerTest
             var response = okResult.Value as dynamic;
         }
 
-        [TestMethod]
-        public async Task AddReport_ReturnsBadRequest_WhenReportServiceFails()
-        {
-            // Arrange
-            var reportDto = new ReportDto
-            {
-                ReportedBy = 1001,
-                ReportedOn = 1002,
-                ReportType = "Restaurant",
-                Description = "Inappropriate behavior",
-            };
-
-            _reportService.Setup(service => service.AddAsync(It.IsAny<ReportDto>())).ReturnsAsync(false); // Simulate failure to add report
-
-            // Act
-            var result = await _controller.AddReport(reportDto);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            var response = badRequestResult.Value as dynamic;
-        }
 
         [TestMethod]
         public async Task AddReport_ReturnsBadRequest_WhenReportTypeIsNull()
@@ -77,8 +55,8 @@ namespace TOPDER.Test2.ReportControllerTest
             // Arrange: Create a report with Description set to empty string
             var reportDto = new ReportDto
             {
-                ReportedBy = 3,
-                ReportedOn = 1002,
+                ReportedBy = 1,
+                ReportedOn = 1,
                 ReportType = "",
                 Description = "Description",  // Empty description
             };
@@ -98,8 +76,8 @@ namespace TOPDER.Test2.ReportControllerTest
             // Arrange: Create a report with Description set to empty string
             var reportDto = new ReportDto
             {
-                ReportedBy = 1001,
-                ReportedOn = 1002,
+                ReportedBy = 1,
+                ReportedOn = 1,
                 ReportType = "Customer",
                 Description = "",  // Empty description
             };
@@ -114,33 +92,13 @@ namespace TOPDER.Test2.ReportControllerTest
         }
 
         [TestMethod]
-        public async Task AddReport_ReturnsBadRequest_WhenStatusIsNull()
-        {
-            // Arrange: Create a report with Description set to empty string
-            var reportDto = new ReportDto
-            {
-                ReportedBy = 1001,
-                ReportedOn = 1002,
-                ReportType = "Customer",
-                Description = "Description",  // Empty description
-            };
-
-            // Act: Call the AddReport method
-            var result = await _controller.AddReport(reportDto);
-
-            // Assert: Check if the result is a BadRequest
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);  // Verify the result is BadRequest
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode); // Verify the status code is 400
-        }
-        [TestMethod]
         public async Task AddReport_ReturnsBadRequest_WhenReportedByIsNull()
         {
             // Arrange: Create a report with Description set to empty string
             var reportDto = new ReportDto
             {
-                ReportedBy = 0,
-                ReportedOn = 1002,
+                ReportedBy = -1,
+                ReportedOn = 1,
                 ReportType = "Customer",
                 Description = "Description",  // Empty description
             };

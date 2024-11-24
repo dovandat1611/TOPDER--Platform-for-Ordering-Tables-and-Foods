@@ -60,7 +60,7 @@ namespace TOPDER.Test2.NotificationControllerTest
         {
             // Arrange
             int userId = 1;
-            int notificationId = 100;
+            int notificationId = -1;
 
             // Mock _notificationService.GetItemAsync
             _notificationServiceMock.Setup(service => service.GetItemAsync(notificationId, userId))
@@ -82,8 +82,8 @@ namespace TOPDER.Test2.NotificationControllerTest
         public async Task GetById_UnauthorizedAccess_ReturnsForbid()
         {
             // Arrange
-            int userId = 1;
-            int notificationId = 100;
+            int userId = -1;
+            int notificationId = 1;
 
             // Mock _notificationService.GetItemAsync
             _notificationServiceMock.Setup(service => service.GetItemAsync(notificationId, userId))

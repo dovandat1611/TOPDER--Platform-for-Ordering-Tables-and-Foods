@@ -67,7 +67,7 @@ namespace TOPDER.Test2.RestaurantTablesControllerTest
         {
             // Arrange
             int restaurantId = 1;
-            int tableId = 10;
+            int tableId = -1;
             bool isEnabledBooking = true;
 
             _mockService.Setup(s => s.IsEnabledBookingAsync(tableId, restaurantId, isEnabledBooking))

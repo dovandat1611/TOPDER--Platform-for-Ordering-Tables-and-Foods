@@ -58,7 +58,7 @@ namespace TOPDER.Test2.RestaurantTablesControllerTest
         public async Task GetItemAsync_TableNotFound_ReturnsNotFound()
         {
             // Arrange
-            var tableId = 999;
+            var tableId = -1;
             var restaurantId = 10;
 
             _mockService.Setup(s => s.GetItemAsync(tableId, restaurantId))

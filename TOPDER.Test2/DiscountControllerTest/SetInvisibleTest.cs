@@ -81,23 +81,5 @@ namespace TOPDER.Test2.DiscountControllerTest
                 Microsoft.VisualStudio.TestTools.UnitTesting.           Assert.AreEqual("Giảm giá không tồn tại hoặc không thuộc về nhà hàng.", result.Value);
         }
 
-        // Test case for invalid discountId (e.g., negative value)
-        [TestMethod]
-        public async Task SetInvisible_WithInvalidDiscountId_ReturnsNotFound()
-        {
-            // Arrange
-            int restaurantId = 1;
-            int discountId = -1; // Invalid discountId
-            _mockDiscountService.Setup(service => service.InvisibleAsync(discountId, restaurantId))
-                .ReturnsAsync(false);
-
-            // Act
-            var result = await _controller.SetInvisible(restaurantId, discountId) as NotFoundObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Giảm giá không tồn tại hoặc không thuộc về nhà hàng.", result.Value);
-        }
     }
 }

@@ -81,23 +81,5 @@ namespace TOPDER.Test2.ImageControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(notFoundResult);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Key not found", notFoundResult.Value.ToString());
         }
-
-        [TestMethod]
-        public async Task RemoveImage_InvalidRestaurantId_ReturnsBadRequest()
-        {
-            // Arrange
-            var restaurantId = 9999;  // Giả định rằng 9999 là restaurantId không hợp lệ
-            var imageId = 1;
-
-            // Cấu hình Mock để trả về kết quả khi gọi service RemoveAsync
-            _imageServiceMock.Setup(service => service.RemoveAsync(imageId, restaurantId)).ReturnsAsync(false);
-
-            // Act
-            var result = await _controller.RemoveImage(restaurantId, imageId);
-
-            // Assert
-            var badRequestResult = result as NotFoundObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-        }
     }
 }

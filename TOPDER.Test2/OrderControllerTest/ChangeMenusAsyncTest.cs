@@ -158,7 +158,7 @@ namespace TOPDER.Test2.OrderControllerTest
             // Arrange
             var changeOrderMenu = new ChangeOrderMenuDto
             {
-                RestaurantId = 1,
+                RestaurantId = -1,
                 CustomerId = 1,
                 OrderId = 1,
                 orderMenus = new List<OrderMenuModelDto>

@@ -45,7 +45,7 @@ namespace TOPDER.Test2.RestaurantTablesControllerTest
         {
             // Arrange
             int restaurantId = 10;
-            int tableId = 999;
+            int tableId = -1;
             _mockService.Setup(s => s.InvisibleAsync(tableId, restaurantId)).ReturnsAsync(false);
 
             // Act

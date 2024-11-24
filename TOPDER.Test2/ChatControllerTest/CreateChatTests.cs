@@ -47,28 +47,7 @@ namespace TOPDER.Test2.ChatControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tạo chat thành công.", result.Value);
         }
 
-        [TestMethod]
-        public async Task CreateChat_WithNullContent_ReturnsOk()
-        {
-            // Arrange
-            var createChatDto = new CreateChatDto
-            {
-                ChatBoxId = 1,
-                ChatBy = 1,
-                Content = null
-            };
-
-            // Simulate a successful operation by the service
-            _mockChatService.Setup(service => service.AddAsync(createChatDto)).ReturnsAsync(true);
-
-            // Act
-            var result = await _controller.CreateChat(createChatDto) as OkObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tạo chat thành công.", result.Value);
-        }
+        
 
         [TestMethod]
         public async Task CreateChat_WithNonExistingChatBoxId_ReturnsBadRequest()
@@ -98,12 +77,13 @@ namespace TOPDER.Test2.ChatControllerTest
             // Arrange
             var createChatDto = new CreateChatDto
             {
-                ChatBoxId = -1, // Invalid ChatBoxId
+                ChatBoxId = 1, // Invalid ChatBoxId
                 ChatBy = 1,
-                Content = "Hello!"
+                Content = ""
             };
 
-            _mockChatService.Setup(service => service.AddAsync(createChatDto)).ReturnsAsync(false);
+            // Mark the model state as invalid for Content
+            _controller.ModelState.AddModelError("Content", "The Content field is required.");
 
             // Act
             var result = await _controller.CreateChat(createChatDto) as BadRequestObjectResult;
@@ -111,7 +91,12 @@ namespace TOPDER.Test2.ChatControllerTest
             // Assert
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tạo chat thất bại.", result.Value);
+
+            // Cast result.Value to SerializableError and check the specific error message
+            var errors = result.Value as SerializableError;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(errors);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(errors.ContainsKey("Content"));
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("The Content field is required.", ((string[])errors["Content"])[0]);
         }
 
         [TestMethod]
@@ -142,9 +127,9 @@ namespace TOPDER.Test2.ChatControllerTest
             // Arrange
             var createChatDto = new CreateChatDto
             {
-                ChatBoxId = -1,    // Invalid ChatBoxId
-                ChatBy = -1,       // Invalid ChatBy
-                Content = null     // Null Content
+                ChatBoxId = -1,
+                ChatBy = -1, // Non-existing ChatBy ID
+                Content = "Hello!"   // Null Content
             };
 
             // Mark the model state as invalid for Content

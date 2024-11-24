@@ -77,7 +77,7 @@ namespace TOPDER.Test2.RestaurantRoomControllerTest
         {
             // Arrange
             int restaurantId = 1;
-            int roomId = 2;
+            int roomId = 1;
             int pageNumber = 1;
             int pageSize = 10;
 

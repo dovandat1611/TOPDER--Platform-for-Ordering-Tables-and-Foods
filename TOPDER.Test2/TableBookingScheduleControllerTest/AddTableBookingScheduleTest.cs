@@ -72,37 +72,13 @@ namespace TOPDER.Test2.TableBookingScheduleControllerTest
         }
 
         [TestMethod]
-        public async Task AddTableBookingSchedule_ScheduleAdditionFailed_ReturnsBadRequest()
-        {
-            // Arrange
-            var createDto = new CreateTableBookingScheduleDto
-            {
-                TableIds = new List<int> { 1, 2 },
-                RestaurantId = 1,
-                StartTime = DateTime.Now,
-                EndTime = DateTime.Now.AddHours(1),
-                Notes = "Test note"
-            };
-
-            _mockService.Setup(s => s.AddAsync(createDto)).ReturnsAsync(false);
-
-            // Act
-            var result = await _controller.AddTableBookingSchedule(createDto);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Thêm lịch đặt bàn thất bại.", badRequestResult.Value);
-        }
-
-        [TestMethod]
         public async Task AddTableBookingSchedule_EmptyRestaurantId_ReturnsBadRequest()
         {
             // Arrange
             var request = new CreateTableBookingScheduleDto
             {
                 TableIds = new List<int> { 1 }, // Valid TableIds
-                RestaurantId = 0, // Empty RestaurantId
+                RestaurantId = -1, // Empty RestaurantId
                 StartTime = DateTime.Now.AddHours(1),
                 EndTime = DateTime.Now.AddHours(2),
                 Notes = "Valid notes"

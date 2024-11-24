@@ -66,7 +66,7 @@ namespace TOPDER.Test2.NotificationControllerTest
             // Arrange
             int pageNumber = 1;
             int pageSize = 10;
-            int userId = 9999;
+            int userId = -1;
 
             var notifications = new List<NotificationDto>();  // No notifications for the user
             var paginatedNotifications = new PaginatedList<NotificationDto>(notifications, notifications.Count, pageNumber, pageSize);

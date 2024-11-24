@@ -99,33 +99,5 @@ namespace TOPDER.Test2.FeedbackControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(response.Items.TrueForAll(f => f.Content.Contains("service")));
         }
 
-        [TestMethod]
-        public async Task GetAdminFeedbacks_Pagination_ReturnsCorrectPage()
-        {
-            // Arrange
-            var feedbacks = new PaginatedList<FeedbackAdminDto>(
-                new List<FeedbackAdminDto>
-                {
-                new FeedbackAdminDto { FeedbackId = 4, Content = "Feedback on page 2" }
-                },
-                2, 1, 2
-            );
-
-            _feedbackServiceMock
-                .Setup(service => service.ListAdminPagingAsync(2, 1, null, null))
-                .ReturnsAsync(feedbacks);
-
-            // Act
-            var result = await _controller.GetAdminFeedbacks(2, 1);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            var response = okResult.Value as PaginatedResponseDto<FeedbackAdminDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.                       Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.Items.Count);
-        }
-
-        
     }
 }

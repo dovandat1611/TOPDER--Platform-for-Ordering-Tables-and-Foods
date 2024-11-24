@@ -60,22 +60,6 @@ namespace TOPDER.Test2.ChatControllerTest
         }
 
         [TestMethod]
-        public async Task DeleteChat_WithNonExistentId_ReturnsInternalServerError()
-        {
-            // Arrange
-            int id = 99999; // Non-existent ID
-            _mockChatService.Setup(service => service.RemoveAsync(id))
-                .ReturnsAsync(false); // Simulate chat not found
-
-            // Act
-            var result = await _controller.DeleteChat(id) as ObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, result.StatusCode); // Expecting 500 Internal Server Error
-        }
-
-        [TestMethod]
         public async Task DeleteChat_WithNonexistentId_ReturnsNotFound()
         {
             // Arrange

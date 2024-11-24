@@ -86,7 +86,7 @@ namespace TOPDER.Test2.TableBookingScheduleControllerTest
         public async Task GetTableBookingSchedules_NoSchedules_ReturnsEmptyList()
         {
             // Arrange
-            int restaurantId = 1;
+            int restaurantId = 10;
             var mockSchedules = new List<TableBookingScheduleViewDto>();  // No schedules for this restaurant
 
             // Mock the service to return an empty list for the given restaurantId
@@ -109,7 +109,7 @@ namespace TOPDER.Test2.TableBookingScheduleControllerTest
         public async Task GetTableBookingSchedules_InvalidRestaurantId_ReturnsNotFound()
         {
             // Arrange
-            int invalidRestaurantId = 9999;  // Assume this ID does not exist
+            int invalidRestaurantId = -1;  // Assume this ID does not exist
             _mockService.Setup(service => service.GetTableBookingScheduleListAsync(invalidRestaurantId)).ReturnsAsync(new List<TableBookingScheduleViewDto>());
 
             // Act

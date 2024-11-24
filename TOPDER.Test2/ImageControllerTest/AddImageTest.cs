@@ -76,7 +76,7 @@ namespace TOPDER.Test2.ImageControllerTest
             _cloudinaryServiceMock
                 .Setup(service => service.UploadImagesAsync(mockFiles))
                 .ReturnsAsync(uploadResults);
-
+                
             // Prepare expected ImageDto list
             List<ImageDto> imageDtos = new List<ImageDto>
             {

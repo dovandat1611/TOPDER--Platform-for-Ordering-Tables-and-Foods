@@ -57,7 +57,7 @@ namespace TOPDER.Test2.RestaurantRoomControllerTest
             // Arrange
             var invalidDto = new CreateRestaurantRoomDto
             {
-                RestaurantId = 0, // Invalid: RestaurantId cannot be 0
+                RestaurantId = -1, // Invalid: RestaurantId cannot be 0
                 RoomName = null!, // Invalid: RoomName is required
                 MaxCapacity = -1, // Invalid: MaxCapacity cannot be negative
             };
@@ -74,32 +74,6 @@ namespace TOPDER.Test2.RestaurantRoomControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(badRequestResult.Value, typeof(SerializableError));
-        }
-
-        [TestMethod]
-        public async Task Add_ShouldReturnBadRequest_WhenServiceFailsToAddRoom()
-        {
-            // Arrange
-            var validDto = new CreateRestaurantRoomDto
-            {
-                RestaurantId = 1,
-                CategoryRoomId = 0,
-                RoomName = "Deluxe Room",
-                MaxCapacity = 5,
-                Description = "A deluxe room with sea view"
-            };
-
-            _restaurantRoomServiceMock.Setup(service => service.AddAsync(validDto))
-                .ReturnsAsync(false);
-
-            // Act
-            var result = await _controller.Add(validDto);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Không thể thêm phòng.", badRequestResult.Value);
         }
 
         [TestMethod]

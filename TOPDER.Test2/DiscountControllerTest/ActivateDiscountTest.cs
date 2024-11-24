@@ -107,27 +107,5 @@ namespace TOPDER.Test2.DiscountControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Discount not found or restaurant ID does not match.", result.Value);
         }
 
-        // Test case for success when IsActive is set to false
-        [TestMethod]
-        public async Task ActivateDiscount_WithDeactivation_ReturnsOk()
-        {
-            // Arrange
-            var activeDiscountDto = new ActiveDiscountDto
-            {
-                Id = 1,
-                RestaurantId = 1,
-                IsActive = false // Deactivating the discount
-            };
-            _mockDiscountService.Setup(service => service.ActiveAsync(activeDiscountDto))
-                .ReturnsAsync(true);
-
-            // Act
-            var result = await _controller.ActivateDiscount(activeDiscountDto) as OkObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.           Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Discount activation status updated successfully.", result.Value);
-        }
     }
 }

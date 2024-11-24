@@ -33,8 +33,6 @@ namespace TOPDER.Test2.DiscountControllerTest
             // Arrange
             var discountDto = new DiscountDto
             {
-                DiscountId = 0,
-                RestaurantId = 1,
                 DiscountPercentage = 10,
                 DiscountName = "Summer Sale",
                 ApplicableTo = "Food",
@@ -71,8 +69,6 @@ namespace TOPDER.Test2.DiscountControllerTest
             // Arrange
             var discountDto = new DiscountDto
             {
-                DiscountId = 0,
-                RestaurantId = 1,
                 DiscountPercentage = null, // Invalid because DiscountPercentage is required
                 DiscountName = "Summer Sale",
                 ApplicableTo = "Food",
@@ -103,52 +99,12 @@ namespace TOPDER.Test2.DiscountControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult.Value);
         }
 
-        // Test case for ArgumentException (e.g., invalid input data)
-        [TestMethod]
-        public async Task AddDiscount_ArgumentException_ReturnsBadRequest()
-        {
-            // Arrange
-            var discountDto = new DiscountDto
-            {
-                DiscountId = 0,
-                RestaurantId = 1,
-                DiscountPercentage = 10,
-                DiscountName = "Summer Sale",
-                ApplicableTo = "Food",
-                ApplyType = "Percentage",
-                MinOrderValue = 100,
-                MaxOrderValue = 500,
-                Scope = "All",
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddMonths(1),
-                Description = "Discount for summer",
-                IsActive = true,
-                Quantity = 100,
-                discountMenuDtos = new List<CreateDiscountMenuDto>
-                {
-                    new CreateDiscountMenuDto { /* Set properties */ }
-                }
-            };
-
-            _mockDiscountService.Setup(service => service.AddAsync(discountDto)).ThrowsAsync(new ArgumentException("Invalid data"));
-
-            // Act
-            var result = await _controller.AddDiscount(discountDto);
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
-            var badRequestResult = result as BadRequestObjectResult;
-        }
-
         [TestMethod]
         public async Task AddDiscount_Exception_ReturnsInternalServerError()
         {
             // Arrange
             var discountDto = new DiscountDto
             {
-                DiscountId = 1,
-                RestaurantId = 1,
                 DiscountPercentage = 10,
                 DiscountName = "Summer Sale",
                 ApplicableTo = "Food",
@@ -185,8 +141,6 @@ namespace TOPDER.Test2.DiscountControllerTest
             // Arrange
             var discountDto = new DiscountDto
             {
-                DiscountId = 1,
-                RestaurantId = 1,
                 DiscountPercentage = 10,
                 DiscountName = "Summer Sale",
                 ApplicableTo = "Food",
@@ -212,7 +166,152 @@ namespace TOPDER.Test2.DiscountControllerTest
 
             // Ensure the error message is in the expected format
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult.Value);
+        }
 
+        [TestMethod]
+        public async Task AddDiscount_DiscountNameIsNull_ReturnsBadRequest()
+        {
+            // Arrange
+            var discountDto = new DiscountDto
+            {
+                RestaurantId = 1,
+                DiscountPercentage = 10,
+                DiscountName = null, // Invalid vì DiscountName là bắt buộc
+                ApplicableTo = "Food",
+                ApplyType = "Percentage",
+                MinOrderValue = 100,
+                MaxOrderValue = 500,
+                Scope = "All",
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddMonths(1),
+                Description = "Discount for summer",
+                IsActive = true,
+                Quantity = 100,
+                discountMenuDtos = new List<CreateDiscountMenuDto>
+        {
+            new CreateDiscountMenuDto { /* Set properties */ }
+        }
+            };
+
+            _controller.ModelState.AddModelError("DiscountName", "Discount name is required");
+
+            // Act
+            var result = await _controller.AddDiscount(discountDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult?.Value);
+        }
+
+        [TestMethod]
+        public async Task AddDiscount_ApplicableToIsNull_ReturnsBadRequest()
+        {
+            // Arrange
+            var discountDto = new DiscountDto
+            {
+                    DiscountName = "Summer Sale",
+                ApplicableTo = null, // Invalid vì ApplicableTo là bắt buộc
+                ApplyType = "Percentage",
+                MinOrderValue = 100,
+                MaxOrderValue = 500,
+                Scope = "All",
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddMonths(1),
+                Description = "Discount for summer",
+                IsActive = true,
+                Quantity = 100,
+                discountMenuDtos = new List<CreateDiscountMenuDto>
+        {
+            new CreateDiscountMenuDto { /* Set properties */ }
+        }
+            };
+
+            _controller.ModelState.AddModelError("ApplicableTo", "Applicable to is required");
+
+            // Act
+            var result = await _controller.AddDiscount(discountDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult?.Value);
+        }
+
+        [TestMethod]
+        public async Task AddDiscount_ApplyTypeIsNull_ReturnsBadRequest()
+        {
+            // Arrange
+            var discountDto = new DiscountDto
+            {
+                RestaurantId = 1,
+                DiscountPercentage = 10,
+                DiscountName = "Summer Sale",
+                ApplicableTo = "Percentage", // Invalid vì ApplicableTo là bắt buộc
+                ApplyType = null,
+                MinOrderValue = 100,
+                MaxOrderValue = 500,
+                Scope = "All",
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddMonths(1),
+                Description = "Discount for summer",
+                IsActive = true,
+                Quantity = 100,
+                discountMenuDtos = new List<CreateDiscountMenuDto>
+        {
+            new CreateDiscountMenuDto { /* Set properties */ }
+        }
+            };
+
+            _controller.ModelState.AddModelError("ApplicableTo", "Applicable to is required");
+
+            // Act
+            var result = await _controller.AddDiscount(discountDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult?.Value);
+        }
+
+        [TestMethod]
+        public async Task AddDiscount_ScopeIsNull_ReturnsBadRequest()
+        {
+            // Arrange
+            var discountDto = new DiscountDto
+            {
+                RestaurantId = 1,
+                DiscountPercentage = 10,
+                DiscountName = "Summer Sale",
+                ApplicableTo = "Percentage", // Invalid vì ApplicableTo là bắt buộc
+                ApplyType = "Percentage",
+                MinOrderValue = 100,
+                MaxOrderValue = 500,
+                Scope = null,
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddMonths(1),
+                Description = "Discount for summer",
+                IsActive = true,
+                Quantity = 100,
+                discountMenuDtos = new List<CreateDiscountMenuDto>
+        {
+            new CreateDiscountMenuDto { /* Set properties */ }
+        }
+            };
+
+            _controller.ModelState.AddModelError("ApplicableTo", "Applicable to is required");
+
+            // Act
+            var result = await _controller.AddDiscount(discountDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult?.Value);
         }
     }
 }

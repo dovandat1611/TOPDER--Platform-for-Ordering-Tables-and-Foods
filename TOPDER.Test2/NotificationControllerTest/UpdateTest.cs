@@ -177,7 +177,7 @@ namespace TOPDER.Test2.NotificationControllerTest
         {
             var notificationDto = new NotificationDto
             {
-                NotificationId = 9999,  // Invalid NotificationId that doesn't exist
+                NotificationId = -1,  // Invalid NotificationId that doesn't exist
                 Uid = 1,  // Valid UID
                 Content = "Updated content",
                 Type = "SYSTEM_ADD"

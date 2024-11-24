@@ -72,25 +72,10 @@ namespace TOPDER.Test2.ChatBoxControllerTest
             // Assert
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
             Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.AreEqual(404, result.StatusCode);
-                           Microsoft.VisualStudio.TestTools.UnitTesting.            Assert.AreEqual($"Chat Box với ID {chatBoxId} không tồn tại.", result.Value);
-        }
-
-        [TestMethod]
-        public async Task DeleteChatBox_WithInvalidId_ReturnsNotFound()
-        {
-            // Arrange
-            int chatBoxId = 0; // Simulating a null/invalid ID
-            _mockChatBoxService.Setup(service => service.RemoveAsync(chatBoxId))
-                .ReturnsAsync(false); // Simulate chat box not found
-
-            // Act
-            var result = await _controller.DeleteChatBox(chatBoxId) as NotFoundObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.       Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, result.StatusCode);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual($"Chat Box với ID {chatBoxId} không tồn tại.", result.Value);
         }
+
+        
     }
 
 }

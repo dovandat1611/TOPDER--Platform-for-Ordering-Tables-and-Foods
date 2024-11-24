@@ -58,7 +58,7 @@ namespace TOPDER.Test2.RestaurantRoomControllerTest
         {
             // Arrange
             var restaurantId = 1;
-            var roomId = 999;
+            var roomId = -1;
 
             _restaurantRoomServiceMock.Setup(service => service.GetItemAsync(roomId, restaurantId))
                 .ThrowsAsync(new KeyNotFoundException($"Không tìm thấy bàn với Id {roomId}."));

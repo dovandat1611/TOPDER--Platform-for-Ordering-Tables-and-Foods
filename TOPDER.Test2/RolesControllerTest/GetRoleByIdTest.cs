@@ -52,7 +52,7 @@ namespace TOPDER.Test2.RolesControllerTest
         public async Task GetRoleById_RoleNotFound_ReturnsNotFound()
         {
             // Arrange
-            int roleId = 999; // Non-existing role
+            int roleId = -1; // Non-existing role
             _mockRoleService.Setup(s => s.GetByIdAsync(roleId)).ThrowsAsync(new KeyNotFoundException("Role not found"));
 
             // Act

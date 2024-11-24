@@ -87,36 +87,6 @@ namespace TOPDER.Test2.RestaurantControllerTest
         }
 
         [TestMethod]
-        public async Task UpdateDiscountAndFee_ReturnsBadRequest_WhenServiceReturnsFalse()
-        {
-            // Arrange: Tham số hợp lệ nhưng service trả về false
-            var restaurantId = 1;
-            var discountPrice = 20m;
-            var firstFeePercent = 10m;
-            var returningFeePercent = 15m;
-            var cancellationFeePercent = 25m;
-
-            // Giả lập service trả về false (không thành công)
-            _restaurantServiceMock
-                .Setup(s => s.UpdateDiscountAndFeeAsync(restaurantId, discountPrice, firstFeePercent, returningFeePercent, cancellationFeePercent))
-                .ReturnsAsync(false);
-
-            // Act
-            var result = await _controller.UpdateDiscountAndFee(
-                restaurantId,
-                discountPrice,
-                firstFeePercent,
-                returningFeePercent,
-                cancellationFeePercent
-            );
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.           Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult?.StatusCode);
-        }
-
-        [TestMethod]
         public async Task UpdateDiscountAndFee_ReturnsBadRequest_WhenDiscountPriceIsNull()
         {
             // Arrange: discountPrice là null

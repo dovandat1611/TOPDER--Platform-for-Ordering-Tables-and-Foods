@@ -45,7 +45,7 @@ namespace TOPDER.Test2.TableBookingScheduleControllerTest
         public async Task RemoveTableBookingSchedule_InvalidId_ReturnsNotFound()
         {
             // Arrange
-            int invalidId = 9999; // Invalid ID that does not exist
+            int invalidId = -1; // Invalid ID that does not exist
             _mockService.Setup(service => service.RemoveAsync(invalidId)).ReturnsAsync(false); // Mock service to return false when no schedule is removed
 
             // Act

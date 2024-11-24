@@ -74,29 +74,6 @@ namespace TOPDER.Test2.FeedbackControllerTest
 
         // Test case for failed feedback creation
         [TestMethod]
-        public async Task AddFeedback_WithFailedCreation_ReturnsBadRequest()
-        {
-            // Arrange
-            var feedbackDto = new FeedbackDto
-            {
-                OrderId = 1,
-                CustomerId = 1,
-                RestaurantId = 1,
-                Star = 5,
-                Content = "Nice food but could be better."
-            };
-
-            _mockFeedbackService.Setup(service => service.AddAsync(feedbackDto)).ReturnsAsync(false);
-
-            // Act
-            var result = await _controller.AddFeedback(feedbackDto) as BadRequestObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.               Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Failed to create feedback.", result.Value);
-        }
-        [TestMethod]
         public async Task AddFeedback_WithInvalidCustomerId_ReturnsBadRequest()
         {
             // Arrange

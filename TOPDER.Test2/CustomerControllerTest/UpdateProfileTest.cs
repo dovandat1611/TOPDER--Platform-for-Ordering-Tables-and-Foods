@@ -98,7 +98,7 @@ namespace TOPDER.Test2.CustomerControllerTest
 
         // Test case for successful profile update
         [TestMethod]
-        public async Task UpdateProfile_SuccessfulUpdate_ReturnsOk()
+            public async Task UpdateProfile_SuccessfulUpdate_ReturnsOk()
         {
             // Arrange
             var customerProfile = new CustomerProfileDto

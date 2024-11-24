@@ -27,122 +27,7 @@ namespace TOPDER.Test2.MenuControllerTest
         }
 
         [TestMethod]
-        public async Task CreateMenu_ValidRequest_ReturnsOkResult()
-        {
-            // Arrange
-            var menuDto = new MenuDto { DishName = "Test Dish", Price = 10.5m, Description = "A sample description" };
-            
-            _menuServiceMock.Setup(service => service.AddAsync(It.IsAny<MenuDto>()))
-            .ReturnsAsync(true); // Trả về `true` hoặc `false` tùy theo yêu cầu của test case
-
-
-            // Act
-            var result = await _controller.Create(menuDto);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(true, okResult.Value);
-        }
-
-        [TestMethod]
-        public async Task CreateMenu_NoFileUploaded_ReturnsOk()
-        {
-            // Arrange
-            var menuDto = new MenuDto { DishName = "Test Dish", Price = 10.5m };
-
-            _menuServiceMock.Setup(service => service.AddAsync(It.IsAny<MenuDto>()))
-            .ReturnsAsync(true); // Trả về `true` hoặc `false` tùy theo yêu cầu của test case
-
-
-            // Act
-            var result = await _controller.Create(menuDto);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(true, okResult.Value);
-        }
-
-        [TestMethod]
-        public async Task CreateMenu_EmptyFile_ReturnOk()
-        {
-            // Arrange
-            var menuDto = new MenuDto { DishName = "Test Dish", Price = 10.5m , Description = "A sample description" };
-            // Act
-            _menuServiceMock.Setup(service => service.AddAsync(It.IsAny<MenuDto>()))
-             .ReturnsAsync(true); // Trả về `true` hoặc `false` tùy theo yêu cầu của test case
-
-
-            // Act
-            var result = await _controller.Create(menuDto);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(true, okResult.Value);
-        }
-
-        [TestMethod]
-        public async Task CreateMenu_FailedUpload_ReturnsOk()
-        {
-            // Arrange
-            var menuDto = new MenuDto { DishName = "Test Dish", Price = 10.5m, Description = "A sample description" };
-
-            _menuServiceMock.Setup(service => service.AddAsync(It.IsAny<MenuDto>()))
-            .ReturnsAsync(true); // Trả về `true` hoặc `false` tùy theo yêu cầu của test case
-
-
-            // Act
-            var result = await _controller.Create(menuDto);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(true, okResult.Value);
-        }
-
-        [TestMethod]
-        public async Task CreateMenu_InvalidModelState_ReturnsBadRequest()
-        {
-            // Arrange
-            var menuDto = new MenuDto { DishName = "", Price = 10.5m, Description = "A sample description" }; // Invalid DishName
-            var file = new Mock<IFormFile>();
-
-            _controller.ModelState.AddModelError("DishName", "Dish name is required.");
-
-            // Act
-            var result = await _controller.Create(menuDto);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-
-            // Thay đổi kiểm tra IsTrue thành Assert cho chính xác hơn
-            var errorMessages = badRequestResult.Value.ToString();
-            
-        }
-
-        
-        [TestMethod]
-        public async Task CreateMenu_AddMenuFailed_ReturnsInternalServerError()
-        {
-            // Arrange
-            var menuDto = new MenuDto { DishName = "Test Dish", Price = 10.5m, Description = "A sample description" };
-            _menuServiceMock.Setup(service => service.AddAsync(menuDto)).ThrowsAsync(new Exception("Database error"));
-
-            // Act
-            var result = await _controller.Create(menuDto);
-
-            // Assert
-            var internalServerErrorResult = result as ObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(internalServerErrorResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status500InternalServerError, internalServerErrorResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.               Assert.AreEqual("Failed to create restaurant menu: Database error", internalServerErrorResult.Value);
-        }
-
-        [TestMethod]
-        public async Task Create_PriceZero_ReturnsOk()
+        public async Task Create_DishNameIsNull_ReturnsBadRequest()
         {
             // Arrange
             var menuDto = new MenuDto
@@ -150,17 +35,163 @@ namespace TOPDER.Test2.MenuControllerTest
                 MenuId = 1,
                 RestaurantId = 1,
                 CategoryMenuId = 1,
-                DishName = "Sample Dish",
-                Price = 0,  // Price is zero
-                Description = "A sample description"
+                DishName = null, // Invalid vì DishName là bắt buộc
+                Price = 100,
+                Image = "dish.jpg",
+                Description = "Delicious dish"
             };
+
+            _controller.ModelState.AddModelError("DishName", "Dish name is required");
+
             // Act
             var result = await _controller.Create(menuDto);
 
             // Assert
-            var badRequestResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult?.Value);
+        }
+        [TestMethod]
+        public async Task Create_PriceIsZero_ReturnsBadRequest()
+        {
+            // Arrange
+            var menuDto = new MenuDto
+            {
+                MenuId = 1,
+                RestaurantId = 1,
+                CategoryMenuId = 1,
+                DishName = "Special Dish",
+                Price = 0, // Invalid vì giá món ăn không thể bằng 0
+                Image = "dish.jpg",
+                Description = "Delicious dish"
+            };
+
+            _controller.ModelState.AddModelError("Price", "Price must be greater than zero");
+
+            // Act
+            var result = await _controller.Create(menuDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult?.Value);
         }
 
-     }
+        [TestMethod]
+        public async Task Create_RestaurantIdIsZero_ReturnsBadRequest()
+        {
+            // Arrange
+            var menuDto = new MenuDto
+            {
+                MenuId = 1,
+                RestaurantId = 0, // Invalid vì RestaurantId là bắt buộc
+                CategoryMenuId = 1,
+                DishName = "Special Dish",
+                Price = 100,
+                Image = "dish.jpg",
+                Description = "Delicious dish"
+            };
+
+            _controller.ModelState.AddModelError("RestaurantId", "Restaurant ID is required");
+
+            // Act
+            var result = await _controller.Create(menuDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult?.Value);
+        }
+        [TestMethod]
+        public async Task Create_ValidMenuDto_ReturnsOkResult()
+        {
+            // Arrange
+            var menuDto = new MenuDto
+            {
+                MenuId = 1,
+                RestaurantId = 1,
+                CategoryMenuId = 1,
+                DishName = "Special Dish",
+                Price = 100,
+                Image = "dish.jpg",
+                Description = "Delicious dish"
+            };
+
+            var expectedResponse = new { Success = true, MenuId = 1 };
+            _menuServiceMock
+                .Setup(service => service.AddAsync(It.IsAny<MenuDto>()))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await _controller.Create(menuDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            var okResult = result as OkObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult?.Value);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(true, okResult.Value);
+        }
+
+        [TestMethod]
+        public async Task Create_CategoryMenuIdIsNull_ReturnsBadRequest()
+        {
+            // Arrange
+            var menuDto = new MenuDto
+            {
+                MenuId = 1,
+                RestaurantId = 1,
+                CategoryMenuId = null, // Invalid nếu CategoryMenuId là bắt buộc
+                DishName = "Special Dish",
+                Price = 100,
+                Image = "dish.jpg",
+                Description = "Delicious dish"
+            };
+
+            _controller.ModelState.AddModelError("CategoryMenuId", "Category menu ID is required");
+
+            // Act
+            var result = await _controller.Create(menuDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult?.Value);
+        }
+        [TestMethod]
+        public async Task Create_ServiceThrowsException_ReturnsInternalServerError()
+        {
+            // Arrange
+            var menuDto = new MenuDto
+            {
+                MenuId = 1,
+                RestaurantId = 1,
+                CategoryMenuId = 1,
+                DishName = "Special Dish",
+                Price = 100,
+                Image = "dish.jpg",
+                Description = "Delicious dish"
+            };
+
+            _menuServiceMock
+                .Setup(service => service.AddAsync(It.IsAny<MenuDto>()))
+                .ThrowsAsync(new Exception("Test exception"));
+
+            // Act
+            var result = await _controller.Create(menuDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(ObjectResult));
+            var objectResult = result as ObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(objectResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(500, objectResult.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Failed to create restaurant menu: Test exception", objectResult.Value);
+        }
+
+    }
 }

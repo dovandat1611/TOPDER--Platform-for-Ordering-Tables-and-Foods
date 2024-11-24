@@ -82,10 +82,65 @@ namespace TOPDER.Test2.OrderControllerTest
             // Arrange
             int pageNumber = 1;
             int pageSize = 10;
-            int restaurantId = 456;
+            int restaurantId = 1;
             string? status = "Completed";
             DateTime? month = new DateTime(2024, 11, 1);
             DateTime? date = null;
+
+            var orders = new List<OrderRestaurantDto>
+    {
+        new OrderRestaurantDto { OrderId = 1, CustomerName = "Customer A", TotalAmount = 100 },
+        new OrderRestaurantDto { OrderId = 2, CustomerName = "Customer B", TotalAmount = 200 }
+    };
+            var paginatedList = new PaginatedList<OrderRestaurantDto>(orders, orders.Count, pageNumber, pageSize);
+
+            _orderServiceMock.Setup(x => x.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId, status, month, date))
+                             .ReturnsAsync(paginatedList);
+
+            _orderMenuServiceMock.Setup(x => x.GetItemsByOrderAsync(It.IsAny<int>()))
+                                 .ReturnsAsync(new List<OrderMenuDto>
+                                 {
+                             new OrderMenuDto { MenuId = 1, MenuName = "Menu A", Quantity = 2 }
+                                 });
+
+            _orderTableServiceMock.Setup(x => x.GetItemsByOrderAsync(It.IsAny<int>()))
+                                  .ReturnsAsync(new List<OrderTableDto>
+                                  {
+                              new OrderTableDto { TableId = 1, TableName = "Table A" }
+                                  });
+
+            // Act
+            var result = await _controller.GetRestaurantPaging(pageNumber, pageSize, restaurantId, status, month, date);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
+
+            var response = okResult.Value as PaginatedResponseDto<OrderRestaurantDto>;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(2, response.Items.Count());
+
+            var firstOrder = response.Items.First();
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, firstOrder.OrderId);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Customer A", firstOrder.CustomerName);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(100, firstOrder.TotalAmount);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, firstOrder.OrderMenus.Count);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Menu A", firstOrder.OrderMenus.First().MenuName);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, firstOrder.OrderTables.Count);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Table A", firstOrder.OrderTables.First().TableName);
+        }
+
+        [TestMethod]
+        public async Task GetRestaurantPaging_ShouldReturnOk_WhenDataAndMonthIsRetrievedSuccessfully()
+        {
+            // Arrange
+            int pageNumber = 1;
+            int pageSize = 10;
+            int restaurantId = 1;
+            string? status = "Completed";
+            DateTime? month = new DateTime(2024, 11, 1);
+            DateTime? date = new DateTime(2024, 11, 1);
 
             var orders = new List<OrderRestaurantDto>
     {
@@ -137,8 +192,37 @@ namespace TOPDER.Test2.OrderControllerTest
             // Arrange
             int pageNumber = 1;
             int pageSize = 10;
-            int restaurantId = 456;
+            int restaurantId = 1;
             string? status = "Pending";
+            DateTime? month = null;
+            DateTime? date = null;
+
+            var paginatedList = new PaginatedList<OrderRestaurantDto>(new List<OrderRestaurantDto>(), 0, pageNumber, pageSize);
+
+            _orderServiceMock.Setup(x => x.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId, status, month, date))
+                             .ReturnsAsync(paginatedList);
+
+            // Act
+            var result = await _controller.GetRestaurantPaging(pageNumber, pageSize, restaurantId, status, month, date);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
+
+            var response = okResult.Value as PaginatedResponseDto<OrderRestaurantDto>;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(0, response.Items.Count());
+        }
+
+        [TestMethod]
+        public async Task GetRestaurantPaging_ShouldReturnOk_WithEmptyList_WhenStatusIsNull()
+        {
+            // Arrange
+            int pageNumber = 1;
+            int pageSize = 10;
+            int restaurantId = 456;
+            string? status = "";
             DateTime? month = null;
             DateTime? date = null;
 

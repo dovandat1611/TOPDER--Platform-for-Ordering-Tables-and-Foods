@@ -78,7 +78,7 @@ namespace TOPDER.Test2.RestaurantControllerTest
         public async Task UpdateDescription_RestaurantNotFound()
         {
             // Arrange
-            var restaurantId = 99999; // Assuming this ID doesn't exist
+            var restaurantId = -1; // Assuming this ID doesn't exist
             var description = "New Description";
             var subDescription = "New Subdescription";
 

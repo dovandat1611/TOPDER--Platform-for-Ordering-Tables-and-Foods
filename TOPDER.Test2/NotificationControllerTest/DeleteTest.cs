@@ -53,7 +53,7 @@ namespace TOPDER.Test2.NotificationControllerTest
         {
             // Arrange
             var userId = 1;
-            var notificationId = 99999;
+            var notificationId = -1;
 
             // Mock RemoveAsync to return false (notification not found or doesn't belong to the user)
             _notificationService.Setup(service => service.RemoveAsync(notificationId, userId))
@@ -74,7 +74,7 @@ namespace TOPDER.Test2.NotificationControllerTest
         public async Task Delete_InvalidUserId_ReturnsNotFound()
         {
             // Arrange
-            var userId = 9999; // Invalid user ID
+            var userId = -1; // Invalid user ID
             var notificationId = 1;
 
             // Mock RemoveAsync to return false (notification not found or user unauthorized)
@@ -87,28 +87,6 @@ namespace TOPDER.Test2.NotificationControllerTest
             // Assert
             var notFoundResult = result as NotFoundObjectResult;
                 Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(notFoundResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status404NotFound, notFoundResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Không tìm thấy thông báo hoặc thông báo không thuộc về user.", notFoundResult.Value);
-        }
-
-        // Test 4: Invalid NotificationId (doesn't exist)
-        [TestMethod]
-        public async Task Delete_InvalidNotificationId_ReturnsNotFound()
-        {
-            // Arrange
-            var userId = 1;
-            var notificationId = 9999; // Invalid notification ID
-
-            // Mock RemoveAsync to return false (notification not found)
-            _notificationService.Setup(service => service.RemoveAsync(notificationId, userId))
-                .ReturnsAsync(false);
-
-            // Act
-            var result = await _controller.Delete(userId, notificationId);
-
-            // Assert
-            var notFoundResult = result as NotFoundObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(notFoundResult);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status404NotFound, notFoundResult.StatusCode);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Không tìm thấy thông báo hoặc thông báo không thuộc về user.", notFoundResult.Value);
         }

@@ -78,7 +78,7 @@ namespace TOPDER.Test2.OrderControllerTest
         {
             // Arrange
             int Uid = 1;
-            int orderId = 123;
+            int orderId = 1;
 
             var orderDto = new OrderDto { OrderId = orderId };
             var orderTables = new List<OrderTableDto> { new OrderTableDto { TableId = 1 } };
@@ -107,7 +107,7 @@ namespace TOPDER.Test2.OrderControllerTest
         {
             // Arrange
             int Uid = 1;
-            int orderId = 123;
+            int orderId = -1;
 
             _orderServiceMock.Setup(x => x.GetItemAsync(orderId, Uid)).ThrowsAsync(new KeyNotFoundException());
 
@@ -125,7 +125,7 @@ namespace TOPDER.Test2.OrderControllerTest
         {
             // Arrange
             int Uid = 1;
-            int orderId = 123;
+            int orderId = 1;
 
             _orderServiceMock.Setup(x => x.GetItemAsync(orderId, Uid)).ThrowsAsync(new UnauthorizedAccessException());
 

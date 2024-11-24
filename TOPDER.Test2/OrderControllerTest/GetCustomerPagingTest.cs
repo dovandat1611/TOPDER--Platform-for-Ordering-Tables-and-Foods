@@ -112,7 +112,7 @@ namespace TOPDER.Test2.OrderControllerTest
             // Arrange
             int pageNumber = 1;
             int pageSize = 10;
-            int customerId = 123;
+            int customerId = -1;
             string? status = "Pending";
 
             var paginatedList = new PaginatedList<OrderCustomerDto>(new List<OrderCustomerDto>(), 0, pageNumber, pageSize);
@@ -137,7 +137,7 @@ namespace TOPDER.Test2.OrderControllerTest
         {
             // Arrange
             int pageNumber = 1;
-            int pageSize = -1; // Invalid page size
+            int pageSize = 1; // Invalid page size
             int customerId = 123;
             string? status = null;
 

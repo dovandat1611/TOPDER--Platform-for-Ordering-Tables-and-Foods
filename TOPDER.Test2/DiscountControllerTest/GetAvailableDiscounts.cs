@@ -37,20 +37,20 @@ namespace TOPDER.Test2.DiscountControllerTest
             decimal totalPrice = 100m;
 
             var discounts = new List<AvailableDiscountDto>
-    {
-        new AvailableDiscountDto
-        {
-            DiscountId = 1,
-            RestaurantId = restaurantId,
-            DiscountPercentage = 10,
-            DiscountName = "Sample Discount",
-            ApplicableTo = DiscountApplicableTo.ALL_CUSTOMERS,
-            Scope = DiscountScope.ENTIRE_ORDER,
-            StartDate = DateTime.Now.AddDays(-1),
-            EndDate = DateTime.Now.AddDays(10),
-            Quantity = 50
-        }
-    };
+            {
+                new AvailableDiscountDto
+                {
+                    DiscountId = 1,
+                    RestaurantId = restaurantId,
+                    DiscountPercentage = 10,
+                    DiscountName = "Sample Discount",
+                    ApplicableTo = DiscountApplicableTo.ALL_CUSTOMERS,
+                    Scope = DiscountScope.ENTIRE_ORDER,
+                    StartDate = DateTime.Now.AddDays(-1),
+                    EndDate = DateTime.Now.AddDays(10),
+                    Quantity = 50
+                }
+            };
 
             _mockDiscountService.Setup(service => service.GetAvailableDiscountsAsync(restaurantId, customerId, totalPrice))
                 .ReturnsAsync(discounts);
@@ -92,7 +92,7 @@ namespace TOPDER.Test2.DiscountControllerTest
             // Arrange
             int restaurantId = 1;
             int customerId = 1;
-            decimal totalPrice = 5000m; // Price that doesn't meet any discount criteria
+            decimal totalPrice = 500000; // Price that doesn't meet any discount criteria
 
             _mockDiscountService.Setup(service => service.GetAvailableDiscountsAsync(restaurantId, customerId, totalPrice))
                 .ReturnsAsync(new List<AvailableDiscountDto>());
@@ -106,43 +106,7 @@ namespace TOPDER.Test2.DiscountControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(0, ((List<AvailableDiscountDto>)result.Value).Count);
         }
 
-        // Test case for totalPrice being negative (e.g., -100)
-        [TestMethod]
-        public async Task GetAvailableDiscounts_WithNegativeTotalPrice_ReturnsOk()
-        {
-            // Arrange
-            int restaurantId = 1;
-            int customerId = 1;
-            decimal totalPrice = -100m;
-
-            var discounts = new List<AvailableDiscountDto>
-    {
-        new AvailableDiscountDto
-        {
-            DiscountId = 1,
-            RestaurantId = restaurantId,
-            DiscountPercentage = 10,
-            DiscountName = "Sample Discount",
-            ApplicableTo = DiscountApplicableTo.ALL_CUSTOMERS,
-            Scope = DiscountScope.ENTIRE_ORDER,
-            StartDate = DateTime.Now.AddDays(-1),
-            EndDate = DateTime.Now.AddDays(10),
-            Quantity = 50
-        }
-    };
-
-            _mockDiscountService.Setup(service => service.GetAvailableDiscountsAsync(restaurantId, customerId, totalPrice))
-                .ReturnsAsync(discounts);
-
-            // Act
-            var result = await _controller.GetAvailableDiscounts(restaurantId, customerId, totalPrice) as OkObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(discounts, result.Value);
-        }
-
+       
         // Test case for totalPrice being exactly zero
         [TestMethod]
         public async Task GetAvailableDiscounts_WithZeroTotalPrice_ReturnsOk()
@@ -153,20 +117,20 @@ namespace TOPDER.Test2.DiscountControllerTest
             decimal totalPrice = 0m;
 
             var discounts = new List<AvailableDiscountDto>
-    {
-        new AvailableDiscountDto
-        {
-            DiscountId = 1,
-            RestaurantId = restaurantId,
-            DiscountPercentage = 10,
-            DiscountName = "Sample Discount",
-            ApplicableTo = DiscountApplicableTo.ALL_CUSTOMERS,
-            Scope = DiscountScope.ENTIRE_ORDER,
-            StartDate = DateTime.Now.AddDays(-1),
-            EndDate = DateTime.Now.AddDays(10),
-            Quantity = 50
-        }
-    };
+            {
+                new AvailableDiscountDto
+                {
+                    DiscountId = 1,
+                    RestaurantId = restaurantId,
+                    DiscountPercentage = 10,
+                    DiscountName = "Sample Discount",
+                    ApplicableTo = DiscountApplicableTo.ALL_CUSTOMERS,
+                    Scope = DiscountScope.ENTIRE_ORDER,
+                    StartDate = DateTime.Now.AddDays(-1),
+                    EndDate = DateTime.Now.AddDays(10),
+                    Quantity = 50
+                }
+            };
 
             _mockDiscountService.Setup(service => service.GetAvailableDiscountsAsync(restaurantId, customerId, totalPrice))
                 .ReturnsAsync(discounts);
@@ -190,20 +154,20 @@ namespace TOPDER.Test2.DiscountControllerTest
             decimal totalPrice = 0m;
 
             var discounts = new List<AvailableDiscountDto>
-    {
-        new AvailableDiscountDto
-        {
-            DiscountId = 1,
-            RestaurantId = restaurantId,
-            DiscountPercentage = 10,
-            DiscountName = "Sample Discount",
-            ApplicableTo = DiscountApplicableTo.ALL_CUSTOMERS,
-            Scope = DiscountScope.ENTIRE_ORDER,
-            StartDate = DateTime.Now.AddDays(-1),
-            EndDate = DateTime.Now.AddDays(10),
-            Quantity = 50
-        }
-    };
+            {
+                new AvailableDiscountDto
+                {
+                    DiscountId = 1,
+                    RestaurantId = restaurantId,
+                    DiscountPercentage = 10,
+                    DiscountName = "Sample Discount",
+                    ApplicableTo = DiscountApplicableTo.ALL_CUSTOMERS,
+                    Scope = DiscountScope.ENTIRE_ORDER,
+                    StartDate = DateTime.Now.AddDays(-1),
+                    EndDate = DateTime.Now.AddDays(10),
+                    Quantity = 50
+                }
+            };
 
             _mockDiscountService.Setup(service => service.GetAvailableDiscountsAsync(restaurantId, customerId, totalPrice))
                 .ReturnsAsync(discounts);

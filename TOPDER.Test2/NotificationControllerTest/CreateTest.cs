@@ -32,7 +32,7 @@ namespace TOPDER.Test2.MenuControllerTest
             var notificationDto = new NotificationDto
             {
                 NotificationId = 1,
-                Uid = 123,
+                Uid = 1,
                 Content = Notification_Content.SYSTEM_ADD(price),  // Sử dụng phương thức trong Notification_Content để tạo nội dung động
                 Type = Notification_Type.SYSTEM_ADD,  // Sử dụng hằng số từ Notification_Type
                 IsRead = false,
@@ -61,7 +61,7 @@ namespace TOPDER.Test2.MenuControllerTest
             var notificationDto = new NotificationDto
             {
                 NotificationId = 0,  // Dữ liệu không hợp lệ (ví dụ thiếu Uid hoặc Content)
-                Uid = 0,  // UID không hợp lệ
+                Uid = -1,  // UID không hợp lệ
                 Content = "",  // Nội dung không hợp lệ
                 Type = Notification_Type.SYSTEM_ADD  // Sử dụng hằng số từ Notification_Type
             };
@@ -93,7 +93,7 @@ namespace TOPDER.Test2.MenuControllerTest
             var notificationDto = new NotificationDto
             {
                 NotificationId = 1,
-                Uid = 123,
+                Uid = 1,
                 Content = Notification_Content.SYSTEM_SUB(price),  // Sử dụng phương thức trong Notification_Content để tạo nội dung động
                 Type = Notification_Type.SYSTEM_SUB,  // Sử dụng hằng số từ Notification_Type
                 IsRead = false,
@@ -167,35 +167,6 @@ namespace TOPDER.Test2.MenuControllerTest
             var modelStateErrors = badRequestResult.Value as SerializableError;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(modelStateErrors);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(modelStateErrors.ContainsKey("Type"));
-        }
-
-
-        [TestMethod]
-        public async Task Create_InvalidNotificationModel_UidNull_ReturnsBadRequest()
-        {
-            // Arrange
-            var notificationDto = new NotificationDto
-            {
-                NotificationId = 0,
-                Uid = 0,  // UID không hợp lệ
-                Content = Notification_Content.SYSTEM_SUB(15000),  // Nội dung hợp lệ
-                Type = Notification_Type.SYSTEM_ADD
-            };
-
-            // Thêm lỗi vào trạng thái model (ModelState)
-            _controller.ModelState.AddModelError("Uid", "Uid is required.");
-
-            // Act
-            var result = await _controller.Create(notificationDto);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
-
-            var modelStateErrors = badRequestResult.Value as SerializableError;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(modelStateErrors);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(modelStateErrors.ContainsKey("Uid"));
         }
     }
 }

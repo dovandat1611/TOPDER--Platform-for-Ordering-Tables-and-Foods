@@ -46,7 +46,7 @@ namespace TOPDER.Test2.ChatControllerTest
         public async Task UpdateChat_WithNonexistentChat_ReturnsNotFound()
         {
             // Arrange
-            var updateChatDto = new UpdateChatDto { ChatId = -1, Content = "Message content for nonexistent chat" };
+            var updateChatDto = new UpdateChatDto { ChatId = -1, Content = "Updated message content" };
             _mockChatService.Setup(service => service.UpdateAsync(updateChatDto))
                 .ReturnsAsync(false); // Simulate chat not found
 

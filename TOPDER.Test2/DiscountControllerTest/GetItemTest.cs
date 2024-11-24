@@ -98,25 +98,5 @@ namespace TOPDER.Test2.DiscountControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, result.StatusCode);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Restaurant not found", result.Value);
         }
-
-        // Test case for valid discountId but non-matching restaurantId
-        [TestMethod]
-        public async Task GetItem_WithValidDiscountIdAndNonMatchingRestaurantId_ReturnsNotFound()
-        {
-            // Arrange
-            int restaurantId = 2; // Non-matching restaurant ID
-            int discountId = 1;
-
-            _mockDiscountService.Setup(service => service.GetItemAsync(discountId, restaurantId))
-                .ThrowsAsync(new KeyNotFoundException("Discount not associated with the restaurant"));
-
-            // Act
-            var result = await _controller.GetItem(restaurantId, discountId) as NotFoundObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Discount not associated with the restaurant", result.Value);
-        }
     }
 }

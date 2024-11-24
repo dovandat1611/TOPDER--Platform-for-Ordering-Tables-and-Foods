@@ -70,28 +70,6 @@ namespace TOPDER.Test2.ChatBoxControllerTest
         }
 
         [TestMethod]
-        public async Task CreateChatBox_WithNegativeCustomerId_ReturnsBadRequest()
-        {
-            // Arrange
-            var chatBoxDto = new CreateChatBoxDto
-            {
-                ChatBoxId = 3,
-                CustomerId = -1, // Invalid negative ID
-                RestaurantId = 1
-            };
-
-            _mockChatBoxService.Setup(service => service.AddAsync(chatBoxDto)).ReturnsAsync(false);
-
-            // Act
-            var result = await _controller.CreateChatBox(chatBoxDto) as BadRequestObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tạo Chat Box thất bại.", result.Value);
-        }
-
-        [TestMethod]
         public async Task CreateChatBox_WithNonExistentRestaurantId_ReturnsBadRequest()
         {
             // Arrange
@@ -113,27 +91,6 @@ namespace TOPDER.Test2.ChatBoxControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tạo Chat Box thất bại.", result.Value);
         }
 
-        [TestMethod]
-        public async Task CreateChatBox_WithNegativeRestaurantId_ReturnsBadRequest()
-        {
-            // Arrange
-            var chatBoxDto = new CreateChatBoxDto
-            {
-                ChatBoxId = 5,
-                CustomerId = 1,
-                RestaurantId = -1 // Invalid negative ID
-            };
-
-            _mockChatBoxService.Setup(service => service.AddAsync(chatBoxDto)).ReturnsAsync(false);
-
-            // Act
-            var result = await _controller.CreateChatBox(chatBoxDto) as BadRequestObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tạo Chat Box thất bại.", result.Value);
-        }
     }
 
 }

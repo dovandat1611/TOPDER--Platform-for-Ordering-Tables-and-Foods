@@ -114,7 +114,7 @@ namespace TOPDER.Test2.ImageControllerTest
         public async Task UpdateImage_ImageNotFound_ReturnsNotFound()
         {
             // Arrange
-            var imageId = 1;
+            var imageId = -1;
             var restaurantId = 1;
             var file = new Mock<IFormFile>();
             file.Setup(f => f.Length).Returns(1); // Valid file length

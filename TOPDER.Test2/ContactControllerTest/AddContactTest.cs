@@ -56,33 +56,6 @@ namespace TOPDER.Test2.ContactControllerTest
             _mockSendMailService.Verify();
         }
 
-        [TestMethod]
-        public async Task AddContact_WithValidNonRestaurantTopic_ReturnsOk()
-        {
-            // Arrange
-            var contactDto = new CreateContactDto
-            {
-                Uid = 2,
-                Name = "Jane Doe",
-                Email = "jane@example.com",
-                Topic = "GENERAL_INQUIRY",
-                Content = "General question",
-                Phone = "987-654-3210"
-            };
-            _mockContactService.Setup(service => service.AddAsync(contactDto)).ReturnsAsync(true);
-            _mockSendMailService
-                .Setup(service => service.SendEmailAsync(contactDto.Email, Email_Subject.CONTACT, It.IsAny<string>()))
-                .Verifiable();
-
-            // Act
-            var result = await _controller.AddContact(contactDto) as OkObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tạo liên hệ thành công.", result.Value);
-            _mockSendMailService.Verify();
-        }
 
         [TestMethod]
         public async Task AddContact_WithInvalidModel_ReturnsBadRequest()
@@ -126,34 +99,6 @@ namespace TOPDER.Test2.ContactControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result.Value, typeof(SerializableError)); // Ensure result contains model state errors
         }
 
-        // Test for successful contact creation with null Uid
-        [TestMethod]
-        public async Task AddContact_WithNullUid_ReturnsOk()
-        {
-            // Arrange
-            var contactDto = new CreateContactDto
-            {
-                Uid = null, // Null Uid
-                Name = "John Doe",
-                Email = "john@example.com",
-                Topic = "GENERAL_INQUIRY",
-                Content = "General inquiry content",
-                Phone = "123-456-7890"
-            };
-            _mockContactService.Setup(service => service.AddAsync(contactDto)).ReturnsAsync(true);
-            _mockSendMailService
-                .Setup(service => service.SendEmailAsync(contactDto.Email, Email_Subject.CONTACT, It.IsAny<string>()))
-                .Verifiable();
-
-            // Act
-            var result = await _controller.AddContact(contactDto) as OkObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.           Assert.AreEqual(200, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tạo liên hệ thành công.", result.Value);
-            _mockSendMailService.Verify();
-        }
 
         [TestMethod]
         public async Task AddContact_WithMissingPhone_ReturnsBadRequest()

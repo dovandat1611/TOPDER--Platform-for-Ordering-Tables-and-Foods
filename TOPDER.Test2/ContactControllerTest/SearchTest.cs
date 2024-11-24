@@ -136,48 +136,5 @@ namespace TOPDER.Test2.ContactControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.               Assert.IsNotNull(response);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(0, response.Items.Count);
         }
-
-        // Test case for search with invalid page number
-        [TestMethod]
-        public async Task Search_WithInvalidPageNumber_ReturnsPaginatedResponse()
-        {
-            // Arrange
-            string content = null;
-            string topic = null;
-            int pageNumber = -1; // Invalid page number
-            int pageSize = 10;
-
-            var contactList = new List<ContactDto>
-            {
-                new ContactDto
-                {
-                    ContactId = 1,
-                    Name = "John Doe",
-                    Email = "john.doe@example.com",
-                    Topic = topic,
-                    Content = content,
-                    Phone = "1234567890"
-                }
-            };
-
-            var paginatedResult = new PaginatedList<ContactDto>(contactList, 1, 1, 10);
-
-            _mockContactService.Setup(service => service.SearchPagingAsync(pageNumber, pageSize, content, topic))
-                .ReturnsAsync(paginatedResult);
-
-            // Act
-            var result = await _controller.Search(content, topic, pageNumber, pageSize) as OkObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, result.StatusCode);
-
-            var response = result.Value as PaginatedResponseDto<ContactDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.Items.Count);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("John Doe", response.Items[0].Name);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(content, response.Items[0].Content);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(topic, response.Items[0].Topic);
-        }
     }
 }

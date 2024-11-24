@@ -103,8 +103,8 @@ namespace TOPDER.Test2.OrderControllerTest
             var caculatorOrder = new CaculatorOrderDto
             {
                 CustomerId = 1,
-                RestaurantId = 999, // Non-existent restaurant ID
-                OrderMenus = new List<OrderMenuModelDto>()
+                RestaurantId = -1, // Non-existent restaurant ID
+                OrderMenus = new List<OrderMenuModelDto> { new OrderMenuModelDto { MenuId = 1, Quantity = 2 } }
             };
 
             _restaurantRepositoryMock.Setup(repo => repo.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((Restaurant)null);

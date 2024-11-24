@@ -49,7 +49,7 @@ namespace TOPDER.Test2.NotificationControllerTest
         public async Task MarkAsRead_NotificationNotFound_ReturnsNotFoundResult()
         {
             // Arrange
-            int notificationId = 99999;
+            int notificationId = -1;
             _notificationService.Setup(service => service.IsReadAsync(notificationId))
                 .ReturnsAsync(false); // Simulate that the notification was not found or already marked as read
 

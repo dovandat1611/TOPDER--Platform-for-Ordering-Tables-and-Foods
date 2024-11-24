@@ -98,7 +98,7 @@ namespace TOPDER.Test2.OrderControllerTest
             // Arrange
             var orderModel = new OrderModel
             {
-                RestaurantId = 999999,
+                RestaurantId = -1,
                 CustomerId = 2,
                 NameReceiver = "Đỗ Văn Đạt",
                 PhoneReceiver = "1234567890",

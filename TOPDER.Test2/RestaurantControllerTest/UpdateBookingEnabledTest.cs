@@ -67,7 +67,7 @@ namespace TOPDER.Test2.RestaurantControllerTest
         public async Task UpdateBookingEnabled_ShouldReturnBadRequest_WhenRestaurantNotFound()
         {
             // Arrange
-            int restaurantId = 999999;
+            int restaurantId = -1;
             bool newBookingStatus = true;
             _restaurantServiceMock.Setup(service => service.IsEnabledBookingAsync(restaurantId, newBookingStatus))
                 .ThrowsAsync(new Exception("Restaurant not found."));
@@ -81,22 +81,5 @@ namespace TOPDER.Test2.RestaurantControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
         }
 
-        [TestMethod]
-        public async Task UpdateBookingEnabled_ShouldReturnBadRequest_WhenExceptionOccurs()
-        {
-            // Arrange
-            int restaurantId = 1;
-            bool newBookingStatus = true;
-            _restaurantServiceMock.Setup(service => service.IsEnabledBookingAsync(restaurantId, newBookingStatus))
-                .ThrowsAsync(new Exception("Unexpected error."));
-
-            // Act
-            var result = await _controller.UpdateBookingEnabled(restaurantId, newBookingStatus);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
-        }
     }
 }

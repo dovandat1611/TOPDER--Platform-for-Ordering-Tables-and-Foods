@@ -83,7 +83,7 @@ namespace TOPDER.Test2.OrderControllerTest
         public async Task PaidOrder_OrderNotFound_ReturnsNotFound()
         {
             // Arrange
-            var orderId = 1;
+            var orderId = -1;
             var userId = 1;
             var paymentGateway = "ISBALANCE";
 
@@ -127,7 +127,7 @@ namespace TOPDER.Test2.OrderControllerTest
         {
             // Arrange
             var orderId = 1;
-            var userId = 101;
+            var userId = 1;
             var paymentGateway = PaymentGateway.ISBALANCE;
             var orderDto = new OrderDto
             {

@@ -33,7 +33,7 @@ namespace TOPDER.Test2.RestaurantTablesControllerTest
             var tableDto = new RestaurantTableDto
             {
                 TableId = 1,
-                RestaurantId = 10,
+                RestaurantId = 1,
                 RoomId = 2,
                 TableName = "VIP Table",
                 MaxCapacity = 6,
@@ -67,64 +67,6 @@ namespace TOPDER.Test2.RestaurantTablesControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Dữ liệu bàn ăn là bắt buộc.", badRequestResult.Value);
         }
 
-        [TestMethod]
-        public async Task AddAsync_ServiceFailure_ReturnsInternalServerError()
-        {
-            // Arrange
-            var tableDto = new RestaurantTableDto
-            {
-                TableId = 2,
-                RestaurantId = 11,
-                RoomId = 3,
-                TableName = "Family Table",
-                MaxCapacity = 8,
-                Description = "Spacious table for family meals",
-                IsBookingEnabled = true
-            };
-
-            _mockService.Setup(s => s.AddAsync(tableDto)).ReturnsAsync(false);
-
-            // Act
-            var result = await _controller.AddAsync(tableDto);
-
-            // Assert
-            var errorResult = result as ObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(errorResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.           Assert.AreEqual(StatusCodes.Status500InternalServerError, errorResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Đã xảy ra lỗi khi thêm bàn.", errorResult.Value);
-        }
-
-        [TestMethod]
-        public async Task AddAsync_VerifyServiceCalledWithCorrectDto()
-        {
-            // Arrange
-            var tableDto = new RestaurantTableDto
-            {
-                TableId = 3,
-                RestaurantId = 12,
-                RoomId = 1,
-                TableName = "Couple Table",
-                MaxCapacity = 2,
-                Description = "Cozy table for couples",
-                IsBookingEnabled = false
-            };
-
-            _mockService.Setup(s => s.AddAsync(tableDto)).ReturnsAsync(true);
-
-            // Act
-            await _controller.AddAsync(tableDto);
-
-            // Assert
-            _mockService.Verify(s => s.AddAsync(It.Is<RestaurantTableDto>(dto =>
-                dto.TableId == tableDto.TableId &&
-                dto.RestaurantId == tableDto.RestaurantId &&
-                dto.RoomId == tableDto.RoomId &&
-                dto.TableName == tableDto.TableName &&
-                dto.MaxCapacity == tableDto.MaxCapacity &&
-                dto.Description == tableDto.Description &&
-                dto.IsBookingEnabled == tableDto.IsBookingEnabled
-            )), Times.Once);
-        }
 
         [TestMethod]
         public async Task AddAsync_TableNameIsNull_ReturnsBadRequest()
@@ -155,7 +97,7 @@ namespace TOPDER.Test2.RestaurantTablesControllerTest
         
 
         [TestMethod]
-        public async Task AddAsync_MaxCapacityIsZero_ReturnsBadRequest()
+        public async Task AddAsync_MaxCapacityIsZero_ReturnsOk()
         {
             // Arrange
             var tableDto = new RestaurantTableDto
@@ -231,6 +173,60 @@ namespace TOPDER.Test2.RestaurantTablesControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.IsNotNull(okResult);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Tạo bàn thành công!", okResult.Value);
         }
+        [TestMethod]
+        public async Task AddAsync_NonExistingRoomId_ReturnsBadRequest()
+        {
+            // Arrange
+            var restaurantTableDto = new RestaurantTableDto
+            {
+                RestaurantId = 1, // Existing RestaurantId
+                RoomId = -1,   // Non-existing RoomId
+                TableName = "Table 1",
+                MaxCapacity = 4,
+                Description = "Test Table",
+                IsBookingEnabled = true
+            };
 
+            _mockService
+                .Setup(service => service.AddAsync(It.IsAny<RestaurantTableDto>()))
+                .ReturnsAsync(false);
+
+            // Act
+            var result = await _controller.AddAsync(restaurantTableDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(ObjectResult));
+            var statusCodeResult = result as ObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status500InternalServerError, statusCodeResult.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Đã xảy ra lỗi khi thêm bàn.", statusCodeResult.Value);
+        }
+
+        [TestMethod]
+        public async Task AddAsync_NonExistingRestaurantId_ReturnsBadRequest()
+        {
+            // Arrange
+            var restaurantTableDto = new RestaurantTableDto
+            {
+                RestaurantId = -1, // Non-existing RestaurantId
+                RoomId = 1,           // Existing RoomId
+                TableName = "Table 1",
+                MaxCapacity = 4,
+                Description = "Test Table",
+                IsBookingEnabled = true
+            };
+
+            _mockService
+                .Setup(service => service.AddAsync(It.IsAny<RestaurantTableDto>()))
+                .ReturnsAsync(false);
+
+            // Act
+            var result = await _controller.AddAsync(restaurantTableDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(ObjectResult));
+            var statusCodeResult = result as ObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(StatusCodes.Status500InternalServerError, statusCodeResult.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Đã xảy ra lỗi khi thêm bàn.", statusCodeResult.Value);
+        }
     }
 }

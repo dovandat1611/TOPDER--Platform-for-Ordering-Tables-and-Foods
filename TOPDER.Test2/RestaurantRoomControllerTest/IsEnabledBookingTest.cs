@@ -49,7 +49,7 @@ namespace TOPDER.Test2.RestaurantRoomControllerTest
             // Arrange
             int restaurantId = 1;
             int roomId = 101;
-            bool isEnabledBooking = true;
+            bool isEnabledBooking = false;
 
             _mockService.Setup(s => s.IsEnabledBookingAsync(roomId, restaurantId, isEnabledBooking))
                         .ReturnsAsync(false);
@@ -68,11 +68,11 @@ namespace TOPDER.Test2.RestaurantRoomControllerTest
         {
             // Arrange
             int restaurantId = 1;
-            int roomId = 999;
+            int roomId = -1;
             bool isEnabledBooking = true;
 
             _mockService.Setup(s => s.IsEnabledBookingAsync(roomId, restaurantId, isEnabledBooking))
-                        .ThrowsAsync(new KeyNotFoundException("Không tìm thấy phòng với Id 999."));
+                        .ThrowsAsync(new KeyNotFoundException("Không tìm thấy phòng với Id -1."));
 
             // Act
             var result = await _controller.IsEnabledBooking(restaurantId, roomId, isEnabledBooking);

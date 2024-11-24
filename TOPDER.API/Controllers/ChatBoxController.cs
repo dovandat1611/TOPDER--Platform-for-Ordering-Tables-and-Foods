@@ -55,7 +55,6 @@ namespace TOPDER.API.Controllers
         public async Task<IActionResult> GetChatBoxPaging(int userId)
         {
             var result = await _chatBoxService.GetChatListAsync(userId);
-
             return Ok(result);
         }
 

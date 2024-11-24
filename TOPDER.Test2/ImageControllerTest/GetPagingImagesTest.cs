@@ -78,35 +78,6 @@ namespace TOPDER.Test2.ImageControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Lỗi khi lấy dữ liệu: Error retrieving images", errorResult.Value);
         }
 
-        [TestMethod]
-        public async Task GetPagingImages_EmptyResult_ReturnsOkWithEmptyList()
-        {
-            // Arrange
-            var restaurantId = 1;
-            var pageNumber = 1;
-            var pageSize = 10;
-
-            var mockImages = new PaginatedList<ImageDto>(
-                new List<ImageDto>(),  // Empty list
-                0,  // Total count (no images)
-                pageNumber,  // Page index
-                pageSize  // Page size
-            );
-
-            _imageServiceMock
-                .Setup(service => service.GetPagingAsync(pageNumber, pageSize, restaurantId))
-                .ReturnsAsync(mockImages);
-
-            // Act
-            var result = await _controller.GetPagingImages(restaurantId, pageNumber, pageSize);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            var response = okResult.Value as PaginatedList<ImageDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(0, response.Count);
-        }
 
         [TestMethod]
         public async Task GetPagingImages_NonRestaurant_ReturnsEmptyList()

@@ -76,7 +76,7 @@ namespace TOPDER.Test2.OrderControllerTest
         public async Task GetTableItemsByOrder_ShouldReturnNotFound_WhenNoTablesFound()
         {
             // Arrange
-            int orderId = 1;
+            int orderId = -1;
             _orderTableServiceMock.Setup(x => x.GetItemsByOrderAsync(orderId))
                                   .ReturnsAsync((List<OrderTableDto>)null); // Không có bàn
 

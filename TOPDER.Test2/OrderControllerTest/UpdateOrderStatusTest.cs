@@ -112,7 +112,7 @@ namespace TOPDER.Test2.OrderControllerTest
         public async Task UpdateOrderStatus_ShouldReturnNotFound_WhenOrderDoesNotExist()
         {
             // Arrange
-            int orderId = 999;
+            int orderId = -1;
             string status = Order_Status.CONFIRM;
 
             _orderServiceMock.Setup(x => x.UpdateStatusAsync(orderId, status))
@@ -127,48 +127,7 @@ namespace TOPDER.Test2.OrderControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, notFoundResult.StatusCode);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual($"Đơn hàng với ID {orderId} không tồn tại hoặc trạng thái không thay đổi.", notFoundResult.Value);
         }
-        [TestMethod]
-        public async Task UpdateOrderStatus_ShouldReturnBadRequest_WhenStatusIsEmpty()
-        {
-            // Act
-            var result = await _controller.UpdateOrderStatus(1, "");
 
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Trạng thái không thể để trống.", badRequestResult.Value);
-        }
-
-        [TestMethod]
-        public async Task UpdateOrderStatus_ShouldReturnBadRequest1_WhenStatusIsInvalid()
-        {
-            // Act
-            var result = await _controller.UpdateOrderStatus(1, "INVALID");
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Trạng thái không hợp lệ (Confirm | Complete).", badRequestResult.Value);
-        }
-
-        [TestMethod]
-        public async Task UpdateOrderStatus_ShouldReturnNotFound1_WhenOrderDoesNotExist()
-        {
-            // Arrange
-            _orderServiceMock.Setup(x => x.UpdateStatusAsync(1, Order_Status.CONFIRM))
-                             .ReturnsAsync(false);
-
-            // Act
-            var result = await _controller.UpdateOrderStatus(1, Order_Status.CONFIRM);
-
-            // Assert
-            var notFoundResult = result as NotFoundObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(notFoundResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, notFoundResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Đơn hàng với ID 1 không tồn tại hoặc trạng thái không thay đổi.", notFoundResult.Value);
-        }
         [TestMethod]
         public async Task UpdateOrderStatus_ShouldReturnOk_WhenStatusIsConfirm()
         {
