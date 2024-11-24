@@ -34,7 +34,7 @@ namespace TOPDER.API.Controllers
             }
         }
 
-    /*    [HttpGet("restaurant/{restaurantId}")]
+        [HttpGet("restaurant/{restaurantId}")]
         public async Task<ActionResult<DashboardRestaurantDto>> GetDashboardRestaurant(int restaurantId)
         {
             try
@@ -50,6 +50,6 @@ namespace TOPDER.API.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-        }*/
+        }
     }
 }
