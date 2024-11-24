@@ -29,7 +29,7 @@ namespace TOPDER.API.Controllers
         }
 
 
-     /*   [HttpGet("{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             try
@@ -42,7 +42,7 @@ namespace TOPDER.API.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
-*/
+
 
         [HttpGet("list")]
         public async Task<IActionResult> ListPaging(

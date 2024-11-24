@@ -21,7 +21,7 @@ namespace TOPDER.API.Controllers
             _contactService = contactService;
             _sendMailService = sendMailService;
         }
-
+/*
         [HttpPost("create")]
         public async Task<IActionResult> AddContact([FromBody] ContactDto contactDto)
         {
@@ -36,7 +36,7 @@ namespace TOPDER.API.Controllers
             }
             return BadRequest("Thêm liên hệ thất bại.");
         }
-
+*/
         [HttpGet("list")]
         public async Task<IActionResult> GetPaging([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {

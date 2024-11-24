@@ -18,7 +18,7 @@ namespace TOPDER.API.Controllers
             _categoryRoomService = categoryRoomService;
         }
 
-        [HttpPost]
+    /*    [HttpPost]
         public async Task<IActionResult> CreateCategoryRoom([FromBody] CategoryRoomDto categoryRoomDto)
         {
             if (!ModelState.IsValid)
@@ -31,7 +31,7 @@ namespace TOPDER.API.Controllers
             }
 
             return BadRequest("Tạo Category Room thất bại.");
-        }
+        }*/
 
         [HttpGet("{restaurantId}/{id}")]
         public async Task<IActionResult> GetCategoryRoom(int restaurantId, int id)
