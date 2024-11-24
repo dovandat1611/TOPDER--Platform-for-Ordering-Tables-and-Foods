@@ -80,6 +80,15 @@ namespace TOPDER.Service.Services
             return result; 
         }
 
-
+        public async Task<bool> CheckExistAsync(int customerId, int restaurantId)
+        {
+            var queryable = await _chatBoxRepository.QueryableAsync();
+            var checkExist = await queryable.FirstOrDefaultAsync(x => x.CustomerId == customerId && x.RestaurantId == restaurantId);
+            if(checkExist == null)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

@@ -50,6 +50,15 @@ namespace TOPDER.API.Controllers
         //    }
         //}
 
+
+        [HttpGet("CheckExist/{customerId}/{restaurantId}")]
+        [SwaggerOperation(Summary = "Check xem ChatBox đã tồn tại chưa: Restaurant | Customer")]
+        public async Task<IActionResult> GetChatBox(int customerId, int restaurantId)
+        {
+                var chatBox = await _chatBoxService.CheckExistAsync(customerId, restaurantId);
+                return Ok(chatBox);
+        }
+
         [HttpGet("GetChatBoxList/{userId}")]
         [SwaggerOperation(Summary = "Lấy danh sách ChatBox của User: Restaurant | Customer")]
         public async Task<IActionResult> GetChatBoxPaging(int userId)
