@@ -45,17 +45,17 @@ namespace TOPDER.Service.Services
             return null;
         }
 
-        public async Task<PaginatedList<FeedbackHistoryDto>> GetHistoryCustomerPagingAsync(int pageNumber, int pageSize, int customerId)
+        public async Task<List<FeedbackHistoryDto>> GetHistoryCustomerPagingAsync(int customerId)
         {
             var query = await _feedbackRepository.QueryableAsync();
             var feedbackReplyQueryable = await _feedbackReplyRepository.QueryableAsync();
 
             var feedbacks = query
                 .Include(x => x.Restaurant)
-                .OrderByDescending(x => x.FeedbackId)
-                .Where(x => x.CustomerId == customerId && x.IsVisible == true);
+                .Where(x => x.CustomerId == customerId && x.IsVisible == true)
+                .OrderByDescending(x => x.FeedbackId).ToListAsync();
 
-            var queryDTO = feedbacks.Select(r => _mapper.Map<FeedbackHistoryDto>(r));
+            var queryDTO = _mapper.Map<List<FeedbackHistoryDto>>(feedbacks);
 
             foreach (var feedback in queryDTO)
             {
@@ -66,15 +66,15 @@ namespace TOPDER.Service.Services
                 if (feedbackReply != null)
                 {
                     feedback.FeedbackReplyCustomer = _mapper.Map<FeedbackReplyCustomerDto>(feedbackReply);
+                    feedback.isReply = true;
+                }
+                else
+                {
+                    feedback.isReply = false;
                 }
             }
 
-            var paginatedDTOs = await PaginatedList<FeedbackHistoryDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-            return paginatedDTOs;
+            return queryDTO;
         }
 
 
@@ -92,27 +92,17 @@ namespace TOPDER.Service.Services
         }
 
 
-        public async Task<PaginatedList<FeedbackCustomerDto>> ListCustomerPagingAsync(
-            int pageNumber,
-            int pageSize,
-            int restaurantId,
-            int? star)
+        public async Task<List<FeedbackCustomerDto>> ListCustomerPagingAsync(int restaurantId)
         {
             var query = await _feedbackRepository.QueryableAsync();
             var feedbackReplyQueryable = await _feedbackReplyRepository.QueryableAsync();
 
-            var feedbacks = query
+            var feedbacks = await query
                 .Include(x => x.Customer)
-                .Where(x => x.RestaurantId == restaurantId && x.IsVisible == true);
+                .Where(x => x.RestaurantId == restaurantId && x.IsVisible == true)
+                .OrderByDescending(x => x.FeedbackId).ToListAsync();
 
-            if (star.HasValue)
-            {
-                feedbacks = feedbacks.Where(x => x.Star == star.Value);
-            }
-
-            var queryDTO = feedbacks
-                .OrderByDescending(x => x.FeedbackId)
-                .Select(r => _mapper.Map<FeedbackCustomerDto>(r));
+            var queryDTO = _mapper.Map<List<FeedbackCustomerDto>>(feedbacks);
 
             foreach( var feedback in queryDTO)
             {
@@ -120,43 +110,27 @@ namespace TOPDER.Service.Services
                 if (feedbackReply != null)
                 {
                     feedback.FeedbackReplyCustomer = _mapper.Map<FeedbackReplyCustomerDto>(feedbackReply);
+                    feedback.isReply = true;
+                }
+                else
+                {
+                    feedback.isReply = false;
                 }
             }
 
-            var paginatedDTOs = await PaginatedList<FeedbackCustomerDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-
-            return paginatedDTOs;
+            return queryDTO;
         }
 
-
-        public async Task<PaginatedList<FeedbackAdminDto>> ListAdminPagingAsync(
-            int pageNumber,
-            int pageSize,
-            int? star,
-            string? content)
+        public async Task<List<FeedbackAdminDto>> ListAdminPagingAsync()
         {
             var query = await _feedbackRepository.QueryableAsync();
             var feedbackReplyQueryable = await _feedbackReplyRepository.QueryableAsync();
 
-            var feedbacks = query.Include(x => x.Customer)
+            var feedbacks = await query.Include(x => x.Customer)
                 .Include(x => x.Restaurant)
-                .Where(x => x.IsVisible == true).AsQueryable();
+                .Where(x => x.IsVisible == true).OrderByDescending(x => x.FeedbackId).ToListAsync();
 
-            if (star.HasValue)
-            {
-                feedbacks = feedbacks.Where(x => x.Star == star.Value);
-            }
-
-            if (!string.IsNullOrWhiteSpace(content))
-            {
-                feedbacks = feedbacks.Where(x => x.Content != null && x.Content.Contains(content));
-            }
-
-            var queryDTO = feedbacks.OrderByDescending(x => x.FeedbackId).Select(r => _mapper.Map<FeedbackAdminDto>(r));
+            var queryDTO = _mapper.Map<List<FeedbackAdminDto>>(feedbacks);
 
             foreach (var feedback in queryDTO)
             {
@@ -164,48 +138,29 @@ namespace TOPDER.Service.Services
                 if (feedbackReply != null)
                 {
                     feedback.FeedbackReplyCustomer = _mapper.Map<FeedbackReplyCustomerDto>(feedbackReply);
+                    feedback.isReply = true;
+                }
+                else
+                {
+                    feedback.isReply = false;
                 }
             }
-
-            var paginatedDTOs = await PaginatedList<FeedbackAdminDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-
-            return paginatedDTOs;
+            return queryDTO;
         }
 
-        public async Task<PaginatedList<FeedbackRestaurantDto>> ListRestaurantPagingAsync(
-            int pageNumber,
-            int pageSize,
-            int restaurantId,
-            int? star,
-            string? content)
+        public async Task<List<FeedbackRestaurantDto>> ListRestaurantPagingAsync(int restaurantId)
         {
             var query = await _feedbackRepository.QueryableAsync();
             var feedbackReplyQueryable = await _feedbackReplyRepository.QueryableAsync();
 
-            var feedbacks = query.Include(x => x.Customer).Where(x => x.RestaurantId == restaurantId && x.IsVisible == true);
+            var feedbacks = await query.Include(x => x.Customer).Where(x => x.RestaurantId == restaurantId && x.IsVisible == true).OrderByDescending(x => x.FeedbackId).ToListAsync();
 
-            if (star.HasValue)
-            {
-                feedbacks = feedbacks.Where(x => x.Star == star.Value);
-            }
-
-            if (!string.IsNullOrWhiteSpace(content))
-            {
-                feedbacks = feedbacks.Where(x => x.Content != null && x.Content.Contains(content));
-            }
-
-            var queryDTO = feedbacks
-                .OrderByDescending(x => x.FeedbackId)
-                .Select(r => _mapper.Map<FeedbackRestaurantDto>(r));
-
+            var queryDTO = _mapper.Map<List<FeedbackRestaurantDto>>(feedbacks);
 
             foreach (var feedback in queryDTO)
             {
                 var feedbackReply = await feedbackReplyQueryable
+                    .Include(x => x.Restaurant)
                     .FirstOrDefaultAsync(x => x.FeedbackId == feedback.FeedbackId && x.IsVisible == true);
                 if (feedbackReply != null)
                 {
@@ -217,14 +172,7 @@ namespace TOPDER.Service.Services
                     feedback.isReply = false;
                 }
             }
-
-            var paginatedDTOs = await PaginatedList<FeedbackRestaurantDto>.CreateAsync(
-                queryDTO.AsNoTracking(),
-                pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
-            );
-
-            return paginatedDTOs;
+            return queryDTO;
         }
 
 

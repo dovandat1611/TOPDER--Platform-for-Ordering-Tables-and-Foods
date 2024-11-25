@@ -80,5 +80,29 @@ namespace TOPDER.API.Controllers
             return NotFound($"Chat Box với ID {id} không tồn tại.");
         }
 
+        [HttpPost("IsRead")]
+        public async Task<IActionResult> MarkAsRead([FromQuery] int uid, [FromQuery] int chatboxId)
+        {
+            var result = await _chatBoxService.IsReadAsync(uid, chatboxId);
+            if (!result)
+            {
+                return NotFound(new { message = "Chatbox không tồn tại hoặc không thể cập nhật." });
+            }
+
+            return Ok(new { message = "Đánh dấu đã đọc thành công." });
+        }
+
+        [HttpPost("IsReadAll")]
+        public async Task<IActionResult> MarkAllAsRead([FromQuery] int uid)
+        {
+            var result = await _chatBoxService.IsReadAllAsync(uid);
+            if (!result)
+            {
+                return NotFound(new { message = "Không có chatbox nào để cập nhật." });
+            }
+
+            return Ok(new { message = "Tất cả chatbox đã được đánh dấu là đã đọc." });
+        }
+
     }
 }

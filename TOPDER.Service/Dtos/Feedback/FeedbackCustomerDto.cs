@@ -17,7 +17,8 @@ namespace TOPDER.Service.Dtos.Feedback
         public string? CustomerImage { get; set; }
         public int? Star { get; set; }
         public string? Content { get; set; }
-        public DateTime CreateDate { get; set; } 
+        public DateTime CreateDate { get; set; }
+        public bool isReply { get; set; }
         public FeedbackReplyCustomerDto FeedbackReplyCustomer { get; set; } = new FeedbackReplyCustomerDto();
     }
 }

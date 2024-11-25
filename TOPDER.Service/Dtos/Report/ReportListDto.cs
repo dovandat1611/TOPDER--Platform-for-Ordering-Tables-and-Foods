@@ -10,9 +10,9 @@ namespace TOPDER.Service.Dtos.Report
     {
         public int ReportId { get; set; }
         public int ReportedBy { get; set; }
-        public int ReportedByEmail { get; set; }
+        public string ReportedByEmail { get; set; } = string.Empty;
         public int ReportedOn { get; set; }
-        public int ReportedOnEmail { get; set; }
+        public string ReportedOnEmail { get; set; } = string.Empty;
         public string ReportType { get; set; } = null!;
         public string Description { get; set; } = null!;
         public string? Status { get; set; }

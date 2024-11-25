@@ -125,9 +125,9 @@ namespace TOPDER.API.Controllers
 
         [HttpGet("GetFeedbacksHistory")]
         [SwaggerOperation(Summary = "Lấy ra cách feedback mà khách hàng từng tạo: Customer")]
-        public async Task<IActionResult> GetHistoryCustomerPaging([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int customerId)
+        public async Task<IActionResult> GetHistoryCustomerPaging([FromQuery] int customerId)
         {
-            var result = await _feedbackService.GetHistoryCustomerPagingAsync(pageNumber, pageSize, customerId);
+            var result = await _feedbackService.GetHistoryCustomerPagingAsync(customerId);
             return Ok(result);
         }
 
@@ -173,43 +173,26 @@ namespace TOPDER.API.Controllers
 
         [HttpGet("GetFeedbackForRestaurantDetail/{restaurantId}")]
         [SwaggerOperation(Summary = "Lấy ra danh sách Feedback của nhà hàng đó trong CHI TIẾT NHÀ HÀNG: Customer")]
-        public async Task<IActionResult> GetCustomerFeedbacks(int restaurantId,[FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int? star = null)
+        public async Task<IActionResult> GetCustomerFeedbacks(int restaurantId)
         {
-            var result = await _feedbackService.ListCustomerPagingAsync(pageNumber, pageSize, restaurantId, star);
-            var response = new PaginatedResponseDto<FeedbackCustomerDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-            return Ok(response);
+            var result = await _feedbackService.ListCustomerPagingAsync(restaurantId);
+            return Ok(result);
         }
 
         [HttpGet("GetFeedbackListForAdmin")]
         [SwaggerOperation(Summary = "Lấy ra danh sách Feedback của toàn hệ thống: Admin")]
-        public async Task<IActionResult> GetAdminFeedbacks([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int? star = null, [FromQuery] string? content = null)
+        public async Task<IActionResult> GetAdminFeedbacks()
         {
-            var result = await _feedbackService.ListAdminPagingAsync(pageNumber, pageSize, star, content);
-
-            var response = new PaginatedResponseDto<FeedbackAdminDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-
-            return Ok(response);
+            var result = await _feedbackService.ListAdminPagingAsync();
+            return Ok(result);
         }
 
         [HttpGet("GetFeedbackListForRestaurant/{restaurantId}")]
         [SwaggerOperation(Summary = "Lấy ra danh sách Feedback của nhà hàng: Restaurant")]
-        public async Task<IActionResult> GetRestaurantFeedbacks(int restaurantId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int? star = null, [FromQuery] string? content = null)
+        public async Task<IActionResult> GetRestaurantFeedbacks(int restaurantId)
         {
-            var result = await _feedbackService.ListRestaurantPagingAsync(pageNumber, pageSize, restaurantId, star, content);
-            var response = new PaginatedResponseDto<FeedbackRestaurantDto>(result, result.PageIndex, result.TotalPages, result.HasPreviousPage, result.HasNextPage);
-            return Ok(response);
+            var result = await _feedbackService.ListRestaurantPagingAsync(restaurantId);
+            return Ok(result);
         }
 
     }
