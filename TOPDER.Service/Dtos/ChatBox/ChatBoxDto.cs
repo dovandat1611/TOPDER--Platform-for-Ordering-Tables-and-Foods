@@ -15,5 +15,6 @@ namespace TOPDER.Service.Dtos.ChatBox
         public string CustomerImage { get; set; } = null!;
         public string RestaurantName { get; set; } = null!;
         public string RestaurantImage { get; set; } = null!;
+        public bool? IsRead { get; set; }
     }
 }

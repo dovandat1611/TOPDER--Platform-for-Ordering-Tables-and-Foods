@@ -7,6 +7,7 @@ using TOPDER.Repository.Entities;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Discount;
 using TOPDER.Service.Dtos.Feedback;
+using TOPDER.Service.Dtos.FeedbackReply;
 using TOPDER.Service.Dtos.Notification;
 using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
@@ -21,13 +22,17 @@ namespace TOPDER.API.Controllers
         private readonly IFeedbackService _feedbackService;
         private readonly IHubContext<AppHub> _signalRHub;
         private readonly INotificationService _notificationService;
+        private readonly IFeedbackReplyService _feedbackReplyService;
 
 
-        public FeedbackController(IFeedbackService feedbackService, IHubContext<AppHub> signalRHub, INotificationService notificationService)
+
+        public FeedbackController(IFeedbackService feedbackService, IHubContext<AppHub> signalRHub,
+            INotificationService notificationService, IFeedbackReplyService feedbackReplyService)
         {
             _feedbackService = feedbackService;
             _signalRHub = signalRHub;
             _notificationService = notificationService;
+            _feedbackReplyService = feedbackReplyService;
         }
 
         [HttpPost("Create")]
@@ -62,6 +67,41 @@ namespace TOPDER.API.Controllers
             }
             return BadRequest("Failed to create feedback.");
         }
+
+
+        [HttpPost("CreateFeedbackReply")]
+        [SwaggerOperation(Summary = "Tạo FeedbackReply: Restaurant")]
+        public async Task<IActionResult> AddFeedback([FromBody] CreateFeedbackReplyDto feedbackReplyDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _feedbackReplyService.AddAsync(feedbackReplyDto);
+            if (result != null)
+            {
+                NotificationDto notificationDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = result.CustomerId ?? 0,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.ADD_FEEDBACKREPLY(),
+                    Type = Notification_Type.ADD_FEEDBACK,
+                    IsRead = false,
+                };
+
+                var notification = await _notificationService.AddAsync(notificationDto);
+
+                if (notification != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
+
+                return Ok("Tạo thành công FeedbackReply");
+            }
+            return BadRequest("Failed to create feedbackReply.");
+        }
+
 
         [HttpGet("GetFeedback/{orderId}")]
         public async Task<IActionResult> GetFeedback(int orderId)
@@ -102,6 +142,18 @@ namespace TOPDER.API.Controllers
                 return Ok($"Ẩn/Xóa Feedback thành công.");
             }
             return NotFound($"Feedback with ID {feedbackId} not found.");
+        }
+
+        [HttpPut("InvisibleFeedbackReply/{replyId}")]
+        [SwaggerOperation(Summary = "Ẩn/Xóa FeedbackReply: Restaurant")]
+        public async Task<IActionResult> SetInvisibleFeedbackReply(int replyId)
+        {
+            var result = await _feedbackReplyService.InvisibleAsync(replyId);
+            if (result)
+            {
+                return Ok($"Ẩn/Xóa FeedbackReply thành công.");
+            }
+            return NotFound($"Feedback with ID {replyId} not found.");
         }
 
         [HttpPut("Update")]

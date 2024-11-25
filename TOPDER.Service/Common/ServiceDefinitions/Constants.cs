@@ -32,6 +32,7 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string ORDERCONFIRM = "Xác Nhận Đặt Hàng - TOPDER";
             public static string UPDATESTATUS = "Cập Nhật Trạng Thái Đơn Hàng Của Bạn - TOPDER";
             public static string NEWORDER = "Cửa Hàng Của Bạn Có Đơn Hàng Mới - TOPDER";
+            public static string CONFIRM_REGISTER_RESTAURANT = "Nhà hàng của bạn đã được chúng tôi duyệt - TOPDER";
         }
 
         public class Is_Null
@@ -127,6 +128,12 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             {
                 return $"Bạn có một đánh giá mới!";
             }
+
+            public static string ADD_FEEDBACKREPLY()
+            {
+                return $"Nhà hàng đã trả lời một đánh giá của bạn.";
+            }
+
             public static string WITHDRAW_SUCCESSFUL(decimal price)
             {
                 return $"Giao dịch rút tiền với số tiền  {price}đ của bạn đã được xử lý.";

@@ -34,6 +34,7 @@ using TOPDER.Service.Dtos.Role;
 using TOPDER.Service.Dtos.TableBookingSchedule;
 using TOPDER.Service.Dtos.AdvertisementPricing;
 using TOPDER.Service.Dtos.BookingAdvertisement;
+using TOPDER.Service.Dtos.FeedbackReply;
 
 namespace TOPDER.Service.Mapper
 {
@@ -166,6 +167,12 @@ namespace TOPDER.Service.Mapper
                            opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.NameRes : Is_Null.ISNULL))
                 .ForMember(dest => dest.RestaurantImage,
                            opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.Logo : Is_Null.ISNULL));
+
+            // FEEDBACK REPLY
+            CreateMap<FeedbackReplyDto, FeedbackReply>().ReverseMap();
+            CreateMap<FeedbackReply, FeedbackReplyCustomerDto>()
+            .ForMember(dest => dest.RestaurantImage, otp => otp.MapFrom(src => src.Restaurant != null ? src.Restaurant.Logo : Is_Null.ISNULL))
+            .ForMember(dest => dest.RestaurantName, otp => otp.MapFrom(src => src.Restaurant != null ? src.Restaurant.NameRes : Is_Null.ISNULL));
 
             // DISCOUNT
             CreateMap<DiscountDto, Discount>().ReverseMap();
@@ -319,6 +326,7 @@ namespace TOPDER.Service.Mapper
                            opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Name : Is_Null.ISNULL))
                 .ForMember(dest => dest.CustomerImage,
                            opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Image : Is_Null.ISNULL));
+
 
             // USER 
 

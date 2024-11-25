@@ -13,6 +13,8 @@ namespace TOPDER.Repository.Entities
         public int ChatBoxId { get; set; }
         public int CustomerId { get; set; }
         public int RestaurantId { get; set; }
+        public bool? IsCustomerRead { get; set; }
+        public bool? IsRestaurantRead { get; set; }
 
         public virtual Customer Customer { get; set; } = null!;
         public virtual Restaurant Restaurant { get; set; } = null!;

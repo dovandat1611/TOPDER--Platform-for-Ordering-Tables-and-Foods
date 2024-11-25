@@ -15,6 +15,8 @@ namespace TOPDER.Service.IServices
         Task<bool> RemoveAsync(int id);
         Task<ChatBoxDto> GetItemAsync(int id);
         Task<bool> CheckExistAsync(int customerId, int restaurantId);
+        Task<bool> IsReadAsync(int uid, int chatboxId);
+        Task<bool> IsReadAllAsync(int uid);
         Task<List<ChatBoxDto>> GetChatListAsync(int userId);
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TOPDER.Service.Dtos.FeedbackReply;
+
 
 namespace TOPDER.Service.Dtos.Feedback
 {
@@ -15,7 +17,7 @@ namespace TOPDER.Service.Dtos.Feedback
         public string? CustomerImage { get; set; }
         public int? Star { get; set; }
         public string? Content { get; set; }
-        public DateTime CreateDate { get; set; }
-
+        public DateTime CreateDate { get; set; } 
+        public FeedbackReplyCustomerDto FeedbackReplyCustomer { get; set; } = new FeedbackReplyCustomerDto();
     }
 }

@@ -12,6 +12,7 @@ namespace TOPDER.Repository.Entities
             CategoryRooms = new HashSet<CategoryRoom>();
             ChatBoxes = new HashSet<ChatBox>();
             Discounts = new HashSet<Discount>();
+            FeedbackReplies = new HashSet<FeedbackReply>();
             Feedbacks = new HashSet<Feedback>();
             Images = new HashSet<Image>();
             Menus = new HashSet<Menu>();
@@ -52,6 +53,7 @@ namespace TOPDER.Repository.Entities
         public virtual ICollection<CategoryRoom> CategoryRooms { get; set; }
         public virtual ICollection<ChatBox> ChatBoxes { get; set; }
         public virtual ICollection<Discount> Discounts { get; set; }
+        public virtual ICollection<FeedbackReply> FeedbackReplies { get; set; }
         public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<Image> Images { get; set; }
         public virtual ICollection<Menu> Menus { get; set; }

@@ -11,6 +11,7 @@ using TOPDER.Repository.Repositories;
 using TOPDER.Service.Dtos.CategoryMenu;
 using TOPDER.Service.Dtos.Contact;
 using TOPDER.Service.Dtos.Feedback;
+using TOPDER.Service.Dtos.FeedbackReply;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
@@ -21,9 +22,13 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly IFeedbackRepository _feedbackRepository;
-        public FeedbackService(IFeedbackRepository feedbackRepository, IMapper mapper) { 
+        private readonly IFeedbackReplyRepository _feedbackReplyRepository;
+
+        public FeedbackService(IFeedbackRepository feedbackRepository,
+            IMapper mapper, IFeedbackReplyRepository feedbackReplyRepository) { 
             _feedbackRepository = feedbackRepository;
             _mapper = mapper;
+            _feedbackReplyRepository = feedbackReplyRepository;
         }
 
         public async Task<FeedbackDto> AddAsync(FeedbackDto feedbackDto)
@@ -43,6 +48,7 @@ namespace TOPDER.Service.Services
         public async Task<PaginatedList<FeedbackHistoryDto>> GetHistoryCustomerPagingAsync(int pageNumber, int pageSize, int customerId)
         {
             var query = await _feedbackRepository.QueryableAsync();
+            var feedbackReplyQueryable = await _feedbackReplyRepository.QueryableAsync();
 
             var feedbacks = query
                 .Include(x => x.Restaurant)
@@ -50,6 +56,18 @@ namespace TOPDER.Service.Services
                 .Where(x => x.CustomerId == customerId && x.IsVisible == true);
 
             var queryDTO = feedbacks.Select(r => _mapper.Map<FeedbackHistoryDto>(r));
+
+            foreach (var feedback in queryDTO)
+            {
+                var feedbackReply = await feedbackReplyQueryable
+                    .Include(x => x.Restaurant)
+                    .FirstOrDefaultAsync(x => x.FeedbackId == feedback.FeedbackId && x.IsVisible == true);
+
+                if (feedbackReply != null)
+                {
+                    feedback.FeedbackReplyCustomer = _mapper.Map<FeedbackReplyCustomerDto>(feedbackReply);
+                }
+            }
 
             var paginatedDTOs = await PaginatedList<FeedbackHistoryDto>.CreateAsync(
                 queryDTO.AsNoTracking(),
@@ -81,6 +99,7 @@ namespace TOPDER.Service.Services
             int? star)
         {
             var query = await _feedbackRepository.QueryableAsync();
+            var feedbackReplyQueryable = await _feedbackReplyRepository.QueryableAsync();
 
             var feedbacks = query
                 .Include(x => x.Customer)
@@ -94,6 +113,15 @@ namespace TOPDER.Service.Services
             var queryDTO = feedbacks
                 .OrderByDescending(x => x.FeedbackId)
                 .Select(r => _mapper.Map<FeedbackCustomerDto>(r));
+
+            foreach( var feedback in queryDTO)
+            {
+                var feedbackReply = await feedbackReplyQueryable.Include(x => x.Restaurant).FirstOrDefaultAsync(x => x.FeedbackId == feedback.FeedbackId && x.IsVisible == true);
+                if (feedbackReply != null)
+                {
+                    feedback.FeedbackReplyCustomer = _mapper.Map<FeedbackReplyCustomerDto>(feedbackReply);
+                }
+            }
 
             var paginatedDTOs = await PaginatedList<FeedbackCustomerDto>.CreateAsync(
                 queryDTO.AsNoTracking(),
@@ -112,6 +140,7 @@ namespace TOPDER.Service.Services
             string? content)
         {
             var query = await _feedbackRepository.QueryableAsync();
+            var feedbackReplyQueryable = await _feedbackReplyRepository.QueryableAsync();
 
             var feedbacks = query.Include(x => x.Customer)
                 .Include(x => x.Restaurant)
@@ -128,6 +157,15 @@ namespace TOPDER.Service.Services
             }
 
             var queryDTO = feedbacks.OrderByDescending(x => x.FeedbackId).Select(r => _mapper.Map<FeedbackAdminDto>(r));
+
+            foreach (var feedback in queryDTO)
+            {
+                var feedbackReply = await feedbackReplyQueryable.Include(x => x.Restaurant).FirstOrDefaultAsync(x => x.FeedbackId == feedback.FeedbackId && x.IsVisible == true);
+                if (feedbackReply != null)
+                {
+                    feedback.FeedbackReplyCustomer = _mapper.Map<FeedbackReplyCustomerDto>(feedbackReply);
+                }
+            }
 
             var paginatedDTOs = await PaginatedList<FeedbackAdminDto>.CreateAsync(
                 queryDTO.AsNoTracking(),
@@ -146,6 +184,7 @@ namespace TOPDER.Service.Services
             string? content)
         {
             var query = await _feedbackRepository.QueryableAsync();
+            var feedbackReplyQueryable = await _feedbackReplyRepository.QueryableAsync();
 
             var feedbacks = query.Include(x => x.Customer).Where(x => x.RestaurantId == restaurantId && x.IsVisible == true);
 
@@ -162,6 +201,22 @@ namespace TOPDER.Service.Services
             var queryDTO = feedbacks
                 .OrderByDescending(x => x.FeedbackId)
                 .Select(r => _mapper.Map<FeedbackRestaurantDto>(r));
+
+
+            foreach (var feedback in queryDTO)
+            {
+                var feedbackReply = await feedbackReplyQueryable
+                    .FirstOrDefaultAsync(x => x.FeedbackId == feedback.FeedbackId && x.IsVisible == true);
+                if (feedbackReply != null)
+                {
+                    feedback.FeedbackReply = _mapper.Map<FeedbackReplyDto>(feedbackReply);
+                    feedback.isReply = true;
+                }
+                else
+                {
+                    feedback.isReply = false;
+                }
+            }
 
             var paginatedDTOs = await PaginatedList<FeedbackRestaurantDto>.CreateAsync(
                 queryDTO.AsNoTracking(),

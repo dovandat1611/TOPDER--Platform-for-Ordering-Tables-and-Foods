@@ -21,11 +21,13 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly IChatRepository _chatRepository;
+        private readonly IChatBoxRepository _chatBoxRepository;
 
-        public ChatService(IChatRepository chatRepository, IMapper mapper)
+        public ChatService(IChatRepository chatRepository, IMapper mapper, IChatBoxRepository chatBoxRepository)
         {
             _chatRepository = chatRepository;
             _mapper = mapper;
+            _chatBoxRepository = chatBoxRepository;
         }
         public async Task<ChatDto> AddAsync(CreateChatDto createChatDto)
         {
@@ -41,6 +43,20 @@ namespace TOPDER.Service.Services
             if(checkCreate != null)
             {
                 var query = await _chatRepository.QueryableAsync();
+                var chatBoxRepo = await _chatBoxRepository.GetByIdAsync(createChatDto.ChatBoxId);
+
+                if(checkCreate.ChatBy == chatBoxRepo.RestaurantId)
+                {
+                    chatBoxRepo.IsRestaurantRead = true;
+                    chatBoxRepo.IsCustomerRead = false;
+                }
+                if (checkCreate.ChatBy == chatBoxRepo.CustomerId)
+                {
+                    chatBoxRepo.IsRestaurantRead = false;
+                    chatBoxRepo.IsCustomerRead = true;
+                }
+
+                await _chatBoxRepository.UpdateAsync(chatBoxRepo);
 
                 var queryDTO = await query
                     .Include(x => x.ChatByNavigation)

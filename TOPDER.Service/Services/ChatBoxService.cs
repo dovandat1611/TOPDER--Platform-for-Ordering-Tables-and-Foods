@@ -47,12 +47,26 @@ namespace TOPDER.Service.Services
         {
             var queryable = await _chatBoxRepository.QueryableAsync();
 
-            var filteredQuery = queryable
+            var filteredQuery = await queryable
                 .Include(x => x.Restaurant)
                 .Include(x => x.Customer)
-                .Where(x => x.CustomerId == userId || x.RestaurantId == userId);
+                .Where(x => x.CustomerId == userId || x.RestaurantId == userId).ToListAsync();
 
             var queryDTO = _mapper.Map<List<ChatBoxDto>>(filteredQuery);
+
+            if (queryDTO.Count() > 0)
+            {
+                foreach (var chatBox in filteredQuery)
+                {
+                    var dto = queryDTO.FirstOrDefault(x => x.ChatBoxId == chatBox.ChatBoxId);
+                    if (dto != null)
+                    {
+                        dto.IsRead = chatBox.CustomerId == userId
+                            ? chatBox.IsCustomerRead
+                            : chatBox.IsRestaurantRead;
+                    }
+                }
+            }
 
             return queryDTO;
         }
@@ -87,6 +101,48 @@ namespace TOPDER.Service.Services
             if(checkExist == null)
             {
                 return false;
+            }
+            return true;
+        }
+
+        public async Task<bool> IsReadAsync(int uid, int chatboxId)
+        {
+            var queryable = await _chatBoxRepository.QueryableAsync();
+            var chatBox = await queryable.FirstOrDefaultAsync(x => (x.CustomerId == uid || x.RestaurantId == uid) && x.ChatBoxId == chatboxId);
+            if(chatBox == null)
+            {
+                return false;
+            }
+            if (chatBox.CustomerId == uid)
+            {
+                chatBox.IsCustomerRead = true;
+            }
+            if (chatBox.RestaurantId == uid)
+            {
+                chatBox.IsRestaurantRead = true;
+            }
+            return await _chatBoxRepository.UpdateAsync(chatBox);
+        }
+
+        public async Task<bool> IsReadAllAsync(int uid)
+        {
+            var queryable = await _chatBoxRepository.QueryableAsync();
+            var chatBoxList = await queryable.Where(x => (x.CustomerId == uid || x.RestaurantId == uid)).ToListAsync();
+            if(chatBoxList == null)
+            {
+                return false;
+            }
+            foreach(var item in chatBoxList)
+            {
+                if (item.CustomerId == uid)
+                {
+                    item.IsCustomerRead = true;
+                }
+                if (item.RestaurantId == uid)
+                {
+                    item.IsRestaurantRead = true;
+                }
+                await _chatBoxRepository.UpdateAsync(item);
             }
             return true;
         }
