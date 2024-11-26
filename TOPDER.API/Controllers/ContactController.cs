@@ -46,7 +46,7 @@ namespace TOPDER.API.Controllers
             return BadRequest("Thêm liên hệ thất bại.");
         }
 
-        [HttpDelete("Delete/{contactId}")]
+        [HttpDelete("Delete/{id}")]
         [SwaggerOperation(Summary = "Xóa Contact: Admin")]
         public async Task<IActionResult> DeleteContact(int id)
         {

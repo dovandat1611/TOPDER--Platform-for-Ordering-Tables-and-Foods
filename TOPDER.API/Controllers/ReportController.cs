@@ -1,8 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Swashbuckle.AspNetCore.Annotations;
+using TOPDER.Repository.IRepositories;
+using TOPDER.Service.Dtos.Notification;
 using TOPDER.Service.Dtos.Report;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.API.Controllers
 {
@@ -11,10 +16,18 @@ namespace TOPDER.API.Controllers
     public class ReportController : ControllerBase
     {
         private readonly IReportService _reportService;
+        private readonly INotificationService _notificationService;
+        private readonly IHubContext<AppHub> _signalRHub;
+        private readonly IUserRepository _userRepository;
 
-        public ReportController(IReportService reportService)
+
+        public ReportController(IReportService reportService,
+            INotificationService notificationService, IHubContext<AppHub> signalRHub, IUserRepository userRepository)
         {
             _reportService = reportService;
+            _notificationService = notificationService;
+            _signalRHub = signalRHub;
+            _userRepository = userRepository;
         }
 
         [HttpPost("Create")]
@@ -38,6 +51,70 @@ namespace TOPDER.API.Controllers
             var paginatedReports = await _reportService.GetPagingAsync(pageNumber, pageSize);
             return Ok(paginatedReports);
         }
+
+        [HttpPut("HandleReport")]
+        [SwaggerOperation(Summary = "Tạo Report: Cusomer | Restaurant")]
+        public async Task<IActionResult> HandleReportAsync([FromBody] HandleReportDto handleReportDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _reportService.HandleReportAsync(handleReportDto);
+            if (result)
+            {
+                if (handleReportDto.HandleReportType == HandleReport_Type.WARNING || handleReportDto.HandleReportType == HandleReport_Type.BAN)
+                {
+                    if(handleReportDto.HandleReportType == HandleReport_Type.BAN)
+                    {
+                        var user = await _userRepository.GetByIdAsync(handleReportDto.ReportedOn);
+                        if (user == null)
+                        {
+                            return BadRequest(new { Message = "Vô hiệu hóa tài khoản thất bại." });
+                        }
+                        if(user.Status == Common_Status.ACTIVE)
+                        {
+                            user.Status = Common_Status.INACTIVE;
+                            await _userRepository.UpdateAsync(user);
+                        }
+                    }
+                NotificationDto notificationByDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = handleReportDto.ReportedBy,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.REPORT_HANDLE_CUSTOMER(),
+                    Type = Notification_Type.REPORT,
+                    IsRead = false,
+                };
+
+                NotificationDto notificationOnDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = handleReportDto.ReportedBy,
+                    CreatedAt = DateTime.Now,
+                    Content = handleReportDto.Content,
+                    Type = Notification_Type.REPORT,
+                    IsRead = false,
+                };
+
+                var notificationBy = await _notificationService.AddAsync(notificationByDto);
+                var notificationOn = await _notificationService.AddAsync(notificationOnDto);
+
+
+                if (notificationOn != null && notificationBy != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notificationOn, notificationBy };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
+
+                    return Ok(new { Message = "Xử lý report thành công." });
+
+                }
+            }
+            return BadRequest(new { Message = "Xử lý report lỗi." });
+        }
+
+
 
         [HttpDelete("Delete/{reportId}")]
         [SwaggerOperation(Summary = "Xóa Report: Admin")]

@@ -109,6 +109,7 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string BOOKING = "Quảng Cáo";
             public static string ORDER = "Đơn Hàng";
             public static string RECHARGE = "Nạp Tiền";
+            public static string REPORT = "Báo Cáo";
         }
 
 
@@ -127,6 +128,11 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string ADD_FEEDBACK()
             {
                 return $"Bạn có một đánh giá mới!";
+            }
+
+            public static string REPORT_HANDLE_CUSTOMER()
+            {
+                return $"Báo cáo của bạn đã được xử lý theo chính sách của TOPDER.";
             }
 
             public static string ADD_FEEDBACKREPLY()
@@ -262,6 +268,11 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             }
         }
 
+        public class HandleReport_Type
+        {
+            public static string BAN = "Ban";
+            public static string WARNING = "Warning";
+        }
 
     }
 }

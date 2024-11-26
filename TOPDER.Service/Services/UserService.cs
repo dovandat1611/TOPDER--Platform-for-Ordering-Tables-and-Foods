@@ -183,6 +183,7 @@ namespace TOPDER.Service.Services
                 .Include(x => x.Admin)
                 .Include(x => x.Customer)
                 .Include(x => x.Restaurant)
+                .ThenInclude(x => x.CategoryRestaurant)
                 .SingleOrDefaultAsync(u => u.Email == loginModel.Email);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(loginModel.Password, user.Password))

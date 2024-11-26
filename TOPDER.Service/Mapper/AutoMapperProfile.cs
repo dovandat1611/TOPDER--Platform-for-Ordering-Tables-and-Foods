@@ -381,6 +381,10 @@ namespace TOPDER.Service.Mapper
                            opt => opt.MapFrom(src =>
                                src.Restaurant != null ? src.Restaurant.CategoryRestaurantId : null))
 
+                .ForMember(dest => dest.CategoryRestaurantName,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null && src.Restaurant.CategoryRestaurant != null ? src.Restaurant.CategoryRestaurant.CategoryRestaurantName : null))
+
                 .ForMember(dest => dest.NameOwner,
                            opt => opt.MapFrom(src =>
                                src.Restaurant != null ? src.Restaurant.NameOwner : null))

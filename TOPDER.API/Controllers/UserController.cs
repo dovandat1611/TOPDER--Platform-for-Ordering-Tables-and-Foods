@@ -122,6 +122,7 @@ namespace TOPDER.API.Controllers
                         Uid = userLoginDto.Uid,
                         Email = userLoginDto.Email,
                         CategoryRestaurantId = userLoginDto.CategoryRestaurantId,
+                        CategoryRestaurantName = userLoginDto.CategoryRestaurantName,
                         NameOwner = userLoginDto.NameOwner,
                         NameRes = userLoginDto.NameRes,
                         Phone = userLoginDto.Phone,
