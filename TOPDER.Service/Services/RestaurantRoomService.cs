@@ -40,7 +40,6 @@ namespace TOPDER.Service.Services
             {
                 RoomId = 0,
                 RestaurantId = restaurantRoomDto.RestaurantId,
-                CategoryRoomId = restaurantRoomDto.CategoryRoomId,
                 MaxCapacity = restaurantRoomDto.MaxCapacity,
                 Description = restaurantRoomDto.Description,
                 RoomName = restaurantRoomDto.RoomName,
@@ -88,7 +87,6 @@ namespace TOPDER.Service.Services
                         RoomName = row["Tên Phòng"],
                         MaxCapacity = Convert.ToInt32(row["Sức chứa"]),
                         Description = row.ContainsKey("Mô tả") ? row["Mô tả"] : null,
-                        CategoryRoomId = null,
                         IsBookingEnabled = true,
                         IsVisible = true,
                     };
@@ -231,7 +229,6 @@ namespace TOPDER.Service.Services
                 return false;
             }
             existingRestaurantRoom.MaxCapacity = restaurantRoomDto.MaxCapacity;
-            existingRestaurantRoom.CategoryRoomId = restaurantRoomDto.CategoryRoomId;
             existingRestaurantRoom.RoomName = restaurantRoomDto.RoomName;
             existingRestaurantRoom.Description = restaurantRoomDto.Description;
             return await _restaurantRoomRepository.UpdateAsync(existingRestaurantRoom);

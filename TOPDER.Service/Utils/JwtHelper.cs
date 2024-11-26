@@ -71,10 +71,7 @@ namespace TOPDER.Service.Utils
                 new Claim("discount", user.Discount?.ToString() ?? string.Empty),
                 new Claim("price", user.Price?.ToString() ?? string.Empty),
                 new Claim("maxCapacity", user.MaxCapacity?.ToString() ?? string.Empty),
-                new Claim("isBookingEnabled", user.IsBookingEnabled?.ToString() ?? string.Empty),
-                new Claim("firstFeePercent", user.FirstFeePercent?.ToString() ?? string.Empty),
-                new Claim("returningFeePercent", user.ReturningFeePercent?.ToString() ?? string.Empty),
-                new Claim("cancellationFeePercent", user.CancellationFeePercent?.ToString() ?? string.Empty)
+                new Claim("isBookingEnabled", user.IsBookingEnabled?.ToString() ?? string.Empty)
                 });
             }
 

@@ -106,9 +106,7 @@ namespace TOPDER.API.Controllers
                     List<NotificationDto> notifications = new List<NotificationDto> { notificationOn, notificationBy };
                     await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
                 }
-
                     return Ok(new { Message = "Xử lý report thành công." });
-
                 }
             }
             return BadRequest(new { Message = "Xử lý report lỗi." });

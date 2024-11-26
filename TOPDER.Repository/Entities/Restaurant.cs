@@ -9,7 +9,6 @@ namespace TOPDER.Repository.Entities
         {
             BookingAdvertisements = new HashSet<BookingAdvertisement>();
             CategoryMenus = new HashSet<CategoryMenu>();
-            CategoryRooms = new HashSet<CategoryRoom>();
             ChatBoxes = new HashSet<ChatBox>();
             Discounts = new HashSet<Discount>();
             FeedbackReplies = new HashSet<FeedbackReply>();
@@ -17,6 +16,7 @@ namespace TOPDER.Repository.Entities
             Images = new HashSet<Image>();
             Menus = new HashSet<Menu>();
             Orders = new HashSet<Order>();
+            RestaurantPolicies = new HashSet<RestaurantPolicy>();
             RestaurantRooms = new HashSet<RestaurantRoom>();
             RestaurantTables = new HashSet<RestaurantTable>();
             TableBookingSchedules = new HashSet<TableBookingSchedule>();
@@ -42,15 +42,11 @@ namespace TOPDER.Repository.Entities
         public int? ReputationScore { get; set; }
         public decimal Price { get; set; }
         public bool? IsBookingEnabled { get; set; }
-        public decimal? FirstFeePercent { get; set; }
-        public decimal? ReturningFeePercent { get; set; }
-        public decimal? CancellationFeePercent { get; set; }
 
         public virtual CategoryRestaurant? CategoryRestaurant { get; set; }
         public virtual User UidNavigation { get; set; } = null!;
         public virtual ICollection<BookingAdvertisement> BookingAdvertisements { get; set; }
         public virtual ICollection<CategoryMenu> CategoryMenus { get; set; }
-        public virtual ICollection<CategoryRoom> CategoryRooms { get; set; }
         public virtual ICollection<ChatBox> ChatBoxes { get; set; }
         public virtual ICollection<Discount> Discounts { get; set; }
         public virtual ICollection<FeedbackReply> FeedbackReplies { get; set; }
@@ -58,6 +54,7 @@ namespace TOPDER.Repository.Entities
         public virtual ICollection<Image> Images { get; set; }
         public virtual ICollection<Menu> Menus { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<RestaurantPolicy> RestaurantPolicies { get; set; }
         public virtual ICollection<RestaurantRoom> RestaurantRooms { get; set; }
         public virtual ICollection<RestaurantTable> RestaurantTables { get; set; }
         public virtual ICollection<TableBookingSchedule> TableBookingSchedules { get; set; }

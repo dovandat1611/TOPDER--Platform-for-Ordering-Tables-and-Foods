@@ -23,10 +23,7 @@ namespace TOPDER.Service.IServices
         // PROFILE
         Task<RestaurantProfileDto?> Profile(int uid);
 
-
         // DISCOUNT AND FEE
-        Task<DiscountAndFeeRestaurant> GetDiscountAndFeeAsync(int restaurantId);
-        Task<bool> UpdateDiscountAndFeeAsync(int restaurantId, decimal? discountPrice, decimal? firstFeePercent, decimal? returningFeePercent, decimal? cancellationFeePercent);
         Task<bool> UpdateReputationScore(int uid);
 
         // DESCRIPTION 

@@ -35,6 +35,10 @@ namespace TOPDER.Service.Dtos.Order
         public DateTime? CompletedAt { get; set; }
         public DateTime? CancelledAt { get; set; }
         public bool IsTableBooking { get; set; }
+        public string? CancelReason { get; set; }
+        public string? PaidType { get; set; }
+        public decimal? DepositAmount { get; set; }
+        public decimal? FoodAmount { get; set; }
         public List<OrderTableDto> OrderTables { get; set; } = new List<OrderTableDto> { };
         public List<OrderMenuDto> OrderMenus { get; set; } = new List<OrderMenuDto> { };
     }

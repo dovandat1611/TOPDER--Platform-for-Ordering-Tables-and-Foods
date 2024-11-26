@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TOPDER.Service.Common.CommonDtos;
-using TOPDER.Service.Dtos.CategoryRoom;
 using TOPDER.Service.Dtos.ChatBox;
 using TOPDER.Service.IServices;
 

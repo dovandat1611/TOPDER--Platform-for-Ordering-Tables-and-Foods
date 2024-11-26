@@ -27,9 +27,6 @@ namespace TOPDER.Service.Dtos.Restaurant
         public decimal MaxPriceMenu { get; set; }
         public int TotalFeedbacks { get; set; }
         public int Star { get; set; }
-        public decimal? FirstFeePercent { get; set; }
-        public decimal? ReturningFeePercent { get; set; }
-        public decimal? CancellationFeePercent { get; set; }
         public List<ImageDto> Images { get; set; } = null!;
     }
 }

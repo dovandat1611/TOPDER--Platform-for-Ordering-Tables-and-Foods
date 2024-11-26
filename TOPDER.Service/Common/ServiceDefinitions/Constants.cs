@@ -60,6 +60,12 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string ISBALANCE = "ISBALANCE";
         }
 
+        public class Paid_Type
+        {
+            public static string ENTIRE_ORDER = "Entire Order";
+            public static string DEPOSIT = "Deposit";
+        }
+
         public class Contact_Topic
         {
             public static string RESTAURANT_REGISTER = "RestaurantRegister";
@@ -168,23 +174,23 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             {
                 return $"Bạn có một liên hệ quảng cáo mới.";
             }
-            public static string ORDER_CREATE(decimal price)
+            public static string ORDER_CREATE(decimal foodAmount, decimal depositAmount)
             {
-                return $"Bạn có một đơn hàng mới giá trị {price}đ.";
+                return $"Bạn có một đơn hàng mới với giá đặt bàn là: {depositAmount}đ và giá đồ ăn là {foodAmount}đ.";
             }
 
-            public static string ORDER_CREATE_CUS(decimal price)
+            public static string ORDER_CREATE_CUS(decimal foodAmount, decimal depositAmount)
             {
-                return $"Bạn đã tạo thành công đơn hàng có giá trị {price}đ.";
+                return $"Bạn đã tạo thành công đơn hàng có giá đặt bàn là: {depositAmount}đ và giá đồ ăn là {foodAmount}đ.";
             }
 
             public static string ORDER_CANCEL(decimal price, string role)
             {
                 return $"Đơn hàng có giá trị {price}đ đã bị hủy bởi {role}.";
             }
-            public static string ORDER_UPDATESTATUS(decimal price, string status)
+            public static string ORDER_UPDATESTATUS(decimal depositAmount, decimal foodAmount, string status)
             {
-                return $"Đơn hàng có giá trị {price}đ của bạn {status}.";
+                return $"Đơn hàng có có giá đặt bàn là: {depositAmount}đ và giá đồ ăn là {foodAmount}đ của bạn {status}.";
             }
             public static string ORDER_PAYMENT_THIRTPART(decimal price)
             {

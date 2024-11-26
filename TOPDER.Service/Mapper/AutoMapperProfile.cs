@@ -22,7 +22,6 @@ using TOPDER.Service.Dtos.Chat;
 using TOPDER.Service.Dtos.OrderMenu;
 using TOPDER.Service.Dtos.Log;
 using TOPDER.Service.Dtos.OrderTable;
-using TOPDER.Service.Dtos.CategoryRoom;
 using TOPDER.Service.Dtos.RestaurantRoom;
 using TOPDER.Service.Dtos.ExternalLogin;
 using TOPDER.Service.Dtos.Wallet;
@@ -35,6 +34,8 @@ using TOPDER.Service.Dtos.TableBookingSchedule;
 using TOPDER.Service.Dtos.AdvertisementPricing;
 using TOPDER.Service.Dtos.BookingAdvertisement;
 using TOPDER.Service.Dtos.FeedbackReply;
+using TOPDER.Service.Dtos.RestaurantPolicy;
+using TOPDER.Service.Dtos.PolicySystem;
 
 namespace TOPDER.Service.Mapper
 {
@@ -280,9 +281,6 @@ namespace TOPDER.Service.Mapper
             // LOG
             CreateMap<LogDto, Log>().ReverseMap();
 
-            // CATEGORY ROOM 
-            CreateMap<CategoryRoomDto, CategoryRoom>().ReverseMap();
-
             // RESTAURANT ROOM 
             CreateMap<RestaurantRoomDto, RestaurantRoom>().ReverseMap();
 
@@ -442,19 +440,8 @@ namespace TOPDER.Service.Mapper
 
                 .ForMember(dest => dest.IsBookingEnabled,
                            opt => opt.MapFrom(src =>
-                               src.Restaurant != null ? src.Restaurant.IsBookingEnabled : null))
-
-                .ForMember(dest => dest.FirstFeePercent,
-                           opt => opt.MapFrom(src =>
-                               src.Restaurant != null ? src.Restaurant.FirstFeePercent : null))
-
-                .ForMember(dest => dest.ReturningFeePercent,
-                           opt => opt.MapFrom(src =>
-                               src.Restaurant != null ? src.Restaurant.ReturningFeePercent : null))
-
-                .ForMember(dest => dest.CancellationFeePercent,
-                           opt => opt.MapFrom(src =>
-                               src.Restaurant != null ? src.Restaurant.CancellationFeePercent : null));
+                               src.Restaurant != null ? src.Restaurant.IsBookingEnabled : null));
+                
 
 
             //ROLE
@@ -496,7 +483,13 @@ namespace TOPDER.Service.Mapper
            .ForMember(dest => dest.RestaurantImage,
                       opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.Logo : null));
 
+            // Restaurant Policy 
+            CreateMap<CreateRestaurantPolicyDto, RestaurantPolicy>().ReverseMap();
+            CreateMap<RestaurantPolicyDto, RestaurantPolicy>().ReverseMap();
 
+            // Policy System
+            CreateMap<PolicySystemDto, PolicySystem>().ReverseMap();
+            CreateMap<CreatePolicySystemDto, PolicySystem>().ReverseMap();
 
         }
     }

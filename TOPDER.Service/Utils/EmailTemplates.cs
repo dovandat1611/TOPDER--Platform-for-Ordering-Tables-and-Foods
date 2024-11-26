@@ -431,6 +431,25 @@ namespace TOPDER.Service.Utils
                 }
             }
 
+            var statusText = string.Empty;
+            if (status == Order_Status.PENDING)
+            {
+                statusText = "Đang Chờ";
+            }
+            if (status == Order_Status.CONFIRM)
+            {
+                statusText = "Xác Nhận";
+            }
+            if (status == Order_Status.COMPLETE)
+            {
+                statusText = "Đã hoàn thành";
+            }
+            if (status == Order_Status.CANCEL)
+            {
+                statusText = "Hủy";
+            }
+
+
             tablesHtml += "</ul>";
 
             return $@"
@@ -443,10 +462,7 @@ namespace TOPDER.Service.Utils
                     <body style='font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;'>
                       <div style='width: 100%; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); overflow: hidden;'>
                         <div style='background-color: #f29034; color: #ffffff; text-align: center; padding: 20px; font-size: 1.5rem; font-weight: bold;'>
-                          Cập Nhật Trạng Thái Đơn Hàng: ${{status == Order_Status.PENDING ? ""Đang Chờ"" : 
-                                                        (status == Order_Status.CONFIRM ? ""Xác Nhận"" : 
-                                                        (status == Order_Status.SUCCESS ? ""Thành Công"" : 
-                                                        (status == Order_Status.CANCEL ? ""Hủy"" : """")))}}
+                          Cập Nhật Trạng Thái Đơn Hàng: {statusText}
                         </div>
 
                         <div style='padding: 20px;'>

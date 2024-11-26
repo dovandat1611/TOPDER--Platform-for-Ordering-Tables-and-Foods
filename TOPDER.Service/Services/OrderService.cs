@@ -27,12 +27,16 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly IOrderRepository _orderRepository;
+        private readonly IRestaurantPolicyService _restaurantPolicyService;
+        private readonly IPolicySystemService _policySystemService;
 
 
-        public OrderService(IOrderRepository orderRepository, IMapper mapper)
+        public OrderService(IOrderRepository orderRepository, IMapper mapper,
+            IRestaurantPolicyService restaurantPolicyService)
         {
             _orderRepository = orderRepository;
             _mapper = mapper;
+            _restaurantPolicyService = restaurantPolicyService;
         }
 
         public async Task<Order> AddAsync(OrderDto orderDto)
@@ -181,6 +185,7 @@ namespace TOPDER.Service.Services
         {
             var query = await _orderRepository.QueryableAsync();
 
+            
             // Tìm kiếm đơn hàng theo ID
             var order = query
                 .Include(x => x.Restaurant)
@@ -206,6 +211,24 @@ namespace TOPDER.Service.Services
             // Xác định vai trò của người dùng
             var isRestaurantUser = order.RestaurantId == userID;
             var role = isRestaurantUser ? User_Role.RESTAURANT : User_Role.CUSTOMER;
+
+            decimal cancellationFeePercent = 0;
+
+            if (isRestaurantUser == true)
+            {
+                var restaurantPolicy = await _restaurantPolicyService.GetActivePolicyAsync(userID);
+                cancellationFeePercent = restaurantPolicy.CancellationFeePercent ?? 0;
+            }
+
+            decimal totalAmount = 0;
+            if (order.PaidType == Paid_Type.ENTIRE_ORDER)
+            {
+                totalAmount = order.TotalAmount ?? 0;
+            }
+            if (order.PaidType == Paid_Type.DEPOSIT)
+            {
+                totalAmount = order.DepositAmount ?? 0;
+            }
 
             // Tạo đối tượng CancelOrderDto và trả về
             return new CancelOrderDto
@@ -233,10 +256,11 @@ namespace TOPDER.Service.Services
                 WalletCustomerId = wallet?.WalletId ?? 0,
                 WalletBalanceCustomer = wallet?.WalletBalance ?? 0, // Sử dụng toán tử null-coalescing để xử lý null
 
+              
                 // CancellationFeePercent Restaurant
-                CancellationFeePercent = isRestaurantUser ? 100 : order.Restaurant.CancellationFeePercent,
+                CancellationFeePercent = isRestaurantUser ? 100 : cancellationFeePercent,
 
-                TotalAmount = order.TotalAmount,
+                TotalAmount = totalAmount,
 
                 RoleName = role
             };
@@ -245,6 +269,8 @@ namespace TOPDER.Service.Services
         public async Task<CompleteOrderDto> GetInformationForCompleteAsync(int orderID)
         {
             var query = await _orderRepository.QueryableAsync();
+
+            var policySystem = await _policySystemService.GetAllAsync();
 
             // Tìm kiếm đơn hàng theo ID
             var order = await query
@@ -258,30 +284,37 @@ namespace TOPDER.Service.Services
                 throw new KeyNotFoundException($"Order with ID {orderID} not found.");
             }
 
+            decimal totalAmount = 0;
+            if(order.PaidType == Paid_Type.ENTIRE_ORDER)
+            {
+                totalAmount = order.TotalAmount ?? 0;
+            }
+            if (order.PaidType == Paid_Type.DEPOSIT)
+            {
+                totalAmount = order.DepositAmount ?? 0;
+            }
+
             var wallet = order.Restaurant.UidNavigation.Wallets.FirstOrDefault(x => x.Uid == order.RestaurantId);
 
             // Kiểm tra phí dịch vụ dựa trên số tiền đơn hàng
             decimal serviceFee = 0;
 
-            if (order.TotalAmount < 50000)
+            if(policySystem != null && policySystem.Any())
             {
-                serviceFee = 500; // Phí cho đơn hàng dưới 50 nghìn
-            }
-            else if (order.TotalAmount < 200000)
-            {
-                serviceFee = 1000; // Phí cho đơn hàng từ 50 nghìn đến dưới 200 nghìn
-            }
-            else if (order.TotalAmount < 500000)
-            {
-                serviceFee = 2000; // Phí cho đơn hàng từ 200 nghìn đến dưới 500 nghìn
-            }
-            else if (order.TotalAmount >= 1000000)
-            {
-                serviceFee = 5000; // Phí cho đơn hàng từ 1 triệu trở lên
+                foreach (var policy in policySystem)
+                {
+                    // Ví dụ: kiểm tra nếu giá trị đơn hàng nằm trong khoảng chính sách
+                    if (totalAmount >= policy.MinOrderValue &&
+                        (policy.MaxOrderValue == 0 || totalAmount <= policy.MaxOrderValue))
+                    {
+                        serviceFee = policy.FeeAmount;
+                        break; // Áp dụng chính sách đầu tiên phù hợp
+                    }
+                }
             }
 
             // Tính số dư ví sau khi trừ phí
-            var updatedWalletBalance = wallet.WalletBalance + order.TotalAmount - serviceFee;
+            var updatedWalletBalance = wallet.WalletBalance + totalAmount - serviceFee;
 
             return new CompleteOrderDto
             {
@@ -290,7 +323,7 @@ namespace TOPDER.Service.Services
                 WalletId = wallet.WalletId,
                 RestaurantName = order.Restaurant.NameRes,
                 WalletBalance = updatedWalletBalance ?? 0,
-                TotalAmount = order.TotalAmount - serviceFee,
+                TotalAmount = totalAmount - serviceFee,
             };
 
         }
@@ -347,7 +380,7 @@ namespace TOPDER.Service.Services
                 NumberOfGuests = order.NumberChild + order.NumberPerson,
                 ReservationDate = order.DateReservation,
                 ReservationTime = order.TimeReservation,
-                TotalAmount = order.TotalAmount,
+                TotalAmount = order.TotalAmount ?? 0,
                 Rooms = new List<RoomEmail>(),
                 TableName = new List<string>()
             };

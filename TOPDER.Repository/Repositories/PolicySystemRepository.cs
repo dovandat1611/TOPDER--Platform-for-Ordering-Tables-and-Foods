@@ -8,8 +8,8 @@ using TOPDER.Repository.IRepositories;
 
 namespace TOPDER.Repository.Repositories
 {
-    public class CategoryRoomRepository : GenericRepository<CategoryRoom>, ICategoryRoomRepository
+    public class PolicySystemRepository : GenericRepository<PolicySystem>, IPolicySystemRepository
     {
-        public CategoryRoomRepository(TopderDBContext dbContext) : base(dbContext) { }
+        public PolicySystemRepository(TopderDBContext dbContext) : base(dbContext) { }
     }
 }

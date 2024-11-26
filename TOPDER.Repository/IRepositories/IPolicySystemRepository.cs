@@ -7,7 +7,7 @@ using TOPDER.Repository.Entities;
 
 namespace TOPDER.Repository.IRepositories
 {
-    public interface ICategoryRoomRepository : IGenericRepository<CategoryRoom>
+    public interface IPolicySystemRepository : IGenericRepository<PolicySystem>
     {
     }
 }

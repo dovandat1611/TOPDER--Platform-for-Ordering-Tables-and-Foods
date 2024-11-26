@@ -48,6 +48,7 @@ namespace TOPDER.API.Controllers
         private readonly IConfiguration _configuration;
         private readonly INotificationService _notificationService;
         private readonly IHubContext<AppHub> _signalRHub;
+        private readonly IRestaurantPolicyService _restaurantPolicyService;
 
 
         public OrderController(IOrderService orderService, IOrderMenuService orderMenuService,
@@ -58,7 +59,7 @@ namespace TOPDER.API.Controllers
             IOrderTableService orderTableService, IDiscountMenuRepository discountMenuRepository,
             IConfiguration configuration, IRestaurantService restaurantService,
             INotificationService notificationService,
-            IHubContext<AppHub> signalRHub)
+            IHubContext<AppHub> signalRHub, IRestaurantPolicyService restaurantPolicyService)
         {
             _orderService = orderService;
             _orderMenuService = orderMenuService;
@@ -76,6 +77,7 @@ namespace TOPDER.API.Controllers
             _restaurantService = restaurantService;
             _notificationService = notificationService;
             _signalRHub = signalRHub;
+            _restaurantPolicyService = restaurantPolicyService;
         }
 
 
@@ -96,26 +98,30 @@ namespace TOPDER.API.Controllers
                 return NotFound("Nhà hàng không tồn tại.");
             }
 
-            decimal totalAmount = 0;
+            decimal foodAmount = 0;
+            decimal depositAmount = 0;
 
-            // Tính tổng giá nhà hàng và áp dụng giảm giá nếu có
             if (restaurant.Price > 0)
             {
-                totalAmount += restaurant.Price;
+                depositAmount += restaurant.Price;
 
                 if (restaurant.Discount.HasValue && restaurant.Discount > 0)
                 {
-                    totalAmount *= (1 - (restaurant.Discount.Value / 100m)); // Chia cho 100m để tránh lỗi số học
+                    depositAmount *= (1 - (restaurant.Discount.Value / 100m));
                 }
             }
 
-            // Tính tổng tiền từ thực đơn
-            totalAmount += await CalculateMenuTotalForPreOrderAsync(caculatorOrder);
+            foodAmount += await CalculateMenuTotalForPreOrderAsync(caculatorOrder);
 
-            // Áp dụng phí dựa trên trạng thái khách hàng
-            totalAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, totalAmount);
+            depositAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, depositAmount);
 
-            return Ok(totalAmount); // Trả về tổng số tiền đã tính toán
+            CaculatorAmountRespone caculatorAmount = new CaculatorAmountRespone()
+            {
+                DepositAmount = depositAmount,
+                FoodAmount = foodAmount
+            };
+
+            return Ok(caculatorAmount);
         }
 
         // Tạo đơn hàng
@@ -158,7 +164,7 @@ namespace TOPDER.API.Controllers
                         NotificationId = 0,
                         Uid = orderModel.RestaurantId,
                         CreatedAt = DateTime.Now,
-                        Content = Notification_Content.ORDER_CREATE(0),
+                        Content = Notification_Content.ORDER_CREATE(0,0),
                         Type = Notification_Type.ORDER,
                         IsRead = false,
                     };
@@ -168,7 +174,7 @@ namespace TOPDER.API.Controllers
                         NotificationId = 0,
                         Uid = orderModel.CustomerId,
                         CreatedAt = DateTime.Now,
-                        Content = Notification_Content.ORDER_CREATE_CUS(0),
+                        Content = Notification_Content.ORDER_CREATE_CUS(0, 0),
                         Type = Notification_Type.ORDER,
                         IsRead = false,
                     };
@@ -188,8 +194,9 @@ namespace TOPDER.API.Controllers
                 return BadRequest("Tạo đơn hàng miễn phí thất bại");
             }
 
-            // Tính toán tổng tiền cho đơn hàng
-            decimal totalAmount = await CalculateTotalAmountAsync(orderModel, restaurant);
+
+            // Tính toán từng tiền cho đơn hàng
+            CaculatorAmountRespone caculatorAmount = await CalculateTotalAmountAsync(orderModel, restaurant);
 
             // Tạo đơn hàng
             var orderDto = new OrderDto
@@ -198,7 +205,6 @@ namespace TOPDER.API.Controllers
                 CustomerId = orderModel.CustomerId,
                 RestaurantId = orderModel.RestaurantId,
                 DiscountId = orderModel.DiscountId ?? null,
-                CategoryRoomId = orderModel.CategoryRoomId ?? null,
                 NameReceiver = orderModel.NameReceiver,
                 PhoneReceiver = orderModel.PhoneReceiver,
                 TimeReservation = orderModel.TimeReservation,
@@ -207,7 +213,9 @@ namespace TOPDER.API.Controllers
                 NumberChild = orderModel.NumberChild,
                 ContentReservation = orderModel.ContentReservation,
                 TypeOrder = Order_Type.RESERVATION,
-                TotalAmount = totalAmount,
+                DepositAmount = caculatorAmount.DepositAmount ?? 0,
+                FoodAmount = caculatorAmount.FoodAmount ?? 0,
+                TotalAmount = caculatorAmount.FoodAmount ?? 0 + caculatorAmount.DepositAmount ?? 0,
                 StatusOrder = Order_Status.PENDING,
                 CreatedAt = DateTime.Now
             };
@@ -234,7 +242,7 @@ namespace TOPDER.API.Controllers
                     NotificationId = 0,
                     Uid = orderModel.RestaurantId,
                     CreatedAt = DateTime.Now,
-                    Content = Notification_Content.ORDER_CREATE(totalAmount),
+                    Content = Notification_Content.ORDER_CREATE(orderDto.FoodAmount ?? 0, orderDto.DepositAmount ?? 0),
                     Type = Notification_Type.ORDER,
                     IsRead = false,
                 };
@@ -244,7 +252,7 @@ namespace TOPDER.API.Controllers
                     NotificationId = 0,
                     Uid = orderModel.CustomerId,
                     CreatedAt = DateTime.Now,
-                    Content = Notification_Content.ORDER_CREATE_CUS(totalAmount),
+                    Content = Notification_Content.ORDER_CREATE_CUS(orderDto.FoodAmount ?? 0, orderDto.DepositAmount ?? 0),
                     Type = Notification_Type.ORDER,
                     IsRead = false,
                 };
@@ -258,7 +266,6 @@ namespace TOPDER.API.Controllers
                 {
                     List<NotificationDto> notificationDto = new List<NotificationDto> { notificationRes, notificationCus };
                     await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto);
-                    //await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationCus.Uid, notificationCus);
                 }
 
                 await SendOrderEmailAsync(order.OrderId);
@@ -281,7 +288,6 @@ namespace TOPDER.API.Controllers
                 CustomerId = orderModel.CustomerId,
                 RestaurantId = orderModel.RestaurantId,
                 DiscountId = orderModel.DiscountId ?? null,
-                CategoryRoomId = orderModel.CategoryRoomId ?? null,
                 NameReceiver = orderModel.NameReceiver,
                 PhoneReceiver = orderModel.PhoneReceiver,
                 TimeReservation = orderModel.TimeReservation,
@@ -290,6 +296,8 @@ namespace TOPDER.API.Controllers
                 NumberChild = orderModel.NumberChild,
                 ContentReservation = orderModel.ContentReservation,
                 TypeOrder = Order_Type.RESERVATION,
+                FoodAmount = 0,
+                DepositAmount = 0,
                 TotalAmount = 0,
                 StatusOrder = Order_Status.PENDING,
                 CreatedAt = DateTime.Now
@@ -299,17 +307,18 @@ namespace TOPDER.API.Controllers
         }
 
         // Phương thức tính toán tổng tiền đơn hàng
-        private async Task<decimal> CalculateTotalAmountAsync(OrderModel orderModel, Restaurant restaurant)
+        private async Task<CaculatorAmountRespone> CalculateTotalAmountAsync(OrderModel orderModel, Restaurant restaurant)
         {
-            decimal totalAmount = 0;
+            decimal foodAmount = 0;
+            decimal depositAmount = 0;
 
             // Kiểm tra và áp dụng giảm giá cho nhà hàng
             if (restaurant.Price > 0)
             {
-                totalAmount += restaurant.Price;
+                depositAmount += restaurant.Price;
                 if (restaurant.Discount > 0)
                 {
-                    totalAmount *= (1 - (restaurant.Discount.Value / 100));
+                    depositAmount *= (1 - (restaurant.Discount.Value / 100));
                 }
             }
 
@@ -321,26 +330,31 @@ namespace TOPDER.API.Controllers
                 {
                     if (discount.Scope == DiscountScope.ENTIRE_ORDER)
                     {
-                        totalAmount += await CalculateMenuTotalAsync(orderModel);
-                        totalAmount *= (1 - (discount.DiscountPercentage / 100)) ?? 0;
+                        foodAmount += await CalculateMenuTotalAsync(orderModel);
+                        foodAmount *= (1 - (discount.DiscountPercentage / 100)) ?? 0;
                         discount.Quantity -= 1;
                         await _discountRepository.UpdateAsync(discount);
                     }
                     else if (discount.Scope == DiscountScope.PER_SERVICE)
                     {
-                        totalAmount = await ApplyServiceDiscountAsync(orderModel, discount, totalAmount);
+                        foodAmount = await ApplyServiceDiscountAsync(orderModel, discount, foodAmount);
                     }
                 }
             }
             else
             {
-                totalAmount += await CalculateMenuTotalAsync(orderModel);
+                foodAmount += await CalculateMenuTotalAsync(orderModel);
             }
 
-            // Áp dụng phí dựa trên trạng thái khách hàng
-            totalAmount = await ApplyCustomerFeeAsync(orderModel.CustomerId, restaurant, totalAmount);
+            depositAmount = await ApplyCustomerFeeAsync(orderModel.CustomerId, restaurant, depositAmount);
 
-            return totalAmount;
+            CaculatorAmountRespone caculatorAmount = new CaculatorAmountRespone()
+            {
+                DepositAmount = depositAmount,
+                FoodAmount = foodAmount,
+            };
+
+            return caculatorAmount;
         }
 
         // Phương thức áp dụng giảm giá theo menu
@@ -411,16 +425,18 @@ namespace TOPDER.API.Controllers
         // Phương thức áp dụng phí dựa trên trạng thái khách hàng
         private async Task<decimal> ApplyCustomerFeeAsync(int customerId, Restaurant restaurant, decimal totalAmount)
         {
-            if (restaurant.FirstFeePercent.HasValue || restaurant.ReturningFeePercent.HasValue)
+            var restaurantPolicy = await _restaurantPolicyService.GetActivePolicyAsync(restaurant.Uid);
+
+            if (restaurantPolicy.FirstFeePercent.HasValue || restaurantPolicy.ReturningFeePercent.HasValue)
             {
                 var isFirst = await _orderService.CheckIsFirstOrderAsync(customerId, restaurant.Uid);
-                if (isFirst && restaurant.FirstFeePercent.HasValue && restaurant.FirstFeePercent.Value > 0)
+                if (isFirst && restaurantPolicy.FirstFeePercent.HasValue && restaurantPolicy.FirstFeePercent.Value > 0)
                 {
-                    totalAmount *= (1 - (restaurant.FirstFeePercent.Value / 100));
+                    totalAmount *= (1 - (restaurantPolicy.FirstFeePercent.Value / 100));
                 }
-                else if (!isFirst && restaurant.ReturningFeePercent.HasValue && restaurant.ReturningFeePercent.Value > 0)
+                else if (!isFirst && restaurantPolicy.ReturningFeePercent.HasValue && restaurantPolicy.ReturningFeePercent.Value > 0)
                 {
-                    totalAmount *= (1 - (restaurant.ReturningFeePercent.Value / 100));
+                    totalAmount *= (1 - (restaurantPolicy.ReturningFeePercent.Value / 100));
                 }
             }
             return totalAmount;
@@ -461,7 +477,7 @@ namespace TOPDER.API.Controllers
         // 1: số dư ví(nếu đủ) 2: VNPAY 3: VIETQR 
         [HttpPost("PaidOrder")]
         [SwaggerOperation(Summary = "Khi nhà hàng confirm thì khách hàng sẽ chuyển khoản với phương thức thanh toán (nếu đơn hàng có giá trị) ISBALANCE | VIETQR | VNPAY: Customer")]
-        public async Task<IActionResult> PaidOrder(int orderId, int userId, string paymentGateway)
+        public async Task<IActionResult> PaidOrder(int orderId, int userId,  string paymentGateway, string typeOrder)
         {
             // Fetch the order and ensure the user is authorized
             OrderDto order;
@@ -478,9 +494,15 @@ namespace TOPDER.API.Controllers
                 return Forbid(ex.Message);
             }
 
+            if(typeOrder != Paid_Type.DEPOSIT || typeOrder != Paid_Type.ENTIRE_ORDER)
+            {
+                return BadRequest(new { message = "Chọn typeOrder là Deposit hoặc Entire Order!" });
+            }
+
             // Update order payment status and content
             order.StatusPayment = Payment_Status.PENDING;
             order.ContentPayment = Order_PaymentContent.PaymentContent(order.CustomerId ?? 0, order.RestaurantId ?? 0);
+            order.PaidType = typeOrder;
 
             // Update the order in the system
             var updateOrderResult = await _orderService.UpdatePaidOrderAsync(order);
@@ -490,36 +512,50 @@ namespace TOPDER.API.Controllers
                 return BadRequest("Cập nhật đơn hàng thất bại.");
             }
 
+            decimal totalAmount = 0;
+            if (typeOrder == Paid_Type.DEPOSIT)
+            {
+                totalAmount = order.DepositAmount ?? 0;
+            }
+            if (typeOrder == Paid_Type.ENTIRE_ORDER)
+            {
+                totalAmount = order.TotalAmount ?? 0;
+            }
+
             if (paymentGateway.Equals(PaymentGateway.ISBALANCE))
             {
-                return await HandleWalletPayment(order);
+                return await HandleWalletPayment(order, totalAmount);
             }
 
             if (paymentGateway.Equals(PaymentGateway.VIETQR))
             {
-                var orderMenu = await _orderMenuService.GetItemsByOrderAsync(order.OrderId);
-                return await HandleVietQRPayment(order, orderMenu, order.TotalAmount);
+                List<OrderMenuDto> orderMenu = null;
+                if (typeOrder == Paid_Type.ENTIRE_ORDER)
+                {
+                    orderMenu = await _orderMenuService.GetItemsByOrderAsync(order.OrderId);
+                }
+                return await HandleVietQRPayment(order, orderMenu, totalAmount);
             }
 
             if (paymentGateway.Equals(PaymentGateway.VNPAY))
             {
-                return await HandleVNPAYPayment(order, order.TotalAmount);
+                return await HandleVNPAYPayment(order, totalAmount);
             }
 
             return BadRequest("Cổng thanh toán không hợp lệ.");
         }
 
-        private async Task<IActionResult> HandleWalletPayment(OrderDto order)
+        private async Task<IActionResult> HandleWalletPayment(OrderDto order, decimal totalAmount)
         {
             // Check wallet balance
             var walletBalance = await _walletService.GetBalanceOrderAsync(order.CustomerId ?? 0);
 
-            if (walletBalance < order.TotalAmount)
+            if (walletBalance < totalAmount)
             {
                 return BadRequest("Số dư ví không đủ cho giao dịch này.");
             }
 
-            decimal newWalletBalance = walletBalance - order.TotalAmount;
+            decimal newWalletBalance = walletBalance - totalAmount;
 
             // Retrieve user information for wallet transaction
             UserOrderIsBalance userOrderIsBalance;
@@ -538,10 +574,10 @@ namespace TOPDER.API.Controllers
                 TransactionId = 0, // Auto-generated
                 WalletId = userOrderIsBalance.WalletId,
                 Uid = userOrderIsBalance.Id,
-                TransactionAmount = order.TotalAmount,
+                TransactionAmount = totalAmount,
                 TransactionType = Transaction_Type.SYSTEMSUBTRACT,
                 TransactionDate = DateTime.Now,
-                Description = Payment_Descriptions.SystemSubtractDescription(order.TotalAmount),
+                Description = Payment_Descriptions.SystemSubtractDescription(totalAmount),
                 Status = Payment_Status.SUCCESSFUL
             };
 
@@ -579,7 +615,7 @@ namespace TOPDER.API.Controllers
                 NotificationId = 0,
                 Uid = updateStatusOrder.CustomerId ?? 0,
                 CreatedAt = DateTime.Now,
-                Content = Notification_Content.ORDER_PAYMENT_WALLET(updateStatusOrder.TotalAmount),
+                Content = Notification_Content.ORDER_PAYMENT_WALLET(totalAmount),
                 Type = Notification_Type.ORDER,
                 IsRead = false,
             };
@@ -589,7 +625,7 @@ namespace TOPDER.API.Controllers
                 NotificationId = 0,
                 Uid = updateStatusOrder.RestaurantId ?? 0,
                 CreatedAt = DateTime.Now,
-                Content = Notification_Content.ORDER_PAYMENT_WALLET(updateStatusOrder.TotalAmount),
+                Content = Notification_Content.ORDER_PAYMENT_WALLET(totalAmount),
                 Type = Notification_Type.ORDER,
                 IsRead = false,
             };
@@ -599,7 +635,7 @@ namespace TOPDER.API.Controllers
                 NotificationId = 0,
                 Uid = updateStatusOrder.CustomerId ?? 0,
                 CreatedAt = DateTime.Now,
-                Content = Notification_Content.SYSTEM_SUB(updateStatusOrder.TotalAmount),
+                Content = Notification_Content.SYSTEM_SUB(totalAmount),
                 Type = Notification_Type.SYSTEM_SUB,
                 IsRead = false,
             };
@@ -888,12 +924,13 @@ namespace TOPDER.API.Controllers
                     }
                 }
 
+
                 NotificationDto notificationDto = new NotificationDto()
                 {
                     NotificationId = 0,
                     Uid = result.CustomerId ?? 0,
                     CreatedAt = DateTime.Now,
-                    Content = Notification_Content.ORDER_UPDATESTATUS(result.TotalAmount, notiStatus),
+                    Content = Notification_Content.ORDER_UPDATESTATUS(result.DepositAmount ?? 0, result.FoodAmount ?? 0, notiStatus),
                     Type = Notification_Type.ORDER,
                     IsRead = false,
                 };

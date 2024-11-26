@@ -37,23 +37,6 @@ namespace TOPDER.Service.Services
             return await _restaurantRepository.CreateAndReturnAsync(restaurant);
         }
 
-
-        public async Task<DiscountAndFeeRestaurant> GetDiscountAndFeeAsync(int restaurantId)
-        {
-            var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
-
-            DiscountAndFeeRestaurant discountAndFeeRestaurant = new DiscountAndFeeRestaurant()
-            {
-                RestaurantId = restaurantId,
-                DiscountRestaurant = restaurant.Discount,
-                FirstFeePercent = restaurant.FirstFeePercent,
-                ReturningFeePercent = restaurant.ReturningFeePercent,
-                CancellationFeePercent = restaurant.CancellationFeePercent
-            };
-
-            return discountAndFeeRestaurant;
-        }
-
         public async Task<DescriptionRestaurant> GetDescriptionAsync(int restaurantId)
         {
             var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
@@ -275,46 +258,6 @@ namespace TOPDER.Service.Services
 
             return paginatedDTOs;
         }
-
-
-        public async Task<bool> UpdateDiscountAndFeeAsync(int restaurantId, decimal? discountPrice, decimal? firstFeePercent, decimal? returningFeePercent, decimal? cancellationFeePercent)
-        {
-            // Lấy thông tin nhà hàng theo restaurantId
-            var restaurant = await _restaurantRepository.GetByIdAsync(restaurantId);
-
-            if (restaurant == null)
-            {
-                // Nếu không tìm thấy nhà hàng, trả về false
-                return false;
-            }
-
-            // Kiểm tra và cập nhật giá trị discountPrice nếu hợp lệ
-            if (discountPrice.HasValue && discountPrice >= 0 && discountPrice <= 100)
-            {
-                    restaurant.Discount = discountPrice;
-            }
-
-            // Kiểm tra và cập nhật giá trị firstFeePercent nếu hợp lệ
-            if (firstFeePercent.HasValue && firstFeePercent >= 0 && firstFeePercent <= 100)
-            {
-                    restaurant.FirstFeePercent = firstFeePercent;
-            }
-
-            // Kiểm tra và cập nhật giá trị returningFeePercent nếu hợp lệ
-            if (returningFeePercent.HasValue && returningFeePercent >= 0 && returningFeePercent <= 100)
-            {
-                    restaurant.ReturningFeePercent = returningFeePercent;
-            }
-
-            // Kiểm tra và cập nhật giá trị cancellationFeePercent nếu hợp lệ
-            if (cancellationFeePercent.HasValue && cancellationFeePercent >= 0 && cancellationFeePercent <= 100)
-            {
-                    restaurant.CancellationFeePercent = cancellationFeePercent;
-            }
-
-            return await _restaurantRepository.UpdateAsync(restaurant);
-        }
-
 
 
         public async Task<bool> IsEnabledBookingAsync(int id, bool isEnabledBooking)

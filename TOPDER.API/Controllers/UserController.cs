@@ -139,9 +139,6 @@ namespace TOPDER.API.Controllers
                         MaxCapacity = userLoginDto.MaxCapacity,
                         Price = userLoginDto.Price,
                         IsBookingEnabled = userLoginDto.IsBookingEnabled,
-                        FirstFeePercent = userLoginDto.FirstFeePercent,
-                        ReturningFeePercent = userLoginDto.ReturningFeePercent,
-                        CancellationFeePercent = userLoginDto.CancellationFeePercent,
                         Role = userLoginDto.Role
                     };
                     userInfo = restaurantInfo;

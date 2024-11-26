@@ -77,7 +77,6 @@ builder.Services.AddScoped<IBlogGroupRepository, BlogGroupRepository>();
 builder.Services.AddScoped<IBlogRepository, BlogRepository>();
 builder.Services.AddScoped<ICategoryMenuRepository, CategoryMenuRepository>();
 builder.Services.AddScoped<ICategoryRestaurantRepository, CategoryRestaurantRepository>();
-builder.Services.AddScoped<ICategoryRoomRepository, CategoryRoomRepository>();
 builder.Services.AddScoped<IChatBoxRepository, ChatBoxRepository>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IContactRepository, ContactRepository>();
@@ -107,6 +106,8 @@ builder.Services.AddScoped<IUserOtpRepository, UserOtpRepository>();
 builder.Services.AddScoped<ITableBookingScheduleRepository, TableBookingScheduleRepository>();
 builder.Services.AddScoped<IAdvertisementPricingRepository, AdvertisementPricingRepository>();
 builder.Services.AddScoped<IBookingAdvertisementRepository, BookingAdvertisementRepository>();
+builder.Services.AddScoped<IPolicySystemRepository, PolicySystemRepository>();
+builder.Services.AddScoped<IRestaurantPolicyRepository, RestaurantPolicyRepository>();
 
 
 
@@ -116,7 +117,6 @@ builder.Services.AddTransient<IBlogGroupService, BlogGroupService>();
 builder.Services.AddTransient<IBlogService, BlogService>();
 builder.Services.AddTransient<ICategoryMenuService, CategoryMenuService>();
 builder.Services.AddTransient<ICategoryRestaurantService, CategoryRestaurantService>();
-builder.Services.AddTransient<ICategoryRoomService, CategoryRoomService>();
 builder.Services.AddTransient<IChatBoxService, ChatBoxService>();
 builder.Services.AddTransient<IChatService, ChatService>();
 builder.Services.AddTransient<IContactService, ContactService>();
@@ -146,6 +146,8 @@ builder.Services.AddTransient<IWishlistService, WishlistService>();
 builder.Services.AddTransient<ITableBookingScheduleService, TableBookingScheduleService>();
 builder.Services.AddTransient<IBookingAdvertisementService, BookingAdvertisementService>();
 builder.Services.AddTransient<IAdvertisementPricingService, AdvertisementPricingService>();
+builder.Services.AddTransient<IPolicySystemService, PolicySystemService>();
+builder.Services.AddTransient<IRestaurantPolicyService, RestaurantPolicyService>();
 
 
 // Other: ASK CHAT GPT
