@@ -20,7 +20,6 @@ using TOPDER.Service.Dtos.Wishlist;
 using TOPDER.Service.Dtos.ChatBox;
 using TOPDER.Service.Dtos.Chat;
 using TOPDER.Service.Dtos.OrderMenu;
-using TOPDER.Service.Dtos.Log;
 using TOPDER.Service.Dtos.OrderTable;
 using TOPDER.Service.Dtos.RestaurantRoom;
 using TOPDER.Service.Dtos.ExternalLogin;
@@ -277,9 +276,6 @@ namespace TOPDER.Service.Mapper
                            opt => opt.MapFrom(src => src.Table != null ? src.Table.TableName : Is_Null.ISNULL))
                 .ForMember(dest => dest.MaxCapacity,
                            opt => opt.MapFrom(src => src.Table.MaxCapacity));
-
-            // LOG
-            CreateMap<LogDto, Log>().ReverseMap();
 
             // RESTAURANT ROOM 
             CreateMap<RestaurantRoomDto, RestaurantRoom>().ReverseMap();
