@@ -91,7 +91,7 @@ namespace TOPDER.API.Controllers
             return NotFound($"BlogGroup với ID {id} không tồn tại hoặc không thể xóa.");
         }
 
-
+/*
         [HttpGet("list")]
         public async Task<IActionResult> SearchBlogGroups([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? blogGroupName = null)
         {
@@ -106,7 +106,7 @@ namespace TOPDER.API.Controllers
             );
 
             return Ok(response);
-        }
+        }*/
 
     }
 }

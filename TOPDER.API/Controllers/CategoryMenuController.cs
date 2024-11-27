@@ -18,7 +18,7 @@ namespace TOPDER.API.Controllers
             _categoryMenuService = categoryMenuService;
         }
 
-       /* [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> CreateCategoryMenu([FromBody] CreateCategoryMenuDto categoryMenuDto)
         {
             if (!ModelState.IsValid)
@@ -31,7 +31,7 @@ namespace TOPDER.API.Controllers
             }
 
             return BadRequest("Tạo Category Menu thất bại.");
-        }*/
+        }
 
         [HttpGet("{restaurantId}/{id}")]
         public async Task<IActionResult> GetCategoryMenu(int restaurantId, int id)
