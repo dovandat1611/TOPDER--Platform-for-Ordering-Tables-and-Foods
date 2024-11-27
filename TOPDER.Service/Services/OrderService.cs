@@ -612,16 +612,41 @@ namespace TOPDER.Service.Services
             return false; 
         }
 
-        public async Task<bool> UpdateTotalIncomeChangeMenuAsync(int orderID, decimal totalAmount)
+        //public async Task<bool> UpdateTotalIncomeChangeMenuAsync(int orderID, decimal totalAmount)
+        //{
+        //    var order = await _orderRepository.GetByIdAsync(orderID);
+
+        //    if (order == null) { return false;}
+
+        //    order.TotalAmount = totalAmount;
+        //    order.DiscountId = null;
+
+        //    return await _orderRepository.UpdateAsync(order);
+        //}
+
+        public async Task<bool> UpdateFoodAmountChangeMenuAsync(int orderID, decimal foodAmount)
         {
             var order = await _orderRepository.GetByIdAsync(orderID);
 
-            if (order == null) { return false;}
+            if (order == null) { return false; }
 
-            order.TotalAmount = totalAmount;
-            order.DiscountId = null;
+            order.FoodAmount = foodAmount;
+            order.TotalAmount += foodAmount;
 
             return await _orderRepository.UpdateAsync(order);
         }
+
+        public async Task<bool> UpdateAddFoodAmountChangeMenuAsync(int orderID, decimal addFoodAmount)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderID);
+
+            if (order == null) { return false; }
+
+            order.FoodAddAmount = addFoodAmount;
+            order.TotalAmount += addFoodAmount;
+
+            return await _orderRepository.UpdateAsync(order);
+        }
+
     }
 }

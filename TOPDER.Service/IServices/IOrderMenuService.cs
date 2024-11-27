@@ -14,6 +14,9 @@ namespace TOPDER.Service.IServices
     {
         Task<bool> AddRangeAsync(List<CreateOrUpdateOrderMenuDto> orderMenuDtos);
         Task<bool> ChangeMenusAsync(int orderId, List<CreateOrUpdateOrderMenuDto> orderMenuDtos);
+        Task<bool> AddMenusAsync(List<CreateOrUpdateOrderMenuDto> orderMenuDtos);
+        Task<List<OrderMenuDto>> GetItemsOriginalByOrderAsync(int id);
+        Task<List<OrderMenuDto>> GetItemsAddByOrderAsync(int id);
         Task<List<OrderMenuDto>> GetItemsByOrderAsync(int id);
     }
 }

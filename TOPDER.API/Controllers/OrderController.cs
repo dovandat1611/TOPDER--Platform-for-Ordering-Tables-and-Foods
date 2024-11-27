@@ -115,6 +115,8 @@ namespace TOPDER.API.Controllers
 
             depositAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, depositAmount);
 
+            foodAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, foodAmount);
+
             CaculatorAmountRespone caculatorAmount = new CaculatorAmountRespone()
             {
                 DepositAmount = depositAmount,
@@ -346,7 +348,7 @@ namespace TOPDER.API.Controllers
                 foodAmount += await CalculateMenuTotalAsync(orderModel);
             }
 
-            depositAmount = await ApplyCustomerFeeAsync(orderModel.CustomerId, restaurant, depositAmount);
+            //depositAmount = await ApplyCustomerFeeAsync(orderModel.CustomerId, restaurant, depositAmount);
 
             CaculatorAmountRespone caculatorAmount = new CaculatorAmountRespone()
             {
@@ -355,6 +357,37 @@ namespace TOPDER.API.Controllers
             };
 
             return caculatorAmount;
+        }
+
+        private async Task<decimal> CalculateTotalAmountForDiscountAsync(OrderModel orderModel)
+        {
+            decimal totalAmount = 0;
+
+            // Kiểm tra và áp dụng giảm giá cho đơn hàng
+            if (orderModel.DiscountId.HasValue && orderModel.DiscountId.Value != 0)
+            {
+                var discount = await _discountRepository.GetByIdAsync(orderModel.DiscountId.Value);
+                if (discount != null && discount.IsActive.HasValue && discount.IsActive.Value && discount.Quantity > 0)
+                {
+                    if (discount.Scope == DiscountScope.ENTIRE_ORDER)
+                    {
+                        totalAmount += await CalculateMenuTotalAsync(orderModel);
+                        totalAmount *= (1 - (discount.DiscountPercentage / 100)) ?? 0;
+                        discount.Quantity -= 1;
+                        await _discountRepository.UpdateAsync(discount);
+                    }
+                    else if (discount.Scope == DiscountScope.PER_SERVICE)
+                    {
+                        totalAmount = await ApplyServiceDiscountAsync(orderModel, discount, totalAmount);
+                    }
+                }
+            }
+            else
+            {
+                totalAmount += await CalculateMenuTotalAsync(orderModel);
+            }
+
+            return totalAmount;
         }
 
         // Phương thức áp dụng giảm giá theo menu
@@ -442,6 +475,7 @@ namespace TOPDER.API.Controllers
             return totalAmount;
         }
 
+
         // Phương thức thêm danh sách menu vào đơn hàng
         private async Task AddOrderMenusAsync(int orderId, List<OrderMenuModelDto> orderMenus)
         {
@@ -458,6 +492,7 @@ namespace TOPDER.API.Controllers
                         MenuId = orderMenu.MenuId,
                         Quantity = orderMenu.Quantity,
                         Price = menu.Price,
+                        OrderMenuType = OrderMenu_Type.ORIGINAL
                     });
                 }
             }
@@ -512,14 +547,15 @@ namespace TOPDER.API.Controllers
                 return BadRequest("Cập nhật đơn hàng thất bại.");
             }
 
+            var restaurant = await _restaurantRepository.GetByIdAsync(order.RestaurantId ?? 0);
             decimal totalAmount = 0;
             if (typeOrder == Paid_Type.DEPOSIT)
             {
-                totalAmount = order.DepositAmount ?? 0;
+                totalAmount = await ApplyCustomerFeeAsync(order.CustomerId ?? 0, restaurant, order.DepositAmount ?? 0);
             }
             if (typeOrder == Paid_Type.ENTIRE_ORDER)
             {
-                totalAmount = order.TotalAmount ?? 0;
+                totalAmount = await ApplyCustomerFeeAsync(order.CustomerId ?? 0, restaurant, order.TotalAmount ?? 0); 
             }
 
             if (paymentGateway.Equals(PaymentGateway.ISBALANCE))
@@ -532,7 +568,7 @@ namespace TOPDER.API.Controllers
                 List<OrderMenuDto> orderMenu = null;
                 if (typeOrder == Paid_Type.ENTIRE_ORDER)
                 {
-                    orderMenu = await _orderMenuService.GetItemsByOrderAsync(order.OrderId);
+                    orderMenu = await _orderMenuService.GetItemsOriginalByOrderAsync(order.OrderId);
                 }
                 return await HandleVietQRPayment(order, orderMenu, totalAmount);
             }
@@ -782,9 +818,13 @@ namespace TOPDER.API.Controllers
             {
                 var orderDto = await _orderService.GetItemAsync(orderId, Uid);
                 var orderTables = await _orderTableService.GetItemsByOrderAsync(orderDto.OrderId);
-                var orderMenus = await _orderMenuService.GetItemsByOrderAsync(orderDto.OrderId);
+                var orderMenus = await _orderMenuService.GetItemsOriginalByOrderAsync(orderDto.OrderId);
+                var orderMenusAdd = await _orderMenuService.GetItemsAddByOrderAsync(orderDto.OrderId);
+
                 orderDto.OrderTables = orderTables;
                 orderDto.OrderMenus = orderMenus;
+                orderDto.OrderMenusAdd = orderMenusAdd;
+
                 return Ok(orderDto);
             }
             catch (KeyNotFoundException)
@@ -828,8 +868,9 @@ namespace TOPDER.API.Controllers
 
             foreach(var item in result)
             {
-                item.OrderMenus = await _orderMenuService.GetItemsByOrderAsync(item.OrderId);
+                item.OrderMenus = await _orderMenuService.GetItemsOriginalByOrderAsync(item.OrderId);
                 item.OrderTables = await _orderTableService.GetItemsByOrderAsync(item.OrderId);
+                item.OrderMenusAdd = await _orderMenuService.GetItemsAddByOrderAsync(item.OrderId);
             }
 
             // Tạo response DTO
@@ -852,8 +893,9 @@ namespace TOPDER.API.Controllers
 
             foreach (var item in result)
             {
-                item.OrderMenus = await _orderMenuService.GetItemsByOrderAsync(item.OrderId);
+                item.OrderMenus = await _orderMenuService.GetItemsOriginalByOrderAsync(item.OrderId);
                 item.OrderTables = await _orderTableService.GetItemsByOrderAsync(item.OrderId);
+                item.OrderMenusAdd = await _orderMenuService.GetItemsAddByOrderAsync(item.OrderId);
             }
 
             return Ok(result);
@@ -1262,6 +1304,7 @@ namespace TOPDER.API.Controllers
         public async Task<IActionResult> GetMenuItemsByOrderAsync(int orderId)
         {
             var items = await _orderMenuService.GetItemsByOrderAsync(orderId);
+
             if (items == null || !items.Any())
             {
                 return NotFound("Không tìm thấy món cho đơn hàng này.");
@@ -1285,11 +1328,12 @@ namespace TOPDER.API.Controllers
                 {
                     createOrUpdateOrderMenuDtos.Add(new CreateOrUpdateOrderMenuDto
                     {
-                        OrderMenuId = 0, // Bạn có thể cần thay đổi OrderMenuId nếu đang cập nhật
+                        OrderMenuId = 0,
                         OrderId = changeOrderMenu.OrderId,
                         MenuId = orderMenu.MenuId,
                         Quantity = orderMenu.Quantity,
                         Price = menu.Price,
+                        OrderMenuType = OrderMenu_Type.ORIGINAL
                     });
                 }
             }
@@ -1312,36 +1356,152 @@ namespace TOPDER.API.Controllers
                 return NotFound("Restaurant does not exist.");
             }
 
-            decimal totalAmount = 0;
+            var order = await _orderService.GetItemAsync(changeOrderMenu.OrderId, changeOrderMenu.CustomerId);
 
-            if (restaurant.Price > 0)
+            if (order != null)
             {
-                totalAmount += restaurant.Price;
-
-                if (restaurant.Discount.HasValue && restaurant.Discount > 0)
+                if (order.DiscountId != null && order.DiscountId.HasValue)
                 {
-                    totalAmount *= (1 - (restaurant.Discount.Value / 100m));
+                    decimal foodAmount = 0;
+
+                    OrderModel orderModel = new OrderModel()
+                    {
+                        CustomerId = order.CustomerId ?? 0,
+                        DiscountId = order.DiscountId,
+                        RestaurantId = order.RestaurantId ?? 0,
+                        NameReceiver = order.NameReceiver,
+                        ContentReservation = order.ContentReservation,
+                        DateReservation = order.DateReservation,
+                        NumberChild = order.NumberChild,
+                        PhoneReceiver = order.PhoneReceiver,
+                        TimeReservation = order.TimeReservation,
+                        OrderMenus = changeOrderMenu.orderMenus
+                    };
+
+                    foodAmount += await CalculateTotalAmountForDiscountAsync(orderModel);
+
+                    var resultUpdateOrder = await _orderService.UpdateFoodAmountChangeMenuAsync(changeOrderMenu.OrderId, foodAmount);
+
+                    if (resultUpdateOrder)
+                    {
+                        return Ok("Successfully add menus and updated the order.");
+                    }
+                }
+                else
+                {
+                    decimal foodAmount = 0;
+
+                    CaculatorOrderDto caculatorOrder = new CaculatorOrderDto()
+                    {
+                        CustomerId = changeOrderMenu.CustomerId,
+                        RestaurantId = changeOrderMenu.RestaurantId,
+                        OrderMenus = changeOrderMenu.orderMenus
+                    };
+
+                    foodAmount += await CalculateMenuTotalForPreOrderAsync(caculatorOrder);
+
+                    var resultUpdateOrder = await _orderService.UpdateFoodAmountChangeMenuAsync(changeOrderMenu.OrderId, foodAmount);
+
+                    if (resultUpdateOrder)
+                    {
+                        return Ok("Successfully add menus and updated the order.");
+                    }
                 }
             }
 
-            CaculatorOrderDto caculatorOrder = new CaculatorOrderDto()
+            return BadRequest("Failed to update the order!");
+        }
+
+
+        [HttpPut("AddMenus")]
+        public async Task<IActionResult> AddMenusAsync(ChangeOrderMenuDto changeOrderMenu)
+        {
+            if (changeOrderMenu.orderMenus == null || !changeOrderMenu.orderMenus.Any())
             {
-                CustomerId = changeOrderMenu.CustomerId,
-                RestaurantId = changeOrderMenu.RestaurantId,
-                OrderMenus = changeOrderMenu.orderMenus
-            };
+                return BadRequest("Menu list cannot be empty.");
+            }
 
-            // Tính tổng tiền từ thực đơn
-            totalAmount += await CalculateMenuTotalForPreOrderAsync(caculatorOrder);
-
-            // Áp dụng phí dựa trên trạng thái khách hàng
-            totalAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, totalAmount);
-
-            var resultUpdateOrder = await _orderService.UpdateTotalIncomeChangeMenuAsync(changeOrderMenu.OrderId, totalAmount);
-
-            if (resultUpdateOrder)
+            List<CreateOrUpdateOrderMenuDto> createOrUpdateOrderMenuDtos = new List<CreateOrUpdateOrderMenuDto>();
+            foreach (var orderMenu in changeOrderMenu.orderMenus)
             {
-                return Ok("Successfully changed menus and updated the order.");
+                var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
+                if (menu != null)
+                {
+                    createOrUpdateOrderMenuDtos.Add(new CreateOrUpdateOrderMenuDto
+                    {
+                        OrderMenuId = 0, 
+                        OrderId = changeOrderMenu.OrderId,
+                        MenuId = orderMenu.MenuId,
+                        Quantity = orderMenu.Quantity,
+                        Price = menu.Price,
+                        OrderMenuType = OrderMenu_Type.ADD
+                    });
+                }
+            }
+
+            if (createOrUpdateOrderMenuDtos.Count == 0)
+            {
+                return BadRequest("No valid menus found for the order.");
+            }
+
+            var result = await _orderMenuService.AddMenusAsync(createOrUpdateOrderMenuDtos);
+
+            if (!result)
+            {
+                return BadRequest("Failed to change menus.");
+            }
+
+            var order = await _orderService.GetItemAsync(changeOrderMenu.OrderId, changeOrderMenu.CustomerId);
+
+            if (order != null)
+            {
+                if(order.DiscountId != null && order.DiscountId.HasValue)
+                {
+                    decimal addFoodAmount = 0;
+
+                    OrderModel orderModel = new OrderModel()
+                    {
+                        CustomerId = order.CustomerId ?? 0,
+                        DiscountId = order.DiscountId,
+                        RestaurantId = order.RestaurantId ?? 0,
+                        NameReceiver = order.NameReceiver,
+                        ContentReservation = order.ContentReservation,
+                        DateReservation = order.DateReservation,
+                        NumberChild = order.NumberChild,
+                        PhoneReceiver = order.PhoneReceiver,
+                        TimeReservation = order.TimeReservation,
+                        OrderMenus = changeOrderMenu.orderMenus
+                    };
+
+                    addFoodAmount += await CalculateTotalAmountForDiscountAsync(orderModel);
+
+                    var resultUpdateOrder = await _orderService.UpdateAddFoodAmountChangeMenuAsync(changeOrderMenu.OrderId, addFoodAmount);
+
+                    if (resultUpdateOrder)
+                    {
+                        return Ok("Successfully add menus and updated the order.");
+                    }
+                }
+                else
+                {
+                    decimal addFoodAmount = 0;
+
+                    CaculatorOrderDto caculatorOrder = new CaculatorOrderDto()
+                    {
+                        CustomerId = changeOrderMenu.CustomerId,
+                        RestaurantId = changeOrderMenu.RestaurantId,
+                        OrderMenus = changeOrderMenu.orderMenus
+                    };
+
+                    addFoodAmount += await CalculateMenuTotalForPreOrderAsync(caculatorOrder);
+
+                    var resultUpdateOrder = await _orderService.UpdateAddFoodAmountChangeMenuAsync(changeOrderMenu.OrderId, addFoodAmount);
+
+                    if (resultUpdateOrder)
+                    {
+                        return Ok("Successfully add menus and updated the order.");
+                    }
+                }
             }
 
             return BadRequest("Failed to update the order!");

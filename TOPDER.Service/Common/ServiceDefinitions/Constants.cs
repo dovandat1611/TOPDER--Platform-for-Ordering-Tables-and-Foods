@@ -280,5 +280,11 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string WARNING = "Warning";
         }
 
+        public class OrderMenu_Type
+        {
+            public static string ORIGINAL = "Original";
+            public static string ADD = "Add";
+        }
+
     }
 }

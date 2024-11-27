@@ -14,6 +14,7 @@ using TOPDER.Service.Dtos.Notification;
 using TOPDER.Service.Dtos.OrderMenu;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
 {
@@ -51,16 +52,48 @@ namespace TOPDER.Service.Services
             return await _orderMenuRepository.CreateRangeAsync(orderMenuDtoList);
         }
 
+        public async Task<bool> AddMenusAsync(List<CreateOrUpdateOrderMenuDto> orderMenuDtos)
+        {
+            var orderMenuDtoList = _mapper.Map<List<OrderMenu>>(orderMenuDtos);
+            return await _orderMenuRepository.CreateRangeAsync(orderMenuDtoList);
+        }
+
+
+        public async Task<List<OrderMenuDto>> GetItemsAddByOrderAsync(int id)
+        {
+            var queryable = await _orderMenuRepository.QueryableAsync();
+
+            var query = await queryable
+                .Include(x => x.Menu)
+                .Where(x => x.OrderId == id && x.OrderMenuType == OrderMenu_Type.ADD).ToListAsync();
+
+            var queryDTO = _mapper.Map<List<OrderMenuDto>>(query);
+
+            return queryDTO;
+        }
+
+        public async Task<List<OrderMenuDto>> GetItemsOriginalByOrderAsync(int id)
+        {
+            var queryable = await _orderMenuRepository.QueryableAsync();
+
+            var query = await queryable
+                .Include(x => x.Menu)
+                .Where(x => x.OrderId == id && x.OrderMenuType == OrderMenu_Type.ORIGINAL).ToListAsync();
+
+            var queryDTO = _mapper.Map<List<OrderMenuDto>>(query);
+
+            return queryDTO;
+        }
 
         public async Task<List<OrderMenuDto>> GetItemsByOrderAsync(int id)
         {
             var queryable = await _orderMenuRepository.QueryableAsync();
 
-            var query = queryable
+            var query = await queryable
                 .Include(x => x.Menu)
-                .Where(x => x.OrderId == id);
+                .Where(x => x.OrderId == id).ToListAsync();
 
-            var queryDTO = await query.Select(r => _mapper.Map<OrderMenuDto>(r)).ToListAsync();
+            var queryDTO = _mapper.Map<List<OrderMenuDto>>(query);
 
             return queryDTO;
         }
