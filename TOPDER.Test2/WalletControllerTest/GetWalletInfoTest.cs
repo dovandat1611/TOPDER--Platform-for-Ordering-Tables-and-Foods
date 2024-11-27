@@ -60,7 +60,7 @@ namespace TOPDER.Test2.WalletControllerTest
         public async Task GetWalletInfo_NotFound_ReturnsNotFound()
         {
             // Arrange
-            int uid = 102; // Example User ID
+            int uid = -1; // Example User ID
             _walletServiceMock
                 .Setup(service => service.GetInforWalletAsync(uid))
                 .ReturnsAsync((WalletDto)null);

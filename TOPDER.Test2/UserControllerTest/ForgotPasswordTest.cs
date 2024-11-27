@@ -87,7 +87,7 @@ namespace TOPDER.Test2.UserControllerTest
         public async Task ForgotPassword_CannotCreateOTP_ReturnsBadRequest()
         {
             // Arrange
-            var email = "test@example.com";
+            var email = "tes123t@example.com";
             var userLoginDto = new UserLoginDTO
             {
                 Uid = 1,

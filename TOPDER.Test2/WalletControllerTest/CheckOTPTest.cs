@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
 using TOPDER.Service.IServices;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace TOPDER.Test2.WalletControllerTest
 {
@@ -15,53 +16,52 @@ namespace TOPDER.Test2.WalletControllerTest
     public class CheckOTPTest
     {
         private Mock<IWalletService> _walletServiceMock;
-        private WalletController _walletController;
+        private WalletController _controller;
 
         [TestInitialize]
         public void Setup()
         {
             _walletServiceMock = new Mock<IWalletService>();
-            _walletController = new WalletController(_walletServiceMock.Object);
+            _controller = new WalletController(_walletServiceMock.Object);
         }
 
         [TestMethod]
-        public async Task CheckExistOTP_Exists_ReturnsOk()
-        {
-            // Arrange
-            int uid = 101; // Example User ID
-            _walletServiceMock
-                .Setup(service => service.CheckExistOTP(uid))
-                .ReturnsAsync(true);
-
-            // Act
-            var result = await _walletController.CheckExistOTP(uid);
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result, "Result should not be null.");
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult, "Result should be of type OkObjectResult.");
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode, "Status code should be 200.");
-        }
-
-
-        [TestMethod]
-        public async Task CheckOTP_InvalidOtp_ReturnsBadRequest()
+        public async Task CheckOTP_ValidOTP_ReturnsOk()
         {
             // Arrange
             int uid = 1;
-            string otp = "654321";
-            _walletServiceMock.Setup(service => service.CheckOTP(uid, otp))
-                              .ReturnsAsync(false);
+            string otp = "123456";
+            _walletServiceMock
+                .Setup(s => s.CheckOTP(uid, otp))
+                .ReturnsAsync(true);
 
             // Act
-            var result = await _walletController.CheckOTP(uid, otp);
+            var result = await _controller.CheckOTP(uid, otp);
 
             // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result, "Result should not be null.");
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult, "Result should be of type BadRequestObjectResult.");
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode, "Status code should be 400.");
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.AreEqual(200, okResult.StatusCode);
         }
 
+        [TestMethod]
+        public async Task CheckOTP_InvalidOTP_ReturnsBadRequest()
+        {
+            // Arrange
+            int uid = 1;
+            string otp = "invalid";
+            _walletServiceMock
+                .Setup(s => s.CheckOTP(uid, otp))
+                .ReturnsAsync(false);
+
+            // Act
+            var result = await _controller.CheckOTP(uid, otp);
+
+            // Assert
+            var badRequestResult = result as BadRequestObjectResult;
+
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
+            Assert.AreEqual(400, badRequestResult.StatusCode);
+        }
     }
 }

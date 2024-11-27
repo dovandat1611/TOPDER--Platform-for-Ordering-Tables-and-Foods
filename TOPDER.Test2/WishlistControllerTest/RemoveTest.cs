@@ -49,7 +49,7 @@ namespace TOPDER.Test2.WishlistControllerTest
         {
             // Arrange
             int customerId = 1;
-            int wishlistId = 100;
+            int wishlistId = -1;
 
             // Mock the service method to return false, indicating item was not found or doesn't belong to the customer
             _wishlistServiceMock.Setup(s => s.RemoveAsync(wishlistId, customerId))

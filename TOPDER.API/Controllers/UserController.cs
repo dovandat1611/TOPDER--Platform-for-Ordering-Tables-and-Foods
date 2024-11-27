@@ -516,7 +516,7 @@ namespace TOPDER.API.Controllers
 
             if (getOTP == null)
                 return BadRequest("Không thấy OTP nào hợp lệ hoặc OTP đã hết hạn. Hãy thử tạo lại OTP (Thời gian hiệu lực là 5 phút).");
-
+                
             if (string.Equals(request.Otp, getOTP.OtpCode, StringComparison.OrdinalIgnoreCase))
             {
                 getOTP.IsUse = true;

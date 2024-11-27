@@ -64,7 +64,7 @@ namespace TOPDER.Test2.WishlistControllerTest
         public async Task GetPaging_NoWishlistsForCustomer_ReturnsOkWithEmptyList()
         {
             // Arrange
-            int customerId = 2; // Customer with no wishlists
+            int customerId = 999999; // Customer with no wishlists
             int pageNumber = 1;
             int pageSize = 10;
 

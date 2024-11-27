@@ -47,26 +47,26 @@ namespace TOPDER.Test2.WalletTransactionControllerTest
             // Arrange
             string status = "Withdraw";  // Example status filter
             var walletTransactionHistory = new List<WalletTransactionDto>
-    {
-        new WalletTransactionDto
-        {
-            TransactionId = 1,
-            Uid = 1,
-            WalletId = 1,
-            TransactionAmount = 10000,
-            TransactionDate = DateTime.UtcNow,
-            Status = "Withdraw"
-        },
-        new WalletTransactionDto
-        {
-            TransactionId = 2,
-            Uid = 2,
-            WalletId = 2,
-            TransactionAmount = 20000,
-            TransactionDate = DateTime.UtcNow,
-            Status = "Withdraw"
-        }
-    };
+            {
+                new WalletTransactionDto
+                {
+                    TransactionId = 1,
+                    Uid = 1,
+                    WalletId = 1,
+                    TransactionAmount = 10000,
+                    TransactionDate = DateTime.UtcNow,
+                    Status = "Withdraw"
+                },
+                new WalletTransactionDto
+                {
+                    TransactionId = 2,
+                    Uid = 2,
+                    WalletId = 2,
+                    TransactionAmount = 20000,
+                    TransactionDate = DateTime.UtcNow,
+                    Status = "Withdraw"
+                }
+            };
             
 
             // Act

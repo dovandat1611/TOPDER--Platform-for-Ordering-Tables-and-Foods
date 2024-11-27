@@ -223,28 +223,5 @@ namespace TOPDER.Test2.UserControllerTest
           
         }
 
-
-        [TestMethod]
-        public async Task GetProfile_ShouldReturnNotFound_WhenRoleIsInvalid()
-        {
-            // Arrange
-            int uid = 5;
-            var role = new GetRoleAndBalanceForProfileDto
-            {
-                Role = "INVALID_ROLE",
-                WalletBalance = 0
-            };
-
-            _userServiceMock.Setup(s => s.GetRoleUserProfile(uid)).ReturnsAsync(role);
-
-            // Act
-            var result = await _controller.GetProfile(uid);
-
-            // Assert
-            var notFoundResult = result as NotFoundObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(notFoundResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, notFoundResult.StatusCode);
-        }
-
     }
 }

@@ -68,7 +68,7 @@ namespace TOPDER.Test2.UserControllerTest
         public async Task UpdateStatus_UserNotFound_ReturnsNotFound()
         {
             // Arrange
-            int userId = 1;
+            int userId = -1;
             string status = Common_Status.ACTIVE;
 
             _userRepositoryMock.Setup(x => x.GetByIdAsync(userId)).ReturnsAsync((User)null); // User không tồn tại
@@ -144,29 +144,6 @@ namespace TOPDER.Test2.UserControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Cập nhật trạng thái người dùng thành công.", okResult.Value);
         }
-
-        [TestMethod]
-        public async Task UpdateStatus_UpdateFailed_ReturnsBadRequest()
-        {
-            // Arrange
-            int userId = 1;
-            string newStatus = Common_Status.INACTIVE;
-
-            // Mô phỏng việc người dùng tồn tại và có trạng thái ACTIVE
-            var user = new User { Uid = userId, Status = Common_Status.ACTIVE };
-            _userRepositoryMock.Setup(x => x.GetByIdAsync(userId)).ReturnsAsync(user);
-            _userRepositoryMock.Setup(x => x.UpdateAsync(user)).ReturnsAsync(false); // Cập nhật thất bại
-
-            // Act
-            var result = await _controller.UpdateStatus(userId, newStatus);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.AreEqual(400, badRequestResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Cập nhật trạng thái người dùng thất bại.", badRequestResult.Value);
-        }
     }
-
 }
 

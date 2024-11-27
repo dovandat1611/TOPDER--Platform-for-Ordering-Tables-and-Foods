@@ -91,7 +91,7 @@ namespace TOPDER.Test2.WalletTransactionControllerTest
         public async Task GetWalletTransactionList_Exception_ReturnsInternalServerError()
         {
             // Arrange
-            int uid = 1;
+            int uid = -1;
             var exceptionMessage = "Test exception";
 
             // Mock the service method to throw an exception

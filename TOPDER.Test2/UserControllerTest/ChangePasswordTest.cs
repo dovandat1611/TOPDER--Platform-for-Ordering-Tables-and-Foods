@@ -70,8 +70,8 @@ namespace TOPDER.Test2.UserControllerTest
             // Arrange
             var request = new ChangePasswordRequest
             {
-                OldPassword = "oldPassword123",
-                NewPassword = "newPassword123"
+                OldPassword = "o",
+                NewPassword = "n"
             };
 
             // Simulate an invalid model state

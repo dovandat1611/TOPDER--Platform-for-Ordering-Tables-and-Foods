@@ -279,7 +279,5 @@ namespace TOPDER.API.Controllers
             }
             return BadRequest(new { message = "Cập nhật trạng thái giao dịch thất bại." });
         }
-
-
     }
 }

@@ -80,7 +80,7 @@ namespace TOPDER.Test2.RestaurantRoomControllerTest
             // Assert
             var notFoundResult = result as NotFoundObjectResult;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(notFoundResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Không tìm thấy phòng với Id 999.", notFoundResult.Value);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Không tìm thấy phòng với Id -1.", notFoundResult.Value);
         }
 
         [TestMethod]

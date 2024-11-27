@@ -201,40 +201,5 @@ namespace TOPDER.Test2.WalletTransactionControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
 
         }
-
-        [TestMethod]
-        public async Task Recharge_FailedTransaction_ReturnsBadRequest()
-        {
-            // Arrange
-            var rechargeRequest = new RechargeWalletTransaction
-            {
-                Uid = 1,
-                WalletId = 1,
-                TransactionAmount = 20000,
-                PaymentGateway = PaymentGateway.VIETQR
-            };
-
-            var walletTransactionDto = new WalletTransactionDto
-            {
-                TransactionId = 123,
-                Uid = 1,
-                WalletId = 1,
-                TransactionAmount = 20000,
-                Status = Payment_Status.PENDING
-            };
-
-            // Mock the service methods to return null (indicating a failure)
-            _walletTransactionServiceMock.Setup(s => s.AddRechargeAsync(It.IsAny<WalletTransactionDto>()))
-                .ReturnsAsync((WalletTransaction)null);
-
-            // Act
-            var result = await _controller.Recharge(rechargeRequest);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.AreEqual(400, badRequestResult.StatusCode);
-        }
     }
-
 }

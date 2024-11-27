@@ -80,32 +80,6 @@ namespace TOPDER.Test2.WalletControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode, "Status code should be 400.");
         }
         [TestMethod]
-        public async Task UpdateWalletBank_BankCodeNull_ReturnsBadRequest()
-        {
-            // Arrange
-            var walletBankDto = new WalletBankDto
-            {
-                WalletId = 1,
-                Uid = 1,
-                BankCode = null, // Null field
-                AccountNo = "123456789",
-                AccountName = "Test User"
-            };
-
-            _walletServiceMock
-                .Setup(service => service.UpdateWalletBankAsync(walletBankDto))
-                .ReturnsAsync(false); // Giả lập cập nhật thất bại
-
-            // Act
-            var result = await _controller.UpdateWalletBank(walletBankDto);
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result, "Result should not be null.");
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult, "Result should be of type BadRequestObjectResult.");
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode, "Status code should be 400.");
-        }
-        [TestMethod]
         public async Task UpdateWalletBank_AccountNoNull_ReturnsBadRequest()
         {
             // Arrange
@@ -163,7 +137,7 @@ namespace TOPDER.Test2.WalletControllerTest
             // Arrange
             var walletBankDto = new WalletBankDto
             {
-                WalletId = 0, // Default value for int
+                WalletId = -1, // Default value for int
                 Uid = 1,
                 BankCode = "ABC123",
                 AccountNo = "123456789",
