@@ -479,6 +479,7 @@ namespace TOPDER.Service.Services
 
             existingOrder.StatusPayment = orderDto.StatusPayment;
             existingOrder.ContentPayment = orderDto.ContentPayment;
+            existingOrder.PaidType = orderDto.PaidType;
 
             return await _orderRepository.UpdateAsync(existingOrder);
         }
@@ -631,7 +632,8 @@ namespace TOPDER.Service.Services
             if (order == null) { return false; }
 
             order.FoodAmount = foodAmount;
-            order.TotalAmount += foodAmount;
+
+            order.TotalAmount = (foodAmount + (order.DepositAmount ?? 0));
 
             return await _orderRepository.UpdateAsync(order);
         }
@@ -643,7 +645,7 @@ namespace TOPDER.Service.Services
             if (order == null) { return false; }
 
             order.FoodAddAmount = addFoodAmount;
-            order.TotalAmount += addFoodAmount;
+            order.TotalAmount = (addFoodAmount + (order.DepositAmount ?? 0) + (order.FoodAmount ?? 0));
 
             return await _orderRepository.UpdateAsync(order);
         }

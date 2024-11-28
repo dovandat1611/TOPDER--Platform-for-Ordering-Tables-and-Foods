@@ -11,6 +11,7 @@ namespace TOPDER.Repository.Entities
             Feedbacks = new HashSet<Feedback>();
             OrderMenus = new HashSet<OrderMenu>();
             OrderTables = new HashSet<OrderTable>();
+            Reports = new HashSet<Report>();
         }
 
         public int OrderId { get; set; }
@@ -46,5 +47,6 @@ namespace TOPDER.Repository.Entities
         public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<OrderMenu> OrderMenus { get; set; }
         public virtual ICollection<OrderTable> OrderTables { get; set; }
+        public virtual ICollection<Report> Reports { get; set; }
     }
 }

@@ -137,8 +137,38 @@ namespace TOPDER.API.Controllers
         public async Task<IActionResult> SetInvisible(int feedbackId)
         {
             var result = await _feedbackService.InvisibleAsync(feedbackId);
-            if (result)
+            if (result != null)
             {
+                NotificationDto notificationResDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = result.RestaurantId ?? 0,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.REMOVE_FEEDBACK_RESTAURANT(),
+                    Type = Notification_Type.ADD_FEEDBACK,
+                    IsRead = false,
+                };
+
+                NotificationDto notificationCusDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = result.CustomerId ?? 0,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.REMOVE_FEEDBACK_CUSTOMER(),
+                    Type = Notification_Type.ADD_FEEDBACK,
+                    IsRead = false,
+                };
+
+                var notificationRes = await _notificationService.AddAsync(notificationResDto);
+                var notificationCus = await _notificationService.AddAsync(notificationCusDto);
+
+
+                if (notificationRes != null && notificationCus != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notificationRes, notificationCus };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
+
                 return Ok($"Ẩn/Xóa Feedback thành công.");
             }
             return NotFound($"Feedback with ID {feedbackId} not found.");

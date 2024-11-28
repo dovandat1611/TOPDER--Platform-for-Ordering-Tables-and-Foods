@@ -77,6 +77,7 @@ namespace TOPDER.API.Controllers
                             await _userRepository.UpdateAsync(user);
                         }
                     }
+
                 NotificationDto notificationByDto = new NotificationDto()
                 {
                     NotificationId = 0,

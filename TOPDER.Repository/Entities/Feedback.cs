@@ -8,6 +8,7 @@ namespace TOPDER.Repository.Entities
         public Feedback()
         {
             FeedbackReplies = new HashSet<FeedbackReply>();
+            Reports = new HashSet<Report>();
         }
 
         public int FeedbackId { get; set; }
@@ -24,5 +25,6 @@ namespace TOPDER.Repository.Entities
         public virtual Order Order { get; set; } = null!;
         public virtual Restaurant? Restaurant { get; set; }
         public virtual ICollection<FeedbackReply> FeedbackReplies { get; set; }
+        public virtual ICollection<Report> Reports { get; set; }
     }
 }

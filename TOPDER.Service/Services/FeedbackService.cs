@@ -78,17 +78,22 @@ namespace TOPDER.Service.Services
         }
 
 
-        public async Task<bool> InvisibleAsync(int id)
+        public async Task<FeedbackDto> InvisibleAsync(int id)
         {
             var feedback = await _feedbackRepository.GetByIdAsync(id);
             if (feedback == null)
             {
-                return false;
+                return null;
             }
 
             feedback.IsVisible = false;
             var result = await _feedbackRepository.UpdateAsync(feedback);
-            return result;
+            if(result == true)
+            {
+                var feedbackDto = _mapper.Map<FeedbackDto>(feedback);
+                return feedbackDto;
+            }
+            return null;
         }
 
 

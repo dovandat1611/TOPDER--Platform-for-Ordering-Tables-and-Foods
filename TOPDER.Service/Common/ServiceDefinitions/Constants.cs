@@ -118,7 +118,6 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string REPORT = "Báo Cáo";
         }
 
-
         public class Notification_Content
         {
             public static string SYSTEM_ADD(decimal price)
@@ -144,6 +143,16 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string ADD_FEEDBACKREPLY()
             {
                 return $"Nhà hàng đã trả lời một đánh giá của bạn.";
+            }
+
+            public static string REMOVE_FEEDBACK_CUSTOMER()
+            {
+                return $"Hệ thống đã ẩn đánh giá của bạn vì vi phạm một vài quy tắc.";
+            }
+
+            public static string REMOVE_FEEDBACK_RESTAURANT()
+            {
+                return $"Hệ thống đã ẩn đánh giá của nhà hàng bạn vì vi phạm một vài quy tắc.";
             }
 
             public static string WITHDRAW_SUCCESSFUL(decimal price)
@@ -188,10 +197,21 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             {
                 return $"Đơn hàng có giá trị {price}đ đã bị hủy bởi {role}.";
             }
-            public static string ORDER_UPDATESTATUS(decimal depositAmount, decimal foodAmount, string status)
+            public static string ORDER_UPDATESTATUS(decimal totalAmount, string status)
             {
-                return $"Đơn hàng có có giá đặt bàn là: {depositAmount}đ và giá đồ ăn là {foodAmount}đ của bạn {status}.";
+                return $"Đơn hàng có có giá trị {totalAmount}đ của bạn {status}.";
             }
+
+            public static string ORDER_REPORT_CUSTOMER(decimal totalAmount)
+            {
+                return $"Đơn hàng có có giá trị {totalAmount}đ của bạn đã vi phạm quy tắc và bị hệ thống hủy.";
+            }
+
+            public static string ORDER_REPORT_RESTAURANT(decimal totalAmount)
+            {
+                return $"Đơn hàng có có giá trị {totalAmount} của nhà hàng bạn đã được hệ thống xử lý và hoàn tiền về ví của bạn.";
+            }
+
             public static string ORDER_PAYMENT_THIRTPART(decimal price)
             {
                 return $"Thanh toán thành công đơn hàng có giá trị {price}đ.";

@@ -14,7 +14,7 @@ namespace TOPDER.Service.IServices
     {
         Task<FeedbackDto> AddAsync(FeedbackDto feedbackDto);
         Task<bool> UpdateAsync(FeedbackDto feedbackDto);
-        Task<bool> InvisibleAsync(int id);
+        Task<FeedbackDto> InvisibleAsync(int id);
         Task<FeedbackDto> GetFeedbackAsync(int orderId);
         Task<List<FeedbackAdminDto>> ListAdminPagingAsync();
         Task<List<FeedbackRestaurantDto>> ListRestaurantPagingAsync(int restaurantId);

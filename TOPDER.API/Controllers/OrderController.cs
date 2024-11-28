@@ -113,9 +113,9 @@ namespace TOPDER.API.Controllers
 
             foodAmount += await CalculateMenuTotalForPreOrderAsync(caculatorOrder);
 
-            depositAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, depositAmount);
+           // depositAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, depositAmount);
 
-            foodAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, foodAmount);
+           // foodAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, foodAmount);
 
             CaculatorAmountRespone caculatorAmount = new CaculatorAmountRespone()
             {
@@ -215,9 +215,9 @@ namespace TOPDER.API.Controllers
                 NumberChild = orderModel.NumberChild,
                 ContentReservation = orderModel.ContentReservation,
                 TypeOrder = Order_Type.RESERVATION,
-                DepositAmount = caculatorAmount.DepositAmount ?? 0,
-                FoodAmount = caculatorAmount.FoodAmount ?? 0,
-                TotalAmount = caculatorAmount.FoodAmount ?? 0 + caculatorAmount.DepositAmount ?? 0,
+                DepositAmount = caculatorAmount.DepositAmount,
+                FoodAmount = caculatorAmount.FoodAmount,
+                TotalAmount = (caculatorAmount.FoodAmount + caculatorAmount.DepositAmount),
                 StatusOrder = Order_Status.PENDING,
                 CreatedAt = DateTime.Now
             };
@@ -460,16 +460,18 @@ namespace TOPDER.API.Controllers
         {
             var restaurantPolicy = await _restaurantPolicyService.GetActivePolicyAsync(restaurant.Uid);
 
-            if (restaurantPolicy.FirstFeePercent.HasValue || restaurantPolicy.ReturningFeePercent.HasValue)
-            {
-                var isFirst = await _orderService.CheckIsFirstOrderAsync(customerId, restaurant.Uid);
-                if (isFirst && restaurantPolicy.FirstFeePercent.HasValue && restaurantPolicy.FirstFeePercent.Value > 0)
+            if(restaurantPolicy != null) {
+                if (restaurantPolicy.FirstFeePercent != 0 || restaurantPolicy.ReturningFeePercent != 0)
                 {
-                    totalAmount *= (1 - (restaurantPolicy.FirstFeePercent.Value / 100));
-                }
-                else if (!isFirst && restaurantPolicy.ReturningFeePercent.HasValue && restaurantPolicy.ReturningFeePercent.Value > 0)
-                {
-                    totalAmount *= (1 - (restaurantPolicy.ReturningFeePercent.Value / 100));
+                    var isFirst = await _orderService.CheckIsFirstOrderAsync(customerId, restaurant.Uid);
+                    if (isFirst && restaurantPolicy.FirstFeePercent.HasValue && restaurantPolicy.FirstFeePercent.Value > 0)
+                    {
+                        totalAmount *= (1 - (restaurantPolicy.FirstFeePercent.Value / 100));
+                    }
+                    else if (!isFirst && restaurantPolicy.ReturningFeePercent.HasValue && restaurantPolicy.ReturningFeePercent.Value > 0)
+                    {
+                        totalAmount *= (1 - (restaurantPolicy.ReturningFeePercent.Value / 100));
+                    }
                 }
             }
             return totalAmount;
@@ -529,9 +531,9 @@ namespace TOPDER.API.Controllers
                 return Forbid(ex.Message);
             }
 
-            if(typeOrder != Paid_Type.DEPOSIT || typeOrder != Paid_Type.ENTIRE_ORDER)
+            if(!typeOrder.Equals(Paid_Type.DEPOSIT)  && !typeOrder.Equals(Paid_Type.ENTIRE_ORDER))
             {
-                return BadRequest(new { message = "Chọn typeOrder là Deposit hoặc Entire Order!" });
+                return BadRequest(new { message = "Chọn typeOrder là Deposit hoặc EntireOrder!" });
             }
 
             // Update order payment status and content
@@ -972,7 +974,7 @@ namespace TOPDER.API.Controllers
                     NotificationId = 0,
                     Uid = result.CustomerId ?? 0,
                     CreatedAt = DateTime.Now,
-                    Content = Notification_Content.ORDER_UPDATESTATUS(result.DepositAmount ?? 0, result.FoodAmount ?? 0, notiStatus),
+                    Content = Notification_Content.ORDER_UPDATESTATUS(result.TotalAmount ?? 0, notiStatus),
                     Type = Notification_Type.ORDER,
                     IsRead = false,
                 };
@@ -1506,6 +1508,103 @@ namespace TOPDER.API.Controllers
 
             return BadRequest("Failed to update the order!");
         }
+
+        [HttpPut("ReturnFeePercentApplyCustomerFee")]
+        public async Task<decimal> ApplyCustomerFeeAsync(int customerId, int restaurantId)
+        {
+            var restaurantPolicy = await _restaurantPolicyService.GetActivePolicyAsync(restaurantId);
+
+            if (restaurantPolicy != null)
+            {
+                if (restaurantPolicy.FirstFeePercent != 0 || restaurantPolicy.ReturningFeePercent != 0)
+                {
+                    var isFirst = await _orderService.CheckIsFirstOrderAsync(customerId, restaurantId);
+                    if (isFirst && restaurantPolicy.FirstFeePercent.HasValue && restaurantPolicy.FirstFeePercent.Value > 0)
+                    {
+                        return restaurantPolicy.FirstFeePercent.Value;
+                    }
+                    else if (!isFirst && restaurantPolicy.ReturningFeePercent.HasValue && restaurantPolicy.ReturningFeePercent.Value > 0)
+                    {
+                        return restaurantPolicy.ReturningFeePercent.Value;
+                    }
+                }
+            }
+            return 0;
+        }
+
+
+        [HttpPut("HandleReportOrder/{orderID}")]
+        [SwaggerOperation(Summary = "Xử lý report Order: Admin")]
+        public async Task<IActionResult> HandleReportOrder(int orderID)
+        {
+            var result = await _orderService.UpdateStatusAsync(orderID, Order_Status.CANCEL);
+            if (result != null)
+            {
+
+                    var completeOrder = await _orderService.GetInformationForCompleteAsync(orderID);
+                    if (completeOrder != null)
+                    {
+                        WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
+                        {
+                            WalletId = completeOrder.WalletId,
+                            Uid = completeOrder.RestaurantID,
+                            WalletBalance = completeOrder.WalletBalance,
+                        };
+
+                        var walletUpdateResult = await _walletService.UpdateWalletBalanceAsync(walletBalanceDto);
+                        if (walletUpdateResult)
+                        {
+                            WalletTransactionDto walletTransactionDto = new WalletTransactionDto()
+                            {
+                                TransactionId = 0,
+                                Uid = completeOrder.RestaurantID,
+                                WalletId = completeOrder.WalletId,
+                                TransactionAmount = completeOrder.TotalAmount,
+                                TransactionType = Transaction_Type.SYSTEMADD,
+                                TransactionDate = DateTime.Now,
+                                Description = Payment_Descriptions.SystemAddtractDescription(completeOrder.TotalAmount),
+                                Status = Payment_Status.SUCCESSFUL,
+                            };
+
+                            await _walletTransactionService.AddAsync(walletTransactionDto);
+                        }
+
+                    NotificationDto notificationCusDto = new NotificationDto()
+                    {
+                        NotificationId = 0,
+                        Uid = result.CustomerId ?? 0,
+                        CreatedAt = DateTime.Now,
+                        Content = Notification_Content.ORDER_REPORT_CUSTOMER(result.TotalAmount ?? 0),
+                        Type = Notification_Type.ORDER,
+                        IsRead = false,
+                    };
+
+                    NotificationDto notificationResDto = new NotificationDto()
+                    {
+                        NotificationId = 0,
+                        Uid = result.RestaurantId ?? 0,
+                        CreatedAt = DateTime.Now,
+                        Content = Notification_Content.ORDER_REPORT_RESTAURANT(result.TotalAmount ?? 0),
+                        Type = Notification_Type.ORDER,
+                        IsRead = false,
+                    };
+
+                    var notificationRes = await _notificationService.AddAsync(notificationResDto);
+                    var notificationCus = await _notificationService.AddAsync(notificationCusDto);
+
+                    if (notificationRes != null && notificationCus != null)
+                    {
+                        List<NotificationDto> notifications = new List<NotificationDto> { notificationRes, notificationCus };
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                    }
+
+                    return Ok($"Cập nhật trạng thái cho đơn hàng với ID {orderID} thành công.");
+                }
+                return NotFound($"Đơn hàng với ID {orderID} không tồn tại.");
+            }
+            return BadRequest($"Không Update được đơn hàng.");
+        }
+
 
     }
 }

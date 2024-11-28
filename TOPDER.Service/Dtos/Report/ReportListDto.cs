@@ -14,6 +14,8 @@ namespace TOPDER.Service.Dtos.Report
         public int ReportedOn { get; set; }
         public string ReportedOnEmail { get; set; } = string.Empty;
         public string ReportType { get; set; } = null!;
+        public int? FeedbackId { get; set; }
+        public int? OrderId { get; set; }
         public string Description { get; set; } = null!;
         public string? Status { get; set; }
         public DateTime? CreatedAt { get; set; }
