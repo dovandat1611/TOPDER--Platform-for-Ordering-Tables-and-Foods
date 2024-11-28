@@ -32,11 +32,12 @@ namespace TOPDER.Service.Services
 
 
         public OrderService(IOrderRepository orderRepository, IMapper mapper,
-            IRestaurantPolicyService restaurantPolicyService)
+            IRestaurantPolicyService restaurantPolicyService, IPolicySystemService policySystemService)
         {
             _orderRepository = orderRepository;
             _mapper = mapper;
             _restaurantPolicyService = restaurantPolicyService;
+            _policySystemService = policySystemService;
         }
 
         public async Task<Order> AddAsync(OrderDto orderDto)
