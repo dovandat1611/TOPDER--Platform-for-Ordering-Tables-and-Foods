@@ -273,6 +273,8 @@ namespace TOPDER.Service.Services
 
             var policySystem = await _policySystemService.GetAllAsync();
 
+            policySystem = policySystem.OrderBy(x => x.MinOrderValue).ToList();
+
             // Tìm kiếm đơn hàng theo ID
             var order = await query
                 .Include(x => x.Restaurant)
@@ -424,7 +426,7 @@ namespace TOPDER.Service.Services
             var queryable = await _orderRepository.QueryableAsync();
 
             // Lọc theo restaurantId
-            var query = queryable.Include(x => x.OrderTables).Include(x => x.Customer).Where(x => x.RestaurantId == restaurantId);
+            var query = queryable.Include(x => x.OrderTables).Include(x => x.Customer).Include(x => x.Reports).Where(x => x.RestaurantId == restaurantId);
 
             // Lọc theo status nếu có
             if (!string.IsNullOrEmpty(status))

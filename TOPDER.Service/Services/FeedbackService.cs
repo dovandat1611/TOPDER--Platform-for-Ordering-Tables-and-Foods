@@ -158,7 +158,7 @@ namespace TOPDER.Service.Services
             var query = await _feedbackRepository.QueryableAsync();
             var feedbackReplyQueryable = await _feedbackReplyRepository.QueryableAsync();
 
-            var feedbacks = await query.Include(x => x.Customer).Where(x => x.RestaurantId == restaurantId && x.IsVisible == true).OrderByDescending(x => x.FeedbackId).ToListAsync();
+            var feedbacks = await query.Include(x => x.Customer).Include(x => x.Reports).Where(x => x.RestaurantId == restaurantId && x.IsVisible == true).OrderByDescending(x => x.FeedbackId).ToListAsync();
 
             var queryDTO = _mapper.Map<List<FeedbackRestaurantDto>>(feedbacks);
 

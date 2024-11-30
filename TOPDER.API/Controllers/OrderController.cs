@@ -49,6 +49,8 @@ namespace TOPDER.API.Controllers
         private readonly INotificationService _notificationService;
         private readonly IHubContext<AppHub> _signalRHub;
         private readonly IRestaurantPolicyService _restaurantPolicyService;
+        private readonly IOrderRepository _orderRepository;
+
 
 
         public OrderController(IOrderService orderService, IOrderMenuService orderMenuService,
@@ -59,7 +61,7 @@ namespace TOPDER.API.Controllers
             IOrderTableService orderTableService, IDiscountMenuRepository discountMenuRepository,
             IConfiguration configuration, IRestaurantService restaurantService,
             INotificationService notificationService,
-            IHubContext<AppHub> signalRHub, IRestaurantPolicyService restaurantPolicyService)
+            IHubContext<AppHub> signalRHub, IRestaurantPolicyService restaurantPolicyService, IOrderRepository orderRepository)
         {
             _orderService = orderService;
             _orderMenuService = orderMenuService;
@@ -78,6 +80,7 @@ namespace TOPDER.API.Controllers
             _notificationService = notificationService;
             _signalRHub = signalRHub;
             _restaurantPolicyService = restaurantPolicyService;
+            _orderRepository = orderRepository;
         }
 
 
@@ -1537,9 +1540,12 @@ namespace TOPDER.API.Controllers
         [SwaggerOperation(Summary = "Xử lý report Order: Admin")]
         public async Task<IActionResult> HandleReportOrder(int orderID)
         {
-            var result = await _orderService.UpdateStatusAsync(orderID, Order_Status.CANCEL);
-            if (result != null)
+            var orderCheck = await _orderRepository.GetByIdAsync(orderID);
+            if(orderCheck != null && orderCheck.StatusOrder == Order_Status.PAID)
             {
+                var result = await _orderService.UpdateStatusAsync(orderID, Order_Status.CANCEL);
+                if (result != null)
+                {
 
                     var completeOrder = await _orderService.GetInformationForCompleteAsync(orderID);
                     if (completeOrder != null)
@@ -1569,40 +1575,42 @@ namespace TOPDER.API.Controllers
                             await _walletTransactionService.AddAsync(walletTransactionDto);
                         }
 
-                    NotificationDto notificationCusDto = new NotificationDto()
-                    {
-                        NotificationId = 0,
-                        Uid = result.CustomerId ?? 0,
-                        CreatedAt = DateTime.Now,
-                        Content = Notification_Content.ORDER_REPORT_CUSTOMER(result.TotalAmount ?? 0),
-                        Type = Notification_Type.ORDER,
-                        IsRead = false,
-                    };
+                        NotificationDto notificationCusDto = new NotificationDto()
+                        {
+                            NotificationId = 0,
+                            Uid = result.CustomerId ?? 0,
+                            CreatedAt = DateTime.Now,
+                            Content = Notification_Content.ORDER_REPORT_CUSTOMER(result.TotalAmount ?? 0),
+                            Type = Notification_Type.ORDER,
+                            IsRead = false,
+                        };
 
-                    NotificationDto notificationResDto = new NotificationDto()
-                    {
-                        NotificationId = 0,
-                        Uid = result.RestaurantId ?? 0,
-                        CreatedAt = DateTime.Now,
-                        Content = Notification_Content.ORDER_REPORT_RESTAURANT(result.TotalAmount ?? 0),
-                        Type = Notification_Type.ORDER,
-                        IsRead = false,
-                    };
+                        NotificationDto notificationResDto = new NotificationDto()
+                        {
+                            NotificationId = 0,
+                            Uid = result.RestaurantId ?? 0,
+                            CreatedAt = DateTime.Now,
+                            Content = Notification_Content.ORDER_REPORT_RESTAURANT(result.TotalAmount ?? 0),
+                            Type = Notification_Type.ORDER,
+                            IsRead = false,
+                        };
 
-                    var notificationRes = await _notificationService.AddAsync(notificationResDto);
-                    var notificationCus = await _notificationService.AddAsync(notificationCusDto);
+                        var notificationRes = await _notificationService.AddAsync(notificationResDto);
+                        var notificationCus = await _notificationService.AddAsync(notificationCusDto);
 
-                    if (notificationRes != null && notificationCus != null)
-                    {
-                        List<NotificationDto> notifications = new List<NotificationDto> { notificationRes, notificationCus };
-                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                        if (notificationRes != null && notificationCus != null)
+                        {
+                            List<NotificationDto> notifications = new List<NotificationDto> { notificationRes, notificationCus };
+                            await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                        }
+
+                        return Ok($"Cập nhật trạng thái cho đơn hàng với ID {orderID} thành công.");
                     }
-
-                    return Ok($"Cập nhật trạng thái cho đơn hàng với ID {orderID} thành công.");
+                    return NotFound($"Đơn hàng với ID {orderID} không tồn tại.");
                 }
-                return NotFound($"Đơn hàng với ID {orderID} không tồn tại.");
+                return BadRequest($"Không Update được đơn hàng.");
             }
-            return BadRequest($"Không Update được đơn hàng.");
+            return BadRequest($"Đơn hàng đã bị thay đổi khi report! không thể xử lý.");
         }
 
 

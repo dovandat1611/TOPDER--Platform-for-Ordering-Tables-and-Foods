@@ -18,6 +18,7 @@ namespace TOPDER.Service.Dtos.Feedback
         public DateTime CreateDate { get; set; }
         public string? Status { get; set; }
         public bool isReply { get; set; }
+        public bool IsReport { get; set; }
         public FeedbackReplyDto FeedbackReply { get; set; } = new FeedbackReplyDto();
     }
 }

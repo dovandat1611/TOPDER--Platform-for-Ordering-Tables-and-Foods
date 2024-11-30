@@ -32,8 +32,6 @@ namespace TOPDER.API.Controllers
         public async Task<IActionResult> GetAllPolicies()
         {
             var policies = await _policySystemService.GetAllAsync();
-            if (policies == null || policies.Count == 0)
-                return NotFound("No policies found.");
             return Ok(policies);
         }
 

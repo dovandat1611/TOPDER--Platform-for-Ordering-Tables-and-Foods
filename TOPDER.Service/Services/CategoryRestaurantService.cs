@@ -42,7 +42,7 @@ namespace TOPDER.Service.Services
             return categoryRestaurantDto;
         }
 
-        public async Task<PaginatedList<CategoryRestaurantDto>> ListPagingAsync(int pageNumber, int pageSize, string? categoryRestaurantName)
+        public async Task<PaginatedList<CategoryRestaurantViewDto>> ListPagingAsync(int pageNumber, int pageSize, string? categoryRestaurantName)
         {
             var queryable = await _categoryRestaurantRepository.QueryableAsync();
 
@@ -53,9 +53,9 @@ namespace TOPDER.Service.Services
 
             queryable = queryable.OrderByDescending(x => x.CategoryRestaurantId);
 
-            var queryDTO = queryable.Select(r => _mapper.Map<CategoryRestaurantDto>(r));
+            var queryDTO = queryable.Select(r => _mapper.Map<CategoryRestaurantViewDto>(r));
 
-            var paginatedDTOs = await PaginatedList<CategoryRestaurantDto>.CreateAsync(
+            var paginatedDTOs = await PaginatedList<CategoryRestaurantViewDto>.CreateAsync(
                 queryDTO.AsNoTracking(),
                 pageNumber > 0 ? pageNumber : 1,
                 pageSize > 0 ? pageSize : 10
@@ -64,18 +64,18 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
-        public async Task<List<CategoryRestaurantDto>> GetAllCategoryRestaurantAsync()
+        public async Task<List<CategoryRestaurantViewDto>> GetAllCategoryRestaurantAsync()
         {
             var categoryRestaurants = await _categoryRestaurantRepository.GetAllAsync();
 
             if (categoryRestaurants == null || !categoryRestaurants.Any())
             {
-                return new List<CategoryRestaurantDto>();
+                return new List<CategoryRestaurantViewDto>();
             }
 
             categoryRestaurants = categoryRestaurants.OrderByDescending(x => x.CategoryRestaurantId);
 
-            var categoryRestaurantsDTO = _mapper.Map<List<CategoryRestaurantDto>>(categoryRestaurants);
+            var categoryRestaurantsDTO = _mapper.Map<List<CategoryRestaurantViewDto>>(categoryRestaurants);
 
             return categoryRestaurantsDTO;
         }
