@@ -13,6 +13,8 @@ namespace TOPDER.Service.Dtos.Email
         public string Email { get; set; } = string.Empty;
         public string OrderId { get; set; } = string.Empty;
         public string RestaurantName { get; set; } = string.Empty;
+        public int RestaurantId { get; set; }
+        public int CustomerId { get; set; }
         public int NumberOfGuests { get; set; }
         public DateTime ReservationDate { get; set; }
         public TimeSpan ReservationTime { get; set; }

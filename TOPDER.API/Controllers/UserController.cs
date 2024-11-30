@@ -33,13 +33,16 @@ namespace TOPDER.API.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IIdentityService _identityService;
         private readonly IUserOtpRepository _userOtpRepository;
+        private readonly IRoleRepository _roleRepository;
+
 
 
 
         public UserController(IRestaurantService restaurantService, ICloudinaryService cloudinaryService,
             ISendMailService sendMailService, IUserService userService, ICustomerService customerService,
             IWalletService walletService, JwtHelper jwtHelper, IAdminService adminService,
-            IUserRepository userRepository, IIdentityService identityService, IUserOtpRepository userOtpRepository)
+            IUserRepository userRepository, IIdentityService identityService,
+            IUserOtpRepository userOtpRepository, IRoleRepository roleRepository)
         {
             _restaurantService = restaurantService;
             _cloudinaryService = cloudinaryService;
@@ -52,6 +55,7 @@ namespace TOPDER.API.Controllers
             _identityService = identityService;
             _adminService = adminService;
             _userOtpRepository = userOtpRepository;
+            _roleRepository = roleRepository;
         }
 
 
@@ -118,6 +122,7 @@ namespace TOPDER.API.Controllers
                         Uid = userLoginDto.Uid,
                         Email = userLoginDto.Email,
                         CategoryRestaurantId = userLoginDto.CategoryRestaurantId,
+                        CategoryRestaurantName = userLoginDto.CategoryRestaurantName,
                         NameOwner = userLoginDto.NameOwner,
                         NameRes = userLoginDto.NameRes,
                         Phone = userLoginDto.Phone,
@@ -134,9 +139,6 @@ namespace TOPDER.API.Controllers
                         MaxCapacity = userLoginDto.MaxCapacity,
                         Price = userLoginDto.Price,
                         IsBookingEnabled = userLoginDto.IsBookingEnabled,
-                        FirstFeePercent = userLoginDto.FirstFeePercent,
-                        ReturningFeePercent = userLoginDto.ReturningFeePercent,
-                        CancellationFeePercent = userLoginDto.CancellationFeePercent,
                         Role = userLoginDto.Role
                     };
                     userInfo = restaurantInfo;
@@ -463,7 +465,15 @@ namespace TOPDER.API.Controllers
             var update = await _userRepository.UpdateAsync(user);
 
             if (update)
-            {
+            {   
+                if(status == Common_Status.ACTIVE)
+                {
+                    var role = await _roleRepository.GetByIdAsync(user.RoleId);
+                    if (role.Name == User_Role.RESTAURANT)
+                    {
+                        await _sendMailService.SendEmailAsync(user.Email, Email_Subject.CONFIRM_REGISTER_RESTAURANT, EmailTemplates.ConfirmRegisterRestaurant());
+                    }
+                }
                 return Ok("Cập nhật trạng thái người dùng thành công.");
             }
 

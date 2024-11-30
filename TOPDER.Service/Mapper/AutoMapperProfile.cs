@@ -20,9 +20,7 @@ using TOPDER.Service.Dtos.Wishlist;
 using TOPDER.Service.Dtos.ChatBox;
 using TOPDER.Service.Dtos.Chat;
 using TOPDER.Service.Dtos.OrderMenu;
-using TOPDER.Service.Dtos.Log;
 using TOPDER.Service.Dtos.OrderTable;
-using TOPDER.Service.Dtos.CategoryRoom;
 using TOPDER.Service.Dtos.RestaurantRoom;
 using TOPDER.Service.Dtos.ExternalLogin;
 using TOPDER.Service.Dtos.Wallet;
@@ -34,6 +32,9 @@ using TOPDER.Service.Dtos.Role;
 using TOPDER.Service.Dtos.TableBookingSchedule;
 using TOPDER.Service.Dtos.AdvertisementPricing;
 using TOPDER.Service.Dtos.BookingAdvertisement;
+using TOPDER.Service.Dtos.FeedbackReply;
+using TOPDER.Service.Dtos.RestaurantPolicy;
+using TOPDER.Service.Dtos.PolicySystem;
 
 namespace TOPDER.Service.Mapper
 {
@@ -84,6 +85,9 @@ namespace TOPDER.Service.Mapper
             // CATEGORY RESTAURANT
             CreateMap<CategoryRestaurantDto, CategoryRestaurant>().ReverseMap();
 
+            CreateMap<CategoryRestaurant, CategoryRestaurantViewDto>()
+                .ForMember(dest => dest.IsDelete,
+                           opt => opt.MapFrom(src => src.Restaurants != null && src.Restaurants.Any()));
 
             CreateMap<CreateCategoryMenuDto, CategoryMenu>().ReverseMap();
 
@@ -159,13 +163,21 @@ namespace TOPDER.Service.Mapper
                 .ForMember(dest => dest.RestaurantName, otp => otp.MapFrom(src => src.Restaurant != null ? src.Restaurant.NameRes : Is_Null.ISNULL));
 
             CreateMap<Feedback, FeedbackRestaurantDto>()
-                .ForMember(dest => dest.CustomerName, otp => otp.MapFrom(src => src.Customer != null ? src.Customer.Name : Is_Null.ISNULL));
+                .ForMember(dest => dest.CustomerName, otp => otp.MapFrom(src => src.Customer != null ? src.Customer.Name : Is_Null.ISNULL))
+                .ForMember(dest => dest.IsReport,
+                           opt => opt.MapFrom(src => src.Reports != null && src.Reports.Any()));
 
             CreateMap<Feedback, FeedbackHistoryDto>()
                 .ForMember(dest => dest.RestaurantName,
                            opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.NameRes : Is_Null.ISNULL))
                 .ForMember(dest => dest.RestaurantImage,
                            opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.Logo : Is_Null.ISNULL));
+
+            // FEEDBACK REPLY
+            CreateMap<FeedbackReplyDto, FeedbackReply>().ReverseMap();
+            CreateMap<FeedbackReply, FeedbackReplyCustomerDto>()
+            .ForMember(dest => dest.RestaurantImage, otp => otp.MapFrom(src => src.Restaurant != null ? src.Restaurant.Logo : Is_Null.ISNULL))
+            .ForMember(dest => dest.RestaurantName, otp => otp.MapFrom(src => src.Restaurant != null ? src.Restaurant.NameRes : Is_Null.ISNULL));
 
             // DISCOUNT
             CreateMap<DiscountDto, Discount>().ReverseMap();
@@ -270,12 +282,6 @@ namespace TOPDER.Service.Mapper
                 .ForMember(dest => dest.MaxCapacity,
                            opt => opt.MapFrom(src => src.Table.MaxCapacity));
 
-            // LOG
-            CreateMap<LogDto, Log>().ReverseMap();
-
-            // CATEGORY ROOM 
-            CreateMap<CategoryRoomDto, CategoryRoom>().ReverseMap();
-
             // RESTAURANT ROOM 
             CreateMap<RestaurantRoomDto, RestaurantRoom>().ReverseMap();
 
@@ -309,6 +315,8 @@ namespace TOPDER.Service.Mapper
                            opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.NameRes : Is_Null.ISNULL))
                 .ForMember(dest => dest.RestaurantPhone,
                            opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.Phone : Is_Null.ISNULL))
+                .ForMember(dest => dest.Address,
+                           opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.Address : Is_Null.ISNULL))
                 .ForMember(dest => dest.IsFeedback,
                            opt => opt.MapFrom(src => src.Feedbacks != null && src.Feedbacks.Any()));
 
@@ -318,7 +326,10 @@ namespace TOPDER.Service.Mapper
                 .ForMember(dest => dest.CustomerName,
                            opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Name : Is_Null.ISNULL))
                 .ForMember(dest => dest.CustomerImage,
-                           opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Image : Is_Null.ISNULL));
+                           opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Image : Is_Null.ISNULL))
+                .ForMember(dest => dest.IsReport,
+                           opt => opt.MapFrom(src => src.Reports != null && src.Reports.Any()));
+
 
             // USER 
 
@@ -372,6 +383,10 @@ namespace TOPDER.Service.Mapper
                 .ForMember(dest => dest.CategoryRestaurantId,
                            opt => opt.MapFrom(src =>
                                src.Restaurant != null ? src.Restaurant.CategoryRestaurantId : null))
+
+                .ForMember(dest => dest.CategoryRestaurantName,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null && src.Restaurant.CategoryRestaurant != null ? src.Restaurant.CategoryRestaurant.CategoryRestaurantName : null))
 
                 .ForMember(dest => dest.NameOwner,
                            opt => opt.MapFrom(src =>
@@ -430,19 +445,8 @@ namespace TOPDER.Service.Mapper
 
                 .ForMember(dest => dest.IsBookingEnabled,
                            opt => opt.MapFrom(src =>
-                               src.Restaurant != null ? src.Restaurant.IsBookingEnabled : null))
-
-                .ForMember(dest => dest.FirstFeePercent,
-                           opt => opt.MapFrom(src =>
-                               src.Restaurant != null ? src.Restaurant.FirstFeePercent : null))
-
-                .ForMember(dest => dest.ReturningFeePercent,
-                           opt => opt.MapFrom(src =>
-                               src.Restaurant != null ? src.Restaurant.ReturningFeePercent : null))
-
-                .ForMember(dest => dest.CancellationFeePercent,
-                           opt => opt.MapFrom(src =>
-                               src.Restaurant != null ? src.Restaurant.CancellationFeePercent : null));
+                               src.Restaurant != null ? src.Restaurant.IsBookingEnabled : null));
+                
 
 
             //ROLE
@@ -484,7 +488,13 @@ namespace TOPDER.Service.Mapper
            .ForMember(dest => dest.RestaurantImage,
                       opt => opt.MapFrom(src => src.Restaurant != null ? src.Restaurant.Logo : null));
 
+            // Restaurant Policy 
+            CreateMap<CreateRestaurantPolicyDto, RestaurantPolicy>().ReverseMap();
+            CreateMap<RestaurantPolicyDto, RestaurantPolicy>().ReverseMap();
 
+            // Policy System
+            CreateMap<PolicySystemDto, PolicySystem>().ReverseMap();
+            CreateMap<CreatePolicySystemDto, PolicySystem>().ReverseMap();
 
         }
     }

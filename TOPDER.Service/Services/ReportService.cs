@@ -54,6 +54,21 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
+        public async Task<bool> HandleReportAsync(HandleReportDto handleReportDto)
+        {
+            var query = await _reportRepository.GetByIdAsync(handleReportDto.ReportId);
+            if(query == null)
+            {
+                return false;
+            }
+            if(query.Status == Common_Status.INACTIVE)
+            {
+                return true;
+            }
+            query.Status = Common_Status.INACTIVE;
+            return await _reportRepository.UpdateAsync(query);
+        }
+
         public async Task<bool> RemoveAsync(int id)
         {
             var report = await _reportRepository.GetByIdAsync(id);

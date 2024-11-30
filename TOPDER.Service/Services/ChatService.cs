@@ -21,13 +21,15 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly IChatRepository _chatRepository;
+        private readonly IChatBoxRepository _chatBoxRepository;
 
-        public ChatService(IChatRepository chatRepository, IMapper mapper)
+        public ChatService(IChatRepository chatRepository, IMapper mapper, IChatBoxRepository chatBoxRepository)
         {
             _chatRepository = chatRepository;
             _mapper = mapper;
+            _chatBoxRepository = chatBoxRepository;
         }
-        public async Task<bool> AddAsync(CreateChatDto createChatDto)
+        public async Task<ChatDto> AddAsync(CreateChatDto createChatDto)
         {
             Chat chat = new Chat()
             {
@@ -37,7 +39,37 @@ namespace TOPDER.Service.Services
                 ChatTime = DateTime.Now,
                 Content = createChatDto.Content
             };
-            return await _chatRepository.CreateAsync(chat);
+            var checkCreate = await _chatRepository.CreateAndReturnAsync(chat);
+            if(checkCreate != null)
+            {
+                var query = await _chatRepository.QueryableAsync();
+                var chatBoxRepo = await _chatBoxRepository.GetByIdAsync(createChatDto.ChatBoxId);
+
+                if(checkCreate.ChatBy == chatBoxRepo.RestaurantId)
+                {
+                    chatBoxRepo.IsRestaurantRead = true;
+                    chatBoxRepo.IsCustomerRead = false;
+                }
+                if (checkCreate.ChatBy == chatBoxRepo.CustomerId)
+                {
+                    chatBoxRepo.IsRestaurantRead = false;
+                    chatBoxRepo.IsCustomerRead = true;
+                }
+
+                await _chatBoxRepository.UpdateAsync(chatBoxRepo);
+
+                var queryDTO = await query
+                    .Include(x => x.ChatByNavigation)
+                        .ThenInclude(cbn => cbn.Customer)
+                    .Include(x => x.ChatByNavigation)
+                        .ThenInclude(cbn => cbn.Restaurant)
+                    .Include(x => x.ChatByNavigation)
+                        .ThenInclude(cbn => cbn.Admin).FirstOrDefaultAsync(x => x.ChatId == checkCreate.ChatId);
+
+                var chatDto = _mapper.Map<ChatDto>(queryDTO);
+                return chatDto;
+            }
+            return null;
         }
 
         public async Task<CreateChatDto> GetItemAsync(int id)
@@ -59,10 +91,11 @@ namespace TOPDER.Service.Services
                 .Include(x => x.ChatByNavigation)
                     .ThenInclude(cbn => cbn.Admin)
                 .Where(x => x.ChatBoxId == chatBoxId)  
-                .ProjectTo<ChatDto>(_mapper.ConfigurationProvider)  
-                .ToListAsync();  
+                .ToListAsync();
 
-            return queryDTO;
+            var ChatDto = _mapper.Map<List<ChatDto>>(queryDTO);
+
+            return ChatDto;
         }
 
 

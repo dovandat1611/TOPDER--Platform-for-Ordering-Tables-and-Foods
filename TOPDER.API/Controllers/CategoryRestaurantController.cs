@@ -67,7 +67,7 @@ namespace TOPDER.API.Controllers
             {
                 var result = await _categoryRestaurantService.ListPagingAsync(pageNumber, pageSize, categoryRestaurantName);
 
-                var response = new PaginatedResponseDto<CategoryRestaurantDto>(
+                var response = new PaginatedResponseDto<CategoryRestaurantViewDto>(
                     result,
                     result.PageIndex,
                     result.TotalPages,

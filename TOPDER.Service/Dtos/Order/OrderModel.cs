@@ -13,7 +13,6 @@ namespace TOPDER.Service.Dtos.Order
         public int CustomerId { get; set; }
         public int RestaurantId { get; set; }
         public int? DiscountId { get; set; }
-        public int? CategoryRoomId { get; set; }
         public string NameReceiver { get; set; } = string.Empty;
         public string PhoneReceiver { get; set; } = string.Empty;
         public TimeSpan TimeReservation { get; set; }

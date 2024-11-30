@@ -18,6 +18,7 @@ using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.RestaurantRoom;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.Service.Services
@@ -26,12 +27,17 @@ namespace TOPDER.Service.Services
     {
         private readonly IMapper _mapper;
         private readonly IOrderRepository _orderRepository;
+        private readonly IRestaurantPolicyService _restaurantPolicyService;
+        private readonly IPolicySystemService _policySystemService;
 
 
-        public OrderService(IOrderRepository orderRepository, IMapper mapper)
+        public OrderService(IOrderRepository orderRepository, IMapper mapper,
+            IRestaurantPolicyService restaurantPolicyService, IPolicySystemService policySystemService)
         {
             _orderRepository = orderRepository;
             _mapper = mapper;
+            _restaurantPolicyService = restaurantPolicyService;
+            _policySystemService = policySystemService;
         }
 
         public async Task<Order> AddAsync(OrderDto orderDto)
@@ -180,6 +186,7 @@ namespace TOPDER.Service.Services
         {
             var query = await _orderRepository.QueryableAsync();
 
+            
             // Tìm kiếm đơn hàng theo ID
             var order = query
                 .Include(x => x.Restaurant)
@@ -205,6 +212,24 @@ namespace TOPDER.Service.Services
             // Xác định vai trò của người dùng
             var isRestaurantUser = order.RestaurantId == userID;
             var role = isRestaurantUser ? User_Role.RESTAURANT : User_Role.CUSTOMER;
+
+            decimal cancellationFeePercent = 0;
+
+            if (isRestaurantUser == true)
+            {
+                var restaurantPolicy = await _restaurantPolicyService.GetActivePolicyAsync(userID);
+                cancellationFeePercent = restaurantPolicy.CancellationFeePercent ?? 0;
+            }
+
+            decimal totalAmount = 0;
+            if (order.PaidType == Paid_Type.ENTIRE_ORDER)
+            {
+                totalAmount = order.TotalAmount ?? 0;
+            }
+            if (order.PaidType == Paid_Type.DEPOSIT)
+            {
+                totalAmount = order.DepositAmount ?? 0;
+            }
 
             // Tạo đối tượng CancelOrderDto và trả về
             return new CancelOrderDto
@@ -232,10 +257,11 @@ namespace TOPDER.Service.Services
                 WalletCustomerId = wallet?.WalletId ?? 0,
                 WalletBalanceCustomer = wallet?.WalletBalance ?? 0, // Sử dụng toán tử null-coalescing để xử lý null
 
+              
                 // CancellationFeePercent Restaurant
-                CancellationFeePercent = isRestaurantUser ? 100 : order.Restaurant.CancellationFeePercent,
+                CancellationFeePercent = isRestaurantUser ? 100 : cancellationFeePercent,
 
-                TotalAmount = order.TotalAmount,
+                TotalAmount = totalAmount,
 
                 RoleName = role
             };
@@ -244,6 +270,10 @@ namespace TOPDER.Service.Services
         public async Task<CompleteOrderDto> GetInformationForCompleteAsync(int orderID)
         {
             var query = await _orderRepository.QueryableAsync();
+
+            var policySystem = await _policySystemService.GetAllAsync();
+
+            policySystem = policySystem.OrderBy(x => x.MinOrderValue).ToList();
 
             // Tìm kiếm đơn hàng theo ID
             var order = await query
@@ -257,30 +287,37 @@ namespace TOPDER.Service.Services
                 throw new KeyNotFoundException($"Order with ID {orderID} not found.");
             }
 
+            decimal totalAmount = 0;
+            if(order.PaidType == Paid_Type.ENTIRE_ORDER)
+            {
+                totalAmount = order.TotalAmount ?? 0;
+            }
+            if (order.PaidType == Paid_Type.DEPOSIT)
+            {
+                totalAmount = order.DepositAmount ?? 0;
+            }
+
             var wallet = order.Restaurant.UidNavigation.Wallets.FirstOrDefault(x => x.Uid == order.RestaurantId);
 
             // Kiểm tra phí dịch vụ dựa trên số tiền đơn hàng
             decimal serviceFee = 0;
 
-            if (order.TotalAmount < 50000)
+            if(policySystem != null && policySystem.Any())
             {
-                serviceFee = 500; // Phí cho đơn hàng dưới 50 nghìn
-            }
-            else if (order.TotalAmount < 200000)
-            {
-                serviceFee = 1000; // Phí cho đơn hàng từ 50 nghìn đến dưới 200 nghìn
-            }
-            else if (order.TotalAmount < 500000)
-            {
-                serviceFee = 2000; // Phí cho đơn hàng từ 200 nghìn đến dưới 500 nghìn
-            }
-            else if (order.TotalAmount >= 1000000)
-            {
-                serviceFee = 5000; // Phí cho đơn hàng từ 1 triệu trở lên
+                foreach (var policy in policySystem)
+                {
+                    // Ví dụ: kiểm tra nếu giá trị đơn hàng nằm trong khoảng chính sách
+                    if (totalAmount >= policy.MinOrderValue &&
+                        (policy.MaxOrderValue == 0 || totalAmount <= policy.MaxOrderValue))
+                    {
+                        serviceFee = policy.FeeAmount;
+                        break; // Áp dụng chính sách đầu tiên phù hợp
+                    }
+                }
             }
 
             // Tính số dư ví sau khi trừ phí
-            var updatedWalletBalance = wallet.WalletBalance + order.TotalAmount - serviceFee;
+            var updatedWalletBalance = wallet.WalletBalance + totalAmount - serviceFee;
 
             return new CompleteOrderDto
             {
@@ -289,7 +326,7 @@ namespace TOPDER.Service.Services
                 WalletId = wallet.WalletId,
                 RestaurantName = order.Restaurant.NameRes,
                 WalletBalance = updatedWalletBalance ?? 0,
-                TotalAmount = order.TotalAmount - serviceFee,
+                TotalAmount = totalAmount - serviceFee,
             };
 
         }
@@ -337,6 +374,8 @@ namespace TOPDER.Service.Services
             // Khởi tạo email
             OrderPaidEmail orderPaidEmail = new OrderPaidEmail()
             {
+                RestaurantId = order.RestaurantId ?? 0,
+                CustomerId = order.CustomerId ?? 0,
                 Name = order.Customer.Name,
                 Email = order.Customer.UidNavigation.Email,
                 RestaurantName = order.Restaurant.NameRes,
@@ -344,7 +383,7 @@ namespace TOPDER.Service.Services
                 NumberOfGuests = order.NumberChild + order.NumberPerson,
                 ReservationDate = order.DateReservation,
                 ReservationTime = order.TimeReservation,
-                TotalAmount = order.TotalAmount,
+                TotalAmount = order.TotalAmount ?? 0,
                 Rooms = new List<RoomEmail>(),
                 TableName = new List<string>()
             };
@@ -387,7 +426,7 @@ namespace TOPDER.Service.Services
             var queryable = await _orderRepository.QueryableAsync();
 
             // Lọc theo restaurantId
-            var query = queryable.Include(x => x.OrderTables).Include(x => x.Customer).Where(x => x.RestaurantId == restaurantId);
+            var query = queryable.Include(x => x.OrderTables).Include(x => x.Customer).Include(x => x.Reports).Where(x => x.RestaurantId == restaurantId);
 
             // Lọc theo status nếu có
             if (!string.IsNullOrEmpty(status))
@@ -443,6 +482,7 @@ namespace TOPDER.Service.Services
 
             existingOrder.StatusPayment = orderDto.StatusPayment;
             existingOrder.ContentPayment = orderDto.ContentPayment;
+            existingOrder.PaidType = orderDto.PaidType;
 
             return await _orderRepository.UpdateAsync(existingOrder);
         }
@@ -479,20 +519,20 @@ namespace TOPDER.Service.Services
             return false;
         }
 
-        public async Task<bool> UpdateStatusAsync(int orderID, string status)
+        public async Task<OrderDto> UpdateStatusAsync(int orderID, string status)
         {
             var order = await _orderRepository.GetByIdAsync(orderID);
 
             if (order == null)
             {
-                return false;
+                return null;
             }
 
             if (!string.IsNullOrEmpty(order.StatusOrder))
             {
                 if (order.StatusOrder.Equals(status))
                 {
-                    return false;
+                    return null;
                 }
                 if (status.Equals(Order_Status.PAID))
                 {
@@ -510,9 +550,13 @@ namespace TOPDER.Service.Services
                     order.CancelledAt = DateTime.Now;
                 }
                 order.StatusOrder = status;
-                return await _orderRepository.UpdateAsync(order);
+                var updateOrder = await _orderRepository.UpdateAsync(order);
+                if(updateOrder == true)
+                {
+                    return _mapper.Map<OrderDto>(order); ;
+                }
             }
-            return false;
+            return null;
         }
 
         public async Task<bool> UpdateStatusCancelAsync(int orderID, string status, string cancelReason)
@@ -572,16 +616,42 @@ namespace TOPDER.Service.Services
             return false; 
         }
 
-        public async Task<bool> UpdateTotalIncomeChangeMenuAsync(int orderID, decimal totalAmount)
+        //public async Task<bool> UpdateTotalIncomeChangeMenuAsync(int orderID, decimal totalAmount)
+        //{
+        //    var order = await _orderRepository.GetByIdAsync(orderID);
+
+        //    if (order == null) { return false;}
+
+        //    order.TotalAmount = totalAmount;
+        //    order.DiscountId = null;
+
+        //    return await _orderRepository.UpdateAsync(order);
+        //}
+
+        public async Task<bool> UpdateFoodAmountChangeMenuAsync(int orderID, decimal foodAmount)
         {
             var order = await _orderRepository.GetByIdAsync(orderID);
 
-            if (order == null) { return false;}
+            if (order == null) { return false; }
 
-            order.TotalAmount = totalAmount;
-            order.DiscountId = null;
+            order.FoodAmount = foodAmount;
+
+            order.TotalAmount = (foodAmount + (order.DepositAmount ?? 0));
 
             return await _orderRepository.UpdateAsync(order);
         }
+
+        public async Task<bool> UpdateAddFoodAmountChangeMenuAsync(int orderID, decimal addFoodAmount)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderID);
+
+            if (order == null) { return false; }
+
+            order.FoodAddAmount = addFoodAmount;
+            order.TotalAmount = (addFoodAmount + (order.DepositAmount ?? 0) + (order.FoodAmount ?? 0));
+
+            return await _orderRepository.UpdateAsync(order);
+        }
+
     }
 }

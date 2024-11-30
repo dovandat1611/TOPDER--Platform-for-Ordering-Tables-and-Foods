@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -8,6 +9,7 @@ using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Repository.Repositories;
 using TOPDER.Service.Dtos.Email;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Mapper;
 using TOPDER.Service.Services;
@@ -25,9 +27,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidIssuer = builder.Configuration["Jwt:Issuer"], 
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])) 
         };
     })
     .AddGoogle(options =>
@@ -51,18 +53,21 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.EnableAnnotations();
+    c.EnableAnnotations(); 
 });
 
 
 builder.Services.AddDbContext<TopderDBContext>(options =>
-  options.UseSqlServer(builder.Configuration.GetConnectionString("Minh_Connection"))
+  options.UseSqlServer(builder.Configuration.GetConnectionString("Dat_Connection"))
 );
 
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
+
+// ADD SIGNALR
+builder.Services.AddSignalR();
 
 // Register your repositories and services as transient
 
@@ -72,7 +77,6 @@ builder.Services.AddScoped<IBlogGroupRepository, BlogGroupRepository>();
 builder.Services.AddScoped<IBlogRepository, BlogRepository>();
 builder.Services.AddScoped<ICategoryMenuRepository, CategoryMenuRepository>();
 builder.Services.AddScoped<ICategoryRestaurantRepository, CategoryRestaurantRepository>();
-builder.Services.AddScoped<ICategoryRoomRepository, CategoryRoomRepository>();
 builder.Services.AddScoped<IChatBoxRepository, ChatBoxRepository>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IContactRepository, ContactRepository>();
@@ -80,8 +84,8 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
 builder.Services.AddScoped<IExternalLoginRepository, ExternalLoginRepository>();
 builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+builder.Services.AddScoped<IFeedbackReplyRepository, FeedbackReplyRepository>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
-builder.Services.AddScoped<ILogRepository, LogRepository>();
 builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IOrderMenuRepository, OrderMenuRepository>();
@@ -101,6 +105,8 @@ builder.Services.AddScoped<IUserOtpRepository, UserOtpRepository>();
 builder.Services.AddScoped<ITableBookingScheduleRepository, TableBookingScheduleRepository>();
 builder.Services.AddScoped<IAdvertisementPricingRepository, AdvertisementPricingRepository>();
 builder.Services.AddScoped<IBookingAdvertisementRepository, BookingAdvertisementRepository>();
+builder.Services.AddScoped<IPolicySystemRepository, PolicySystemRepository>();
+builder.Services.AddScoped<IRestaurantPolicyRepository, RestaurantPolicyRepository>();
 
 
 
@@ -110,7 +116,6 @@ builder.Services.AddTransient<IBlogGroupService, BlogGroupService>();
 builder.Services.AddTransient<IBlogService, BlogService>();
 builder.Services.AddTransient<ICategoryMenuService, CategoryMenuService>();
 builder.Services.AddTransient<ICategoryRestaurantService, CategoryRestaurantService>();
-builder.Services.AddTransient<ICategoryRoomService, CategoryRoomService>();
 builder.Services.AddTransient<IChatBoxService, ChatBoxService>();
 builder.Services.AddTransient<IChatService, ChatService>();
 builder.Services.AddTransient<IContactService, ContactService>();
@@ -119,8 +124,8 @@ builder.Services.AddTransient<IDashboardService, DashboardService>();
 builder.Services.AddTransient<IDiscountService, DiscountService>();
 builder.Services.AddTransient<IExternalLoginService, ExternalLoginService>();
 builder.Services.AddTransient<IFeedbackService, FeedbackService>();
+builder.Services.AddTransient<IFeedbackReplyService, FeedbackReplyService>();
 builder.Services.AddTransient<IImageService, ImageService>();
-builder.Services.AddTransient<ILogService, LogService>();
 builder.Services.AddTransient<IMenuService, MenuService>();
 builder.Services.AddTransient<INotificationService, NotificationService>();
 builder.Services.AddTransient<IOrderMenuService, OrderMenuService>();
@@ -139,6 +144,8 @@ builder.Services.AddTransient<IWishlistService, WishlistService>();
 builder.Services.AddTransient<ITableBookingScheduleService, TableBookingScheduleService>();
 builder.Services.AddTransient<IBookingAdvertisementService, BookingAdvertisementService>();
 builder.Services.AddTransient<IAdvertisementPricingService, AdvertisementPricingService>();
+builder.Services.AddTransient<IPolicySystemService, PolicySystemService>();
+builder.Services.AddTransient<IRestaurantPolicyService, RestaurantPolicyService>();
 
 
 // Other: ASK CHAT GPT
@@ -148,6 +155,7 @@ builder.Services.AddTransient<IExcelService, ExcelService>();
 builder.Services.AddScoped<IPaymentGatewayService, PaymentGatewayService>();
 builder.Services.AddSingleton<JwtHelper>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
+builder.Services.AddSingleton<AppHub>();
 
 
 // ADD CORS
@@ -170,7 +178,10 @@ if (app.Environment.IsDevelopment())
 app.UseCors(
     builder =>
     {
-        builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000", "https://topder.vercel.app")  // Thêm nhiều nguồn nếu cần
+       .AllowAnyHeader()
+       .AllowAnyMethod()
+       .AllowCredentials();
     });
 
 app.UseHttpsRedirection();
@@ -178,5 +189,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<AppHub>("/signalR");
 
 app.Run();

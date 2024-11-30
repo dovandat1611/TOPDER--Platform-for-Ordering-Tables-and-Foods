@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using TOPDER.Repository.Entities;
@@ -27,10 +28,15 @@ namespace TOPDER.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<bool> AddAsync(NotificationDto notificationDto)
+        public async Task<NotificationDto> AddAsync(NotificationDto notificationDto)
         {
             var notification = _mapper.Map<Notification>(notificationDto);
-            return await _notificationRepository.CreateAsync(notification);
+            var createNotification = await _notificationRepository.CreateAndReturnAsync(notification);
+            if(createNotification != null)
+            {
+                return _mapper.Map<NotificationDto>(createNotification);
+            }
+            return null;
         }
 
         public async Task<NotificationDto> GetItemAsync(int notificationId, int userId)
@@ -66,6 +72,21 @@ namespace TOPDER.Service.Services
             return paginatedDTOs;
         }
 
+        public async Task<bool> IsReadAllAsync(int userId)
+        {
+            var queryable = await _notificationRepository.QueryableAsync();
+            var notification = await queryable.Where(x => x.Uid == userId)
+                .Where(x => x.IsRead == false).ToListAsync();
+
+            foreach (var item in notification)
+            {
+                var existingNotification = await _notificationRepository.GetByIdAsync(item.NotificationId);
+                existingNotification.IsRead = true;
+                await _notificationRepository.UpdateAsync(existingNotification);
+            }
+            return true;
+        }
+
         public async Task<bool> IsReadAsync(int id)
         {   
             var existingNotification = await _notificationRepository.GetByIdAsync(id);
@@ -90,6 +111,17 @@ namespace TOPDER.Service.Services
                 return false;
             }
             return await _notificationRepository.DeleteAsync(id);
+        }
+
+        public async Task<bool> RemoveRangeAsync(int userId)
+        {
+            var queryable = await _notificationRepository.QueryableAsync();
+            var notifications = await queryable.Where(x => x.Uid == userId).ToListAsync();
+            if(notifications.Count > 0)
+            {
+                return await _notificationRepository.DeleteRangeAsync(notifications);
+            }
+            return false;
         }
 
         public async Task<bool> UpdateAsync(NotificationDto notificationDto)

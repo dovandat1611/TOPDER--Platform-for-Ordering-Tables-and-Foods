@@ -21,10 +21,12 @@ namespace TOPDER.Service.IServices
         Task<bool> RemoveAsync(int id);
         Task<OrderDto> GetItemAsync(int id, int Uid);
         Task<EmailForOrder> GetEmailForOrderAsync(int orderId, string role);
-        Task<bool> UpdateStatusAsync(int orderID, string status);
+        Task<OrderDto> UpdateStatusAsync(int orderID, string status);
         Task<bool> UpdateStatusCancelAsync(int orderID, string status, string cancelReason);
         Task<bool> UpdateStatusOrderPayment(int orderID, string status);
-        Task<bool> UpdateTotalIncomeChangeMenuAsync(int orderID, decimal totalAmount);
+       //Task<bool> UpdateTotalIncomeChangeMenuAsync(int orderID, decimal totalAmount);
+        Task<bool> UpdateFoodAmountChangeMenuAsync(int orderID, decimal foodAmount);
+        Task<bool> UpdateAddFoodAmountChangeMenuAsync(int orderID, decimal addFoodAmount);
         Task<bool> CheckIsFirstOrderAsync(int customerId, int restaurantId);
         Task<bool> CheckIsLoyalCustomerAsync(int customerId, int restaurantId);
         Task<CompleteOrderDto> GetInformationForCompleteAsync(int orderID);

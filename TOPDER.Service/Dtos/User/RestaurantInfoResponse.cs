@@ -11,6 +11,7 @@ namespace TOPDER.Service.Dtos.User
         public int Uid { get; set; }
         public string? Email { get; set; }
         public int? CategoryRestaurantId { get; set; }
+        public string? CategoryRestaurantName { get; set; }
         public string? NameOwner { get; set; }
         public string? NameRes { get; set; }
         public string? Logo { get; set; }

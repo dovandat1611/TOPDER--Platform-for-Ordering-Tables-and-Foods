@@ -14,7 +14,6 @@ namespace TOPDER.Service.Dtos.Order
         public int? CustomerId { get; set; }
         public int? RestaurantId { get; set; }
         public int? DiscountId { get; set; }
-        public int? CategoryRoomId { get; set; }
         public string NameReceiver { get; set; } = null!;
         public string PhoneReceiver { get; set; } = null!;
         public TimeSpan TimeReservation { get; set; }
@@ -23,7 +22,11 @@ namespace TOPDER.Service.Dtos.Order
         public int NumberChild { get; set; }
         public string? ContentReservation { get; set; }
         public string? TypeOrder { get; set; }
-        public decimal TotalAmount { get; set; }
+        public string? PaidType { get; set; }
+        public decimal? DepositAmount { get; set; }
+        public decimal? FoodAmount { get; set; }
+        public decimal? FoodAddAmount { get; set; }
+        public decimal? TotalAmount { get; set; }
         public string? ContentPayment { get; set; }
         public string? StatusPayment { get; set; }
         public string? StatusOrder { get; set; }
@@ -32,7 +35,9 @@ namespace TOPDER.Service.Dtos.Order
         public DateTime? PaidAt { get; set; }
         public DateTime? CompletedAt { get; set; }
         public DateTime? CancelledAt { get; set; }
+        public string? CancelReason { get; set; }
         public List<OrderTableDto> OrderTables { get; set; } = new List<OrderTableDto> { };
         public List<OrderMenuDto> OrderMenus { get; set; } = new List<OrderMenuDto> { };
+        public List<OrderMenuDto> OrderMenusAdd { get; set; } = new List<OrderMenuDto> { };
     }
 }

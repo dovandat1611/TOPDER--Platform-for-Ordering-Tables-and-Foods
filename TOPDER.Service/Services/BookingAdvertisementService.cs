@@ -101,40 +101,43 @@ namespace TOPDER.Service.Services
             return listBookingAdvertisements;
         }
 
-        public async Task<bool> UpdateStatusAsync(int bookingId, string status)
+        public async Task<BookingAdvertisementDto> UpdateStatusAsync(int bookingId, string status)
         {
             var existingAdvertisement = await _bookingAdvertisementRepository.GetByIdAsync(bookingId);
 
             if (existingAdvertisement == null)
             {
-                return false;
+                return null;
             }
 
             if (status == Booking_Status.INACTIVE || status == Booking_Status.ACTIVE || status == Booking_Status.CANCELLED)
             {
                 existingAdvertisement.Status = status;
-                return await _bookingAdvertisementRepository.UpdateAsync(existingAdvertisement);
+                await _bookingAdvertisementRepository.UpdateAsync(existingAdvertisement);
+
+                return _mapper.Map<BookingAdvertisementDto>(existingAdvertisement);
             }
-            return false;
+            return null;
         }
 
-        public async Task<bool> UpdateStatusPaymentAsync(int bookingId, string status)
+        public async Task<BookingAdvertisementDto> UpdateStatusPaymentAsync(int bookingId, string status)
         {
             var existingAdvertisement = await _bookingAdvertisementRepository.GetByIdAsync(bookingId);
 
             if (existingAdvertisement == null)
             {
-                return false;
+                return null;
             }
 
             if (status == Payment_Status.SUCCESSFUL || status == Payment_Status.CANCELLED)
             {
                 existingAdvertisement.StatusPayment = status;
-                return await _bookingAdvertisementRepository.UpdateAsync(existingAdvertisement);
-            }
-            return false; 
-        }
+                await _bookingAdvertisementRepository.UpdateAsync(existingAdvertisement);
 
+                return _mapper.Map<BookingAdvertisementDto>(existingAdvertisement);
+            }
+            return null; 
+        }
 
 
 

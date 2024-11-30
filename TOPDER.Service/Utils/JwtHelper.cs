@@ -61,6 +61,7 @@ namespace TOPDER.Service.Utils
                 new Claim("nameOwner", user.NameOwner ?? string.Empty),
                 new Claim("nameRes", user.NameRes ?? string.Empty),
                 new Claim("categoryRestaurantId", user.CategoryRestaurantId?.ToString() ?? string.Empty),
+                new Claim("categoryRestaurantName", user.CategoryRestaurantName ?? string.Empty),
                 new Claim("logo", user.Logo ?? string.Empty),
                 new Claim("address", user.Address ?? string.Empty),
                 new Claim("openTime", user.OpenTime?.ToString() ?? string.Empty),
@@ -73,10 +74,7 @@ namespace TOPDER.Service.Utils
                 new Claim("discount", user.Discount?.ToString() ?? string.Empty),
                 new Claim("price", user.Price?.ToString() ?? string.Empty),
                 new Claim("maxCapacity", user.MaxCapacity?.ToString() ?? string.Empty),
-                new Claim("isBookingEnabled", user.IsBookingEnabled?.ToString() ?? string.Empty),
-                new Claim("firstFeePercent", user.FirstFeePercent?.ToString() ?? string.Empty),
-                new Claim("returningFeePercent", user.ReturningFeePercent?.ToString() ?? string.Empty),
-                new Claim("cancellationFeePercent", user.CancellationFeePercent?.ToString() ?? string.Empty)
+                new Claim("isBookingEnabled", user.IsBookingEnabled?.ToString() ?? string.Empty)
                 });
             }
 

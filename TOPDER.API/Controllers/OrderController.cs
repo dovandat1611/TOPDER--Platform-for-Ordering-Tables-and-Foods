@@ -1,6 +1,7 @@
 ﻿using MailKit.Search;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Net.payOS.Types;
@@ -12,12 +13,14 @@ using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.BlogGroup;
 using TOPDER.Service.Dtos.Discount;
 using TOPDER.Service.Dtos.Email;
+using TOPDER.Service.Dtos.Notification;
 using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.OrderMenu;
 using TOPDER.Service.Dtos.User;
 using TOPDER.Service.Dtos.VNPAY;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.Dtos.WalletTransaction;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Services;
 using TOPDER.Service.Utils;
@@ -43,6 +46,10 @@ namespace TOPDER.API.Controllers
         private readonly ISendMailService _sendMailService;
         private readonly IDiscountMenuRepository _discountMenuRepository;
         private readonly IConfiguration _configuration;
+        private readonly INotificationService _notificationService;
+        private readonly IHubContext<AppHub> _signalRHub;
+        private readonly IRestaurantPolicyService _restaurantPolicyService;
+        private readonly IOrderRepository _orderRepository;
 
 
 
@@ -52,7 +59,9 @@ namespace TOPDER.API.Controllers
             IUserService userService, IWalletTransactionService walletTransactionService,
             IPaymentGatewayService paymentGatewayService, ISendMailService sendMailService,
             IOrderTableService orderTableService, IDiscountMenuRepository discountMenuRepository,
-            IConfiguration configuration, IRestaurantService restaurantService)
+            IConfiguration configuration, IRestaurantService restaurantService,
+            INotificationService notificationService,
+            IHubContext<AppHub> signalRHub, IRestaurantPolicyService restaurantPolicyService, IOrderRepository orderRepository)
         {
             _orderService = orderService;
             _orderMenuService = orderMenuService;
@@ -68,6 +77,10 @@ namespace TOPDER.API.Controllers
             _discountMenuRepository = discountMenuRepository;
             _configuration = configuration;
             _restaurantService = restaurantService;
+            _notificationService = notificationService;
+            _signalRHub = signalRHub;
+            _restaurantPolicyService = restaurantPolicyService;
+            _orderRepository = orderRepository;
         }
 
 
@@ -88,26 +101,32 @@ namespace TOPDER.API.Controllers
                 return NotFound("Nhà hàng không tồn tại.");
             }
 
-            decimal totalAmount = 0;
+            decimal foodAmount = 0;
+            decimal depositAmount = 0;
 
-            // Tính tổng giá nhà hàng và áp dụng giảm giá nếu có
             if (restaurant.Price > 0)
             {
-                totalAmount += restaurant.Price;
+                depositAmount += restaurant.Price;
 
                 if (restaurant.Discount.HasValue && restaurant.Discount > 0)
                 {
-                    totalAmount *= (1 - (restaurant.Discount.Value / 100m)); // Chia cho 100m để tránh lỗi số học
+                    depositAmount *= (1 - (restaurant.Discount.Value / 100m));
                 }
             }
 
-            // Tính tổng tiền từ thực đơn
-            totalAmount += await CalculateMenuTotalForPreOrderAsync(caculatorOrder);
+            foodAmount += await CalculateMenuTotalForPreOrderAsync(caculatorOrder);
 
-            // Áp dụng phí dựa trên trạng thái khách hàng
-            totalAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, totalAmount);
+           // depositAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, depositAmount);
 
-            return Ok(totalAmount); // Trả về tổng số tiền đã tính toán
+           // foodAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, foodAmount);
+
+            CaculatorAmountRespone caculatorAmount = new CaculatorAmountRespone()
+            {
+                DepositAmount = depositAmount,
+                FoodAmount = foodAmount
+            };
+
+            return Ok(caculatorAmount);
         }
 
         // Tạo đơn hàng
@@ -144,13 +163,45 @@ namespace TOPDER.API.Controllers
                         await _orderTableService.AddRangeAsync(orderTablesDto);
                     }
                     await SendOrderEmailAsync(orderToFree.OrderId);
+
+                    NotificationDto notificationResDto = new NotificationDto()
+                    {
+                        NotificationId = 0,
+                        Uid = orderModel.RestaurantId,
+                        CreatedAt = DateTime.Now,
+                        Content = Notification_Content.ORDER_CREATE(0,0),
+                        Type = Notification_Type.ORDER,
+                        IsRead = false,
+                    };
+
+                    NotificationDto notificationCusDto = new NotificationDto()
+                    {
+                        NotificationId = 0,
+                        Uid = orderModel.CustomerId,
+                        CreatedAt = DateTime.Now,
+                        Content = Notification_Content.ORDER_CREATE_CUS(0, 0),
+                        Type = Notification_Type.ORDER,
+                        IsRead = false,
+                    };
+
+                    var notificationRes = await _notificationService.AddAsync(notificationResDto);
+
+                    var notificationCus = await _notificationService.AddAsync(notificationCusDto);
+
+                    if (notificationRes != null && notificationCus != null)
+                    {
+                        List<NotificationDto> notificationDto = new List<NotificationDto> { notificationRes, notificationCus };
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto);
+                    }
+
                     return Ok("Tạo đơn hàng miễn phí thành công");
                 }
                 return BadRequest("Tạo đơn hàng miễn phí thất bại");
             }
 
-            // Tính toán tổng tiền cho đơn hàng
-            decimal totalAmount = await CalculateTotalAmountAsync(orderModel, restaurant);
+
+            // Tính toán từng tiền cho đơn hàng
+            CaculatorAmountRespone caculatorAmount = await CalculateTotalAmountAsync(orderModel, restaurant);
 
             // Tạo đơn hàng
             var orderDto = new OrderDto
@@ -159,7 +210,6 @@ namespace TOPDER.API.Controllers
                 CustomerId = orderModel.CustomerId,
                 RestaurantId = orderModel.RestaurantId,
                 DiscountId = orderModel.DiscountId ?? null,
-                CategoryRoomId = orderModel.CategoryRoomId ?? null,
                 NameReceiver = orderModel.NameReceiver,
                 PhoneReceiver = orderModel.PhoneReceiver,
                 TimeReservation = orderModel.TimeReservation,
@@ -168,7 +218,9 @@ namespace TOPDER.API.Controllers
                 NumberChild = orderModel.NumberChild,
                 ContentReservation = orderModel.ContentReservation,
                 TypeOrder = Order_Type.RESERVATION,
-                TotalAmount = totalAmount,
+                DepositAmount = caculatorAmount.DepositAmount,
+                FoodAmount = caculatorAmount.FoodAmount,
+                TotalAmount = (caculatorAmount.FoodAmount + caculatorAmount.DepositAmount),
                 StatusOrder = Order_Status.PENDING,
                 CreatedAt = DateTime.Now
             };
@@ -189,12 +241,48 @@ namespace TOPDER.API.Controllers
                 {
                     await AddOrderMenusAsync(order.OrderId, orderModel.OrderMenus);
                 }
+
+                NotificationDto notificationResDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = orderModel.RestaurantId,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.ORDER_CREATE(orderDto.FoodAmount ?? 0, orderDto.DepositAmount ?? 0),
+                    Type = Notification_Type.ORDER,
+                    IsRead = false,
+                };
+
+                NotificationDto notificationCusDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = orderModel.CustomerId,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.ORDER_CREATE_CUS(orderDto.FoodAmount ?? 0, orderDto.DepositAmount ?? 0),
+                    Type = Notification_Type.ORDER,
+                    IsRead = false,
+                };
+
+                var notificationRes = await _notificationService.AddAsync(notificationResDto);
+
+                var notificationCus = await _notificationService.AddAsync(notificationCusDto);
+
+
+                if (notificationRes != null && notificationCus != null)
+                {
+                    List<NotificationDto> notificationDto = new List<NotificationDto> { notificationRes, notificationCus };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notificationDto);
+                }
+
                 await SendOrderEmailAsync(order.OrderId);
+
                 return Ok("Tạo đơn hàng thành công");
             }
 
             return BadRequest("Tạo đơn hàng thất bại");
         }
+
+
+
 
         // Phương thức tạo đơn hàng miễn phí
         private async Task<Order> CreateFreeOrderAsync(OrderModel orderModel)
@@ -205,7 +293,6 @@ namespace TOPDER.API.Controllers
                 CustomerId = orderModel.CustomerId,
                 RestaurantId = orderModel.RestaurantId,
                 DiscountId = orderModel.DiscountId ?? null,
-                CategoryRoomId = orderModel.CategoryRoomId ?? null,
                 NameReceiver = orderModel.NameReceiver,
                 PhoneReceiver = orderModel.PhoneReceiver,
                 TimeReservation = orderModel.TimeReservation,
@@ -214,6 +301,8 @@ namespace TOPDER.API.Controllers
                 NumberChild = orderModel.NumberChild,
                 ContentReservation = orderModel.ContentReservation,
                 TypeOrder = Order_Type.RESERVATION,
+                FoodAmount = 0,
+                DepositAmount = 0,
                 TotalAmount = 0,
                 StatusOrder = Order_Status.PENDING,
                 CreatedAt = DateTime.Now
@@ -223,19 +312,59 @@ namespace TOPDER.API.Controllers
         }
 
         // Phương thức tính toán tổng tiền đơn hàng
-        private async Task<decimal> CalculateTotalAmountAsync(OrderModel orderModel, Restaurant restaurant)
+        private async Task<CaculatorAmountRespone> CalculateTotalAmountAsync(OrderModel orderModel, Restaurant restaurant)
         {
-            decimal totalAmount = 0;
+            decimal foodAmount = 0;
+            decimal depositAmount = 0;
 
             // Kiểm tra và áp dụng giảm giá cho nhà hàng
             if (restaurant.Price > 0)
             {
-                totalAmount += restaurant.Price;
+                depositAmount += restaurant.Price;
                 if (restaurant.Discount > 0)
                 {
-                    totalAmount *= (1 - (restaurant.Discount.Value / 100));
+                    depositAmount *= (1 - (restaurant.Discount.Value / 100));
                 }
             }
+
+            // Kiểm tra và áp dụng giảm giá cho đơn hàng
+            if (orderModel.DiscountId.HasValue && orderModel.DiscountId.Value != 0)
+            {
+                var discount = await _discountRepository.GetByIdAsync(orderModel.DiscountId.Value);
+                if (discount != null && discount.IsActive.HasValue && discount.IsActive.Value && discount.Quantity > 0)
+                {
+                    if (discount.Scope == DiscountScope.ENTIRE_ORDER)
+                    {
+                        foodAmount += await CalculateMenuTotalAsync(orderModel);
+                        foodAmount *= (1 - (discount.DiscountPercentage / 100)) ?? 0;
+                        discount.Quantity -= 1;
+                        await _discountRepository.UpdateAsync(discount);
+                    }
+                    else if (discount.Scope == DiscountScope.PER_SERVICE)
+                    {
+                        foodAmount = await ApplyServiceDiscountAsync(orderModel, discount, foodAmount);
+                    }
+                }
+            }
+            else
+            {
+                foodAmount += await CalculateMenuTotalAsync(orderModel);
+            }
+
+            //depositAmount = await ApplyCustomerFeeAsync(orderModel.CustomerId, restaurant, depositAmount);
+
+            CaculatorAmountRespone caculatorAmount = new CaculatorAmountRespone()
+            {
+                DepositAmount = depositAmount,
+                FoodAmount = foodAmount,
+            };
+
+            return caculatorAmount;
+        }
+
+        private async Task<decimal> CalculateTotalAmountForDiscountAsync(OrderModel orderModel)
+        {
+            decimal totalAmount = 0;
 
             // Kiểm tra và áp dụng giảm giá cho đơn hàng
             if (orderModel.DiscountId.HasValue && orderModel.DiscountId.Value != 0)
@@ -260,9 +389,6 @@ namespace TOPDER.API.Controllers
             {
                 totalAmount += await CalculateMenuTotalAsync(orderModel);
             }
-
-            // Áp dụng phí dựa trên trạng thái khách hàng
-            totalAmount = await ApplyCustomerFeeAsync(orderModel.CustomerId, restaurant, totalAmount);
 
             return totalAmount;
         }
@@ -335,20 +461,25 @@ namespace TOPDER.API.Controllers
         // Phương thức áp dụng phí dựa trên trạng thái khách hàng
         private async Task<decimal> ApplyCustomerFeeAsync(int customerId, Restaurant restaurant, decimal totalAmount)
         {
-            if (restaurant.FirstFeePercent.HasValue || restaurant.ReturningFeePercent.HasValue)
-            {
-                var isFirst = await _orderService.CheckIsFirstOrderAsync(customerId, restaurant.Uid);
-                if (isFirst && restaurant.FirstFeePercent.HasValue && restaurant.FirstFeePercent.Value > 0)
+            var restaurantPolicy = await _restaurantPolicyService.GetActivePolicyAsync(restaurant.Uid);
+
+            if(restaurantPolicy != null) {
+                if (restaurantPolicy.FirstFeePercent != 0 || restaurantPolicy.ReturningFeePercent != 0)
                 {
-                    totalAmount *= (1 - (restaurant.FirstFeePercent.Value / 100));
-                }
-                else if (!isFirst && restaurant.ReturningFeePercent.HasValue && restaurant.ReturningFeePercent.Value > 0)
-                {
-                    totalAmount *= (1 - (restaurant.ReturningFeePercent.Value / 100));
+                    var isFirst = await _orderService.CheckIsFirstOrderAsync(customerId, restaurant.Uid);
+                    if (isFirst && restaurantPolicy.FirstFeePercent.HasValue && restaurantPolicy.FirstFeePercent.Value > 0)
+                    {
+                        totalAmount *= (1 - (restaurantPolicy.FirstFeePercent.Value / 100));
+                    }
+                    else if (!isFirst && restaurantPolicy.ReturningFeePercent.HasValue && restaurantPolicy.ReturningFeePercent.Value > 0)
+                    {
+                        totalAmount *= (1 - (restaurantPolicy.ReturningFeePercent.Value / 100));
+                    }
                 }
             }
             return totalAmount;
         }
+
 
         // Phương thức thêm danh sách menu vào đơn hàng
         private async Task AddOrderMenusAsync(int orderId, List<OrderMenuModelDto> orderMenus)
@@ -366,6 +497,7 @@ namespace TOPDER.API.Controllers
                         MenuId = orderMenu.MenuId,
                         Quantity = orderMenu.Quantity,
                         Price = menu.Price,
+                        OrderMenuType = OrderMenu_Type.ORIGINAL
                     });
                 }
             }
@@ -385,7 +517,7 @@ namespace TOPDER.API.Controllers
         // 1: số dư ví(nếu đủ) 2: VNPAY 3: VIETQR 
         [HttpPost("PaidOrder")]
         [SwaggerOperation(Summary = "Khi nhà hàng confirm thì khách hàng sẽ chuyển khoản với phương thức thanh toán (nếu đơn hàng có giá trị) ISBALANCE | VIETQR | VNPAY: Customer")]
-        public async Task<IActionResult> PaidOrder(int orderId, int userId, string paymentGateway)
+        public async Task<IActionResult> PaidOrder(int orderId, int userId,  string paymentGateway, string typeOrder)
         {
             // Fetch the order and ensure the user is authorized
             OrderDto order;
@@ -402,9 +534,15 @@ namespace TOPDER.API.Controllers
                 return Forbid(ex.Message);
             }
 
+            if(!typeOrder.Equals(Paid_Type.DEPOSIT)  && !typeOrder.Equals(Paid_Type.ENTIRE_ORDER))
+            {
+                return BadRequest(new { message = "Chọn typeOrder là Deposit hoặc EntireOrder!" });
+            }
+
             // Update order payment status and content
             order.StatusPayment = Payment_Status.PENDING;
             order.ContentPayment = Order_PaymentContent.PaymentContent(order.CustomerId ?? 0, order.RestaurantId ?? 0);
+            order.PaidType = typeOrder;
 
             // Update the order in the system
             var updateOrderResult = await _orderService.UpdatePaidOrderAsync(order);
@@ -414,36 +552,51 @@ namespace TOPDER.API.Controllers
                 return BadRequest("Cập nhật đơn hàng thất bại.");
             }
 
+            var restaurant = await _restaurantRepository.GetByIdAsync(order.RestaurantId ?? 0);
+            decimal totalAmount = 0;
+            if (typeOrder == Paid_Type.DEPOSIT)
+            {
+                totalAmount = await ApplyCustomerFeeAsync(order.CustomerId ?? 0, restaurant, order.DepositAmount ?? 0);
+            }
+            if (typeOrder == Paid_Type.ENTIRE_ORDER)
+            {
+                totalAmount = await ApplyCustomerFeeAsync(order.CustomerId ?? 0, restaurant, order.TotalAmount ?? 0); 
+            }
+
             if (paymentGateway.Equals(PaymentGateway.ISBALANCE))
             {
-                return await HandleWalletPayment(order);
+                return await HandleWalletPayment(order, totalAmount);
             }
 
             if (paymentGateway.Equals(PaymentGateway.VIETQR))
             {
-                var orderMenu = await _orderMenuService.GetItemsByOrderAsync(order.OrderId);
-                return await HandleVietQRPayment(order, orderMenu, order.TotalAmount);
+                List<OrderMenuDto> orderMenu = null;
+                if (typeOrder == Paid_Type.ENTIRE_ORDER)
+                {
+                    orderMenu = await _orderMenuService.GetItemsOriginalByOrderAsync(order.OrderId);
+                }
+                return await HandleVietQRPayment(order, orderMenu, totalAmount);
             }
 
             if (paymentGateway.Equals(PaymentGateway.VNPAY))
             {
-                return await HandleVNPAYPayment(order, order.TotalAmount);
+                return await HandleVNPAYPayment(order, totalAmount);
             }
 
             return BadRequest("Cổng thanh toán không hợp lệ.");
         }
 
-        private async Task<IActionResult> HandleWalletPayment(OrderDto order)
+        private async Task<IActionResult> HandleWalletPayment(OrderDto order, decimal totalAmount)
         {
             // Check wallet balance
             var walletBalance = await _walletService.GetBalanceOrderAsync(order.CustomerId ?? 0);
 
-            if (walletBalance < order.TotalAmount)
+            if (walletBalance < totalAmount)
             {
                 return BadRequest("Số dư ví không đủ cho giao dịch này.");
             }
 
-            decimal newWalletBalance = walletBalance - order.TotalAmount;
+            decimal newWalletBalance = walletBalance - totalAmount;
 
             // Retrieve user information for wallet transaction
             UserOrderIsBalance userOrderIsBalance;
@@ -462,10 +615,10 @@ namespace TOPDER.API.Controllers
                 TransactionId = 0, // Auto-generated
                 WalletId = userOrderIsBalance.WalletId,
                 Uid = userOrderIsBalance.Id,
-                TransactionAmount = order.TotalAmount,
+                TransactionAmount = totalAmount,
                 TransactionType = Transaction_Type.SYSTEMSUBTRACT,
                 TransactionDate = DateTime.Now,
-                Description = Payment_Descriptions.SystemSubtractDescription(order.TotalAmount),
+                Description = Payment_Descriptions.SystemSubtractDescription(totalAmount),
                 Status = Payment_Status.SUCCESSFUL
             };
 
@@ -492,11 +645,52 @@ namespace TOPDER.API.Controllers
 
             var updateStatusOrder = await _orderService.UpdateStatusAsync(order.OrderId, Order_Status.PAID);
 
-            if (!updateStatusOrder)
+            if (updateStatusOrder == null)
             {
                 return BadRequest("Thay đổi trạng thái order thất bại.");
             }
 
+            // NOTI
+            NotificationDto notificationCusDto = new NotificationDto()
+            {
+                NotificationId = 0,
+                Uid = updateStatusOrder.CustomerId ?? 0,
+                CreatedAt = DateTime.Now,
+                Content = Notification_Content.ORDER_PAYMENT_WALLET(totalAmount),
+                Type = Notification_Type.ORDER,
+                IsRead = false,
+            };
+
+            NotificationDto notificationResDto = new NotificationDto()
+            {
+                NotificationId = 0,
+                Uid = updateStatusOrder.RestaurantId ?? 0,
+                CreatedAt = DateTime.Now,
+                Content = Notification_Content.ORDER_PAYMENT_WALLET(totalAmount),
+                Type = Notification_Type.ORDER,
+                IsRead = false,
+            };
+
+            NotificationDto notificationWalletResDto = new NotificationDto()
+            {
+                NotificationId = 0,
+                Uid = updateStatusOrder.CustomerId ?? 0,
+                CreatedAt = DateTime.Now,
+                Content = Notification_Content.SYSTEM_SUB(totalAmount),
+                Type = Notification_Type.SYSTEM_SUB,
+                IsRead = false,
+            };
+
+            var notificationCus = await _notificationService.AddAsync(notificationCusDto);
+            var notificationRes = await _notificationService.AddAsync(notificationResDto);
+            var notificationWalletRes = await _notificationService.AddAsync(notificationWalletResDto);
+
+
+            if (notificationCus != null && notificationRes != null && notificationWalletRes != null)
+            {
+                List<NotificationDto> notifications = new List<NotificationDto> { notificationCus, notificationRes, notificationWalletRes };
+                await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+            }
 
             return Ok("Thanh toán đơn hàng thành công");
         }
@@ -580,6 +774,36 @@ namespace TOPDER.API.Controllers
                 // SEND MAIL 
                 OrderPaidEmail orderPaidEmail = await _orderService.GetOrderPaid(orderID);
 
+                // NOTI
+                NotificationDto notificationCusDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = orderPaidEmail.CustomerId,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.ORDER_PAYMENT_THIRTPART(orderPaidEmail.TotalAmount),
+                    Type = Notification_Type.ORDER,
+                    IsRead = false,
+                };
+                NotificationDto notificationResDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = orderPaidEmail.RestaurantId,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.ORDER_PAYMENT_THIRTPART(orderPaidEmail.TotalAmount),
+                    Type = Notification_Type.ORDER,
+                    IsRead = false,
+                };
+
+                var notificationCus = await _notificationService.AddAsync(notificationCusDto);
+                var notificationRes = await _notificationService.AddAsync(notificationResDto);
+
+
+                if (notificationCus != null && notificationRes != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notificationCus, notificationRes };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
+
                 await _sendMailService.SendEmailAsync(orderPaidEmail.Email, Email_Subject.ORDERCONFIRM, EmailTemplates.Order(orderPaidEmail));
 
                 return result
@@ -599,9 +823,13 @@ namespace TOPDER.API.Controllers
             {
                 var orderDto = await _orderService.GetItemAsync(orderId, Uid);
                 var orderTables = await _orderTableService.GetItemsByOrderAsync(orderDto.OrderId);
-                var orderMenus = await _orderMenuService.GetItemsByOrderAsync(orderDto.OrderId);
+                var orderMenus = await _orderMenuService.GetItemsOriginalByOrderAsync(orderDto.OrderId);
+                var orderMenusAdd = await _orderMenuService.GetItemsAddByOrderAsync(orderDto.OrderId);
+
                 orderDto.OrderTables = orderTables;
                 orderDto.OrderMenus = orderMenus;
+                orderDto.OrderMenusAdd = orderMenusAdd;
+
                 return Ok(orderDto);
             }
             catch (KeyNotFoundException)
@@ -644,8 +872,9 @@ namespace TOPDER.API.Controllers
 
             foreach(var item in result)
             {
-                item.OrderMenus = await _orderMenuService.GetItemsByOrderAsync(item.OrderId);
+                item.OrderMenus = await _orderMenuService.GetItemsOriginalByOrderAsync(item.OrderId);
                 item.OrderTables = await _orderTableService.GetItemsByOrderAsync(item.OrderId);
+                item.OrderMenusAdd = await _orderMenuService.GetItemsAddByOrderAsync(item.OrderId);
             }
 
             // Tạo response DTO
@@ -668,8 +897,9 @@ namespace TOPDER.API.Controllers
 
             foreach (var item in result)
             {
-                item.OrderMenus = await _orderMenuService.GetItemsByOrderAsync(item.OrderId);
+                item.OrderMenus = await _orderMenuService.GetItemsOriginalByOrderAsync(item.OrderId);
                 item.OrderTables = await _orderTableService.GetItemsByOrderAsync(item.OrderId);
+                item.OrderMenusAdd = await _orderMenuService.GetItemsAddByOrderAsync(item.OrderId);
             }
 
             return Ok(result);
@@ -692,10 +922,24 @@ namespace TOPDER.API.Controllers
             }
 
             var result = await _orderService.UpdateStatusAsync(orderID, status);
-            if (result)
+            if (result != null)
             {
+                var notiStatus = string.Empty;
+
+                if (result.TotalAmount > 0 && status.Equals(Order_Status.CONFIRM))
+                {
+                    notiStatus = "đã được chấp nhận từ nhà hàng, hãy thanh toán thôi nào!";
+                }
+                
+                if(result.TotalAmount <= 0 && status.Equals(Order_Status.CONFIRM))
+                {
+                    notiStatus = "đã được chấp nhận từ nhà hàng.";
+                }
+
                 if (status.Equals(Order_Status.COMPLETE))
                 {
+                    notiStatus = "đã hoàn thành";
+
                     var completeOrder = await _orderService.GetInformationForCompleteAsync(orderID);
                     if (completeOrder != null)
                     {
@@ -726,6 +970,25 @@ namespace TOPDER.API.Controllers
                     }
                 }
 
+
+                NotificationDto notificationDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = result.CustomerId ?? 0,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.ORDER_UPDATESTATUS(result.TotalAmount ?? 0, notiStatus),
+                    Type = Notification_Type.ORDER,
+                    IsRead = false,
+                };
+
+                var notification = await _notificationService.AddAsync(notificationDto);
+
+                if (notification != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
+
                 OrderPaidEmail orderPaidEmail = await _orderService.GetOrderPaid(orderID);
                 var orderEmail = await _orderService.GetEmailForOrderAsync(orderID, User_Role.CUSTOMER);
                 await _sendMailService.SendEmailAsync(orderEmail.Email, Email_Subject.UPDATESTATUS, EmailTemplates.UpdateStatusOrder(orderPaidEmail, status));
@@ -751,8 +1014,46 @@ namespace TOPDER.API.Controllers
             // Lấy thông tin đơn hàng bị hủy
             var cancelOrder = await _orderService.GetInformationForCancelAsync(cancelOrderRequest.UserId, cancelOrderRequest.OrderId);
 
-            if(cancelOrder.TotalAmount <= 0)
+            // Xử lý tài khoản ví dựa trên vai trò người dùng
+            var isCustomer = cancelOrder.RoleName.Equals(User_Role.CUSTOMER);
+
+            if (cancelOrder.TotalAmount <= 0)
             {
+                NotificationDto notificationDtoFree = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    CreatedAt = DateTime.Now,
+                    Type = Notification_Type.ORDER,
+                    IsRead = false,
+                };
+
+                if (isCustomer == true)
+                {
+                    notificationDtoFree.Uid = cancelOrder.RestaurantID;
+                    notificationDtoFree.Content = Notification_Content.ORDER_CANCEL(cancelOrder.TotalAmount, "khách hàng");
+
+                    var notification = await _notificationService.AddAsync(notificationDtoFree);
+
+                    if (notification != null)
+                    {
+                        List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                    }
+                }
+                else
+                {
+                    notificationDtoFree.Uid = cancelOrder.CustomerID;
+                    notificationDtoFree.Content = Notification_Content.ORDER_CANCEL(cancelOrder.TotalAmount, "nhà hàng");
+
+                    var notification = await _notificationService.AddAsync(notificationDtoFree);
+
+                    if (notification != null)
+                    {
+                        List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                    }
+                }
+
                 return Ok($"Cập nhật trạng thái cho đơn hàng với ID {cancelOrderRequest.OrderId} thành công.");
             }
 
@@ -760,11 +1061,44 @@ namespace TOPDER.API.Controllers
 
             if (checkStatusOrder.PaidAt == null && string.IsNullOrEmpty(checkStatusOrder.PaidAt.ToString()))
             {
+                NotificationDto notificationDtoFree = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    CreatedAt = DateTime.Now,
+                    Type = Notification_Type.ORDER,
+                    IsRead = false,
+                };
+
+                if (isCustomer == true)
+                {
+                    notificationDtoFree.Uid = cancelOrder.RestaurantID;
+                    notificationDtoFree.Content = Notification_Content.ORDER_CANCEL(cancelOrder.TotalAmount, "khách hàng");
+
+                    var notification = await _notificationService.AddAsync(notificationDtoFree);
+
+                    if (notification != null)
+                    {
+                        List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                    }
+                }
+                else
+                {
+                    notificationDtoFree.Uid = cancelOrder.CustomerID;
+                    notificationDtoFree.Content = Notification_Content.ORDER_CANCEL(cancelOrder.TotalAmount, "nhà hàng");
+
+                    var notification = await _notificationService.AddAsync(notificationDtoFree);
+
+                    if (notification != null)
+                    {
+                        List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                    }
+                }
+
                 return Ok($"Cập nhật trạng thái cho đơn hàng với ID {cancelOrderRequest.OrderId} thành công.");
             }
 
-            // Xử lý tài khoản ví dựa trên vai trò người dùng
-            var isCustomer = cancelOrder.RoleName.Equals(User_Role.CUSTOMER);
 
             if(isCustomer == false)
             {
@@ -790,6 +1124,24 @@ namespace TOPDER.API.Controllers
                 var walletUpdateRestaurantResult = await _walletService.UpdateWalletBalanceAsync(walletBalanceRestaurantDto);
                 if (walletUpdateRestaurantResult)
                 {
+                    NotificationDto notificationSYSTEMADD = new NotificationDto()
+                    {
+                        NotificationId = 0,
+                        Uid = walletBalanceRestaurantDto.Uid,
+                        CreatedAt = DateTime.Now,
+                        Content = Notification_Content.SYSTEM_ADD(amountDifference??0),
+                        Type = Notification_Type.SYSTEM_ADD,
+                        IsRead = false,
+                    };
+
+                    var notification = await _notificationService.AddAsync(notificationSYSTEMADD);
+
+                    if (notification != null)
+                    {
+                        List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                    }
+
                     WalletTransactionDto walletTransactionRestaurantDto = new WalletTransactionDto()
                     {
                         TransactionId = 0,
@@ -817,6 +1169,24 @@ namespace TOPDER.API.Controllers
 
             if (walletUpdateResult)
             {
+                NotificationDto notificationSYSTEMADD = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = cancelOrder.CustomerID,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.SYSTEM_ADD(transactionAmount ?? 0),
+                    Type = Notification_Type.SYSTEM_ADD,
+                    IsRead = false,
+                };
+
+                var notification = await _notificationService.AddAsync(notificationSYSTEMADD);
+
+                if (notification != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
+
                 // Ghi lại giao dịch
                 WalletTransactionDto walletTransactionDto = new WalletTransactionDto()
                 {
@@ -836,12 +1206,42 @@ namespace TOPDER.API.Controllers
             var recipientEmail = isCustomer ? cancelOrder.EmailRestaurant : cancelOrder.EmailCustomer;
 
             OrderPaidEmail orderPaidEmail = await _orderService.GetOrderPaid(cancelOrderRequest.OrderId);
+
+            NotificationDto notificationDto = new NotificationDto()
+            {
+                NotificationId = 0,
+                CreatedAt = DateTime.Now,
+                Type = Notification_Type.ORDER,
+                IsRead = false,
+            };
+
+
             if (isCustomer == true)
             {
+                notificationDto.Uid = cancelOrder.RestaurantID;
+                notificationDto.Content = Notification_Content.ORDER_CANCEL(cancelOrder.TotalAmount, "khách hàng");
+
+                var notification = await _notificationService.AddAsync(notificationDto);
+
+                if (notification != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
                 await _sendMailService.SendEmailAsync(recipientEmail, Email_Subject.UPDATESTATUS, EmailTemplates.UpdateStatusOrder(orderPaidEmail, Order_Status.CANCEL));
             }
             else
             {
+                notificationDto.Uid = cancelOrder.CustomerID;
+                notificationDto.Content = Notification_Content.ORDER_CANCEL(cancelOrder.TotalAmount, "nhà hàng");
+
+                var notification = await _notificationService.AddAsync(notificationDto);
+
+                if (notification != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
                 await _sendMailService.SendEmailAsync(recipientEmail, Email_Subject.UPDATESTATUS, EmailTemplates.UpdateStatusOrderRestaurant(orderPaidEmail, Order_Status.CANCEL));
             }
             return Ok($"Cập nhật trạng thái cho đơn hàng với ID {cancelOrderRequest.OrderId} thành công.");
@@ -908,6 +1308,7 @@ namespace TOPDER.API.Controllers
         public async Task<IActionResult> GetMenuItemsByOrderAsync(int orderId)
         {
             var items = await _orderMenuService.GetItemsByOrderAsync(orderId);
+
             if (items == null || !items.Any())
             {
                 return NotFound("Không tìm thấy món cho đơn hàng này.");
@@ -931,11 +1332,12 @@ namespace TOPDER.API.Controllers
                 {
                     createOrUpdateOrderMenuDtos.Add(new CreateOrUpdateOrderMenuDto
                     {
-                        OrderMenuId = 0, // Bạn có thể cần thay đổi OrderMenuId nếu đang cập nhật
+                        OrderMenuId = 0,
                         OrderId = changeOrderMenu.OrderId,
                         MenuId = orderMenu.MenuId,
                         Quantity = orderMenu.Quantity,
                         Price = menu.Price,
+                        OrderMenuType = OrderMenu_Type.ORIGINAL
                     });
                 }
             }
@@ -958,40 +1360,258 @@ namespace TOPDER.API.Controllers
                 return NotFound("Restaurant does not exist.");
             }
 
-            decimal totalAmount = 0;
+            var order = await _orderService.GetItemAsync(changeOrderMenu.OrderId, changeOrderMenu.CustomerId);
 
-            if (restaurant.Price > 0)
+            if (order != null)
             {
-                totalAmount += restaurant.Price;
-
-                if (restaurant.Discount.HasValue && restaurant.Discount > 0)
+                if (order.DiscountId != null && order.DiscountId.HasValue)
                 {
-                    totalAmount *= (1 - (restaurant.Discount.Value / 100m));
+                    decimal foodAmount = 0;
+
+                    OrderModel orderModel = new OrderModel()
+                    {
+                        CustomerId = order.CustomerId ?? 0,
+                        DiscountId = order.DiscountId,
+                        RestaurantId = order.RestaurantId ?? 0,
+                        NameReceiver = order.NameReceiver,
+                        ContentReservation = order.ContentReservation,
+                        DateReservation = order.DateReservation,
+                        NumberChild = order.NumberChild,
+                        PhoneReceiver = order.PhoneReceiver,
+                        TimeReservation = order.TimeReservation,
+                        OrderMenus = changeOrderMenu.orderMenus
+                    };
+
+                    foodAmount += await CalculateTotalAmountForDiscountAsync(orderModel);
+
+                    var resultUpdateOrder = await _orderService.UpdateFoodAmountChangeMenuAsync(changeOrderMenu.OrderId, foodAmount);
+
+                    if (resultUpdateOrder)
+                    {
+                        return Ok("Successfully add menus and updated the order.");
+                    }
                 }
-            }
+                else
+                {
+                    decimal foodAmount = 0;
 
-            CaculatorOrderDto caculatorOrder = new CaculatorOrderDto()
-            {
-                CustomerId = changeOrderMenu.CustomerId,
-                RestaurantId = changeOrderMenu.RestaurantId,
-                OrderMenus = changeOrderMenu.orderMenus
-            };
+                    CaculatorOrderDto caculatorOrder = new CaculatorOrderDto()
+                    {
+                        CustomerId = changeOrderMenu.CustomerId,
+                        RestaurantId = changeOrderMenu.RestaurantId,
+                        OrderMenus = changeOrderMenu.orderMenus
+                    };
 
-            // Tính tổng tiền từ thực đơn
-            totalAmount += await CalculateMenuTotalForPreOrderAsync(caculatorOrder);
+                    foodAmount += await CalculateMenuTotalForPreOrderAsync(caculatorOrder);
 
-            // Áp dụng phí dựa trên trạng thái khách hàng
-            totalAmount = await ApplyCustomerFeeAsync(caculatorOrder.CustomerId, restaurant, totalAmount);
+                    var resultUpdateOrder = await _orderService.UpdateFoodAmountChangeMenuAsync(changeOrderMenu.OrderId, foodAmount);
 
-            var resultUpdateOrder = await _orderService.UpdateTotalIncomeChangeMenuAsync(changeOrderMenu.OrderId, totalAmount);
-
-            if (resultUpdateOrder)
-            {
-                return Ok("Successfully changed menus and updated the order.");
+                    if (resultUpdateOrder)
+                    {
+                        return Ok("Successfully add menus and updated the order.");
+                    }
+                }
             }
 
             return BadRequest("Failed to update the order!");
         }
+
+
+        [HttpPut("AddMenus")]
+        public async Task<IActionResult> AddMenusAsync(ChangeOrderMenuDto changeOrderMenu)
+        {
+            if (changeOrderMenu.orderMenus == null || !changeOrderMenu.orderMenus.Any())
+            {
+                return BadRequest("Menu list cannot be empty.");
+            }
+
+            List<CreateOrUpdateOrderMenuDto> createOrUpdateOrderMenuDtos = new List<CreateOrUpdateOrderMenuDto>();
+            foreach (var orderMenu in changeOrderMenu.orderMenus)
+            {
+                var menu = await _menuRepository.GetByIdAsync(orderMenu.MenuId);
+                if (menu != null)
+                {
+                    createOrUpdateOrderMenuDtos.Add(new CreateOrUpdateOrderMenuDto
+                    {
+                        OrderMenuId = 0, 
+                        OrderId = changeOrderMenu.OrderId,
+                        MenuId = orderMenu.MenuId,
+                        Quantity = orderMenu.Quantity,
+                        Price = menu.Price,
+                        OrderMenuType = OrderMenu_Type.ADD
+                    });
+                }
+            }
+
+            if (createOrUpdateOrderMenuDtos.Count == 0)
+            {
+                return BadRequest("No valid menus found for the order.");
+            }
+
+            var result = await _orderMenuService.AddMenusAsync(createOrUpdateOrderMenuDtos);
+
+            if (!result)
+            {
+                return BadRequest("Failed to change menus.");
+            }
+
+            var order = await _orderService.GetItemAsync(changeOrderMenu.OrderId, changeOrderMenu.CustomerId);
+
+            if (order != null)
+            {
+                if(order.DiscountId != null && order.DiscountId.HasValue)
+                {
+                    decimal addFoodAmount = 0;
+
+                    OrderModel orderModel = new OrderModel()
+                    {
+                        CustomerId = order.CustomerId ?? 0,
+                        DiscountId = order.DiscountId,
+                        RestaurantId = order.RestaurantId ?? 0,
+                        NameReceiver = order.NameReceiver,
+                        ContentReservation = order.ContentReservation,
+                        DateReservation = order.DateReservation,
+                        NumberChild = order.NumberChild,
+                        PhoneReceiver = order.PhoneReceiver,
+                        TimeReservation = order.TimeReservation,
+                        OrderMenus = changeOrderMenu.orderMenus
+                    };
+
+                    addFoodAmount += await CalculateTotalAmountForDiscountAsync(orderModel);
+
+                    var resultUpdateOrder = await _orderService.UpdateAddFoodAmountChangeMenuAsync(changeOrderMenu.OrderId, addFoodAmount);
+
+                    if (resultUpdateOrder)
+                    {
+                        return Ok("Successfully add menus and updated the order.");
+                    }
+                }
+                else
+                {
+                    decimal addFoodAmount = 0;
+
+                    CaculatorOrderDto caculatorOrder = new CaculatorOrderDto()
+                    {
+                        CustomerId = changeOrderMenu.CustomerId,
+                        RestaurantId = changeOrderMenu.RestaurantId,
+                        OrderMenus = changeOrderMenu.orderMenus
+                    };
+
+                    addFoodAmount += await CalculateMenuTotalForPreOrderAsync(caculatorOrder);
+
+                    var resultUpdateOrder = await _orderService.UpdateAddFoodAmountChangeMenuAsync(changeOrderMenu.OrderId, addFoodAmount);
+
+                    if (resultUpdateOrder)
+                    {
+                        return Ok("Successfully add menus and updated the order.");
+                    }
+                }
+            }
+
+            return BadRequest("Failed to update the order!");
+        }
+
+        [HttpPut("ReturnFeePercentApplyCustomerFee")]
+        public async Task<decimal> ApplyCustomerFeeAsync(int customerId, int restaurantId)
+        {
+            var restaurantPolicy = await _restaurantPolicyService.GetActivePolicyAsync(restaurantId);
+
+            if (restaurantPolicy != null)
+            {
+                if (restaurantPolicy.FirstFeePercent != 0 || restaurantPolicy.ReturningFeePercent != 0)
+                {
+                    var isFirst = await _orderService.CheckIsFirstOrderAsync(customerId, restaurantId);
+                    if (isFirst && restaurantPolicy.FirstFeePercent.HasValue && restaurantPolicy.FirstFeePercent.Value > 0)
+                    {
+                        return restaurantPolicy.FirstFeePercent.Value;
+                    }
+                    else if (!isFirst && restaurantPolicy.ReturningFeePercent.HasValue && restaurantPolicy.ReturningFeePercent.Value > 0)
+                    {
+                        return restaurantPolicy.ReturningFeePercent.Value;
+                    }
+                }
+            }
+            return 0;
+        }
+
+
+        [HttpPut("HandleReportOrder/{orderID}")]
+        [SwaggerOperation(Summary = "Xử lý report Order: Admin")]
+        public async Task<IActionResult> HandleReportOrder(int orderID)
+        {
+            var orderCheck = await _orderRepository.GetByIdAsync(orderID);
+            if(orderCheck != null && orderCheck.StatusOrder == Order_Status.PAID)
+            {
+                var result = await _orderService.UpdateStatusAsync(orderID, Order_Status.CANCEL);
+                if (result != null)
+                {
+
+                    var completeOrder = await _orderService.GetInformationForCompleteAsync(orderID);
+                    if (completeOrder != null)
+                    {
+                        WalletBalanceDto walletBalanceDto = new WalletBalanceDto()
+                        {
+                            WalletId = completeOrder.WalletId,
+                            Uid = completeOrder.RestaurantID,
+                            WalletBalance = completeOrder.WalletBalance,
+                        };
+
+                        var walletUpdateResult = await _walletService.UpdateWalletBalanceAsync(walletBalanceDto);
+                        if (walletUpdateResult)
+                        {
+                            WalletTransactionDto walletTransactionDto = new WalletTransactionDto()
+                            {
+                                TransactionId = 0,
+                                Uid = completeOrder.RestaurantID,
+                                WalletId = completeOrder.WalletId,
+                                TransactionAmount = completeOrder.TotalAmount,
+                                TransactionType = Transaction_Type.SYSTEMADD,
+                                TransactionDate = DateTime.Now,
+                                Description = Payment_Descriptions.SystemAddtractDescription(completeOrder.TotalAmount),
+                                Status = Payment_Status.SUCCESSFUL,
+                            };
+
+                            await _walletTransactionService.AddAsync(walletTransactionDto);
+                        }
+
+                        NotificationDto notificationCusDto = new NotificationDto()
+                        {
+                            NotificationId = 0,
+                            Uid = result.CustomerId ?? 0,
+                            CreatedAt = DateTime.Now,
+                            Content = Notification_Content.ORDER_REPORT_CUSTOMER(result.TotalAmount ?? 0),
+                            Type = Notification_Type.ORDER,
+                            IsRead = false,
+                        };
+
+                        NotificationDto notificationResDto = new NotificationDto()
+                        {
+                            NotificationId = 0,
+                            Uid = result.RestaurantId ?? 0,
+                            CreatedAt = DateTime.Now,
+                            Content = Notification_Content.ORDER_REPORT_RESTAURANT(result.TotalAmount ?? 0),
+                            Type = Notification_Type.ORDER,
+                            IsRead = false,
+                        };
+
+                        var notificationRes = await _notificationService.AddAsync(notificationResDto);
+                        var notificationCus = await _notificationService.AddAsync(notificationCusDto);
+
+                        if (notificationRes != null && notificationCus != null)
+                        {
+                            List<NotificationDto> notifications = new List<NotificationDto> { notificationRes, notificationCus };
+                            await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                        }
+
+                        return Ok($"Cập nhật trạng thái cho đơn hàng với ID {orderID} thành công.");
+                    }
+                    return NotFound($"Đơn hàng với ID {orderID} không tồn tại.");
+                }
+                return BadRequest($"Không Update được đơn hàng.");
+            }
+            return BadRequest($"Đơn hàng đã bị thay đổi khi report! không thể xử lý.");
+        }
+
 
     }
 }

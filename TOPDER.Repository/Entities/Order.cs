@@ -11,13 +11,13 @@ namespace TOPDER.Repository.Entities
             Feedbacks = new HashSet<Feedback>();
             OrderMenus = new HashSet<OrderMenu>();
             OrderTables = new HashSet<OrderTable>();
+            Reports = new HashSet<Report>();
         }
 
         public int OrderId { get; set; }
         public int? CustomerId { get; set; }
         public int? RestaurantId { get; set; }
         public int? DiscountId { get; set; }
-        public int? CategoryRoomId { get; set; }
         public string NameReceiver { get; set; } = null!;
         public string PhoneReceiver { get; set; } = null!;
         public TimeSpan TimeReservation { get; set; }
@@ -26,7 +26,11 @@ namespace TOPDER.Repository.Entities
         public int NumberChild { get; set; }
         public string? ContentReservation { get; set; }
         public string? TypeOrder { get; set; }
-        public decimal TotalAmount { get; set; }
+        public string? PaidType { get; set; }
+        public decimal? DepositAmount { get; set; }
+        public decimal? FoodAmount { get; set; }
+        public decimal? FoodAddAmount { get; set; }
+        public decimal? TotalAmount { get; set; }
         public string? ContentPayment { get; set; }
         public string? StatusPayment { get; set; }
         public string? StatusOrder { get; set; }
@@ -37,13 +41,12 @@ namespace TOPDER.Repository.Entities
         public DateTime? CancelledAt { get; set; }
         public string? CancelReason { get; set; }
 
-        public virtual CategoryRoom? CategoryRoom { get; set; }
         public virtual Customer? Customer { get; set; }
         public virtual Discount? Discount { get; set; }
         public virtual Restaurant? Restaurant { get; set; }
         public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<OrderMenu> OrderMenus { get; set; }
         public virtual ICollection<OrderTable> OrderTables { get; set; }
-        public int Total { get; set; }
+        public virtual ICollection<Report> Reports { get; set; }
     }
 }

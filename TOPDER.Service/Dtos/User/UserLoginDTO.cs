@@ -19,6 +19,7 @@ namespace TOPDER.Service.Dtos.User
 
         // RESTAURANT
         public int? CategoryRestaurantId { get; set; }
+        public string? CategoryRestaurantName { get; set; }
         public string? NameOwner { get; set; }
         public string? NameRes { get; set; }
         public string? Logo { get; set; }
@@ -34,9 +35,6 @@ namespace TOPDER.Service.Dtos.User
         public int? MaxCapacity { get; set; }
         public decimal? Price { get; set; }
         public bool? IsBookingEnabled { get; set; }
-        public decimal? FirstFeePercent { get; set; }
-        public decimal? ReturningFeePercent { get; set; }
-        public decimal? CancellationFeePercent { get; set; }
 
         // ALL 
         public string? Role { get; set; } = string.Empty;

@@ -95,49 +95,6 @@ namespace TOPDER.API.Controllers
         }
 
 
-
-        [HttpPut("UpdateDiscountAndFee/{restaurantId}")]
-        [SwaggerOperation(Summary = "Cập nhật giảm giá tiền đặt cọc, tiền đặt lần đầu, quay lại, hủy : Restaurant")]
-        public async Task<IActionResult> UpdateDiscountAndFee(
-            int restaurantId,
-            [FromQuery] decimal? discountPrice,
-            [FromQuery] decimal? firstFeePercent,
-            [FromQuery] decimal? returningFeePercent,
-            [FromQuery] decimal? cancellationFeePercent)
-        {
-            var result = await _restaurantService.UpdateDiscountAndFeeAsync(
-                restaurantId,
-                discountPrice,
-                firstFeePercent,
-                returningFeePercent,
-                cancellationFeePercent
-            );
-
-            if (result)
-            {
-                return Ok(new { message = "Cập nhật chiết khấu và phí thành công." });
-            }
-            else
-            {
-                return BadRequest(new { message = "Không có thay đổi nào được thực hiện." });
-            }
-        }
-
-        [HttpGet("GetDiscountAndFee/{restaurantId}")]
-        [SwaggerOperation(Summary = "Lấy thông tin giảm giá tiền đặt cọc, tiền đặt lần đầu, quay lại, hủy : Restaurant")]
-        public async Task<IActionResult> GetDiscountAndFee(int restaurantId)
-        {
-            var discountAndFee = await _restaurantService.GetDiscountAndFeeAsync(restaurantId);
-
-            if (discountAndFee == null)
-            {
-                return NotFound(new { message = "Nhà hàng không tồn tại." });
-            }
-
-            return Ok(discountAndFee);
-        }
-
-
         [HttpGet("GetRelateRestaurant/{restaurantId}/{categoryRestaurantId}")]
         [SwaggerOperation(Summary = "Lấy ra những nhà hàng liên quan theo category(không tính nhà hàng hiện tại): Customer")]
         public async Task<IActionResult> GetRelatedRestaurants(int restaurantId, int categoryRestaurantId)

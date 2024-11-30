@@ -1,10 +1,17 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Reflection.Metadata;
+using TOPDER.Repository.Entities;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Discount;
 using TOPDER.Service.Dtos.Feedback;
+using TOPDER.Service.Dtos.FeedbackReply;
+using TOPDER.Service.Dtos.Notification;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
+using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
 namespace TOPDER.API.Controllers
 {
@@ -13,10 +20,19 @@ namespace TOPDER.API.Controllers
     public class FeedbackController : ControllerBase
     {
         private readonly IFeedbackService _feedbackService;
+        private readonly IHubContext<AppHub> _signalRHub;
+        private readonly INotificationService _notificationService;
+        private readonly IFeedbackReplyService _feedbackReplyService;
 
-        public FeedbackController(IFeedbackService feedbackService)
+
+
+        public FeedbackController(IFeedbackService feedbackService, IHubContext<AppHub> signalRHub,
+            INotificationService notificationService, IFeedbackReplyService feedbackReplyService)
         {
             _feedbackService = feedbackService;
+            _signalRHub = signalRHub;
+            _notificationService = notificationService;
+            _feedbackReplyService = feedbackReplyService;
         }
 
         [HttpPost("Create")]
@@ -27,12 +43,65 @@ namespace TOPDER.API.Controllers
                 return BadRequest(ModelState);
 
             var result = await _feedbackService.AddAsync(feedbackDto);
-            if (result)
+            if (result != null)
             {
-                return Ok("Feedback created successfully.");
+                NotificationDto notificationDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = result.RestaurantId ?? 0,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.ADD_FEEDBACK(),
+                    Type = Notification_Type.ADD_FEEDBACK,
+                    IsRead = false,
+                };
+
+                var notification = await _notificationService.AddAsync(notificationDto);
+
+                if (notification != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
+
+                return Ok(result);
             }
             return BadRequest("Failed to create feedback.");
         }
+
+
+        [HttpPost("CreateFeedbackReply")]
+        [SwaggerOperation(Summary = "Tạo FeedbackReply: Restaurant")]
+        public async Task<IActionResult> AddFeedback([FromBody] CreateFeedbackReplyDto feedbackReplyDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _feedbackReplyService.AddAsync(feedbackReplyDto);
+            if (result != null)
+            {
+                NotificationDto notificationDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = result.CustomerId ?? 0,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.ADD_FEEDBACKREPLY(),
+                    Type = Notification_Type.ADD_FEEDBACK,
+                    IsRead = false,
+                };
+
+                var notification = await _notificationService.AddAsync(notificationDto);
+
+                if (notification != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
+
+                return Ok("Tạo thành công FeedbackReply");
+            }
+            return BadRequest("Failed to create feedbackReply.");
+        }
+
 
         [HttpGet("GetFeedback/{orderId}")]
         public async Task<IActionResult> GetFeedback(int orderId)
@@ -56,9 +125,9 @@ namespace TOPDER.API.Controllers
 
         [HttpGet("GetFeedbacksHistory")]
         [SwaggerOperation(Summary = "Lấy ra cách feedback mà khách hàng từng tạo: Customer")]
-        public async Task<IActionResult> GetHistoryCustomerPaging([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int customerId)
+        public async Task<IActionResult> GetHistoryCustomerPaging([FromQuery] int customerId)
         {
-            var result = await _feedbackService.GetHistoryCustomerPagingAsync(pageNumber, pageSize, customerId);
+            var result = await _feedbackService.GetHistoryCustomerPagingAsync(customerId);
             return Ok(result);
         }
 
@@ -68,11 +137,53 @@ namespace TOPDER.API.Controllers
         public async Task<IActionResult> SetInvisible(int feedbackId)
         {
             var result = await _feedbackService.InvisibleAsync(feedbackId);
-            if (result)
+            if (result != null)
             {
+                NotificationDto notificationResDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = result.RestaurantId ?? 0,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.REMOVE_FEEDBACK_RESTAURANT(),
+                    Type = Notification_Type.ADD_FEEDBACK,
+                    IsRead = false,
+                };
+
+                NotificationDto notificationCusDto = new NotificationDto()
+                {
+                    NotificationId = 0,
+                    Uid = result.CustomerId ?? 0,
+                    CreatedAt = DateTime.Now,
+                    Content = Notification_Content.REMOVE_FEEDBACK_CUSTOMER(),
+                    Type = Notification_Type.ADD_FEEDBACK,
+                    IsRead = false,
+                };
+
+                var notificationRes = await _notificationService.AddAsync(notificationResDto);
+                var notificationCus = await _notificationService.AddAsync(notificationCusDto);
+
+
+                if (notificationRes != null && notificationCus != null)
+                {
+                    List<NotificationDto> notifications = new List<NotificationDto> { notificationRes, notificationCus };
+                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                }
+
                 return Ok($"Ẩn/Xóa Feedback thành công.");
             }
             return NotFound($"Feedback with ID {feedbackId} not found.");
+        }
+
+        [HttpPut("InvisibleFeedbackReply/{replyId}")]
+        [SwaggerOperation(Summary = "Ẩn/Xóa FeedbackReply: Restaurant")]
+        public async Task<IActionResult> SetInvisibleFeedbackReply(int replyId)
+        {
+            var result = await _feedbackReplyService.InvisibleAsync(replyId);
+            if (result)
+            {
+                return Ok($"Ẩn/Xóa FeedbackReply thành công.");
+            }
+            return NotFound($"Feedback with ID {replyId} not found.");
         }
 
         [HttpPut("Update")]
@@ -92,43 +203,26 @@ namespace TOPDER.API.Controllers
 
         [HttpGet("GetFeedbackForRestaurantDetail/{restaurantId}")]
         [SwaggerOperation(Summary = "Lấy ra danh sách Feedback của nhà hàng đó trong CHI TIẾT NHÀ HÀNG: Customer")]
-        public async Task<IActionResult> GetCustomerFeedbacks(int restaurantId,[FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int? star = null)
+        public async Task<IActionResult> GetCustomerFeedbacks(int restaurantId)
         {
-            var result = await _feedbackService.ListCustomerPagingAsync(pageNumber, pageSize, restaurantId, star);
-            var response = new PaginatedResponseDto<FeedbackCustomerDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-            return Ok(response);
+            var result = await _feedbackService.ListCustomerPagingAsync(restaurantId);
+            return Ok(result);
         }
 
         [HttpGet("GetFeedbackListForAdmin")]
         [SwaggerOperation(Summary = "Lấy ra danh sách Feedback của toàn hệ thống: Admin")]
-        public async Task<IActionResult> GetAdminFeedbacks([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int? star = null, [FromQuery] string? content = null)
+        public async Task<IActionResult> GetAdminFeedbacks()
         {
-            var result = await _feedbackService.ListAdminPagingAsync(pageNumber, pageSize, star, content);
-
-            var response = new PaginatedResponseDto<FeedbackAdminDto>(
-                result,
-                result.PageIndex,
-                result.TotalPages,
-                result.HasPreviousPage,
-                result.HasNextPage
-            );
-
-            return Ok(response);
+            var result = await _feedbackService.ListAdminPagingAsync();
+            return Ok(result);
         }
 
         [HttpGet("GetFeedbackListForRestaurant/{restaurantId}")]
         [SwaggerOperation(Summary = "Lấy ra danh sách Feedback của nhà hàng: Restaurant")]
-        public async Task<IActionResult> GetRestaurantFeedbacks(int restaurantId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int? star = null, [FromQuery] string? content = null)
+        public async Task<IActionResult> GetRestaurantFeedbacks(int restaurantId)
         {
-            var result = await _feedbackService.ListRestaurantPagingAsync(pageNumber, pageSize, restaurantId, star, content);
-            var response = new PaginatedResponseDto<FeedbackRestaurantDto>(result, result.PageIndex, result.TotalPages, result.HasPreviousPage, result.HasNextPage);
-            return Ok(response);
+            var result = await _feedbackService.ListRestaurantPagingAsync(restaurantId);
+            return Ok(result);
         }
 
     }
