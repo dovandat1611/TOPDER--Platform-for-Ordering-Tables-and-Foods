@@ -129,5 +129,16 @@ namespace TOPDER.API.Controllers
             }
         }
 
+        [HttpDelete("Delete/{categoryRestaurantId}")]
+        [SwaggerOperation(Summary = "Xóa Report: Admin")]
+        public async Task<IActionResult> DeleteReport(int categoryRestaurantId)
+        {
+            var result = await _categoryRestaurantService.RemoveAsync(categoryRestaurantId);
+            if (result)
+                return Ok(new { Message = "Category Restaurant deleted successfully." });
+
+            return NotFound(new { Message = $"Report with ID {categoryRestaurantId} not found." });
+        }
+
     }
 }

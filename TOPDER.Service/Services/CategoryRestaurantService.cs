@@ -51,7 +51,7 @@ namespace TOPDER.Service.Services
                 queryable = queryable.Where(x => x.CategoryRestaurantName != null && x.CategoryRestaurantName.Contains(categoryRestaurantName));
             }
 
-            queryable = queryable.OrderByDescending(x => x.CategoryRestaurantId);
+            queryable = queryable.Include(x => x.Restaurants).OrderByDescending(x => x.CategoryRestaurantId);
 
             var queryDTO = queryable.Select(r => _mapper.Map<CategoryRestaurantViewDto>(r));
 
@@ -66,14 +66,14 @@ namespace TOPDER.Service.Services
 
         public async Task<List<CategoryRestaurantViewDto>> GetAllCategoryRestaurantAsync()
         {
-            var categoryRestaurants = await _categoryRestaurantRepository.GetAllAsync();
+            var categoryRestaurants = await _categoryRestaurantRepository.QueryableAsync();
 
             if (categoryRestaurants == null || !categoryRestaurants.Any())
             {
                 return new List<CategoryRestaurantViewDto>();
             }
 
-            categoryRestaurants = categoryRestaurants.OrderByDescending(x => x.CategoryRestaurantId);
+            categoryRestaurants = categoryRestaurants.Include(x => x.Restaurants).OrderByDescending(x => x.CategoryRestaurantId);
 
             var categoryRestaurantsDTO = _mapper.Map<List<CategoryRestaurantViewDto>>(categoryRestaurants);
 
@@ -121,5 +121,15 @@ namespace TOPDER.Service.Services
             }
         }
 
+        public async Task<bool> RemoveAsync(int id)
+        {
+            var chat = await _categoryRestaurantRepository.GetByIdAsync(id);
+            if (chat == null)
+            {
+                return false;
+            }
+            var result = await _categoryRestaurantRepository.DeleteAsync(id);
+            return result;
+        }
     }
 }

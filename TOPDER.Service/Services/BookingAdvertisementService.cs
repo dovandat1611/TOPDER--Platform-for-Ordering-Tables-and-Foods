@@ -49,7 +49,7 @@ namespace TOPDER.Service.Services
                 StartTime = bookingAdvertisementDto.StartTime,
                 EndTime = bookingAdvertisementDto.EndTime,
                 Title = bookingAdvertisementDto.Title,
-                Status = Common_Status.INACTIVE,
+                Status = Common_Status.ACTIVE,
                 CreatedAt = DateTime.Now,
                 StatusPayment = Payment_Status.PENDING,
                 TotalAmount = totalAmount,
