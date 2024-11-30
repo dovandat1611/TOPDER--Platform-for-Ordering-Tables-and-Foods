@@ -16,25 +16,8 @@ namespace TOPDER.API.Controllers
             _advertisementPricingService = advertisementPricingService;
         }
 
-        [HttpGet("GetAllAdvertisementPricing")]
-        public async Task<IActionResult> GetAll()
-        {
-            var advertisementPricings = await _advertisementPricingService.GetAllAdvertisementPricingAsync();
-            return Ok(advertisementPricings);
-        }
+       
 
-        [HttpPost("Create")]
-        public async Task<IActionResult> Create([FromBody] AdvertisementPricingDto advertisementPricingDto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var result = await _advertisementPricingService.AddAsync(advertisementPricingDto);
-            if (!result)
-                return BadRequest("Failed to create Advertisement Pricing.");
-
-            return Ok("Advertisement Pricing created successfully.");
-        }
 
         [HttpPut("Update")]
         public async Task<IActionResult> Update([FromBody] AdvertisementPricingDto advertisementPricingDto)

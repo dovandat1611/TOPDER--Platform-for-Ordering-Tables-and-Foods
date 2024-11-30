@@ -91,22 +91,6 @@ namespace TOPDER.API.Controllers
             return StatusCode(500, "An error occurred while creating the booking advertisement.");
         }
 
-        [HttpGet]
-        [Route("GetAvailableAdvertisementForRestaurant")]
-        public async Task<ActionResult<List<BookingAdvertisementViewDto>>> GetAllBookingAdvertisementAvailable()
-        {
-            var bookingAdvertisements = await _bookingAdvertisementService.GetAllBookingAdvertisementAvailableAsync();
-            return Ok(bookingAdvertisements);
-        }
-
-
-        [HttpGet]
-        [Route("GetBookingAdvertisementForAdmin")]
-        public async Task<ActionResult<List<BookingAdvertisementAdminDto>>> GetAllBookingAdvertisementForAdmin()
-        {
-            var bookingAdvertisements = await _bookingAdvertisementService.GetAllBookingAdvertisementForAdminAsync();
-            return Ok(bookingAdvertisements);
-        }
 
         [HttpPut("UpdateStatus/{bookingId}")]
         public async Task<IActionResult> UpdateStatus(int bookingId, [FromQuery] string status)

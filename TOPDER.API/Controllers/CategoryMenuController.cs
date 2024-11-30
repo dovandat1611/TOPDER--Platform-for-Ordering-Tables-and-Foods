@@ -101,8 +101,8 @@ namespace TOPDER.API.Controllers
             return NotFound($"Category Menu với ID {categoryMenuDto.CategoryMenuId} không tồn tại.");
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> RemoveCategoryMenu(int id)
+      /*  [HttpDelete("{id}")]*/
+      /*  public async Task<IActionResult> RemoveCategoryMenu(int id)
         {
             try
             {
@@ -117,6 +117,6 @@ namespace TOPDER.API.Controllers
             {
                 return StatusCode(500, $"Đã xảy ra lỗi trong quá trình xử lý: {ex.Message}");
             }
-        }
+        }*/
     }
 }
