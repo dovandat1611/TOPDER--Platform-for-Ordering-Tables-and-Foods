@@ -1,20 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\asus\\desktop\\topder-sep\\topder.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\asus\\desktop\\topder-sep\\topder.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\asus\\desktop\\topder-sep\\topder.api\\controllers\\rolescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\rolescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -22,7 +9,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 68,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -291,43 +278,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:23:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.API\\Program.cs",
-              "RelativeDocumentMoniker": "TOPDER.API\\Program.cs",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.API\\Program.cs",
-              "RelativeToolTip": "TOPDER.API\\Program.cs",
-              "ViewState": "AgIAADAAAAAAAAAAAAAAADwAAABGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-01T01:23:14.964Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.API\\appsettings.json",
-              "RelativeDocumentMoniker": "TOPDER.API\\appsettings.json",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.API\\appsettings.json*",
-              "RelativeToolTip": "TOPDER.API\\appsettings.json*",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-12-01T01:23:06.102Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "RolesController.cs",
-              "DocumentMoniker": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.API\\Controllers\\RolesController.cs",
-              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\RolesController.cs",
-              "ToolTip": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.API\\Controllers\\RolesController.cs",
-              "RelativeToolTip": "TOPDER.API\\Controllers\\RolesController.cs",
-              "ViewState": "AgIAADMAAAAAAAAAAAAAABcAAABCAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-30T17:07:48.138Z"
             }
           ]
         },
