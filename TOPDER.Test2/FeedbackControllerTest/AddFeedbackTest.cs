@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
 using TOPDER.Service.Dtos.Feedback;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 
 namespace TOPDER.Test2.FeedbackControllerTest
@@ -17,14 +19,27 @@ namespace TOPDER.Test2.FeedbackControllerTest
     {
         private FeedbackController _controller;
         private Mock<IFeedbackService> _mockFeedbackService;
+        private Mock<IHubContext<AppHub>> _mockSignalRHub;
+        private Mock<INotificationService> _mockNotificationService;
+        private Mock<IFeedbackReplyService> _mockFeedbackReplyService;
 
-        // Set up mock service and controller before each test
+        // Set up mock services and controller before each test
         [TestInitialize]
         public void Setup()
         {
             _mockFeedbackService = new Mock<IFeedbackService>();
-            _controller = new FeedbackController(_mockFeedbackService.Object);
+            _mockSignalRHub = new Mock<IHubContext<AppHub>>();
+            _mockNotificationService = new Mock<INotificationService>();
+            _mockFeedbackReplyService = new Mock<IFeedbackReplyService>();
+
+            _controller = new FeedbackController(
+                _mockFeedbackService.Object,
+                _mockSignalRHub.Object,
+                _mockNotificationService.Object,
+                _mockFeedbackReplyService.Object
+            );
         }
+
 
         // Test case for valid feedback
         [TestMethod]
@@ -40,7 +55,7 @@ namespace TOPDER.Test2.FeedbackControllerTest
                 Content = "Excellent food!"
             };
 
-            _mockFeedbackService.Setup(service => service.AddAsync(feedbackDto)).ReturnsAsync(true);
+            _mockFeedbackService.Setup(service => service.AddAsync(feedbackDto)).ReturnsAsync(feedbackDto);
 
             // Act
             var result = await _controller.AddFeedback(feedbackDto) as OkObjectResult;
@@ -86,9 +101,6 @@ namespace TOPDER.Test2.FeedbackControllerTest
                 Content = "Feedback with invalid customer."
             };
 
-            // Setup mock feedback service to simulate failure when the CustomerId is 9999
-            _mockFeedbackService.Setup(service => service.AddAsync(feedbackDto)).ReturnsAsync(false);
-
             // Act
             var result = await _controller.AddFeedback(feedbackDto) as BadRequestObjectResult;
 
@@ -111,7 +123,7 @@ namespace TOPDER.Test2.FeedbackControllerTest
             };
 
             // Setup mock feedback service to simulate successful feedback creation
-            _mockFeedbackService.Setup(service => service.AddAsync(feedbackDto)).ReturnsAsync(true);
+            _mockFeedbackService.Setup(service => service.AddAsync(feedbackDto)).ReturnsAsync(feedbackDto);
 
             // Act
             var result = await _controller.AddFeedback(feedbackDto) as OkObjectResult;
@@ -135,9 +147,6 @@ namespace TOPDER.Test2.FeedbackControllerTest
                 Content = "Great service!" // Valid content
             };
 
-            // Setup mock feedback service to simulate failed feedback creation due to invalid OrderId
-            _mockFeedbackService.Setup(service => service.AddAsync(feedbackDto)).ReturnsAsync(false); // Simulate failure
-
             // Act
             var result = await _controller.AddFeedback(feedbackDto) as BadRequestObjectResult;
 
@@ -160,8 +169,6 @@ namespace TOPDER.Test2.FeedbackControllerTest
                 Content = "Great service!" // Valid content
             };
 
-            // Setup mock feedback service to simulate failed feedback creation due to mismatched CustomerId and OrderId
-            _mockFeedbackService.Setup(service => service.AddAsync(feedbackDto)).ReturnsAsync(false); // Simulate failure
 
             // Act
             var result = await _controller.AddFeedback(feedbackDto) as BadRequestObjectResult;
@@ -184,9 +191,6 @@ namespace TOPDER.Test2.FeedbackControllerTest
                 Star = 5,
                 Content = "Great service!" // Valid content
             };
-
-            // Setup mock feedback service to simulate failed feedback creation due to invalid RestaurantId
-            _mockFeedbackService.Setup(service => service.AddAsync(feedbackDto)).ReturnsAsync(false); // Simulate failure
 
             // Act
             var result = await _controller.AddFeedback(feedbackDto) as BadRequestObjectResult;

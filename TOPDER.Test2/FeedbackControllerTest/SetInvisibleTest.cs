@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -7,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
+using TOPDER.Service.Dtos.Feedback;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 
 namespace TOPDER.Test2.FeedbackControllerTest
@@ -14,15 +17,29 @@ namespace TOPDER.Test2.FeedbackControllerTest
     [TestClass]
     public class SetInvisibleTest
     {
-        private Mock<IFeedbackService> _mockFeedbackService;
         private FeedbackController _controller;
+        private Mock<IFeedbackService> _mockFeedbackService;
+        private Mock<IHubContext<AppHub>> _mockSignalRHub;
+        private Mock<INotificationService> _mockNotificationService;
+        private Mock<IFeedbackReplyService> _mockFeedbackReplyService;
 
+        // Set up mock services and controller before each test
         [TestInitialize]
-        public void SetUp()
+        public void Setup()
         {
             _mockFeedbackService = new Mock<IFeedbackService>();
-            _controller = new FeedbackController(_mockFeedbackService.Object);
+            _mockSignalRHub = new Mock<IHubContext<AppHub>>();
+            _mockNotificationService = new Mock<INotificationService>();
+            _mockFeedbackReplyService = new Mock<IFeedbackReplyService>();
+
+            _controller = new FeedbackController(
+                _mockFeedbackService.Object,
+                _mockSignalRHub.Object,
+                _mockNotificationService.Object,
+                _mockFeedbackReplyService.Object
+            );
         }
+
 
         // Test case for feedbackId = 1 (Feedback exists and is set invisible)
         [TestMethod]
@@ -30,8 +47,18 @@ namespace TOPDER.Test2.FeedbackControllerTest
         {
             // Arrange
             var feedbackId = 1;
+            var feedbackDto = new FeedbackDto
+            {
+                FeedbackId = 1,
+                OrderId = 12345,
+                CustomerId = 1001,
+                RestaurantId = 2001,
+                Star = 5,
+                Content = "Great service and delicious food!"
+            };
+
             _mockFeedbackService.Setup(service => service.InvisibleAsync(feedbackId))
-                .ReturnsAsync(true); // Simulate successful feedback hiding/deleting
+                .ReturnsAsync(feedbackDto); // Simulate successful feedback hiding/deleting
 
             // Act
             var result = await _controller.SetInvisible(feedbackId) as OkObjectResult;
@@ -48,9 +75,7 @@ namespace TOPDER.Test2.FeedbackControllerTest
         {
             // Arrange
             var feedbackId = -1;
-            _mockFeedbackService.Setup(service => service.InvisibleAsync(feedbackId))
-                .ReturnsAsync(false); // Simulate feedback not found
-
+            
             // Act
             var result = await _controller.SetInvisible(feedbackId) as NotFoundObjectResult;
 
@@ -66,9 +91,7 @@ namespace TOPDER.Test2.FeedbackControllerTest
         {
             // Arrange
             var feedbackId = 999;
-            _mockFeedbackService.Setup(service => service.InvisibleAsync(feedbackId))
-                .ReturnsAsync(false); // Simulate feedback not found
-
+            
             // Act
             var result = await _controller.SetInvisible(feedbackId) as NotFoundObjectResult;
 

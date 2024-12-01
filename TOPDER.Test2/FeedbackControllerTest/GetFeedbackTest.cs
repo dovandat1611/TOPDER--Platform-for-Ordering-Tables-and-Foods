@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
 using TOPDER.Service.Dtos.Feedback;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 
 namespace TOPDER.Test2.FeedbackControllerTest
@@ -15,15 +17,29 @@ namespace TOPDER.Test2.FeedbackControllerTest
     [TestClass]
     public class GetFeedbackTest
     {
-        private Mock<IFeedbackService> _mockFeedbackService;
         private FeedbackController _controller;
+        private Mock<IFeedbackService> _mockFeedbackService;
+        private Mock<IHubContext<AppHub>> _mockSignalRHub;
+        private Mock<INotificationService> _mockNotificationService;
+        private Mock<IFeedbackReplyService> _mockFeedbackReplyService;
 
+        // Set up mock services and controller before each test
         [TestInitialize]
-        public void SetUp()
+        public void Setup()
         {
             _mockFeedbackService = new Mock<IFeedbackService>();
-            _controller = new FeedbackController(_mockFeedbackService.Object);
+            _mockSignalRHub = new Mock<IHubContext<AppHub>>();
+            _mockNotificationService = new Mock<INotificationService>();
+            _mockFeedbackReplyService = new Mock<IFeedbackReplyService>();
+
+            _controller = new FeedbackController(
+                _mockFeedbackService.Object,
+                _mockSignalRHub.Object,
+                _mockNotificationService.Object,
+                _mockFeedbackReplyService.Object
+            );
         }
+
 
         // Test case for orderId = -1 (Invalid Order ID)
         [TestMethod]

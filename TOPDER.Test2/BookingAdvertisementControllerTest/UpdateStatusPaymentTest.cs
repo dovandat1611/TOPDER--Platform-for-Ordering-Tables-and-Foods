@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using TOPDER.API.Controllers;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Dtos.BookingAdvertisement;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 
 namespace TOPDER.Test2.BookingAdvertisementControllerTest
@@ -25,6 +27,8 @@ namespace TOPDER.Test2.BookingAdvertisementControllerTest
         private Mock<IUserService> _mockUserService;
         private Mock<IConfiguration> _mockConfiguration;
         private Mock<IPaymentGatewayService> _mockPaymentGatewayService;
+        private Mock<INotificationService> _mockNotificationService;
+        private Mock<IHubContext<AppHub>> _mockSignalRHub;
 
         [TestInitialize]
         public void Initialize()
@@ -37,6 +41,8 @@ namespace TOPDER.Test2.BookingAdvertisementControllerTest
             _mockUserService = new Mock<IUserService>();
             _mockConfiguration = new Mock<IConfiguration>();
             _mockPaymentGatewayService = new Mock<IPaymentGatewayService>();
+            _mockNotificationService = new Mock<INotificationService>();
+            _mockSignalRHub = new Mock<IHubContext<AppHub>>();
 
             // Creating the controller instance with the mocked dependencies
             _controller = new BookingAdvertisementController(
@@ -46,8 +52,11 @@ namespace TOPDER.Test2.BookingAdvertisementControllerTest
                 _mockWalletService.Object,
                 _mockUserService.Object,
                 _mockConfiguration.Object,
-                _mockPaymentGatewayService.Object);
+                _mockPaymentGatewayService.Object,
+                _mockNotificationService.Object,
+                _mockSignalRHub.Object);
         }
+
 
         [TestMethod]
         public async Task UpdateStatusPayment_ValidBookingIdAndStatus_ReturnsOk()
@@ -55,9 +64,21 @@ namespace TOPDER.Test2.BookingAdvertisementControllerTest
             // Arrange
             int bookingId = 1;
             string status = "Paid";
+            BookingAdvertisementDto booking1 = new BookingAdvertisementDto
+            {
+                BookingId = 1,
+                RestaurantId = 2,
+                Title = "Dinner Booking 1",
+                StartTime = new DateTime(2024, 12, 1, 18, 0, 0),
+                EndTime = new DateTime(2024, 12, 1, 20, 0, 0),
+                Status = "Confirmed",
+                TotalAmount = 100.50m,
+                StatusPayment = "Paid",
+                CreatedAt = new DateTime(2024, 11, 28, 14, 30, 0)
+            };
             _mockBookingAdvertisementService
                 .Setup(s => s.UpdateStatusPaymentAsync(bookingId, status))
-                .ReturnsAsync(true);
+                .ReturnsAsync(booking1);
 
             // Act
             var result = await _controller.UpdateStatusPayment(bookingId, status);
@@ -74,9 +95,21 @@ namespace TOPDER.Test2.BookingAdvertisementControllerTest
             // Arrange
             int bookingId = -1;
             string status = "InvalidStatus";
+            BookingAdvertisementDto booking1 = new BookingAdvertisementDto
+            {
+                BookingId = 1,
+                RestaurantId = 101,
+                Title = "Dinner Booking 1",
+                StartTime = new DateTime(2024, 12, 1, 18, 0, 0),
+                EndTime = new DateTime(2024, 12, 1, 20, 0, 0),
+                Status = "Confirmed",
+                TotalAmount = 100.50m,
+                StatusPayment = "Paid",
+                CreatedAt = new DateTime(2024, 11, 28, 14, 30, 0)
+            };
             _mockBookingAdvertisementService
                 .Setup(s => s.UpdateStatusPaymentAsync(bookingId, status))
-                .ReturnsAsync(false);
+                .ReturnsAsync(booking1);
 
             // Act
             var result = await _controller.UpdateStatusPayment(bookingId, status);

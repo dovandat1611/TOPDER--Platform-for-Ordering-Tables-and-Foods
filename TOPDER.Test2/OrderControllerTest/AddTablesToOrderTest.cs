@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using TOPDER.API.Controllers;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Dtos.Order;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 
 namespace TOPDER.Test2.OrderControllerTest
@@ -17,60 +19,73 @@ namespace TOPDER.Test2.OrderControllerTest
     [TestClass]
     public class AddTablesToOrderTest
     {
-        private Mock<IOrderService> _orderServiceMock;
-        private Mock<IOrderMenuService> _orderMenuServiceMock;
-        private Mock<IOrderTableService> _orderTableServiceMock;
-        private Mock<IWalletService> _walletServiceMock;
-        private Mock<IDiscountRepository> _discountRepositoryMock;
-        private Mock<IMenuRepository> _menuRepositoryMock;
-        private Mock<IRestaurantRepository> _restaurantRepositoryMock;
-        private Mock<IUserService> _userServiceMock;
+        private Mock<IOrderService> _mockOrderService;
+        private Mock<IOrderMenuService> _mockOrderMenuService;
+        private Mock<IOrderTableService> _mockOrderTableService;
+        private Mock<IWalletService> _mockWalletService;
+        private Mock<IDiscountRepository> _mockDiscountRepository;
+        private Mock<IMenuRepository> _mockMenuRepository;
+        private Mock<IRestaurantRepository> _mockRestaurantRepository;
         private Mock<IRestaurantService> _mockRestaurantService;
-        private Mock<IWalletTransactionService> _walletTransactionServiceMock;
-        private Mock<IPaymentGatewayService> _paymentGatewayServiceMock;
-        private Mock<ISendMailService> _sendMailServiceMock;
-        private Mock<IDiscountMenuRepository> _discountMenuRepositoryMock;
-        private Mock<IConfiguration> _configurationMock;
+        private Mock<IUserService> _mockUserService;
+        private Mock<IWalletTransactionService> _mockWalletTransactionService;
+        private Mock<IPaymentGatewayService> _mockPaymentGatewayService;
+        private Mock<ISendMailService> _mockSendMailService;
+        private Mock<IDiscountMenuRepository> _mockDiscountMenuRepository;
+        private Mock<IConfiguration> _mockConfiguration;
+        private Mock<INotificationService> _mockNotificationService;
+        private Mock<IHubContext<AppHub>> _mockSignalRHub;
+        private Mock<IRestaurantPolicyService> _mockRestaurantPolicyService;
+        private Mock<IOrderRepository> _mockOrderRepository;
 
         private OrderController _controller;
 
         [TestInitialize]
-        public void SetUp()
+        public void Setup()
         {
-            // Mock all dependencies
-            _orderServiceMock = new Mock<IOrderService>();
-            _orderMenuServiceMock = new Mock<IOrderMenuService>();
-            _orderTableServiceMock = new Mock<IOrderTableService>();
-            _walletServiceMock = new Mock<IWalletService>();
-            _discountRepositoryMock = new Mock<IDiscountRepository>();
-            _menuRepositoryMock = new Mock<IMenuRepository>();
-            _restaurantRepositoryMock = new Mock<IRestaurantRepository>();
-            _userServiceMock = new Mock<IUserService>();
+            // Mocking all services and repositories
+            _mockOrderService = new Mock<IOrderService>();
+            _mockOrderMenuService = new Mock<IOrderMenuService>();
+            _mockOrderTableService = new Mock<IOrderTableService>();
+            _mockWalletService = new Mock<IWalletService>();
+            _mockDiscountRepository = new Mock<IDiscountRepository>();
+            _mockMenuRepository = new Mock<IMenuRepository>();
+            _mockRestaurantRepository = new Mock<IRestaurantRepository>();
             _mockRestaurantService = new Mock<IRestaurantService>();
-            _walletTransactionServiceMock = new Mock<IWalletTransactionService>();
-            _paymentGatewayServiceMock = new Mock<IPaymentGatewayService>();
-            _sendMailServiceMock = new Mock<ISendMailService>();
-            _discountMenuRepositoryMock = new Mock<IDiscountMenuRepository>();
-            _configurationMock = new Mock<IConfiguration>();
+            _mockUserService = new Mock<IUserService>();
+            _mockWalletTransactionService = new Mock<IWalletTransactionService>();
+            _mockPaymentGatewayService = new Mock<IPaymentGatewayService>();
+            _mockSendMailService = new Mock<ISendMailService>();
+            _mockDiscountMenuRepository = new Mock<IDiscountMenuRepository>();
+            _mockConfiguration = new Mock<IConfiguration>();
+            _mockNotificationService = new Mock<INotificationService>();
+            _mockSignalRHub = new Mock<IHubContext<AppHub>>();
+            _mockRestaurantPolicyService = new Mock<IRestaurantPolicyService>();
+            _mockOrderRepository = new Mock<IOrderRepository>();
 
-            // Create the controller and inject the mocked dependencies
+            // Initializing the controller with mocked dependencies
             _controller = new OrderController(
-                _orderServiceMock.Object,
-                _orderMenuServiceMock.Object,
-                _walletServiceMock.Object,
-                _menuRepositoryMock.Object,
-                _restaurantRepositoryMock.Object,
-                _discountRepositoryMock.Object,
-                _userServiceMock.Object,
-                _walletTransactionServiceMock.Object,
-                _paymentGatewayServiceMock.Object,
-                _sendMailServiceMock.Object,
-                _orderTableServiceMock.Object,
-                _discountMenuRepositoryMock.Object,
-                _configurationMock.Object,
-                _mockRestaurantService.Object
+                _mockOrderService.Object,
+                _mockOrderMenuService.Object,
+                _mockWalletService.Object,
+                _mockMenuRepository.Object,
+                _mockRestaurantRepository.Object,
+                _mockDiscountRepository.Object,
+                _mockUserService.Object,
+                _mockWalletTransactionService.Object,
+                _mockPaymentGatewayService.Object,
+                _mockSendMailService.Object,
+                _mockOrderTableService.Object,
+                _mockDiscountMenuRepository.Object,
+                _mockConfiguration.Object,
+                _mockRestaurantService.Object,
+                _mockNotificationService.Object,
+                _mockSignalRHub.Object,
+                _mockRestaurantPolicyService.Object,
+                _mockOrderRepository.Object
             );
         }
+
 
         [TestMethod]
         public async Task AddTablesToOrder_ShouldReturnBadRequest_WhenOrderTablesDtoIsNull()
@@ -118,7 +133,7 @@ namespace TOPDER.Test2.OrderControllerTest
                 TableIds = new List<int> { 1, 2, 3 }
             };
 
-            _orderTableServiceMock.Setup(x => x.AddRangeAsync(orderTablesDto))
+            _mockOrderTableService.Setup(x => x.AddRangeAsync(orderTablesDto))
                                   .ReturnsAsync(true); // Mock thành công
 
             // Act

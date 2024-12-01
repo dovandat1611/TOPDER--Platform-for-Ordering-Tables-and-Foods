@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
 using TOPDER.Service.Dtos.Chat;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 
 namespace TOPDER.Test2.ChatControllerTest
@@ -16,14 +18,20 @@ namespace TOPDER.Test2.ChatControllerTest
     public class CreateChatTests
     {
         private Mock<IChatService> _mockChatService;
+        private Mock<IHubContext<AppHub>> _mockSignalRHub;
         private ChatController _controller;
 
         [TestInitialize]
         public void SetUp()
         {
+            // Mocking the dependencies
             _mockChatService = new Mock<IChatService>();
-            _controller = new ChatController(_mockChatService.Object);
+            _mockSignalRHub = new Mock<IHubContext<AppHub>>();
+
+            // Creating the controller instance with the mocked dependencies
+            _controller = new ChatController(_mockChatService.Object, _mockSignalRHub.Object);
         }
+
 
         [TestMethod]
         public async Task CreateChat_WithValidData_ReturnsOk()
@@ -35,8 +43,16 @@ namespace TOPDER.Test2.ChatControllerTest
                 ChatBy = 1,
                 Content = "Hello!"
             };
-
-            _mockChatService.Setup(service => service.AddAsync(createChatDto)).ReturnsAsync(true);
+            ChatDto chat = new ChatDto
+            {
+                ChatId = 1,
+                ChatBoxId = 101,
+                ChatTime = DateTime.Now, // Current time for the chat
+                Content = "Hello!",
+                ChatBy = 1,
+                ChatByName = "John Doe",
+            };
+            _mockChatService.Setup(service => service.AddAsync(createChatDto)).ReturnsAsync(chat);
 
             // Act
             var result = await _controller.CreateChat(createChatDto) as OkObjectResult;
@@ -60,7 +76,6 @@ namespace TOPDER.Test2.ChatControllerTest
                 Content = "Hello!"
             };
 
-            _mockChatService.Setup(service => service.AddAsync(createChatDto)).ReturnsAsync(false);
 
             // Act
             var result = await _controller.CreateChat(createChatDto) as BadRequestObjectResult;
@@ -110,7 +125,6 @@ namespace TOPDER.Test2.ChatControllerTest
                 Content = "Hello!"
             };
 
-            _mockChatService.Setup(service => service.AddAsync(createChatDto)).ReturnsAsync(false);
 
             // Act
             var result = await _controller.CreateChat(createChatDto) as BadRequestObjectResult;

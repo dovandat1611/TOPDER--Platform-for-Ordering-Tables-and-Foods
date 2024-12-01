@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 
 namespace TOPDER.Test2.NotificationControllerTest
@@ -15,15 +17,22 @@ namespace TOPDER.Test2.NotificationControllerTest
     [TestClass]
     public class MarkAsReadTest
     {
-        private Mock<INotificationService> _notificationService;
+        private Mock<INotificationService> _notificationServiceMock;
+        private Mock<IHubContext<AppHub>> _signalRHubMock;
         private NotificationController _controller;
 
         [TestInitialize]
         public void Setup()
         {
-            _notificationService = new Mock<INotificationService>();
-            _controller = new NotificationController(_notificationService.Object);
+            _notificationServiceMock = new Mock<INotificationService>();
+            _signalRHubMock = new Mock<IHubContext<AppHub>>();
+
+            _controller = new NotificationController(
+                _notificationServiceMock.Object,
+                _signalRHubMock.Object
+            );
         }
+
 
         // Test 1: Notification marked as read successfully
         [TestMethod]
@@ -31,7 +40,7 @@ namespace TOPDER.Test2.NotificationControllerTest
         {
             // Arrange
             int notificationId = 1;
-            _notificationService.Setup(service => service.IsReadAsync(notificationId))
+            _notificationServiceMock.Setup(service => service.IsReadAsync(notificationId))
                 .ReturnsAsync(true); // Simulate that the notification was marked as read
 
             // Act
@@ -50,7 +59,7 @@ namespace TOPDER.Test2.NotificationControllerTest
         {
             // Arrange
             int notificationId = -1;
-            _notificationService.Setup(service => service.IsReadAsync(notificationId))
+            _notificationServiceMock.Setup(service => service.IsReadAsync(notificationId))
                 .ReturnsAsync(false); // Simulate that the notification was not found or already marked as read
 
             // Act

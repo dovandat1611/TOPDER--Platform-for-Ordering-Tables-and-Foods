@@ -8,6 +8,8 @@ using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 using TOPDER.API.Controllers;
 using TOPDER.Service.Dtos.Notification;
 using TOPDER.Service.IServices;
+using Microsoft.AspNetCore.SignalR;
+using TOPDER.Service.Hubs;
 
 namespace TOPDER.Test2.MenuControllerTest
 {
@@ -15,14 +17,21 @@ namespace TOPDER.Test2.MenuControllerTest
     public class CreateNotificationTest
     {
         private Mock<INotificationService> _notificationServiceMock;
+        private Mock<IHubContext<AppHub>> _signalRHubMock;
         private NotificationController _controller;
 
         [TestInitialize]
         public void Setup()
         {
             _notificationServiceMock = new Mock<INotificationService>();
-            _controller = new NotificationController(_notificationServiceMock.Object);
+            _signalRHubMock = new Mock<IHubContext<AppHub>>();
+
+            _controller = new NotificationController(
+                _notificationServiceMock.Object,
+                _signalRHubMock.Object
+            );
         }
+
 
         [TestMethod]
         public async Task Create_ValidNotification_ReturnsOk()
@@ -40,7 +49,7 @@ namespace TOPDER.Test2.MenuControllerTest
             };
 
             _notificationServiceMock.Setup(service => service.AddAsync(notificationDto))
-                .ReturnsAsync(true);  // Giả lập việc thêm thông báo thành công
+                .ReturnsAsync(notificationDto);  // Giả lập việc thêm thông báo thành công
 
             // Act
             var result = await _controller.Create(notificationDto);
@@ -99,9 +108,6 @@ namespace TOPDER.Test2.MenuControllerTest
                 IsRead = false,
                 CreatedAt = DateTime.Now
             };
-
-            _notificationServiceMock.Setup(service => service.AddAsync(notificationDto))
-                .ReturnsAsync(false);  // Giả lập việc thêm thông báo thất bại
 
             // Act
             var result = await _controller.Create(notificationDto);

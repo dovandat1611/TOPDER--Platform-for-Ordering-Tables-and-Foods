@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 using TOPDER.API.Controllers;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Feedback;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
 
@@ -16,15 +18,29 @@ namespace TOPDER.Test2.FeedbackControllerTest
     [TestClass]
     public class GetAdminFeedbacksTest
     {
-        private Mock<IFeedbackService> _feedbackServiceMock;
         private FeedbackController _controller;
+        private Mock<IFeedbackService> _mockFeedbackService;
+        private Mock<IHubContext<AppHub>> _mockSignalRHub;
+        private Mock<INotificationService> _mockNotificationService;
+        private Mock<IFeedbackReplyService> _mockFeedbackReplyService;
 
+        // Set up mock services and controller before each test
         [TestInitialize]
         public void Setup()
         {
-            _feedbackServiceMock = new Mock<IFeedbackService>();
-            _controller = new FeedbackController(_feedbackServiceMock.Object);
+            _mockFeedbackService = new Mock<IFeedbackService>();
+            _mockSignalRHub = new Mock<IHubContext<AppHub>>();
+            _mockNotificationService = new Mock<INotificationService>();
+            _mockFeedbackReplyService = new Mock<IFeedbackReplyService>();
+
+            _controller = new FeedbackController(
+                _mockFeedbackService.Object,
+                _mockSignalRHub.Object,
+                _mockNotificationService.Object,
+                _mockFeedbackReplyService.Object
+            );
         }
+
 
         [TestMethod]
         public async Task GetAdminFeedbacks_DefaultPagination_ReturnsPaginatedFeedbacks()
@@ -35,8 +51,8 @@ namespace TOPDER.Test2.FeedbackControllerTest
                 1, 10, 1
             );
 
-            _feedbackServiceMock
-                .Setup(service => service.ListAdminPagingAsync(1, 10, null, null))
+            _mockFeedbackService
+                .Setup(service => service.ListAdminPagingAsync())
                 .ReturnsAsync(feedbacks);
 
             // Act
@@ -60,12 +76,12 @@ namespace TOPDER.Test2.FeedbackControllerTest
                 1, 1, 1
             );
 
-            _feedbackServiceMock
-                .Setup(service => service.ListAdminPagingAsync(1, 10, 5, null))
+            _mockFeedbackService
+                .Setup(service => service.ListAdminPagingAsync())
                 .ReturnsAsync(feedbacks);
 
             // Act
-            var result = await _controller.GetAdminFeedbacks(1, 10, 5);
+            var result = await _controller.GetAdminFeedbacks();
 
             // Assert
             var okResult = result as OkObjectResult;
@@ -84,12 +100,12 @@ namespace TOPDER.Test2.FeedbackControllerTest
                 1, 1, 1
             );
 
-            _feedbackServiceMock
-                .Setup(service => service.ListAdminPagingAsync(1, 10, null, "service"))
+            _mockFeedbackService
+                .Setup(service => service.ListAdminPagingAsync())
                 .ReturnsAsync(feedbacks);
 
             // Act
-            var result = await _controller.GetAdminFeedbacks(1, 10, null, "service");
+            var result = await _controller.GetAdminFeedbacks();
 
             // Assert
             var okResult = result as OkObjectResult;

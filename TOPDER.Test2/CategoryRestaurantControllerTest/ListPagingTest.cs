@@ -36,20 +36,21 @@ namespace TOPDER.Test2.CategoryRestaurantControllerTest
             var pageNumber = 1;
             var pageSize = 10;
             var categoryRestaurantName = "Italian";
-            var categoryRestaurantList = new List<CategoryRestaurantDto>
+            List<CategoryRestaurantViewDto> categoryList = new List<CategoryRestaurantViewDto>
+            {
+                new CategoryRestaurantViewDto
                 {
-                    new CategoryRestaurantDto
-                    {
-                        CategoryRestaurantId = 1,
-                        CategoryRestaurantName = "Italian"
-                    }
-                };
+                    CategoryRestaurantId = 1,
+                    CategoryRestaurantName = "Italian",
+                    IsDelete = false
+                }
+            };
 
-            var mockResult = new PaginatedList<CategoryRestaurantDto>(
-                categoryRestaurantList,    // List of items
+            var mockResult = new PaginatedList<CategoryRestaurantViewDto>(
+                categoryList,    // List of items
                 pageNumber,                // Page index
                 1,                         // Total pages
-                categoryRestaurantList.Count // Total count (number of items)
+                categoryList.Count // Total count (number of items)
             );
 
             _mockCategoryRestaurantService.Setup(service => service.ListPagingAsync(pageNumber, pageSize, categoryRestaurantName))
@@ -78,20 +79,39 @@ namespace TOPDER.Test2.CategoryRestaurantControllerTest
             var pageNumber = 1;
             var pageSize = 10;
             var categoryRestaurantName = "";
-            var categoryRestaurantList = new List<CategoryRestaurantDto>
+            List<CategoryRestaurantViewDto> categoryList = new List<CategoryRestaurantViewDto>
+            {
+                new CategoryRestaurantViewDto
                 {
-                    new CategoryRestaurantDto
-                    {
-                        CategoryRestaurantId = 1,
-                        CategoryRestaurantName = "Italian"
-                    }
-                };
+                    CategoryRestaurantId = 1,
+                    CategoryRestaurantName = "Italian",
+                    IsDelete = false
+                },
+                new CategoryRestaurantViewDto
+                {
+                    CategoryRestaurantId = 2,
+                    CategoryRestaurantName = "Japanese",
+                    IsDelete = false
+                },
+                new CategoryRestaurantViewDto
+                {
+                    CategoryRestaurantId = 3,
+                    CategoryRestaurantName = "Mexican",
+                    IsDelete = true
+                },
+                new CategoryRestaurantViewDto
+                {
+                    CategoryRestaurantId = 4,
+                    CategoryRestaurantName = "Chinese",
+                    IsDelete = false
+                }
+            };
 
-            var mockResult = new PaginatedList<CategoryRestaurantDto>(
-                categoryRestaurantList,    // List of items
+            var mockResult = new PaginatedList<CategoryRestaurantViewDto>(
+                categoryList,    // List of items
                 pageNumber,                // Page index
                 1,                         // Total pages
-                categoryRestaurantList.Count // Total count (number of items)
+                categoryList.Count // Total count (number of items)
             );
 
             _mockCategoryRestaurantService.Setup(service => service.ListPagingAsync(pageNumber, pageSize, categoryRestaurantName))

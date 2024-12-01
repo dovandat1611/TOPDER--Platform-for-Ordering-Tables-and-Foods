@@ -16,6 +16,8 @@ using Microsoft.Extensions.Configuration;
 using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.OrderMenu;
 using TOPDER.Service.Dtos.OrderTable;
+using Microsoft.AspNetCore.SignalR;
+using TOPDER.Service.Hubs;
 
 namespace TOPDER.Test2.OrderControllerTest
 {
@@ -30,12 +32,16 @@ namespace TOPDER.Test2.OrderControllerTest
         private Mock<IMenuRepository> _menuRepositoryMock;
         private Mock<IRestaurantRepository> _restaurantRepositoryMock;
         private Mock<IUserService> _userServiceMock;
-        private Mock<IRestaurantService> _mockRestaurantService;
+        private Mock<IRestaurantService> _restaurantServiceMock;
         private Mock<IWalletTransactionService> _walletTransactionServiceMock;
         private Mock<IPaymentGatewayService> _paymentGatewayServiceMock;
         private Mock<ISendMailService> _sendMailServiceMock;
         private Mock<IDiscountMenuRepository> _discountMenuRepositoryMock;
         private Mock<IConfiguration> _configurationMock;
+        private Mock<INotificationService> _notificationServiceMock;
+        private Mock<IHubContext<AppHub>> _signalRHubMock;
+        private Mock<IRestaurantPolicyService> _restaurantPolicyServiceMock;
+        private Mock<IOrderRepository> _orderRepositoryMock;
 
         private OrderController _controller;
 
@@ -51,12 +57,16 @@ namespace TOPDER.Test2.OrderControllerTest
             _menuRepositoryMock = new Mock<IMenuRepository>();
             _restaurantRepositoryMock = new Mock<IRestaurantRepository>();
             _userServiceMock = new Mock<IUserService>();
-            _mockRestaurantService = new Mock<IRestaurantService>();
+            _restaurantServiceMock = new Mock<IRestaurantService>();
             _walletTransactionServiceMock = new Mock<IWalletTransactionService>();
             _paymentGatewayServiceMock = new Mock<IPaymentGatewayService>();
             _sendMailServiceMock = new Mock<ISendMailService>();
             _discountMenuRepositoryMock = new Mock<IDiscountMenuRepository>();
             _configurationMock = new Mock<IConfiguration>();
+            _notificationServiceMock = new Mock<INotificationService>();
+            _signalRHubMock = new Mock<IHubContext<AppHub>>();
+            _restaurantPolicyServiceMock = new Mock<IRestaurantPolicyService>();
+            _orderRepositoryMock = new Mock<IOrderRepository>();
 
             // Create the controller and inject the mocked dependencies
             _controller = new OrderController(
@@ -73,7 +83,11 @@ namespace TOPDER.Test2.OrderControllerTest
                 _orderTableServiceMock.Object,
                 _discountMenuRepositoryMock.Object,
                 _configurationMock.Object,
-                _mockRestaurantService.Object
+                _restaurantServiceMock.Object,
+                _notificationServiceMock.Object,
+                _signalRHubMock.Object,
+                _restaurantPolicyServiceMock.Object,
+                _orderRepositoryMock.Object
             );
         }
 

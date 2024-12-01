@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -11,8 +12,11 @@ using TOPDER.API.Controllers;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Dtos.Email;
 using TOPDER.Service.Dtos.Order;
+using TOPDER.Service.Dtos.OrderMenu;
+using TOPDER.Service.Dtos.OrderTable;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.Dtos.WalletTransaction;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
@@ -29,12 +33,16 @@ namespace TOPDER.Test2.OrderControllerTest
         private Mock<IMenuRepository> _menuRepositoryMock;
         private Mock<IRestaurantRepository> _restaurantRepositoryMock;
         private Mock<IUserService> _userServiceMock;
-        private Mock<IRestaurantService> _mockRestaurantService;
+        private Mock<IRestaurantService> _restaurantServiceMock;
         private Mock<IWalletTransactionService> _walletTransactionServiceMock;
         private Mock<IPaymentGatewayService> _paymentGatewayServiceMock;
         private Mock<ISendMailService> _sendMailServiceMock;
         private Mock<IDiscountMenuRepository> _discountMenuRepositoryMock;
         private Mock<IConfiguration> _configurationMock;
+        private Mock<INotificationService> _notificationServiceMock;
+        private Mock<IHubContext<AppHub>> _signalRHubMock;
+        private Mock<IRestaurantPolicyService> _restaurantPolicyServiceMock;
+        private Mock<IOrderRepository> _orderRepositoryMock;
 
         private OrderController _controller;
 
@@ -50,12 +58,16 @@ namespace TOPDER.Test2.OrderControllerTest
             _menuRepositoryMock = new Mock<IMenuRepository>();
             _restaurantRepositoryMock = new Mock<IRestaurantRepository>();
             _userServiceMock = new Mock<IUserService>();
-            _mockRestaurantService = new Mock<IRestaurantService>();
+            _restaurantServiceMock = new Mock<IRestaurantService>();
             _walletTransactionServiceMock = new Mock<IWalletTransactionService>();
             _paymentGatewayServiceMock = new Mock<IPaymentGatewayService>();
             _sendMailServiceMock = new Mock<ISendMailService>();
             _discountMenuRepositoryMock = new Mock<IDiscountMenuRepository>();
             _configurationMock = new Mock<IConfiguration>();
+            _notificationServiceMock = new Mock<INotificationService>();
+            _signalRHubMock = new Mock<IHubContext<AppHub>>();
+            _restaurantPolicyServiceMock = new Mock<IRestaurantPolicyService>();
+            _orderRepositoryMock = new Mock<IOrderRepository>();
 
             // Create the controller and inject the mocked dependencies
             _controller = new OrderController(
@@ -72,9 +84,14 @@ namespace TOPDER.Test2.OrderControllerTest
                 _orderTableServiceMock.Object,
                 _discountMenuRepositoryMock.Object,
                 _configurationMock.Object,
-                _mockRestaurantService.Object
+                _restaurantServiceMock.Object,
+                _notificationServiceMock.Object,
+                _signalRHubMock.Object,
+                _restaurantPolicyServiceMock.Object,
+                _orderRepositoryMock.Object
             );
         }
+
 
         [TestMethod]
         public async Task UpdateOrderStatus_ShouldReturnBadRequest_WhenStatusIsNullOrEmpty()
@@ -115,9 +132,6 @@ namespace TOPDER.Test2.OrderControllerTest
             int orderId = -1;
             string status = Order_Status.CONFIRM;
 
-            _orderServiceMock.Setup(x => x.UpdateStatusAsync(orderId, status))
-                             .ReturnsAsync(false);
-
             // Act
             var result = await _controller.UpdateOrderStatus(orderId, status);
 
@@ -134,8 +148,78 @@ namespace TOPDER.Test2.OrderControllerTest
             // Arrange
             int orderID = 1;
             string status = Order_Status.CONFIRM;
+            var order = new OrderDto
+            {
+                OrderId = 1,
+                CustomerId = 123,
+                RestaurantId = 456,
+                DiscountId = null,
+                NameReceiver = "Nguyễn Văn A",
+                PhoneReceiver = "0123456789",
+                TimeReservation = new TimeSpan(18, 30, 0), // 6:30 PM
+                DateReservation = DateTime.Now.AddDays(1), // Ngày mai
+                NumberPerson = 4,
+                NumberChild = 2,
+                ContentReservation = "Sinh nhật",
+                TypeOrder = "Dine-in",
+                PaidType = "Credit Card",
+                DepositAmount = 500000, // Tiền cọc
+                FoodAmount = 2000000, // Tổng tiền đồ ăn
+                FoodAddAmount = 300000, // Tổng tiền thêm
+                TotalAmount = 2800000, // Tổng cộng
+                ContentPayment = "Thanh toán qua thẻ",
+                StatusPayment = "Paid",
+                StatusOrder = "CONFIRM",
+                CreatedAt = DateTime.Now,
+                ConfirmedAt = DateTime.Now.AddHours(1),
+                PaidAt = DateTime.Now.AddHours(2),
+                CompletedAt = null,
+                CancelledAt = null,
+                CancelReason = null,
+                OrderTables = new List<OrderTableDto>
+                {
+                    new OrderTableDto
+                    {
+                        OrderTableId = 1,
+                        OrderId = 1,
+                        TableId = 101,
+                        RoomId = 1,
+                        RoomName = "VIP Room",
+                        TableName = "Table 1",
+                        MaxCapacity = 6
+                    }
+                },
+                OrderMenus = new List<OrderMenuDto>
+                {
+                    new OrderMenuDto
+                    {
+                        OrderMenuId = 1,
+                        OrderId = 1,
+                        MenuId = 201,
+                        MenuName = "Bò bít tết",
+                        MenuImage = "steak.jpg",
+                        Quantity = 2,
+                        Price = 250000,
+                        OrderMenuType = "Main Course"
+                    }
+                },
+                OrderMenusAdd = new List<OrderMenuDto>
+                {
+                    new OrderMenuDto
+                    {
+                        OrderMenuId = 2,
+                        OrderId = 1,
+                        MenuId = 202,
+                        MenuName = "Nước ngọt",
+                        MenuImage = "softdrink.jpg",
+                        Quantity = 3,
+                        Price = 20000,
+                        OrderMenuType = "Drink"
+                    }
+                }
+            };
 
-            _orderServiceMock.Setup(os => os.UpdateStatusAsync(orderID, status)).ReturnsAsync(true);
+            _orderServiceMock.Setup(os => os.UpdateStatusAsync(orderID, status)).ReturnsAsync(order);
             _orderServiceMock.Setup(os => os.GetEmailForOrderAsync(orderID, User_Role.CUSTOMER))
                              .ReturnsAsync(new EmailForOrder { Email = "customer@example.com" });
             _orderServiceMock.Setup(os => os.GetOrderPaid(orderID)).ReturnsAsync(new OrderPaidEmail { OrderId = orderID.ToString() });
@@ -156,9 +240,79 @@ namespace TOPDER.Test2.OrderControllerTest
             // Arrange
             int orderID = 1;
             string status = Order_Status.COMPLETE;
+            var order = new OrderDto
+            {
+                OrderId = 1,
+                CustomerId = 123,
+                RestaurantId = 456,
+                DiscountId = null,
+                NameReceiver = "Nguyễn Văn A",
+                PhoneReceiver = "0123456789",
+                TimeReservation = new TimeSpan(18, 30, 0), // 6:30 PM
+                DateReservation = DateTime.Now.AddDays(1), // Ngày mai
+                NumberPerson = 4,
+                NumberChild = 2,
+                ContentReservation = "Sinh nhật",
+                TypeOrder = "Dine-in",
+                PaidType = "Credit Card",
+                DepositAmount = 500000, // Tiền cọc
+                FoodAmount = 2000000, // Tổng tiền đồ ăn
+                FoodAddAmount = 300000, // Tổng tiền thêm
+                TotalAmount = 2800000, // Tổng cộng
+                ContentPayment = "Thanh toán qua thẻ",
+                StatusPayment = "Paid",
+                StatusOrder = "COMPLETE",
+                CreatedAt = DateTime.Now,
+                ConfirmedAt = DateTime.Now.AddHours(1),
+                PaidAt = DateTime.Now.AddHours(2),
+                CompletedAt = null,
+                CancelledAt = null,
+                CancelReason = null,
+                OrderTables = new List<OrderTableDto>
+                {
+                    new OrderTableDto
+                    {
+                        OrderTableId = 1,
+                        OrderId = 1,
+                        TableId = 101,
+                        RoomId = 1,
+                        RoomName = "VIP Room",
+                        TableName = "Table 1",
+                        MaxCapacity = 6
+                    }
+                },
+                OrderMenus = new List<OrderMenuDto>
+                {
+                    new OrderMenuDto
+                    {
+                        OrderMenuId = 1,
+                        OrderId = 1,
+                        MenuId = 201,
+                        MenuName = "Bò bít tết",
+                        MenuImage = "steak.jpg",
+                        Quantity = 2,
+                        Price = 250000,
+                        OrderMenuType = "Main Course"
+                    }
+                },
+                OrderMenusAdd = new List<OrderMenuDto>
+                {
+                    new OrderMenuDto
+                    {
+                        OrderMenuId = 2,
+                        OrderId = 1,
+                        MenuId = 202,
+                        MenuName = "Nước ngọt",
+                        MenuImage = "softdrink.jpg",
+                        Quantity = 3,
+                        Price = 20000,
+                        OrderMenuType = "Drink"
+                    }
+                }
+            };
 
             // Mock dữ liệu trả về từ các service
-            _orderServiceMock.Setup(os => os.UpdateStatusAsync(orderID, status)).ReturnsAsync(true);
+            _orderServiceMock.Setup(os => os.UpdateStatusAsync(orderID, status)).ReturnsAsync(order);
             _orderServiceMock.Setup(os => os.GetEmailForOrderAsync(orderID, User_Role.CUSTOMER))
                              .ReturnsAsync(new EmailForOrder { Email = "customer@example.com" });
             _orderServiceMock.Setup(os => os.GetOrderPaid(orderID))

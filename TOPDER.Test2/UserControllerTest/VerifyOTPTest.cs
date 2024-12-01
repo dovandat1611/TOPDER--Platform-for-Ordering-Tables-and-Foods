@@ -30,13 +30,14 @@ namespace TOPDER.Test2.UserControllerTest
         private Mock<IUserRepository> _userRepositoryMock;
         private Mock<IIdentityService> _identityServiceMock;
         private Mock<IUserOtpRepository> _userOtpRepositoryMock;
+        private Mock<IRoleRepository> _roleRepositoryMock;
 
         private UserController _controller;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            // Khởi tạo các Mock cho dịch vụ và repository
+            // Khởi tạo các mock objects
             _restaurantServiceMock = new Mock<IRestaurantService>();
             _userServiceMock = new Mock<IUserService>();
             _customerServiceMock = new Mock<ICustomerService>();
@@ -48,6 +49,7 @@ namespace TOPDER.Test2.UserControllerTest
             _userRepositoryMock = new Mock<IUserRepository>();
             _identityServiceMock = new Mock<IIdentityService>();
             _userOtpRepositoryMock = new Mock<IUserOtpRepository>();
+            _roleRepositoryMock = new Mock<IRoleRepository>();
 
             // Khởi tạo UserController với các mock objects
             _controller = new UserController(
@@ -61,9 +63,11 @@ namespace TOPDER.Test2.UserControllerTest
                 _adminServiceMock.Object,
                 _userRepositoryMock.Object,
                 _identityServiceMock.Object,
-                _userOtpRepositoryMock.Object
+                _userOtpRepositoryMock.Object,
+                _roleRepositoryMock.Object
             );
         }
+
         [TestMethod]
         public async Task VerifyOTP_UserNotFound_ReturnsBadRequest()
         {

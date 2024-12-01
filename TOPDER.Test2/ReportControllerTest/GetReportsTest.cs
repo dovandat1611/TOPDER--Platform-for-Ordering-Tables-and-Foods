@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -7,7 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
+using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Dtos.Report;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
 
@@ -16,15 +19,28 @@ namespace TOPDER.Test2.ReportControllerTest
     [TestClass]
     public class GetReportsTest
     {
-        private Mock<IReportService> _reportServiceMock;
+        private Mock<IReportService> _mockReportService;
+        private Mock<INotificationService> _mockNotificationService;
+        private Mock<IHubContext<AppHub>> _mockSignalRHub;
+        private Mock<IUserRepository> _mockUserRepository;
         private ReportController _controller;
 
         [TestInitialize]
         public void Setup()
         {
-            _reportServiceMock = new Mock<IReportService>();
-            _controller = new ReportController(_reportServiceMock.Object); // Inject mock service
+            _mockReportService = new Mock<IReportService>();
+            _mockNotificationService = new Mock<INotificationService>();
+            _mockSignalRHub = new Mock<IHubContext<AppHub>>();
+            _mockUserRepository = new Mock<IUserRepository>();
+
+            _controller = new ReportController(
+                _mockReportService.Object,
+                _mockNotificationService.Object,
+                _mockSignalRHub.Object,
+                _mockUserRepository.Object
+            );
         }
+
 
         [TestMethod]
         public async Task GetReports_ReturnsOkResult_WithPaginatedReports()

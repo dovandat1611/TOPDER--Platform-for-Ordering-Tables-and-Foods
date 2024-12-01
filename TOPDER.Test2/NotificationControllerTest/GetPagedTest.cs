@@ -12,21 +12,30 @@ using TOPDER.API.Controllers;
 using TOPDER.Service.Dtos.Notification;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
+using Microsoft.AspNetCore.SignalR;
+using TOPDER.Service.Hubs;
 
 namespace TOPDER.Test2.NotificationControllerTest
 {
     [TestClass]
     public class GetPagedTest
     {
-        private Mock<INotificationService> _notificationService;
+        private Mock<INotificationService> _notificationServiceMock;
+        private Mock<IHubContext<AppHub>> _signalRHubMock;
         private NotificationController _controller;
 
         [TestInitialize]
         public void Setup()
         {
-            _notificationService = new Mock<INotificationService>();
-            _controller = new NotificationController(_notificationService.Object);
+            _notificationServiceMock = new Mock<INotificationService>();
+            _signalRHubMock = new Mock<IHubContext<AppHub>>();
+
+            _controller = new NotificationController(
+                _notificationServiceMock.Object,
+                _signalRHubMock.Object
+            );
         }
+
 
         // Test 1: Valid parameters - should return a list of notifications
         [TestMethod]
@@ -45,7 +54,7 @@ namespace TOPDER.Test2.NotificationControllerTest
 
             var paginatedNotifications = new PaginatedList<NotificationDto>(notifications, notifications.Count, pageNumber, pageSize);
 
-            _notificationService.Setup(service => service.GetPagingAsync(pageNumber, pageSize, userId))
+            _notificationServiceMock.Setup(service => service.GetPagingAsync(pageNumber, pageSize, userId))
                 .ReturnsAsync(paginatedNotifications);
             // Act
             var result = await _controller.GetPaged(pageNumber, pageSize, userId);
@@ -71,7 +80,7 @@ namespace TOPDER.Test2.NotificationControllerTest
             var notifications = new List<NotificationDto>();  // No notifications for the user
             var paginatedNotifications = new PaginatedList<NotificationDto>(notifications, notifications.Count, pageNumber, pageSize);
 
-            _notificationService.Setup(service => service.GetPagingAsync(pageNumber, pageSize, userId))
+            _notificationServiceMock.Setup(service => service.GetPagingAsync(pageNumber, pageSize, userId))
                 .ReturnsAsync(paginatedNotifications);
 
             // Act

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 
 namespace TOPDER.Test2.NotificationControllerTest
@@ -15,15 +17,22 @@ namespace TOPDER.Test2.NotificationControllerTest
     [TestClass]
     public class DeleteTest
     {
-        private Mock<INotificationService> _notificationService;
+        private Mock<INotificationService> _notificationServiceMock;
+        private Mock<IHubContext<AppHub>> _signalRHubMock;
         private NotificationController _controller;
 
         [TestInitialize]
         public void Setup()
         {
-            _notificationService = new Mock<INotificationService>();
-            _controller = new NotificationController(_notificationService.Object);
+            _notificationServiceMock = new Mock<INotificationService>();
+            _signalRHubMock = new Mock<IHubContext<AppHub>>();
+
+            _controller = new NotificationController(
+                _notificationServiceMock.Object,
+                _signalRHubMock.Object
+            );
         }
+
 
         // Test 1: Successful Deletion
         [TestMethod]
@@ -34,7 +43,7 @@ namespace TOPDER.Test2.NotificationControllerTest
             var notificationId = 1;
 
             // Mock RemoveAsync to return true (successful deletion)
-            _notificationService.Setup(service => service.RemoveAsync(notificationId, userId))
+            _notificationServiceMock.Setup(service => service.RemoveAsync(notificationId, userId))
                 .ReturnsAsync(true);
 
             // Act
@@ -56,7 +65,7 @@ namespace TOPDER.Test2.NotificationControllerTest
             var notificationId = -1;
 
             // Mock RemoveAsync to return false (notification not found or doesn't belong to the user)
-            _notificationService.Setup(service => service.RemoveAsync(notificationId, userId))
+            _notificationServiceMock.Setup(service => service.RemoveAsync(notificationId, userId))
                 .ReturnsAsync(false);
 
             // Act
@@ -78,7 +87,7 @@ namespace TOPDER.Test2.NotificationControllerTest
             var notificationId = 1;
 
             // Mock RemoveAsync to return false (notification not found or user unauthorized)
-            _notificationService.Setup(service => service.RemoveAsync(notificationId, userId))
+            _notificationServiceMock.Setup(service => service.RemoveAsync(notificationId, userId))
                 .ReturnsAsync(false);
 
             // Act

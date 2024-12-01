@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
+using TOPDER.Repository.IRepositories;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 
 namespace TOPDER.Test2.ReportControllerTest
@@ -10,22 +13,35 @@ namespace TOPDER.Test2.ReportControllerTest
     [TestClass]
     public class DeleteReportTests
     {
-        private Mock<IReportService> _reportServiceMock;
+        private Mock<IReportService> _mockReportService;
+        private Mock<INotificationService> _mockNotificationService;
+        private Mock<IHubContext<AppHub>> _mockSignalRHub;
+        private Mock<IUserRepository> _mockUserRepository;
         private ReportController _controller;
 
         [TestInitialize]
         public void Setup()
         {
-            _reportServiceMock = new Mock<IReportService>();
-            _controller = new ReportController(_reportServiceMock.Object); // Inject mock service
+            _mockReportService = new Mock<IReportService>();
+            _mockNotificationService = new Mock<INotificationService>();
+            _mockSignalRHub = new Mock<IHubContext<AppHub>>();
+            _mockUserRepository = new Mock<IUserRepository>();
+
+            _controller = new ReportController(
+                _mockReportService.Object,
+                _mockNotificationService.Object,
+                _mockSignalRHub.Object,
+                _mockUserRepository.Object
+            );
         }
+
 
         [TestMethod]
         public async Task DeleteReport_ReturnsOkResult_WhenReportIsDeleted()
         {
             // Arrange
             int reportId = 1;
-            _reportServiceMock
+            _mockReportService
                 .Setup(service => service.RemoveAsync(reportId))
                 .ReturnsAsync(true); // Simulate successful deletion
 
@@ -43,7 +59,7 @@ namespace TOPDER.Test2.ReportControllerTest
         {
             // Arrange
             int reportId = -1; // Assume this ID does not exist
-            _reportServiceMock
+            _mockReportService
                 .Setup(service => service.RemoveAsync(reportId))
                 .ReturnsAsync(false); // Simulate deletion failure
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using TOPDER.API.Controllers;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Feedback;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
 
@@ -17,15 +19,29 @@ namespace TOPDER.Test2.FeedbackControllerTest
     [TestClass]
     public class GetCustomerFeedbacksTest
     {
-        private Mock<IFeedbackService> _feedbackServiceMock;
         private FeedbackController _controller;
+        private Mock<IFeedbackService> _mockFeedbackService;
+        private Mock<IHubContext<AppHub>> _mockSignalRHub;
+        private Mock<INotificationService> _mockNotificationService;
+        private Mock<IFeedbackReplyService> _mockFeedbackReplyService;
 
+        // Set up mock services and controller before each test
         [TestInitialize]
         public void Setup()
         {
-            _feedbackServiceMock = new Mock<IFeedbackService>();
-            _controller = new FeedbackController(_feedbackServiceMock.Object);
+            _mockFeedbackService = new Mock<IFeedbackService>();
+            _mockSignalRHub = new Mock<IHubContext<AppHub>>();
+            _mockNotificationService = new Mock<INotificationService>();
+            _mockFeedbackReplyService = new Mock<IFeedbackReplyService>();
+
+            _controller = new FeedbackController(
+                _mockFeedbackService.Object,
+                _mockSignalRHub.Object,
+                _mockNotificationService.Object,
+                _mockFeedbackReplyService.Object
+            );
         }
+
 
         [TestMethod]
         public async Task GetCustomerFeedbacks_ValidParameters_ReturnsPaginatedResponse()
@@ -58,12 +74,12 @@ namespace TOPDER.Test2.FeedbackControllerTest
         };
 
             var paginatedList = new PaginatedList<FeedbackCustomerDto>(feedbackList, feedbackList.Count, 1, 2);
-            _feedbackServiceMock
-                .Setup(service => service.ListCustomerPagingAsync(1, 2, 1, null))
+            _mockFeedbackService
+                .Setup(service => service.ListCustomerPagingAsync(1))
                 .ReturnsAsync(paginatedList);
 
             // Act
-            var result = await _controller.GetCustomerFeedbacks(1, 1, 2);
+            var result = await _controller.GetCustomerFeedbacks(1);
 
             // Assert
             var okResult = result as OkObjectResult;
@@ -98,12 +114,12 @@ namespace TOPDER.Test2.FeedbackControllerTest
 
             var paginatedList = new PaginatedList<FeedbackCustomerDto>(feedbackList, feedbackList.Count, 1, 1);
 
-            _feedbackServiceMock
-                .Setup(service => service.ListCustomerPagingAsync(1, 1, 1, 5))
+            _mockFeedbackService
+                .Setup(service => service.ListCustomerPagingAsync(1))
                 .ReturnsAsync(paginatedList);
 
             // Act
-            var result = await _controller.GetCustomerFeedbacks(1, 1, 1, 5);
+            var result = await _controller.GetCustomerFeedbacks(1);
 
             // Assert
             var okResult = result as OkObjectResult;
@@ -123,12 +139,12 @@ namespace TOPDER.Test2.FeedbackControllerTest
 
             // Setup mock to return an empty paginated list when the restaurantId is 99999
             var emptyFeedbackList = new PaginatedList<FeedbackCustomerDto>(new List<FeedbackCustomerDto>(), pageNumber, pageSize, 0);
-            _feedbackServiceMock
-                .Setup(service => service.ListCustomerPagingAsync(pageNumber, pageSize, restaurantId, null))
+            _mockFeedbackService
+                .Setup(service => service.ListCustomerPagingAsync( restaurantId))
                 .ReturnsAsync(emptyFeedbackList);
 
             // Act
-            var result = await _controller.GetCustomerFeedbacks(restaurantId, pageNumber, pageSize);
+            var result = await _controller.GetCustomerFeedbacks(restaurantId);
 
             // Assert
             var okResult = result as OkObjectResult;

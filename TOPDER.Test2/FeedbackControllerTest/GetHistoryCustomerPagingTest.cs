@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
 using TOPDER.Service.Dtos.Feedback;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
 
@@ -14,14 +16,27 @@ namespace TOPDER.Test2.FeedbackControllerTest
 {
     public class GetHistoryCustomerPagingTest
     {
-        private Mock<IFeedbackService> _mockFeedbackService;
         private FeedbackController _controller;
+        private Mock<IFeedbackService> _mockFeedbackService;
+        private Mock<IHubContext<AppHub>> _mockSignalRHub;
+        private Mock<INotificationService> _mockNotificationService;
+        private Mock<IFeedbackReplyService> _mockFeedbackReplyService;
 
+        // Set up mock services and controller before each test
         [TestInitialize]
-        public void SetUp()
+        public void Setup()
         {
             _mockFeedbackService = new Mock<IFeedbackService>();
-            _controller = new FeedbackController(_mockFeedbackService.Object);
+            _mockSignalRHub = new Mock<IHubContext<AppHub>>();
+            _mockNotificationService = new Mock<INotificationService>();
+            _mockFeedbackReplyService = new Mock<IFeedbackReplyService>();
+
+            _controller = new FeedbackController(
+                _mockFeedbackService.Object,
+                _mockSignalRHub.Object,
+                _mockNotificationService.Object,
+                _mockFeedbackReplyService.Object
+            );
         }
 
         // Test case for customerId = 1 (Valid customer ID with feedback history)
@@ -45,11 +60,11 @@ namespace TOPDER.Test2.FeedbackControllerTest
                 pageSize
             ).Result;
 
-            _mockFeedbackService.Setup(service => service.GetHistoryCustomerPagingAsync(pageNumber, pageSize, customerId))
+            _mockFeedbackService.Setup(service => service.GetHistoryCustomerPagingAsync( customerId))
                 .ReturnsAsync(paginatedList); // Mô phỏng lịch sử feedback cho customerId = 1
 
             // Act
-            var result = await _controller.GetHistoryCustomerPaging(pageNumber, pageSize, customerId) as OkObjectResult;
+            var result = await _controller.GetHistoryCustomerPaging( customerId) as OkObjectResult;
 
             // Assert
             Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.IsNotNull(result);
@@ -76,11 +91,11 @@ namespace TOPDER.Test2.FeedbackControllerTest
                 pageSize
             ).Result;
 
-            _mockFeedbackService.Setup(service => service.GetHistoryCustomerPagingAsync(pageNumber, pageSize, customerId))
+            _mockFeedbackService.Setup(service => service.GetHistoryCustomerPagingAsync( customerId))
                 .ReturnsAsync(paginatedList); // Simulate no feedback history for customerId = 9999
 
             // Act
-            var result = await _controller.GetHistoryCustomerPaging(pageNumber, pageSize, customerId) as OkObjectResult;
+            var result = await _controller.GetHistoryCustomerPaging( customerId) as OkObjectResult;
 
             // Assert
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
@@ -107,11 +122,11 @@ namespace TOPDER.Test2.FeedbackControllerTest
                 pageSize
             ).Result;
 
-            _mockFeedbackService.Setup(service => service.GetHistoryCustomerPagingAsync(pageNumber, pageSize, customerId))
+            _mockFeedbackService.Setup(service => service.GetHistoryCustomerPagingAsync( customerId))
                 .ReturnsAsync(paginatedList); // Simulate no feedback history for customerId = -1
 
             // Act
-            var result = await _controller.GetHistoryCustomerPaging(pageNumber, pageSize, customerId) as OkObjectResult;
+            var result = await _controller.GetHistoryCustomerPaging( customerId) as OkObjectResult;
 
             // Assert
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);

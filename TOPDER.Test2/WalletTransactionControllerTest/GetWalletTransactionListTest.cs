@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -9,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
 using TOPDER.Service.Dtos.WalletTransaction;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
 
@@ -22,22 +24,28 @@ namespace TOPDER.Test2.WalletTransactionControllerTest
         private Mock<IWalletService> _walletServiceMock;
         private Mock<IPaymentGatewayService> _paymentGatewayServiceMock;
         private Mock<IConfiguration> _configurationMock;
+        private Mock<IHubContext<AppHub>> _signalRHubMock;
+        private Mock<INotificationService> _notificationServiceMock;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            // Initialize mocks
+            // Khởi tạo các mock objects
             _walletTransactionServiceMock = new Mock<IWalletTransactionService>();
             _walletServiceMock = new Mock<IWalletService>();
             _paymentGatewayServiceMock = new Mock<IPaymentGatewayService>();
             _configurationMock = new Mock<IConfiguration>();
+            _signalRHubMock = new Mock<IHubContext<AppHub>>();
+            _notificationServiceMock = new Mock<INotificationService>();
 
-            // Create controller instance with mock dependencies
+            // Khởi tạo WalletTransactionController với các mock objects
             _controller = new WalletTransactionController(
                 _walletTransactionServiceMock.Object,
                 _walletServiceMock.Object,
                 _paymentGatewayServiceMock.Object,
-                _configurationMock.Object
+                _configurationMock.Object,
+                _signalRHubMock.Object,
+                _notificationServiceMock.Object
             );
         }
 

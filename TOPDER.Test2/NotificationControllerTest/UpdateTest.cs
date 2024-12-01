@@ -12,6 +12,8 @@ using TOPDER.API.Controllers;
 using TOPDER.Service.Dtos.Notification;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Services;
+using Microsoft.AspNetCore.SignalR;
+using TOPDER.Service.Hubs;
 
 namespace TOPDER.Test2.NotificationControllerTest
 {
@@ -19,14 +21,21 @@ namespace TOPDER.Test2.NotificationControllerTest
     public class UpdateTest
     {
         private Mock<INotificationService> _notificationServiceMock;
+        private Mock<IHubContext<AppHub>> _signalRHubMock;
         private NotificationController _controller;
 
         [TestInitialize]
         public void Setup()
         {
             _notificationServiceMock = new Mock<INotificationService>();
-            _controller = new NotificationController(_notificationServiceMock.Object);
+            _signalRHubMock = new Mock<IHubContext<AppHub>>();
+
+            _controller = new NotificationController(
+                _notificationServiceMock.Object,
+                _signalRHubMock.Object
+            );
         }
+
 
         [TestMethod]
         public async Task Update_ValidNotification_ReturnsOk()

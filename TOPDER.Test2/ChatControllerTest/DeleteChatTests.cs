@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 
 namespace TOPDER.Test2.ChatControllerTest
@@ -15,15 +17,20 @@ namespace TOPDER.Test2.ChatControllerTest
     public class DeleteChatTests
     {
         private Mock<IChatService> _mockChatService;
+        private Mock<IHubContext<AppHub>> _mockSignalRHub;
         private ChatController _controller;
 
         [TestInitialize]
-        public void Setup()
+        public void SetUp()
         {
-            // Initialize the mock service and controller before each test
+            // Mocking the dependencies
             _mockChatService = new Mock<IChatService>();
-            _controller = new ChatController(_mockChatService.Object);
+            _mockSignalRHub = new Mock<IHubContext<AppHub>>();
+
+            // Creating the controller instance with the mocked dependencies
+            _controller = new ChatController(_mockChatService.Object, _mockSignalRHub.Object);
         }
+
 
         // Test for valid ID
         [TestMethod]

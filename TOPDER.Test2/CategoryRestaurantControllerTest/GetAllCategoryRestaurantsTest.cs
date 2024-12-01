@@ -28,14 +28,37 @@ namespace TOPDER.Test2.CategoryRestaurantControllerTest
         public async Task GetAllCategoryRestaurants_ReturnsOk()
         {
             // Arrange
-            var mockCategoryRestaurants = new List<CategoryRestaurantDto>
-    {
-        new CategoryRestaurantDto { CategoryRestaurantId = 1, CategoryRestaurantName = "Italian Cuisine" },
-        new CategoryRestaurantDto { CategoryRestaurantId = 2, CategoryRestaurantName = "Chinese Cuisine" }
-    };
+            List<CategoryRestaurantViewDto> categoryList = new List<CategoryRestaurantViewDto>
+        {
+            new CategoryRestaurantViewDto
+            {
+                CategoryRestaurantId = 1,
+                CategoryRestaurantName = "Italian",
+                IsDelete = false
+            },
+            new CategoryRestaurantViewDto
+            {
+                CategoryRestaurantId = 2,
+                CategoryRestaurantName = "Japanese",
+                IsDelete = false
+            },
+            new CategoryRestaurantViewDto
+            {
+                CategoryRestaurantId = 3,
+                CategoryRestaurantName = "Mexican",
+                IsDelete = true
+            },
+            new CategoryRestaurantViewDto
+            {
+                CategoryRestaurantId = 4,
+                CategoryRestaurantName = "Chinese",
+                IsDelete = false
+            }
+        };
+
 
             _mockCategoryRestaurantService.Setup(service => service.GetAllCategoryRestaurantAsync())
-                .ReturnsAsync(mockCategoryRestaurants); // Giả lập trả về danh sách Category Restaurant
+                .ReturnsAsync(categoryList); // Giả lập trả về danh sách Category Restaurant
 
             // Act
             var result = await _controller.GetAllCategoryRestaurants() as OkObjectResult;

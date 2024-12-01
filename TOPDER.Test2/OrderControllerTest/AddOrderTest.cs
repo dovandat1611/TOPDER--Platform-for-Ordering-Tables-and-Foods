@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -12,6 +13,7 @@ using TOPDER.Repository.Repositories;
 using TOPDER.Service.Dtos.Email;
 using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.OrderMenu;
+using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Services;
 using static TOPDER.Service.Common.ServiceDefinitions.Constants;
@@ -35,13 +37,17 @@ namespace TOPDER.Test2.OrderControllerTest
         private Mock<ISendMailService> _mockSendMailService;
         private Mock<IDiscountMenuRepository> _mockDiscountMenuRepository;
         private Mock<IConfiguration> _mockConfiguration;
+        private Mock<INotificationService> _mockNotificationService;
+        private Mock<IHubContext<AppHub>> _mockSignalRHub;
+        private Mock<IRestaurantPolicyService> _mockRestaurantPolicyService;
+        private Mock<IOrderRepository> _mockOrderRepository;
 
         private OrderController _controller;
 
         [TestInitialize]
-        public void TestInitialize()
+        public void Setup()
         {
-            // Mocking the services and repositories
+            // Mocking all services and repositories
             _mockOrderService = new Mock<IOrderService>();
             _mockOrderMenuService = new Mock<IOrderMenuService>();
             _mockOrderTableService = new Mock<IOrderTableService>();
@@ -56,6 +62,10 @@ namespace TOPDER.Test2.OrderControllerTest
             _mockSendMailService = new Mock<ISendMailService>();
             _mockDiscountMenuRepository = new Mock<IDiscountMenuRepository>();
             _mockConfiguration = new Mock<IConfiguration>();
+            _mockNotificationService = new Mock<INotificationService>();
+            _mockSignalRHub = new Mock<IHubContext<AppHub>>();
+            _mockRestaurantPolicyService = new Mock<IRestaurantPolicyService>();
+            _mockOrderRepository = new Mock<IOrderRepository>();
 
             // Initializing the controller with mocked dependencies
             _controller = new OrderController(
@@ -72,9 +82,14 @@ namespace TOPDER.Test2.OrderControllerTest
                 _mockOrderTableService.Object,
                 _mockDiscountMenuRepository.Object,
                 _mockConfiguration.Object,
-                _mockRestaurantService.Object
+                _mockRestaurantService.Object,
+                _mockNotificationService.Object,
+                _mockSignalRHub.Object,
+                _mockRestaurantPolicyService.Object,
+                _mockOrderRepository.Object
             );
         }
+
 
         [TestMethod]
         public async Task AddOrder_ShouldReturnBadRequest_WhenModelStateIsInvalid()
