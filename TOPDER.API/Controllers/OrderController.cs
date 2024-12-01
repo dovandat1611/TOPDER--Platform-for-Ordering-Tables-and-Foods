@@ -896,8 +896,12 @@ namespace TOPDER.API.Controllers
         {
             var result = await _orderService.GetAdminPagingAsync();
 
+            var restaurant = await _restaurantRepository.QueryableAsync();
+
             foreach (var item in result)
             {
+                var restaurantEntity = await restaurant.FirstOrDefaultAsync(x => x.Uid == item.RestaurantId);
+                item.NameRes = restaurantEntity?.NameRes;
                 item.OrderMenus = await _orderMenuService.GetItemsOriginalByOrderAsync(item.OrderId);
                 item.OrderTables = await _orderTableService.GetItemsByOrderAsync(item.OrderId);
                 item.OrderMenusAdd = await _orderMenuService.GetItemsAddByOrderAsync(item.OrderId);

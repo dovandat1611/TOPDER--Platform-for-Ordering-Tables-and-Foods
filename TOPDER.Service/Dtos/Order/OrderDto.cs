@@ -36,6 +36,7 @@ namespace TOPDER.Service.Dtos.Order
         public DateTime? CompletedAt { get; set; }
         public DateTime? CancelledAt { get; set; }
         public string? CancelReason { get; set; }
+        public string NameRes { get; set; } = null!;
         public List<OrderTableDto> OrderTables { get; set; } = new List<OrderTableDto> { };
         public List<OrderMenuDto> OrderMenus { get; set; } = new List<OrderMenuDto> { };
         public List<OrderMenuDto> OrderMenusAdd { get; set; } = new List<OrderMenuDto> { };
