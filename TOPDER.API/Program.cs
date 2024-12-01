@@ -58,7 +58,7 @@ builder.Services.AddSwaggerGen(c =>
 
 
 builder.Services.AddDbContext<TopderDBContext>(options =>
-  options.UseSqlServer(builder.Configuration.GetConnectionString("Dat_Connection"))
+  options.UseSqlServer(builder.Configuration.GetConnectionString("Minh_Connection"))
 );
 
 builder.Services.AddDistributedMemoryCache();

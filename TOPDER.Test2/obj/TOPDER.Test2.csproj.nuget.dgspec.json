@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Test2\\TOPDER.Test2.csproj": {}
+    "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Test2\\TOPDER.Test2.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.API\\TOPDER.API.csproj": {
+    "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.API\\TOPDER.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.API\\TOPDER.API.csproj",
+        "projectUniqueName": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.API\\TOPDER.API.csproj",
         "projectName": "TOPDER.API",
-        "projectPath": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.API\\TOPDER.API.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.API\\obj\\",
+        "projectPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.API\\TOPDER.API.csproj",
+        "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -32,11 +32,11 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj"
+              "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj": {
+                "projectPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj"
               },
-              "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj"
+              "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj": {
+                "projectPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj"
               }
             }
           }
@@ -97,20 +97,20 @@
         }
       }
     },
-    "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj": {
+    "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj",
+        "projectUniqueName": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj",
         "projectName": "TOPDER.Repository",
-        "projectPath": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\obj\\",
+        "projectPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj",
+        "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -242,20 +242,20 @@
         }
       }
     },
-    "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj": {
+    "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj",
+        "projectUniqueName": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj",
         "projectName": "TOPDER.Service",
-        "projectPath": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Service\\obj\\",
+        "projectPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj",
+        "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Service\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -270,8 +270,8 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj"
+              "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj": {
+                "projectPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj"
               }
             }
           }
@@ -311,20 +311,20 @@
         }
       }
     },
-    "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Test2\\TOPDER.Test2.csproj": {
+    "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Test2\\TOPDER.Test2.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Test2\\TOPDER.Test2.csproj",
+        "projectUniqueName": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Test2\\TOPDER.Test2.csproj",
         "projectName": "TOPDER.Test2",
-        "projectPath": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Test2\\TOPDER.Test2.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Test2\\obj\\",
+        "projectPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Test2\\TOPDER.Test2.csproj",
+        "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Test2\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -339,14 +339,14 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.API\\TOPDER.API.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.API\\TOPDER.API.csproj"
+              "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.API\\TOPDER.API.csproj": {
+                "projectPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.API\\TOPDER.API.csproj"
               },
-              "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj"
+              "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj": {
+                "projectPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Repository\\TOPDER.Repository.csproj"
               },
-              "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj"
+              "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj": {
+                "projectPath": "C:\\Users\\ASUS\\Desktop\\TOPDER-SEP\\TOPDER.Service\\TOPDER.Service.csproj"
               }
             }
           }

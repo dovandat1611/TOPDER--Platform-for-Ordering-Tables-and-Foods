@@ -1358,7 +1358,10 @@
           "payOS": "1.0.6"
         },
         "runtime": {
-          "TOPDER.Repository.dll": {}
+          "TOPDER.Repository.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "TOPDER.Service/1.0.0": {
@@ -1366,7 +1369,10 @@
           "TOPDER.Repository": "1.0.0"
         },
         "runtime": {
-          "TOPDER.Service.dll": {}
+          "TOPDER.Service.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

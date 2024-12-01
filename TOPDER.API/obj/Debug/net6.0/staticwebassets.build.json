@@ -1,11 +1,12 @@
 {
   "Version": 1,
-  "Hash": "Q4DIkvEECNWQFY/6qvcyGQrRGgvFubApDLtmRDWd42s=",
+  "Hash": "t7Ra0i+5YHuOLxVWnALoHQGyBnddk6onGhS8rxf3gEw=",
   "Source": "TOPDER.API",
   "BasePath": "_content/TOPDER.API",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
   "DiscoveryPatterns": [],
-  "Assets": []
+  "Assets": [],
+  "Endpoints": []
 }
