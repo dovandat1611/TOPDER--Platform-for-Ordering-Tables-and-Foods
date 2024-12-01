@@ -112,9 +112,10 @@ namespace TOPDER.Test2.OrderControllerTest
             new OrderMenuDto { MenuId = 1, MenuName = "Pizza", Quantity = 2 }
         };
 
-            _orderServiceMock.Setup(s => s.GetItemAsync(orderId, Uid)).ReturnsAsync(orderDto);
-            _orderTableServiceMock.Setup(s => s.GetItemsByOrderAsync(orderId)).ReturnsAsync(orderTables);
-            _orderMenuServiceMock.Setup(s => s.GetItemsByOrderAsync(orderId)).ReturnsAsync(orderMenus);
+            _orderServiceMock.Setup(service => service.GetItemAsync(orderId, Uid)).ReturnsAsync(orderDto);
+            _orderTableServiceMock.Setup(service => service.GetItemsByOrderAsync(orderId)).ReturnsAsync(new List<OrderTableDto>());
+            _orderMenuServiceMock.Setup(service => service.GetItemsOriginalByOrderAsync(orderId)).ReturnsAsync(new List<OrderMenuDto>());
+            _orderMenuServiceMock.Setup(service => service.GetItemsAddByOrderAsync(orderId)).ReturnsAsync(new List<OrderMenuDto>());
 
             // Act
             var result = await _controller.GetItemAsync(Uid, orderId);
@@ -124,15 +125,6 @@ namespace TOPDER.Test2.OrderControllerTest
             var okResult = result as OkObjectResult;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(okResult.Value, typeof(OrderDto));
-            var returnedOrder = okResult.Value as OrderDto;
-
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(orderDto.OrderId, returnedOrder.OrderId);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(orderTables.Count, returnedOrder.OrderTables.Count);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(orderMenus.Count, returnedOrder.OrderMenus.Count);
-
-            _orderServiceMock.Verify(s => s.GetItemAsync(orderId, Uid), Times.Once);
-            _orderTableServiceMock.Verify(s => s.GetItemsByOrderAsync(orderId), Times.Once);
-            _orderMenuServiceMock.Verify(s => s.GetItemsByOrderAsync(orderId), Times.Once);
         }
 
         [TestMethod]

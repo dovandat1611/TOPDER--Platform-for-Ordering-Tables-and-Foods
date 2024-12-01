@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using TOPDER.API.Controllers;
 using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.Feedback;
+using TOPDER.Service.Dtos.FeedbackReply;
 using TOPDER.Service.Hubs;
 using TOPDER.Service.IServices;
 using TOPDER.Service.Utils;
@@ -42,116 +43,147 @@ namespace TOPDER.Test2.FeedbackControllerTest
             );
         }
 
-
         [TestMethod]
-        public async Task GetCustomerFeedbacks_ValidParameters_ReturnsPaginatedResponse()
+        public async Task GetCustomerFeedbacks_ValidRestaurantId_ReturnsFeedbacks()
         {
             // Arrange
-            var feedbackList = new List<FeedbackCustomerDto>
-        {
-            new FeedbackCustomerDto
+            int restaurantId = 1; // Example restaurantId
+            var feedbacks = new List<FeedbackCustomerDto>
             {
-                FeedbackId = 1,
-                CustomerId = 101,
-                OrderId = 1001,
-                CustomerName = "John Doe",
-                CustomerImage = "john_doe.jpg",
-                Star = 5,
-                Content = "Great service!",
-                CreateDate = DateTime.UtcNow
-            },
-            new FeedbackCustomerDto
-            {
-                FeedbackId = 2,
-                CustomerId = 102,
-                OrderId = 1002,
-                CustomerName = "Jane Smith",
-                CustomerImage = "jane_smith.jpg",
-                Star = 4,
-                Content = "Good food!",
-                CreateDate = DateTime.UtcNow.AddDays(-1)
-            }
-        };
-
-            var paginatedList = new PaginatedList<FeedbackCustomerDto>(feedbackList, feedbackList.Count, 1, 2);
-            _mockFeedbackService
-                .Setup(service => service.ListCustomerPagingAsync(1))
-                .ReturnsAsync(paginatedList);
-
-            // Act
-            var result = await _controller.GetCustomerFeedbacks(1);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.           Assert.IsNotNull(okResult);
-            var response = okResult.Value as PaginatedResponseDto<FeedbackCustomerDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.               Assert.AreEqual(1, response.PageIndex);
-            Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.AreEqual(2, response.Items.Count);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("John Doe", response.Items[0].CustomerName);
-        }
-
-        
-
-        [TestMethod]
-        public async Task GetCustomerFeedbacks_WithStarFilter_ReturnsFilteredFeedback()
-        {
-            // Arrange
-            var feedbackList = new List<FeedbackCustomerDto>
-        {
-            new FeedbackCustomerDto
-            {
-                FeedbackId = 3,
-                CustomerId = 103,
-                OrderId = 1003,
-                CustomerName = "Alice",
-                CustomerImage = "alice.jpg",
-                Star = 5,
-                Content = "Excellent!",
-                CreateDate = DateTime.UtcNow
-            }
-        };
-
-            var paginatedList = new PaginatedList<FeedbackCustomerDto>(feedbackList, feedbackList.Count, 1, 1);
+                new FeedbackCustomerDto
+                {
+                    FeedbackId = 1,
+                    CustomerId = 123,
+                    OrderId = 456,
+                    CustomerName = "John Doe",
+                    CustomerImage = "john_image_url",
+                    Star = 5,
+                    Content = "Great restaurant!",
+                    CreateDate = DateTime.UtcNow,
+                    isReply = true,
+                },
+                new FeedbackCustomerDto
+                {
+                    FeedbackId = 2,
+                    CustomerId = 789,
+                    OrderId = 1011,
+                    CustomerName = "Jane Smith",
+                    CustomerImage = "jane_image_url",
+                    Star = 4,
+                    Content = "Nice ambiance!",
+                    CreateDate = DateTime.UtcNow,
+                    isReply = false,
+                    FeedbackReplyCustomer = new FeedbackReplyCustomerDto()
+                }
+            };
 
             _mockFeedbackService
-                .Setup(service => service.ListCustomerPagingAsync(1))
-                .ReturnsAsync(paginatedList);
-
-            // Act
-            var result = await _controller.GetCustomerFeedbacks(1);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.       Assert.IsNotNull(okResult);
-            var response = okResult.Value as PaginatedResponseDto<FeedbackCustomerDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(5, response.Items[0].Star);
-        }
-
-        [TestMethod]
-        public async Task GetCustomerFeedbacks_NonRestaurant_ReturnsEmptyList()
-        {
-            // Arrange
-            int restaurantId = 99999;
-            int pageNumber = 1;
-            int pageSize = 10;
-
-            // Setup mock to return an empty paginated list when the restaurantId is 99999
-            var emptyFeedbackList = new PaginatedList<FeedbackCustomerDto>(new List<FeedbackCustomerDto>(), pageNumber, pageSize, 0);
-            _mockFeedbackService
-                .Setup(service => service.ListCustomerPagingAsync( restaurantId))
-                .ReturnsAsync(emptyFeedbackList);
+                .Setup(service => service.ListCustomerPagingAsync(restaurantId))
+                .ReturnsAsync(feedbacks);
 
             // Act
             var result = await _controller.GetCustomerFeedbacks(restaurantId);
 
             // Assert
             var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult, "Expected an OkObjectResult");
-            var response = okResult.Value as PaginatedResponseDto<FeedbackCustomerDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response, "Expected a PaginatedResponseDto<FeedbackCustomerDto>");
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(0, response.Items.Count, "Expected an empty feedback list");
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
+            var response = okResult.Value as List<FeedbackCustomerDto>;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(2, response.Count); // Ensure two feedbacks are returned
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("John Doe", response[0].CustomerName); // Check customer name
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(5, response[0].Star); // Check star rating
+        }
+
+        [TestMethod]
+        public async Task GetCustomerFeedbacks_InvalidRestaurantId_ReturnsEmptyList()
+        {
+            // Arrange
+            int restaurantId = 99999; // Non-existent restaurantId
+            var feedbacks = new List<FeedbackCustomerDto>(); // Empty list for invalid restaurantId
+
+            _mockFeedbackService
+                .Setup(service => service.ListCustomerPagingAsync(restaurantId))
+                .ReturnsAsync(feedbacks);
+
+            // Act
+            var result = await _controller.GetCustomerFeedbacks(restaurantId);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
+            var response = okResult.Value as List<FeedbackCustomerDto>;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(0, response.Count); // Should return an empty list
+        }
+
+        [TestMethod]
+        public async Task GetCustomerFeedbacks_FilterByStar_ReturnsFilteredFeedbacks()
+        {
+            // Arrange
+            int restaurantId = 1; // Example restaurantId
+            var feedbacks = new List<FeedbackCustomerDto>
+            {
+                new FeedbackCustomerDto
+                {
+                    FeedbackId = 1,
+                    Star = 5,
+                    Content = "Excellent service!"
+                },
+                new FeedbackCustomerDto
+                {
+                    FeedbackId = 2,
+                    Star = 4,
+                    Content = "Good experience"
+                }
+            };
+
+            _mockFeedbackService
+                .Setup(service => service.ListCustomerPagingAsync(restaurantId))
+                .ReturnsAsync(feedbacks);
+
+            // Act
+            var result = await _controller.GetCustomerFeedbacks(restaurantId);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
+            var response = okResult.Value as List<FeedbackCustomerDto>;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(response.All(f => f.Star >= 4)); // Ensure all feedbacks have a star >= 4
+        }
+
+        [TestMethod]
+        public async Task GetCustomerFeedbacks_FilterByContent_ReturnsFilteredFeedbacks()
+        {
+            // Arrange
+            int restaurantId = 1; // Example restaurantId
+            var feedbacks = new List<FeedbackCustomerDto>
+            {
+                new FeedbackCustomerDto
+                {
+                    FeedbackId = 1,
+                    Content = "Great food!"
+                },
+                new FeedbackCustomerDto
+                {
+                    FeedbackId = 2,
+                    Content = "Nice ambiance!"
+                }
+            };
+
+            _mockFeedbackService
+                .Setup(service => service.ListCustomerPagingAsync(restaurantId))
+                .ReturnsAsync(feedbacks);
+
+            // Act
+            var result = await _controller.GetCustomerFeedbacks(restaurantId);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
+            var response = okResult.Value as List<FeedbackCustomerDto>;
+                Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.IsNotNull(response);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(response.All(f => f.Content.Contains("food") || f.Content.Contains("ambiance"))); // Check content filtering
         }
     }
 }

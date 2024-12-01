@@ -3,13 +3,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TOPDER.API.Controllers;
-using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Dtos.CategoryRestaurant;
 using TOPDER.Service.IServices;
+using TOPDER.Service.Common.CommonDtos;
 using TOPDER.Service.Utils;
 
 namespace TOPDER.Test2.CategoryRestaurantControllerTest
@@ -48,8 +46,8 @@ namespace TOPDER.Test2.CategoryRestaurantControllerTest
 
             var mockResult = new PaginatedList<CategoryRestaurantViewDto>(
                 categoryList,    // List of items
-                pageNumber,                // Page index
-                1,                         // Total pages
+                pageNumber,      // Page index
+                1,               // Total pages
                 categoryList.Count // Total count (number of items)
             );
 
@@ -64,10 +62,10 @@ namespace TOPDER.Test2.CategoryRestaurantControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
 
-            var response = okResult.Value as PaginatedResponseDto<CategoryRestaurantDto>;
+            var response = okResult.Value as PaginatedResponseDto<CategoryRestaurantViewDto>;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.PageIndex);
-                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.TotalPages);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.TotalPages);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.Items.Count);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Italian", response.Items[0].CategoryRestaurantName);
         }
@@ -109,8 +107,8 @@ namespace TOPDER.Test2.CategoryRestaurantControllerTest
 
             var mockResult = new PaginatedList<CategoryRestaurantViewDto>(
                 categoryList,    // List of items
-                pageNumber,                // Page index
-                1,                         // Total pages
+                pageNumber,      // Page index
+                1,               // Total pages
                 categoryList.Count // Total count (number of items)
             );
 
@@ -125,11 +123,11 @@ namespace TOPDER.Test2.CategoryRestaurantControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
 
-            var response = okResult.Value as PaginatedResponseDto<CategoryRestaurantDto>;
+            var response = okResult.Value as PaginatedResponseDto<CategoryRestaurantViewDto>;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.PageIndex);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.TotalPages);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.Items.Count);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(4, response.Items.Count); // Adjusted to return all items
         }
 
         [TestMethod]

@@ -41,78 +41,74 @@ namespace TOPDER.Test2.FeedbackControllerTest
             );
         }
 
-
         [TestMethod]
-        public async Task GetAdminFeedbacks_DefaultPagination_ReturnsPaginatedFeedbacks()
+        public async Task GetAdminFeedbacks_ReturnsOkResult_WithFeedbackList()
         {
             // Arrange
-            var feedbacks = new PaginatedList<FeedbackAdminDto>(
-                new List<FeedbackAdminDto> { new FeedbackAdminDto { FeedbackId = 1, Content = "Feedback content" } },
-                1, 10, 1
-            );
+            var feedbacks = new List<FeedbackAdminDto>
+            {
+                new FeedbackAdminDto
+                {
+                    FeedbackId = 1,
+                    CustomerId = 1,
+                    OrderId = 1,
+                    CustomerName = "John Doe",
+                    RestaurantId = 1,
+                    RestaurantName = "Restaurant A",
+                    Star = 5,
+                    Content = "Excellent!",
+                    CreateDate = DateTime.Now,
+                    Status = "Active"
+                },
+                new FeedbackAdminDto
+                {
+                    FeedbackId = 2,
+                    CustomerId = 2,
+                    OrderId = 2,
+                    CustomerName = "Jane Doe",
+                    RestaurantId = 1,
+                    RestaurantName = "Restaurant B",
+                    Star = 4,
+                    Content = "Very good",
+                    CreateDate = DateTime.Now,
+                    Status = "Active"
+                }
+            };
 
-            _mockFeedbackService
-                .Setup(service => service.ListAdminPagingAsync())
-                .ReturnsAsync(feedbacks);
+            // Mocking the service method to return the list of feedbacks
+            _mockFeedbackService.Setup(service => service.ListAdminPagingAsync())
+                                .ReturnsAsync(feedbacks);
 
             // Act
-            var result = await _controller.GetAdminFeedbacks();
+            var result = await _controller.GetAdminFeedbacks() as OkObjectResult;
 
             // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            var response = okResult.Value as PaginatedResponseDto<FeedbackAdminDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.Items.Count            );
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.Items.Count);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, result.StatusCode);
+            var returnedFeedbacks = result.Value as List<FeedbackAdminDto>;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(returnedFeedbacks);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(2, returnedFeedbacks.Count);
         }
 
         [TestMethod]
-        public async Task GetAdminFeedbacks_FilterByStar_ReturnsFilteredFeedbacks()
+        public async Task GetAdminFeedbacks_ReturnsOkResult_WithEmptyList()
         {
             // Arrange
-            var feedbacks = new PaginatedList<FeedbackAdminDto>(
-                new List<FeedbackAdminDto> { new FeedbackAdminDto { FeedbackId = 2, Star = 5, Content = "Excellent!" } },
-                1, 1, 1
-            );
+            var feedbacks = new List<FeedbackAdminDto>(); // Empty list
 
-            _mockFeedbackService
-                .Setup(service => service.ListAdminPagingAsync())
-                .ReturnsAsync(feedbacks);
+            // Mocking the service method to return an empty list
+            _mockFeedbackService.Setup(service => service.ListAdminPagingAsync())
+                                .ReturnsAsync(feedbacks);
 
             // Act
-            var result = await _controller.GetAdminFeedbacks();
+            var result = await _controller.GetAdminFeedbacks() as OkObjectResult;
 
             // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            var response = okResult.Value as PaginatedResponseDto<FeedbackAdminDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(response.Items.TrueForAll(f => f.Star == 5));
-        }
-
-        [TestMethod]
-        public async Task GetAdminFeedbacks_FilterByContent_ReturnsFilteredFeedbacks()
-        {
-            // Arrange
-            var feedbacks = new PaginatedList<FeedbackAdminDto>(
-                new List<FeedbackAdminDto> { new FeedbackAdminDto { FeedbackId = 3, Content = "Good service!" } },
-                1, 1, 1
-            );
-
-            _mockFeedbackService
-                .Setup(service => service.ListAdminPagingAsync())
-                .ReturnsAsync(feedbacks);
-
-            // Act
-            var result = await _controller.GetAdminFeedbacks();
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            var response = okResult.Value as PaginatedResponseDto<FeedbackAdminDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(response.Items.TrueForAll(f => f.Content.Contains("service")));
+                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, result.StatusCode);
+            var returnedFeedbacks = result.Value as List<FeedbackAdminDto>;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(returnedFeedbacks);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(0, returnedFeedbacks.Count);
         }
 
     }

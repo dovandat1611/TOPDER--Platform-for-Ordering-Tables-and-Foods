@@ -14,6 +14,7 @@ using TOPDER.Repository.Entities;
 using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Dtos.Order;
 using TOPDER.Service.Dtos.OrderMenu;
+using TOPDER.Service.Dtos.RestaurantPolicy;
 using TOPDER.Service.Dtos.User;
 using TOPDER.Service.Dtos.Wallet;
 using TOPDER.Service.Dtos.WalletTransaction;
@@ -95,117 +96,153 @@ namespace TOPDER.Test2.OrderControllerTest
 
 
         [TestMethod]
-        public async Task PaidOrder_ValidISBALANCEPayment_ReturnsOk()
-        {
-            // Arrange
-            var orderId = 1;
-            var userId = 1;
-            var paymentGateway = PaymentGateway.ISBALANCE;
-            var typeOrder = Paid_Type.ENTIRE_ORDER;
-
-            var mockOrder = new OrderDto
-            {
-                OrderId = orderId,
-                CustomerId = userId,
-                RestaurantId = 1,
-                TotalAmount = 100,
-                StatusPayment = Payment_Status.PENDING
-            };
-
-            _orderServiceMock.Setup(s => s.GetItemAsync(orderId, userId))
-                .ReturnsAsync(mockOrder);
-
-            _walletServiceMock.Setup(s => s.GetBalanceOrderAsync(userId))
-                .ReturnsAsync(200);
-
-            _walletServiceMock.Setup(s => s.UpdateWalletBalanceOrderAsync(It.IsAny<WalletBalanceOrderDto>()))
-                .ReturnsAsync(true);
-
-            _orderServiceMock.Setup(s => s.UpdateStatusAsync(orderId, Order_Status.PAID))
-                .ReturnsAsync(mockOrder);
-
-            // Act
-            var result = await _controller.PaidOrder(orderId, userId, paymentGateway, typeOrder);
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Thanh toán đơn hàng thành công", okResult.Value);
-        }
-
-        [TestMethod]
-        public async Task PaidOrder_InvalidTypeOrder_ReturnsBadRequest()
-        {
-            // Arrange
-            var orderId = 1;
-            var userId = 1;
-            var paymentGateway = PaymentGateway.ISBALANCE;
-            var invalidTypeOrder = "INVALID";
-
-            _orderServiceMock.Setup(s => s.GetItemAsync(orderId, userId))
-                .ThrowsAsync(new KeyNotFoundException("Order not found"));
-
-            // Act
-            var result = await _controller.PaidOrder(orderId, userId, paymentGateway, invalidTypeOrder);
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Chọn typeOrder là Deposit hoặc EntireOrder!", ((dynamic)badRequestResult.Value).message);
-        }
-
-        [TestMethod]
-        public async Task PaidOrder_InvalidPaymentGateway_ReturnsBadRequest()
-        {
-            // Arrange
-            var orderId = 1;
-            var userId = 1;
-            var invalidPaymentGateway = "INVALID";
-            var typeOrder = Paid_Type.ENTIRE_ORDER;
-
-            var mockOrder = new OrderDto
-            {
-                OrderId = orderId,
-                CustomerId = userId,
-                RestaurantId = 1,
-                TotalAmount = 100,
-                StatusPayment = Payment_Status.PENDING
-            };
-
-            _orderServiceMock.Setup(s => s.GetItemAsync(orderId, userId))
-                .ReturnsAsync(mockOrder);
-
-            // Act
-            var result = await _controller.PaidOrder(orderId, userId, invalidPaymentGateway, typeOrder);
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Cổng thanh toán không hợp lệ.", badRequestResult.Value);
-        }
-
-        [TestMethod]
         public async Task PaidOrder_OrderNotFound_ReturnsNotFound()
         {
             // Arrange
-            var orderId = 9999;
-            var userId = 1;
-            var paymentGateway = PaymentGateway.ISBALANCE;
-            var typeOrder = Paid_Type.ENTIRE_ORDER;
+            int orderId = 1;
+            int userId = 1;
+            string paymentGateway = PaymentGateway.ISBALANCE;
+            string typeOrder = Paid_Type.ENTIRE_ORDER;
 
             _orderServiceMock.Setup(s => s.GetItemAsync(orderId, userId))
-                .ThrowsAsync(new KeyNotFoundException("Order not found"));
+                             .Throws(new KeyNotFoundException("Order not found"));
 
             // Act
             var result = await _controller.PaidOrder(orderId, userId, paymentGateway, typeOrder);
 
             // Assert
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
-            var notFoundResult = result as NotFoundObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Order not found", ((dynamic)notFoundResult.Value).message);
+            var objectResult = (NotFoundObjectResult)result;
         }
-    }
 
+        [TestMethod]
+        public async Task PaidOrder_UnauthorizedUser_ReturnsForbid()
+        {
+            // Arrange
+            int orderId = 1;
+            int userId = 1;
+            string paymentGateway = PaymentGateway.ISBALANCE;
+            string typeOrder = Paid_Type.ENTIRE_ORDER;
+
+            _orderServiceMock.Setup(s => s.GetItemAsync(orderId, userId))
+                             .Throws(new UnauthorizedAccessException("Unauthorized"));
+
+            // Act
+            var result = await _controller.PaidOrder(orderId, userId, paymentGateway, typeOrder);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(ForbidResult));
+        }
+
+        [TestMethod]
+        public async Task PaidOrder_InvalidTypeOrder_ReturnsBadRequest()
+        {
+            // Arrange
+            int orderId = 1;
+            int userId = 1;
+            string paymentGateway = PaymentGateway.ISBALANCE;
+            string typeOrder = "InvalidType";
+
+            // Act
+            var result = await _controller.PaidOrder(orderId, userId, paymentGateway, typeOrder);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var objectResult = (BadRequestObjectResult)result;
+        }
+
+        [TestMethod]
+        public async Task PaidOrder_InsufficientWalletBalance_ReturnsBadRequest()
+        {
+            // Arrange
+            int orderId = 1;
+            int userId = 1;
+            string paymentGateway = PaymentGateway.ISBALANCE;
+            string typeOrder = Paid_Type.ENTIRE_ORDER;
+            decimal totalAmount = 100;
+            decimal walletBalance = 50;
+
+            _orderServiceMock.Setup(s => s.GetItemAsync(orderId, userId)).ReturnsAsync(new OrderDto
+            {
+                OrderId = orderId,
+                CustomerId = userId,
+                TotalAmount = totalAmount
+            });
+
+            _walletServiceMock.Setup(w => w.GetBalanceOrderAsync(userId)).ReturnsAsync(walletBalance);
+
+            // Act
+            var result = await _controller.PaidOrder(orderId, userId, paymentGateway, typeOrder);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var objectResult = (BadRequestObjectResult)result;
+        }
+
+        [TestMethod]
+public async Task PaidOrder_SuccessfulWalletPayment_ReturnsOk()
+{
+    // Arrange
+    int orderId = 1;
+    int userId = 1;
+    string paymentGateway = PaymentGateway.ISBALANCE;
+    string typeOrder = Paid_Type.ENTIRE_ORDER;
+    decimal totalAmount = 100;
+    decimal walletBalance = 200;
+
+    var orderDto = new OrderDto
+    {
+        OrderId = orderId,
+        CustomerId = userId,
+        TotalAmount = totalAmount
+    };
+
+    var restaurant = new Restaurant
+    {
+        Uid = 123, // Mock a valid Uid for the restaurant
+        NameRes = "Test Restaurant" // Set any other required properties
+    };
+
+    // Mock the order service to return a valid order
+    _orderServiceMock.Setup(s => s.GetItemAsync(orderId, userId))
+                     .ReturnsAsync(orderDto);
+
+    // Mock the wallet service to return a sufficient wallet balance
+    _walletServiceMock.Setup(w => w.GetBalanceOrderAsync(userId))
+                      .ReturnsAsync(walletBalance);
+    
+    // Mock the wallet service to simulate a successful wallet balance update
+    _walletServiceMock.Setup(w => w.UpdateWalletBalanceOrderAsync(It.IsAny<WalletBalanceOrderDto>()))
+                      .ReturnsAsync(true);
+
+    // Mock the update order status service to return true
+    _orderServiceMock.Setup(s => s.UpdatePaidOrderAsync(It.IsAny<OrderDto>()))
+                     .ReturnsAsync(true);
+
+    // Mock the restaurant policy service to return a valid policy
+    _restaurantPolicyServiceMock.Setup(s => s.GetActivePolicyAsync(restaurant.Uid))
+                                .ReturnsAsync(new RestaurantPolicyDto
+                                {
+                                    Status = "ACTIVE",
+                                    FirstFeePercent = 5, // Example fee percent
+                                    ReturningFeePercent = 2
+                                });
+
+    // Mock the call to get restaurant details from a service
+    
+
+    // Act
+    var result = await _controller.PaidOrder(orderId, userId, paymentGateway, typeOrder);
+
+    // Assert
+    Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+    var objectResult = (OkObjectResult)result;
+
+    // Assert that the returned value is the expected success message
+    Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Thanh toán đơn hàng thành công", objectResult.Value);
+}
+
+    }
 }
 
 

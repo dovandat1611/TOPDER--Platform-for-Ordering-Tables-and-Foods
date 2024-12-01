@@ -60,6 +60,9 @@ namespace TOPDER.Test2.WalletTransactionControllerTest
             // Mock the service method to return true (indicating a successful status update)
             _walletTransactionServiceMock.Setup(s => s.UpdateStatus(transactionId, status))
                 .ReturnsAsync(true);
+            // Mock the SendAsync call to ensure it's called with the expected parameters
+            var mockClientProxy = new Mock<IClientProxy>();
+            _signalRHubMock.Setup(hub => hub.Clients.All).Returns(mockClientProxy.Object);
 
             // Act
             var result = await _controller.UpdateStatus(transactionId, status);

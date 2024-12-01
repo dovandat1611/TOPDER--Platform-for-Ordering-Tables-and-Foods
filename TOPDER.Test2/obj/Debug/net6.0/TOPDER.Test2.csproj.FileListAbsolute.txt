@@ -271,7 +271,6 @@ C:\Users\ASUS\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\appsettings.Devel
 C:\Users\ASUS\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\testhost.exe
 C:\Users\ASUS\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\testhost.dll
 C:\Users\ASUS\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\Microsoft.TestPlatform.PlatformAbstractions.dll
-C:\Users\ASUS\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\xunit.runner.visualstudio.dotnetcore.testadapter.dll
 C:\Users\ASUS\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\xunit.runner.reporters.netcoreapp10.dll
 C:\Users\ASUS\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\xunit.runner.utility.netcoreapp10.dll
 C:\Users\ASUS\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll
@@ -518,3 +517,4 @@ C:\Users\ASUS\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\Microsoft.VisualS
 C:\Users\ASUS\Desktop\TOPDER-SEP\TOPDER.Test2\obj\Debug\net6.0\TOPDER.T.C4A8A791.Up2Date
 C:\Users\ASUS\Desktop\TOPDER-SEP\TOPDER.Test2\obj\Debug\net6.0\TOPDER.Test2.genruntimeconfig.cache
 C:\Users\ASUS\Desktop\TOPDER-SEP\TOPDER.Test2\obj\Debug\net6.0\ref\TOPDER.Test2.dll
+C:\Users\ASUS\Desktop\TOPDER-SEP\TOPDER.Test2\bin\Debug\net6.0\xunit.runner.visualstudio.testadapter.dll

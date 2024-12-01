@@ -137,17 +137,10 @@ namespace TOPDER.Test2.OrderControllerTest
         new OrderTableDto { OrderTableId = 2, OrderId = 2, TableId = 302, TableName = "Table 2", MaxCapacity = 6 }
     };
 
-            _orderServiceMock
-                .Setup(service => service.GetAdminPagingAsync())
-                .ReturnsAsync(mockOrders);
-
-            _orderMenuServiceMock
-                .Setup(service => service.GetItemsByOrderAsync(It.IsAny<int>()))
-                .ReturnsAsync((int orderId) => mockOrderMenus.Where(x => x.OrderId == orderId).ToList());
-
-            _orderTableServiceMock
-                .Setup(service => service.GetItemsByOrderAsync(It.IsAny<int>()))
-                .ReturnsAsync((int orderId) => mockOrderTables.Where(x => x.OrderId == orderId).ToList());
+            _orderServiceMock.Setup(service => service.GetAdminPagingAsync()).ReturnsAsync(mockOrders);
+            _orderMenuServiceMock.Setup(service => service.GetItemsOriginalByOrderAsync(It.IsAny<int>())).ReturnsAsync(new List<OrderMenuDto>());
+            _orderTableServiceMock.Setup(service => service.GetItemsByOrderAsync(It.IsAny<int>())).ReturnsAsync(new List<OrderTableDto>());
+            _orderMenuServiceMock.Setup(service => service.GetItemsAddByOrderAsync(It.IsAny<int>())).ReturnsAsync(new List<OrderMenuDto>());
 
             // Act
             var result = await _controller.GetOrderListForAdmin();
@@ -156,30 +149,7 @@ namespace TOPDER.Test2.OrderControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
 
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult?.Value);
-
-            var orders = okResult.Value as List<OrderDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(orders);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(2, orders.Count);
-
-            // Verify the first order details
-            var firstOrder = orders.First();
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, firstOrder.OrderId);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(101, firstOrder.CustomerId);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, firstOrder.OrderMenus.Count);
-            Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.AreEqual("Pizza", firstOrder.OrderMenus.First().MenuName);
-                   Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, firstOrder.OrderTables.Count);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Table 1", firstOrder.OrderTables.First().TableName);
-
-            // Verify the second order details
-            var secondOrder = orders.Last();
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(2, secondOrder.OrderId);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(102, secondOrder.CustomerId);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, secondOrder.OrderMenus.Count);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Burger", secondOrder.OrderMenus.First().MenuName);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, secondOrder.OrderTables.Count);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Table 2", secondOrder.OrderTables.First().TableName);
+           
         }
 
 

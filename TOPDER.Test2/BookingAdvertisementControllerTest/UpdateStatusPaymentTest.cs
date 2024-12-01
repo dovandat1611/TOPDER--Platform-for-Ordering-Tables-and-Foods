@@ -107,10 +107,7 @@ namespace TOPDER.Test2.BookingAdvertisementControllerTest
                 StatusPayment = "Paid",
                 CreatedAt = new DateTime(2024, 11, 28, 14, 30, 0)
             };
-            _mockBookingAdvertisementService
-                .Setup(s => s.UpdateStatusPaymentAsync(bookingId, status))
-                .ReturnsAsync(booking1);
-
+            
             // Act
             var result = await _controller.UpdateStatusPayment(bookingId, status);
 

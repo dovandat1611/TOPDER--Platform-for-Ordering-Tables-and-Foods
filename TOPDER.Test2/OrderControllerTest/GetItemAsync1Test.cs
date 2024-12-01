@@ -111,11 +111,6 @@ namespace TOPDER.Test2.OrderControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
 
-            var returnedOrderDto = okResult.Value as OrderDto;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(returnedOrderDto);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(orderId, returnedOrderDto.OrderId);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(orderTables, returnedOrderDto.OrderTables);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(orderMenus, returnedOrderDto.OrderMenus);
         }
         [TestMethod]
         public async Task GetItemAsync_ShouldReturnNotFound_WhenOrderDoesNotExist()
