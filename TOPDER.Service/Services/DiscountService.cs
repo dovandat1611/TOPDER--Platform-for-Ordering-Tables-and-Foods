@@ -95,6 +95,10 @@ namespace TOPDER.Service.Services
                     }
                     return await _discountMenuRepository.CreateRangeAsync(discountMenus);
                 }
+                if(discountDto.Scope == DiscountScope.ENTIRE_ORDER)
+                {
+                    return true;
+                }
             }
             return false;
         }
@@ -360,7 +364,7 @@ namespace TOPDER.Service.Services
                     };
                     discountMenus.Add(discountMenu);
                 }
-                return await _discountMenuRepository.CreateRangeAsync(discountMenus);
+                 await _discountMenuRepository.CreateRangeAsync(discountMenus);
             }
 
             if (discountDto.Scope == DiscountScope.ENTIRE_ORDER)
