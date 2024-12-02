@@ -92,7 +92,7 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpPut("UpdateStatus/{bookingId}")]
+ /*       [HttpPut("UpdateStatus/{bookingId}")]
         public async Task<IActionResult> UpdateStatus(int bookingId, [FromQuery] string status)
         {
             var isUpdated = await _bookingAdvertisementService.UpdateStatusAsync(bookingId, status);
@@ -123,76 +123,9 @@ namespace TOPDER.API.Controllers
             return BadRequest(new { message = "Failed to update status. Please check the booking ID and status value." });
         }
 
+*/
+     
 
-        [HttpGet]
-        [Route("GetBookingAdvertisementForRestaurant/{restaurantId}")]
-        public async Task<ActionResult<List<BookingAdvertisementDto>>> GetAllBookingAdvertisementForRestaurant(int restaurantId)
-        {
-            var bookingAdvertisements = await _bookingAdvertisementService.GetAllBookingAdvertisementForRestaurantAsync(restaurantId);
-            return Ok(bookingAdvertisements);
-        }
-
-        [HttpPut("CheckPayment/{bookingId}")]
-        public async Task<IActionResult> UpdateStatusPayment(int bookingId, [FromQuery] string status)
-        {
-            var isUpdated = await _bookingAdvertisementService.UpdateStatusPaymentAsync(bookingId, status);
-
-            if (isUpdated != null)
-            {
-                NotificationDto notificationBookDto = new NotificationDto()
-                {
-                    NotificationId = 0,
-                    Uid = isUpdated.RestaurantId,
-                    CreatedAt = DateTime.Now,
-                    Content = Notification_Content.BOOKING_PAYEMT_SUCCRESSFUL(isUpdated.TotalAmount),
-                    Type = Notification_Type.SYSTEM_SUB,
-                    IsRead = false,
-                };
-
-                var notificationBook = await _notificationService.AddAsync(notificationBookDto);
-
-                if (notificationBook != null)
-                {
-                    List<NotificationDto> notifications = new List<NotificationDto> { notificationBook };
-                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
-                }
-
-                return Ok(new { message = "Status updated successfully." });
-            }
-
-
-            return BadRequest(new { message = "Failed to update status. Please check the booking ID and status value." });
-        }
-
-
-        [HttpPost("ChoosePaymentGatePaymentGateway")]
-        [SwaggerOperation(Summary = "ISBALANCE | VIETQR | VNPAY")]
-        public async Task<IActionResult> ChoosePaymentGatePaymentGateway(int bookingId, string paymentGateway)
-        {
-            BookingAdvertisement bookingAdvertisement;
-
-            bookingAdvertisement = await _bookingAdvertisementRepository.GetByIdAsync(bookingId);
-
-            if(bookingAdvertisement != null)
-            {
-
-                if (paymentGateway.Equals(PaymentGateway.ISBALANCE))
-                {
-                    return await HandleWalletPayment(bookingAdvertisement);
-                }
-
-                if (paymentGateway.Equals(PaymentGateway.VIETQR))
-                {
-                    return await HandleVietQRPayment(bookingAdvertisement);
-                }
-
-                if (paymentGateway.Equals(PaymentGateway.VNPAY))
-                {
-                    return await HandleVNPAYPayment(bookingAdvertisement);
-                }
-            }
-            return BadRequest("Cổng thanh toán không hợp lệ hoặc không tìm thấy booking.");
-        }
 
         private async Task<IActionResult> HandleWalletPayment(BookingAdvertisement bookingAdvertisement)
         {

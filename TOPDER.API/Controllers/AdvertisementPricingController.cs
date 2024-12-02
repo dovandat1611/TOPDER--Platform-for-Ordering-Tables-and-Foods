@@ -18,7 +18,7 @@ namespace TOPDER.API.Controllers
 
        
 
-
+/*
         [HttpPut("Update")]
         public async Task<IActionResult> Update([FromBody] AdvertisementPricingDto advertisementPricingDto)
         {
@@ -31,7 +31,7 @@ namespace TOPDER.API.Controllers
 
             return Ok("Advertisement Pricing updated successfully.");
         }
-
+*/
         [HttpDelete("Delete")]
         public async Task<IActionResult> Delete(int id)
         {
