@@ -87,36 +87,8 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateCategoryMenu([FromBody] CategoryMenuDto categoryMenuDto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+       
 
-            var result = await _categoryMenuService.UpdateAsync(categoryMenuDto);
-            if (result)
-            {
-                return Ok($"Cập nhật Category Menu với ID {categoryMenuDto.CategoryMenuId} thành công.");
-            }
-            return NotFound($"Category Menu với ID {categoryMenuDto.CategoryMenuId} không tồn tại.");
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> RemoveCategoryMenu(int id)
-        {
-            try
-            {
-                var result = await _categoryMenuService.RemoveAsync(id);
-                if (result)
-                {
-                    return Ok($"Xóa Category Menu với ID {id} thành công.");
-                }
-                return NotFound($"Category Menu với ID {id} không tồn tại.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Đã xảy ra lỗi trong quá trình xử lý: {ex.Message}");
-            }
-        }
+       
     }
 }

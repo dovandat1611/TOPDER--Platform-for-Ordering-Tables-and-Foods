@@ -81,17 +81,7 @@ namespace TOPDER.API.Controllers
             return Ok(response);
         }
 
-        [HttpDelete("{restaurantId}/{id}")]
-        public async Task<ActionResult> RemoveDiscount(int restaurantId, int id)
-        {
-            var result = await _discountService.RemoveAsync(id, restaurantId);
-            if (result)
-            {
-                return Ok("Xóa Discount thành công.");
-            }
-            return NotFound("Giảm giá không tồn tại hoặc không thuộc về nhà hàng.");
-        }
-
+     
         [HttpPut]
         public async Task<ActionResult> UpdateDiscount([FromBody] DiscountDto discountDto)
         {

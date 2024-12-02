@@ -34,22 +34,5 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpGet("restaurant/{restaurantId}")]
-        public async Task<ActionResult<DashboardRestaurantDto>> GetDashboardRestaurant(int restaurantId)
-        {
-            try
-            {
-                var result = await _dashboardService.GetDashboardRestaurantAsync(restaurantId);
-                return Ok(result);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
-    }
+      
 }
