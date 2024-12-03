@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TOPDER.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f0e8e3db4ef979ef1fb8f3eb8c1d21e18cb03443")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c062574956b69cb48d0c6cb8b910536cba81064d")]
 [assembly: System.Reflection.AssemblyProductAttribute("TOPDER.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TOPDER.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
