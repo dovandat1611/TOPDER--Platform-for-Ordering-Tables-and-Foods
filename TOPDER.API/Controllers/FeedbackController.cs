@@ -186,20 +186,20 @@ namespace TOPDER.API.Controllers
             return NotFound($"Feedback with ID {replyId} not found.");
         }
 
-        [HttpPut("Update")]
-        [SwaggerOperation(Summary = "Cập nhật Feedback: Customer")]
-        public async Task<IActionResult> UpdateFeedback([FromBody] FeedbackDto feedbackDto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+        //[HttpPut("Update")]
+        //[SwaggerOperation(Summary = "Cập nhật Feedback: Customer")]
+        //public async Task<IActionResult> UpdateFeedback([FromBody] FeedbackDto feedbackDto)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ModelState);
 
-            var result = await _feedbackService.UpdateAsync(feedbackDto);
-            if (result)
-            {
-                return Ok("Feedback updated successfully.");
-            }
-            return NotFound("Feedback not found.");
-        }
+        //    var result = await _feedbackService.UpdateAsync(feedbackDto);
+        //    if (result)
+        //    {
+        //        return Ok("Feedback updated successfully.");
+        //    }
+        //    return NotFound("Feedback not found.");
+        //}
 
         [HttpGet("GetFeedbackForRestaurantDetail/{restaurantId}")]
         [SwaggerOperation(Summary = "Lấy ra danh sách Feedback của nhà hàng đó trong CHI TIẾT NHÀ HÀNG: Customer")]

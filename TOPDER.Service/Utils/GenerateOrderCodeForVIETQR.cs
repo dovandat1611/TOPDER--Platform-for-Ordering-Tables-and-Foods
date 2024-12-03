@@ -10,7 +10,7 @@ namespace TOPDER.Service.Utils
     {
         public static long GenerateOrderCode(int id, int prefix)
         {
-            return prefix * 1_000_000_000L + id;
+            return prefix * 1_000_000L + id;
         }
     }
 }

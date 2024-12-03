@@ -313,7 +313,7 @@ namespace TOPDER.API.Controllers
             items.Add(new ItemData("Đặt quảng cáo",1, (int)bookingAdvertisement.TotalAmount));
 
             var paymentData = new PaymentData(
-                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(bookingAdvertisement.BookingId, 16112002),
+                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(bookingAdvertisement.BookingId, 7777),
                 amount: (int)bookingAdvertisement.TotalAmount,
                 description: Booking_PaymentContent.PaymentContentVIETQR(),
                 items: items,
