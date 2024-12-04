@@ -29,9 +29,9 @@ namespace TOPDER.API.Controllers
         }
 
 
-     
 
-     /*   [HttpGet("list")]
+
+        [HttpGet("list")]
         public async Task<IActionResult> ListPaging(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -59,7 +59,7 @@ namespace TOPDER.API.Controllers
             {
                 return StatusCode(500, $"An error occurred while processing your request: {ex.Message}");
             }
-        }*/
+        }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] CategoryRestaurantDto categoryRestaurantDto)

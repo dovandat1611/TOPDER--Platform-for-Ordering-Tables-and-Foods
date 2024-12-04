@@ -173,7 +173,7 @@ namespace TOPDER.API.Controllers
           
         }
 
-        private async Task<IActionResult> HandleVietQRPayment(BookingAdvertisement bookingAdvertisement)
+      /*  private async Task<IActionResult> HandleVietQRPayment(BookingAdvertisement bookingAdvertisement)
         {
             var items = new List<ItemData>();
 
@@ -192,7 +192,7 @@ namespace TOPDER.API.Controllers
             return Ok(createPayment.checkoutUrl);
         }
 
-   
+   */
 
     }
 }
