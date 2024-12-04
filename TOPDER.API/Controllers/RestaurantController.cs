@@ -26,7 +26,7 @@ namespace TOPDER.API.Controllers
         // CUSTOMER SITE
         [HttpGet("ServiceForCustomerSite")]
         [SwaggerOperation(Summary = "Trang dịch vụ để search nhà hàng theo (Address, Name, ProvinceCity,District,Commune, Price(min,max), Capacity, Category Restaurant): Customer")]
-        public async Task<IActionResult> GetItems([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10,
+        public async Task<IActionResult> GetItems([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10000,
             [FromQuery] string? name = null, [FromQuery] string? address = null,
             [FromQuery] string? provinceCity = null, [FromQuery] string? district = null,
             [FromQuery] string? commune = null, [FromQuery] int? restaurantCategory = null,
@@ -45,6 +45,7 @@ namespace TOPDER.API.Controllers
             );
             return Ok(response);
         }
+
 
         [HttpGet("HomeForCustomerSite")]
         [SwaggerOperation(Summary = "Trang Home chứa nhà hàng mới, nhà hàng uy tín, nhà hàng yêu thích, blog mới nhất... : Customer")]

@@ -122,16 +122,16 @@ namespace TOPDER.Service.Services
 
             var blogDtos = activeBlogs.Select(b => _mapper.Map<BlogListCustomerDto>(b)).ToList();
 
-            var topBookingRestaurants = restaurantDtos.OrderByDescending(x => x.TotalFeedbacks).ThenByDescending(x => x.ReputationScore).Take(6).ToList();
+            var topBookingRestaurants = restaurantDtos.OrderByDescending(x => x.TotalFeedbacks).ThenByDescending(x => x.ReputationScore).Take(4).ToList();
 
             var topStarRestaurants = restaurantDtos.OrderByDescending(x => x.Star)
                                                    .ThenByDescending(x => x.ReputationScore)
                                                    .ThenByDescending(x => x.TotalFeedbacks)
-                                                   .Take(6).ToList();
+                                                   .Take(4).ToList();
 
-            var newRestaurants = restaurantDtos.OrderByDescending(x => x.Uid).Take(6).ToList();
+            var newRestaurants = restaurantDtos.OrderByDescending(x => x.Uid).Take(4).ToList();
 
-            var topBlogs = blogDtos.OrderByDescending(x => x.BlogId).Take(6).ToList();
+            var topBlogs = blogDtos.OrderByDescending(x => x.BlogId).Take(4).ToList();
 
             return new RestaurantHomeDto
             {
@@ -194,6 +194,9 @@ namespace TOPDER.Service.Services
         public async Task<PaginatedList<RestaurantDto>> GetItemsAsync(int pageNumber, int pageSize, string? name,
             string? address, string? provinceCity, string? district, string? commune , int? restaurantCategory, decimal? minPrice, decimal? maxPrice, int? maxCapacity)
         {
+            // setup tra ra all luon hehe
+            pageSize = 1000;
+
             var queryable = await _restaurantRepository.QueryableAsync();
 
             queryable = queryable
@@ -253,7 +256,7 @@ namespace TOPDER.Service.Services
             var paginatedDTOs = await PaginatedList<RestaurantDto>.CreateAsync(
                 queryDTO.AsNoTracking(),
                 pageNumber > 0 ? pageNumber : 1,
-                pageSize > 0 ? pageSize : 10
+                pageSize > 0 ? pageSize : 1000
             );
 
             return paginatedDTOs;
