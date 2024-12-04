@@ -169,58 +169,8 @@ namespace TOPDER.API.Controllers
                 return BadRequest("Tạo giao dịch ví thất bại.");
             }
 
-            // Update the wallet balance after the transaction
-            WalletBalanceOrderDto walletBalanceOrder = new WalletBalanceOrderDto
-            {
-                Uid = bookingAdvertisement.RestaurantId,
-                WalletBalance = newWalletBalance
-            };
-
-            var updateWalletResult = await _walletService.UpdateWalletBalanceOrderAsync(walletBalanceOrder);
-
-            if (!updateWalletResult)
-            {
-                return BadRequest("Cập nhật số dư ví thất bại.");
-            }
-
-            var isUpdated = await _bookingAdvertisementService.UpdateStatusPaymentAsync(bookingAdvertisement.BookingId, Payment_Status.SUCCESSFUL);
-
-            if (isUpdated == null)
-            {
-                 return BadRequest("Thay đổi trạng thái booking thất bại.");
-            }
-
-            NotificationDto notificationWalletDto = new NotificationDto()
-            {
-                NotificationId = 0,
-                Uid = userOrderIsBalance.Id,
-                CreatedAt = DateTime.Now,
-                Content = Notification_Content.SYSTEM_SUB(bookingAdvertisement.TotalAmount),
-                Type = Notification_Type.SYSTEM_SUB,
-                IsRead = false,
-            };
-
-            NotificationDto notificationBookDto = new NotificationDto()
-            {
-                NotificationId = 0,
-                Uid = userOrderIsBalance.Id,
-                CreatedAt = DateTime.Now,
-                Content = Notification_Content.BOOKING_PAYEMT_SUCCRESSFUL(bookingAdvertisement.TotalAmount),
-                Type = Notification_Type.SYSTEM_SUB,
-                IsRead = false,
-            };
-
-            var notificationWallet = await _notificationService.AddAsync(notificationWalletDto);
-            var notificationBook = await _notificationService.AddAsync(notificationBookDto);
-
-
-            if (notificationWallet != null && notificationBook != null)
-            {
-                List<NotificationDto> notifications = new List<NotificationDto> { notificationWallet, notificationBook };
-                await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
-            }
-
-            return Ok("Thanh toán booking thành công");
+      
+          
         }
 
         private async Task<IActionResult> HandleVietQRPayment(BookingAdvertisement bookingAdvertisement)
@@ -242,21 +192,7 @@ namespace TOPDER.API.Controllers
             return Ok(createPayment.checkoutUrl);
         }
 
-        private async Task<IActionResult> HandleVNPAYPayment(BookingAdvertisement bookingAdvertisement)
-        {
-
-            var paymentInformationModel = new PaymentInformationModel()
-            {
-                BookingID = bookingAdvertisement.BookingId.ToString(),
-                AccountID = bookingAdvertisement.RestaurantId.ToString(),
-                CustomerName = bookingAdvertisement.RestaurantId.ToString(),
-                Amount = (int)bookingAdvertisement.TotalAmount,
-                PaymentType = "Booking"
-            };
-
-            string linkPayment = await _paymentGatewayService.CreatePaymentUrlVnpay(paymentInformationModel, HttpContext);
-            return Ok(linkPayment);
-        }
+   
 
     }
 }

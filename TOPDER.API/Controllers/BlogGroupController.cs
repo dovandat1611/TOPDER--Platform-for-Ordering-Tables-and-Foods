@@ -107,6 +107,20 @@ namespace TOPDER.API.Controllers
 
             return Ok(response);
         }
+        [HttpGet("list")]
+        public async Task<IActionResult> Chat([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? blogGroupName = null)
+        {
+            var result = await _blogGroupService.ListPagingAsync(pageNumber, pageSize, blogGroupName);
 
+            var response = new PaginatedResponseDto<BlogGroupDto>(
+                result,
+                result.PageIndex,
+                result.TotalPages,
+                result.HasPreviousPage,
+                result.HasNextPage
+            );
+
+            return Ok(response);
+        }
     }
 }

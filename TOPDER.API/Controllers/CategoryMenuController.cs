@@ -87,8 +87,38 @@ namespace TOPDER.API.Controllers
             }
         }
 
-       
 
-       
+        [HttpGet("list/{restaurantId}")]
+        public async Task<IActionResult> ListPaginga(
+            int restaurantId,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? categoryMenuName = null)
+        {
+            if (restaurantId <= 0)
+            {
+                return BadRequest("Restaurant ID must be greater than zero.");
+            }
+
+            try
+            {
+                var result = await _categoryMenuService.ListPagingAsync(pageNumber, pageSize, restaurantId, categoryMenuName);
+                var response = new PaginatedResponseDto<CategoryMenuDto>(
+                    result,
+                    result.PageIndex,
+                    result.TotalPages,
+                    result.HasPreviousPage,
+                    result.HasNextPage
+                );
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Đã xảy ra lỗi trong quá trình xử lý: {ex.Message}");
+            }
+        }
+
+
+
     }
 }
