@@ -191,7 +191,6 @@ namespace TOPDER.API.Controllers
 
             if(bookingAdvertisement != null)
             {
-
                 if (paymentGateway.Equals(PaymentGateway.ISBALANCE))
                 {
                     return await HandleWalletPayment(bookingAdvertisement);

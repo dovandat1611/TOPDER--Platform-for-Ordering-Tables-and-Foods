@@ -41,7 +41,7 @@ namespace TOPDER.Service.Dtos.Restaurant
         public string Email { get; set; } = null!;
 
         [Required(ErrorMessage = "Price is required.")]
-        [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "Price must be greater than zero.")]
+        [Range(0.00, (double)decimal.MaxValue, ErrorMessage = "Price must be greater or equal zero.")]
         public decimal Price { get; set; }
 
         [Required(ErrorMessage = "Maximum capacity is required.")]
