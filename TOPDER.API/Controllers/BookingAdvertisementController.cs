@@ -151,32 +151,41 @@ namespace TOPDER.API.Controllers
         [HttpPut("CheckPayment/{bookingId}")]
         public async Task<IActionResult> UpdateStatusPayment(int bookingId, [FromQuery] string status)
         {
-            var isUpdated = await _bookingAdvertisementService.UpdateStatusPaymentAsync(bookingId, status);
+            var booking = await _bookingAdvertisementRepository.GetByIdAsync(bookingId);
 
-            if (isUpdated != null)
+            if (booking != null)
             {
-                NotificationDto notificationBookDto = new NotificationDto()
+                if(booking.StatusPayment.Equals(Payment_Status.SUCCESSFUL) || booking.StatusPayment.Equals(Payment_Status.CANCELLED))
                 {
-                    NotificationId = 0,
-                    Uid = isUpdated.RestaurantId,
-                    CreatedAt = DateTime.Now,
-                    Content = Notification_Content.BOOKING_PAYEMT_SUCCRESSFUL(isUpdated.TotalAmount),
-                    Type = Notification_Type.SYSTEM_SUB,
-                    IsRead = false,
-                };
-
-                var notificationBook = await _notificationService.AddAsync(notificationBookDto);
-
-                if (notificationBook != null)
-                {
-                    List<NotificationDto> notifications = new List<NotificationDto> { notificationBook };
-                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                    Ok(new { message = "Cập nhật trạng thái đã được cập nhật trước đó." });
                 }
+                if (booking.StatusPayment.Equals(Payment_Status.PENDING))
+                {
+                    var isUpdated = await _bookingAdvertisementService.UpdateStatusPaymentAsync(bookingId, status);
 
-                return Ok(new { message = "Status updated successfully." });
+                    if (isUpdated != null)
+                    {
+                        NotificationDto notificationBookDto = new NotificationDto()
+                        {
+                            NotificationId = 0,
+                            Uid = isUpdated.RestaurantId,
+                            CreatedAt = DateTime.Now,
+                            Content = Notification_Content.BOOKING_PAYEMT_SUCCRESSFUL(isUpdated.TotalAmount),
+                            Type = Notification_Type.SYSTEM_SUB,
+                            IsRead = false,
+                        };
+
+                        var notificationBook = await _notificationService.AddAsync(notificationBookDto);
+
+                        if (notificationBook != null)
+                        {
+                            List<NotificationDto> notifications = new List<NotificationDto> { notificationBook };
+                            await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                        }
+                        return Ok(new { message = "Status updated successfully." });
+                    }
+                }
             }
-
-
             return BadRequest(new { message = "Failed to update status. Please check the booking ID and status value." });
         }
 

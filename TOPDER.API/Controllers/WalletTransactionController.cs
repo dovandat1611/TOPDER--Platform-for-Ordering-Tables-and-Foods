@@ -31,11 +31,14 @@ namespace TOPDER.API.Controllers
         private readonly IConfiguration _configuration;
         private readonly IHubContext<AppHub> _signalRHub;
         private readonly INotificationService _notificationService;
+        private readonly IWalletTransactionRepository _walletTransactionRepository;
+
 
 
         public WalletTransactionController(IWalletTransactionService walletTransactionService, 
             IWalletService walletService, IPaymentGatewayService paymentGatewayService, IConfiguration configuration
-            , IHubContext<AppHub> signalRHub, INotificationService notificationService)
+            , IHubContext<AppHub> signalRHub, INotificationService notificationService,
+            IWalletTransactionRepository walletTransactionRepository)
         {
             _walletTransactionService = walletTransactionService;
             _walletService = walletService;
@@ -43,6 +46,7 @@ namespace TOPDER.API.Controllers
             _configuration = configuration;
             _signalRHub = signalRHub;
             _notificationService = notificationService;
+            _walletTransactionRepository = walletTransactionRepository;
         }
 
         [HttpPost("Withdraw")]
@@ -106,50 +110,61 @@ namespace TOPDER.API.Controllers
                 return BadRequest(new { message = "Trạng thái không hợp lệ." });
             }
 
-            if (status.Equals(Payment_Status.CANCELLED))
+            var transaction = await _walletTransactionRepository.GetByIdAsync(transactionId);
+            if(transaction != null)
             {
-                var result = await _walletTransactionService.UpdateStatus(transactionId, status);
-                return result
-                    ? Ok(new { message = "Cập nhật trạng thái giao dịch thành công." })
-                    : BadRequest(new { message = "Cập nhật trạng thái giao dịch thất bại." });
-            }
-
-            if (status.Equals(Payment_Status.SUCCESSFUL))
-            {
-                var getWalletBalance = await _walletTransactionService.GetWalletBalanceAsync(transactionId);
-
-                var updateWallet = await _walletService.UpdateWalletBalanceAsync(getWalletBalance);
-
-                if (updateWallet)
+                if (transaction.Status.Equals(Payment_Status.CANCELLED)  || transaction.Status.Equals(Payment_Status.SUCCESSFUL))
                 {
-                    // NOTI
-                    NotificationDto notificationDto = new NotificationDto()
-                    {
-                        NotificationId = 0,
-                        Uid = getWalletBalance.Uid,
-                        CreatedAt = DateTime.Now,
-                        Content = Notification_Content.RECHARGE(getWalletBalance.TransactionAmount ?? 0),
-                        Type = Notification_Type.RECHARGE,
-                        IsRead = false,
-                    };
-
-                    var notification = await _notificationService.AddAsync(notificationDto);
-
-                    if (notification != null)
-                    {
-                        List<NotificationDto> notifications = new List<NotificationDto> { notification};
-                        await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
-                    }
-
-                    var result = await _walletTransactionService.UpdateStatus(transactionId, status);
-                    return result
-                        ? Ok(new { message = "Cập nhật trạng thái giao dịch thành công." })
-                        : BadRequest(new { message = "Cập nhật trạng thái giao dịch thất bại." });
+                    return Ok(new { message = "Trạng thái đã được cập nhật trước đó." });
                 }
 
-                return BadRequest(new { message = "Cập nhật số dư ví thất bại." });
-            }
+                if(transaction.Status.Equals(Payment_Status.PENDING))
+                {
+                    if (status.Equals(Payment_Status.CANCELLED))
+                    {
+                        var result = await _walletTransactionService.UpdateStatus(transactionId, status);
+                        return result
+                            ? Ok(new { message = "Cập nhật trạng thái giao dịch thành công." })
+                            : BadRequest(new { message = "Cập nhật trạng thái giao dịch thất bại." });
+                    }
 
+                    if (status.Equals(Payment_Status.SUCCESSFUL))
+                    {
+                        var getWalletBalance = await _walletTransactionService.GetWalletBalanceAsync(transactionId);
+
+                        var updateWallet = await _walletService.UpdateWalletBalanceAsync(getWalletBalance);
+
+                        if (updateWallet)
+                        {
+                            // NOTI
+                            NotificationDto notificationDto = new NotificationDto()
+                            {
+                                NotificationId = 0,
+                                Uid = getWalletBalance.Uid,
+                                CreatedAt = DateTime.Now,
+                                Content = Notification_Content.RECHARGE(getWalletBalance.TransactionAmount ?? 0),
+                                Type = Notification_Type.RECHARGE,
+                                IsRead = false,
+                            };
+
+                            var notification = await _notificationService.AddAsync(notificationDto);
+
+                            if (notification != null)
+                            {
+                                List<NotificationDto> notifications = new List<NotificationDto> { notification };
+                                await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                            }
+
+                            var result = await _walletTransactionService.UpdateStatus(transactionId, status);
+                            return result
+                                ? Ok(new { message = "Cập nhật trạng thái giao dịch thành công." })
+                                : BadRequest(new { message = "Cập nhật trạng thái giao dịch thất bại." });
+                        }
+
+                        return BadRequest(new { message = "Cập nhật số dư ví thất bại." });
+                    }
+                }
+            }
             return BadRequest(new { message = "Trạng thái không hợp lệ. Vui lòng chọn CANCELLED hoặc SUCCESSFUL." });
         }
 

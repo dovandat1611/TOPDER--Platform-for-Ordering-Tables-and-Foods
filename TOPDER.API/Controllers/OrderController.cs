@@ -760,55 +760,67 @@ namespace TOPDER.API.Controllers
                 return BadRequest(new { message = "Trạng thái không hợp lệ." });
             }
 
-            if (status.Equals(Payment_Status.CANCELLED))
+            var order = await _orderRepository.GetByIdAsync(orderID);
+            if(order != null)
             {
-                var result = await _orderService.UpdateStatusOrderPayment(orderID, status);
-                return result
-                    ? Ok(new { message = "Cập nhật trạng thái giao dịch thành công." })
-                    : BadRequest(new { message = "Cập nhật trạng thái giao dịch thất bại." });
-            }
-
-            if (status.Equals(Payment_Status.SUCCESSFUL))
-            {
-                var result = await _orderService.UpdateStatusOrderPayment(orderID, status);
-                // SEND MAIL 
-                OrderPaidEmail orderPaidEmail = await _orderService.GetOrderPaid(orderID);
-
-                // NOTI
-                NotificationDto notificationCusDto = new NotificationDto()
+                if (order.StatusPayment.Equals(Payment_Status.CANCELLED) || order.StatusPayment.Equals(Payment_Status.SUCCESSFUL))
                 {
-                    NotificationId = 0,
-                    Uid = orderPaidEmail.CustomerId,
-                    CreatedAt = DateTime.Now,
-                    Content = Notification_Content.ORDER_PAYMENT_THIRTPART(orderPaidEmail.TotalAmount),
-                    Type = Notification_Type.ORDER,
-                    IsRead = false,
-                };
-                NotificationDto notificationResDto = new NotificationDto()
-                {
-                    NotificationId = 0,
-                    Uid = orderPaidEmail.RestaurantId,
-                    CreatedAt = DateTime.Now,
-                    Content = Notification_Content.ORDER_PAYMENT_THIRTPART(orderPaidEmail.TotalAmount),
-                    Type = Notification_Type.ORDER,
-                    IsRead = false,
-                };
-
-                var notificationCus = await _notificationService.AddAsync(notificationCusDto);
-                var notificationRes = await _notificationService.AddAsync(notificationResDto);
-
-
-                if (notificationCus != null && notificationRes != null)
-                {
-                    List<NotificationDto> notifications = new List<NotificationDto> { notificationCus, notificationRes };
-                    await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                    Ok(new { message = "Cập nhật trạng thái đã được cập nhật trước đó." });
                 }
 
-                await _sendMailService.SendEmailAsync(orderPaidEmail.Email, Email_Subject.ORDERCONFIRM, EmailTemplates.Order(orderPaidEmail));
+                if (order.StatusPayment.Equals(Payment_Status.PENDING))
+                {
+                    if (status.Equals(Payment_Status.CANCELLED))
+                    {
+                        var result = await _orderService.UpdateStatusOrderPayment(orderID, status);
+                        return result
+                            ? Ok(new { message = "Cập nhật trạng thái giao dịch thành công." })
+                            : BadRequest(new { message = "Cập nhật trạng thái giao dịch thất bại." });
+                    }
 
-                return result
-                        ? Ok(new { message = "Cập nhật trạng thái giao dịch thành công." })
-                        : BadRequest(new { message = "Cập nhật trạng thái giao dịch thất bại." });
+                    if (status.Equals(Payment_Status.SUCCESSFUL))
+                    {
+                        var result = await _orderService.UpdateStatusOrderPayment(orderID, status);
+                        // SEND MAIL 
+                        OrderPaidEmail orderPaidEmail = await _orderService.GetOrderPaid(orderID);
+
+                        // NOTI
+                        NotificationDto notificationCusDto = new NotificationDto()
+                        {
+                            NotificationId = 0,
+                            Uid = orderPaidEmail.CustomerId,
+                            CreatedAt = DateTime.Now,
+                            Content = Notification_Content.ORDER_PAYMENT_THIRTPART(orderPaidEmail.TotalAmount),
+                            Type = Notification_Type.ORDER,
+                            IsRead = false,
+                        };
+                        NotificationDto notificationResDto = new NotificationDto()
+                        {
+                            NotificationId = 0,
+                            Uid = orderPaidEmail.RestaurantId,
+                            CreatedAt = DateTime.Now,
+                            Content = Notification_Content.ORDER_PAYMENT_THIRTPART(orderPaidEmail.TotalAmount),
+                            Type = Notification_Type.ORDER,
+                            IsRead = false,
+                        };
+
+                        var notificationCus = await _notificationService.AddAsync(notificationCusDto);
+                        var notificationRes = await _notificationService.AddAsync(notificationResDto);
+
+
+                        if (notificationCus != null && notificationRes != null)
+                        {
+                            List<NotificationDto> notifications = new List<NotificationDto> { notificationCus, notificationRes };
+                            await _signalRHub.Clients.All.SendAsync("CreateNotification", notifications);
+                        }
+
+                        await _sendMailService.SendEmailAsync(orderPaidEmail.Email, Email_Subject.ORDERCONFIRM, EmailTemplates.Order(orderPaidEmail));
+
+                        return result
+                                ? Ok(new { message = "Cập nhật trạng thái giao dịch thành công." })
+                                : BadRequest(new { message = "Cập nhật trạng thái giao dịch thất bại." });
+                    }
+                }
             }
             return BadRequest(new { message = "Trạng thái không hợp lệ. Vui lòng chọn Cancelled hoặc Successful." });
         }
