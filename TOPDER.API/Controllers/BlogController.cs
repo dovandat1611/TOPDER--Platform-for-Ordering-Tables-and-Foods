@@ -78,7 +78,7 @@ namespace TOPDER.API.Controllers
             return Ok($"Xóa Blog với ID {id} thành công.");
         }
 
-        [HttpGet("customer/list")]
+    /*    [HttpGet("customer/list")]
         public async Task<IActionResult> CustomerBlogList(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -95,7 +95,7 @@ namespace TOPDER.API.Controllers
             );
             return Ok(response);
         }
-
+*/
 
         [HttpGet("admin/list")]
         public async Task<IActionResult> AdminBlogList(

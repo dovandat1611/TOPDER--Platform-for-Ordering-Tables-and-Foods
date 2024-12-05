@@ -88,7 +88,7 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpGet("list/{restaurantId}")]
+     /*   [HttpGet("list/{restaurantId}")]
         public async Task<IActionResult> ListPaginga(
             int restaurantId,
             [FromQuery] int pageNumber = 1,
@@ -119,6 +119,6 @@ namespace TOPDER.API.Controllers
         }
 
 
-
+*/
     }
 }
