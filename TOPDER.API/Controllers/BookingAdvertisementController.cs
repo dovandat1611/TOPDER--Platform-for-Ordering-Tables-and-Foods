@@ -173,11 +173,11 @@ namespace TOPDER.API.Controllers
           
         }
 
-      /*  private async Task<IActionResult> HandleVietQRPayment(BookingAdvertisement bookingAdvertisement)
+        private async Task<IActionResult> HandleVietQRPayment(BookingAdvertisement bookingAdvertisement)
         {
             var items = new List<ItemData>();
 
-            items.Add(new ItemData("Đặt quảng cáo",1, (int)bookingAdvertisement.TotalAmount));
+            items.Add(new ItemData("Đặt quảng cáo", 1, (int)bookingAdvertisement.TotalAmount));
 
             var paymentData = new PaymentData(
                 orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(bookingAdvertisement.BookingId, 16112002),
@@ -192,7 +192,7 @@ namespace TOPDER.API.Controllers
             return Ok(createPayment.checkoutUrl);
         }
 
-   */
+
 
     }
 }

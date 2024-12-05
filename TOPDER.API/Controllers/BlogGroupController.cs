@@ -36,7 +36,7 @@ namespace TOPDER.API.Controllers
             }
         }
 
-    /*    [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> CreateBlogGroup([FromBody] BlogGroupDto blogGroupDto)
         {
             if (!ModelState.IsValid)
@@ -49,7 +49,7 @@ namespace TOPDER.API.Controllers
             }
 
             return BadRequest("Tạo Blog Group thất bại.");
-        }*/
+        }
 
         [HttpGet("exist")]
         public async Task<IActionResult> GetExistingBlogGroups()
