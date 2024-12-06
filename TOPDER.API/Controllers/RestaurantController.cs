@@ -23,7 +23,7 @@ namespace TOPDER.API.Controllers
             _cloudinaryService = cloudinaryService;
             _sendMailService = sendMailService;
         }
-
+/*
         [HttpGet("customer/service")]
         public async Task<IActionResult> GetItems([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10,
             [FromQuery] string? name = null, [FromQuery] string? address = null,
@@ -43,7 +43,7 @@ namespace TOPDER.API.Controllers
             );
             return Ok(response);
         }
-
+*/
         [HttpGet("customer/home")]
         public async Task<IActionResult> GetHomeItems()
         {

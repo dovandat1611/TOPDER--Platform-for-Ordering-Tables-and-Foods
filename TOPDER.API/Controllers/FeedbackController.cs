@@ -32,13 +32,13 @@ namespace TOPDER.API.Controllers
             return BadRequest("Failed to create feedback.");
         }
 
-        [HttpGet("history")]
+     /*   [HttpGet("history")]
         public async Task<IActionResult> GetHistoryCustomerPaging([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int customerId)
         {
             var result = await _feedbackService.GetHistoryCustomerPagingAsync(pageNumber, pageSize, customerId);
             return Ok(result);
         }
-
+*/
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFeedback(int id)

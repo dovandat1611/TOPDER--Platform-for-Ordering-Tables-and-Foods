@@ -86,7 +86,7 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpPost("import-excel")]
+     /*   [HttpPost("import-excel")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> AddRangeFromExcel([FromForm] CreateExcelMenuDto createExcelMenuDto)
         {
@@ -109,7 +109,7 @@ namespace TOPDER.API.Controllers
             }
             return Ok("Món ăn đã được xóa thành công.");
         }
-
+*/
         [HttpGet("restaurant/{restaurantId}")]
         public async Task<IActionResult> GetMenuList(
             int restaurantId,
