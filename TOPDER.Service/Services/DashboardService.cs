@@ -146,12 +146,12 @@ namespace TOPDER.Service.Services
                 CurrentMonthIncome = new CurrentMonthIncomeDTO
                 {
                     CurrentMonthIncome = currentMonthIncome,
-                    IncomeGrowthRate = CalculateGrowthRate(orders, "Income", searchMonth)
+                    IncomeGrowthRate = CalculateGrowthRate(orders, "Income", actualSearchMonth)
                 },
                 CurrentMonthOrder = new CurrentMonthOrderDTO
                 {
                     CurrentMonthOrder = currentMonthOrdersCount,
-                    OrderGrowthRate = CalculateGrowthRate(orders, "Order", searchMonth)
+                    OrderGrowthRate = CalculateGrowthRate(orders, "Order", actualSearchMonth)
                 }
             };
         }
@@ -554,9 +554,9 @@ namespace TOPDER.Service.Services
         }
 
 
-        private double CalculateGrowthRate(IQueryable<Order> orders, string type, DateTime? searchMonth)
+        private double CalculateGrowthRate(IQueryable<Order> orders, string type, DateTime searchMonth)
         {
-            int checkCurrentMonthOrders = searchMonth?.Month ?? DateTime.Now.Month;
+            int checkCurrentMonthOrders = searchMonth.Month;
             int checkLastMonthOrders = checkCurrentMonthOrders - 1;
 
             if (checkLastMonthOrders == 0)
@@ -564,8 +564,8 @@ namespace TOPDER.Service.Services
                 checkLastMonthOrders = 12;
             }
 
-            var lastMonthOrders = orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == checkLastMonthOrders);
-            var currentMonthOrders = orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == checkCurrentMonthOrders);
+            var lastMonthOrders = orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == checkLastMonthOrders && o.CreatedAt.Value.Year == searchMonth.Year);
+            var currentMonthOrders = orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == checkCurrentMonthOrders && o.CreatedAt.Value.Year == searchMonth.Year);
 
             if (type == "Order")
             {

@@ -91,7 +91,7 @@ namespace TOPDER.API.Controllers
                 NotificationDto notificationOnDto = new NotificationDto()
                 {
                     NotificationId = 0,
-                    Uid = handleReportDto.ReportedBy,
+                    Uid = handleReportDto.ReportedOn,
                     CreatedAt = DateTime.Now,
                     Content = handleReportDto.Content,
                     Type = Notification_Type.REPORT,
