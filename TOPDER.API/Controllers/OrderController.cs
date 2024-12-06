@@ -712,7 +712,7 @@ namespace TOPDER.API.Controllers
             }
 
             var paymentData = new PaymentData(
-                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(order.OrderId, 9999),
+                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(order.OrderId, VIETQR_SetupId.ORDER),
                 amount: (int)totalAmount,
                 description: Order_PaymentContent.PaymentContentVIETQR(),
                 items: items,
@@ -745,7 +745,7 @@ namespace TOPDER.API.Controllers
                 PaymentType = "Order"
             };
 
-            string linkPayment = await _paymentGatewayService.CreatePaymentUrlVnpay(paymentInformationModel, HttpContext);
+            string linkPayment = await _paymentGatewayService.CreatePaymentUrlVnpay(paymentInformationModel, HttpContext, VNPAY_TypePayment.ORDER);
             return Ok(linkPayment);
         }
 

@@ -51,7 +51,7 @@ namespace TOPDER.Service.Services
             }
         }
 
-        public Task<string> CreatePaymentUrlVnpay(PaymentInformationModel requestDto, HttpContext httpContext)
+        public Task<string> CreatePaymentUrlVnpay(PaymentInformationModel requestDto, HttpContext httpContext, string typePayment)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace TOPDER.Service.Services
                     urlCallBack += "?paymentType=booking";
                 }
 
-                AddVnPayRequestData(requestDto, timeNow, urlCallBack, httpContext);
+                AddVnPayRequestData(requestDto, timeNow, urlCallBack, httpContext, typePayment);
 
                 var paymentUrl = _vnPay.CreateRequestUrl(GetConfigValue("Vnpay:BaseUrl"), GetConfigValue("Vnpay:HashSecret"));
 
@@ -94,7 +94,7 @@ namespace TOPDER.Service.Services
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
         }
 
-        private void AddVnPayRequestData(PaymentInformationModel requestDto, DateTime timeNow, string urlCallBack, HttpContext httpContext)
+        private void AddVnPayRequestData(PaymentInformationModel requestDto, DateTime timeNow, string urlCallBack, HttpContext httpContext, string typePayment)
         {
             _vnPay.AddRequestData("vnp_Version", GetConfigValue("Vnpay:Version"));
             _vnPay.AddRequestData("vnp_Command", GetConfigValue("Vnpay:Command"));
@@ -107,7 +107,7 @@ namespace TOPDER.Service.Services
             _vnPay.AddRequestData("vnp_OrderInfo", $"Khach hang: {requestDto.CustomerName} thanh toan hoa don {requestDto.BookingID}");
             _vnPay.AddRequestData("vnp_OrderType", "other");
             _vnPay.AddRequestData("vnp_ReturnUrl", urlCallBack);
-            _vnPay.AddRequestData("vnp_TxnRef", requestDto.BookingID + "TOPDERFOREVER");
+            _vnPay.AddRequestData("vnp_TxnRef", requestDto.BookingID + "TOPDERTEST" + typePayment);
         }
     }
 }

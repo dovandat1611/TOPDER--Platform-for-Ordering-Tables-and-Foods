@@ -11,7 +11,7 @@ namespace TOPDER.Service.IServices
 {
     public interface IPaymentGatewayService
     {
-        Task<string> CreatePaymentUrlVnpay(PaymentInformationModel request, HttpContext httpContext);
+        Task<string> CreatePaymentUrlVnpay(PaymentInformationModel request, HttpContext httpContext, string typePayment);
         Task<CreatePaymentResult> CreatePaymentUrlPayOS(PaymentData paymentData);
     }
 }

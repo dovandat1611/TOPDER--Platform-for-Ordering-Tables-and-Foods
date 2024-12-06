@@ -214,7 +214,7 @@ namespace TOPDER.API.Controllers
                     };
 
                     var paymentData = new PaymentData(
-                        orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(result.TransactionId, 8888),
+                        orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(result.TransactionId, VIETQR_SetupId.WALLET),
                         amount: (int)rechargeWalletTransaction.TransactionAmount,
                         description: Payment_Descriptions.RechargeVIETQRDescription(),
                         items: items,
@@ -237,7 +237,7 @@ namespace TOPDER.API.Controllers
                         PaymentType = "Transaction"
                     };
 
-                    linkPayment = await _paymentGatewayService.CreatePaymentUrlVnpay(paymentInformationModel, HttpContext);
+                    linkPayment = await _paymentGatewayService.CreatePaymentUrlVnpay(paymentInformationModel, HttpContext, VNPAY_TypePayment.WALLET);
                 }
 
                 if (!string.IsNullOrEmpty(linkPayment))

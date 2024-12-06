@@ -77,22 +77,22 @@ namespace TOPDER.API.Controllers
         }
 
         // PUT: api/Roles/{id}
-        [HttpPut("Update")]
-        [SwaggerOperation(Summary = "Cập nhật role: Admin")]
-        public async Task<IActionResult> UpdateRole([FromBody] RoleDto roleDto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //[HttpPut("Update")]
+        //[SwaggerOperation(Summary = "Cập nhật role: Admin")]
+        //public async Task<IActionResult> UpdateRole([FromBody] RoleDto roleDto)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            var result = await _roleService.UpdateAsync(roleDto);
-            if (!result)
-            {
-                return NotFound();
-            }
+        //    var result = await _roleService.UpdateAsync(roleDto);
+        //    if (!result)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
     }
 }

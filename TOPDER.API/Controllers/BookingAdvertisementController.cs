@@ -321,7 +321,7 @@ namespace TOPDER.API.Controllers
             items.Add(new ItemData("Đặt quảng cáo",1, (int)bookingAdvertisement.TotalAmount));
 
             var paymentData = new PaymentData(
-                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(bookingAdvertisement.BookingId, 7777),
+                orderCode: GenerateOrderCodeForVIETQR.GenerateOrderCode(bookingAdvertisement.BookingId, VIETQR_SetupId.BOOKING),
                 amount: (int)bookingAdvertisement.TotalAmount,
                 description: Booking_PaymentContent.PaymentContentVIETQR(),
                 items: items,
@@ -345,7 +345,7 @@ namespace TOPDER.API.Controllers
                 PaymentType = "Booking"
             };
 
-            string linkPayment = await _paymentGatewayService.CreatePaymentUrlVnpay(paymentInformationModel, HttpContext);
+            string linkPayment = await _paymentGatewayService.CreatePaymentUrlVnpay(paymentInformationModel, HttpContext, VNPAY_TypePayment.BOOKING);
             return Ok(linkPayment);
         }
 

@@ -34,6 +34,19 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string NEWORDER = "Cửa Hàng Của Bạn Có Đơn Hàng Mới - TOPDER";
             public static string CONFIRM_REGISTER_RESTAURANT = "Nhà hàng của bạn đã được chúng tôi duyệt - TOPDER";
         }
+        public class VNPAY_TypePayment
+        {
+            public static string WALLET = "Wallet";
+            public static string ORDER = "Order";
+            public static string BOOKING = "Booking";
+        }
+
+        public class VIETQR_SetupId
+        {
+            public static int WALLET = 100;
+            public static int ORDER = 200;
+            public static int BOOKING = 300;
+        }
 
         public class Is_Null
         {
@@ -305,6 +318,8 @@ namespace TOPDER.Service.Common.ServiceDefinitions
             public static string ORIGINAL = "Original";
             public static string ADD = "Add";
         }
+
+
 
     }
 }

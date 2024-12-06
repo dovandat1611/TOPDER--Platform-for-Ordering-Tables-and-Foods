@@ -146,12 +146,12 @@ namespace TOPDER.Service.Services
                 CurrentMonthIncome = new CurrentMonthIncomeDTO
                 {
                     CurrentMonthIncome = currentMonthIncome,
-                    IncomeGrowthRate = CalculateGrowthRate(orders, "Income")
+                    IncomeGrowthRate = CalculateGrowthRate(orders, "Income", searchMonth)
                 },
                 CurrentMonthOrder = new CurrentMonthOrderDTO
                 {
                     CurrentMonthOrder = currentMonthOrdersCount,
-                    OrderGrowthRate = CalculateGrowthRate(orders, "Order")
+                    OrderGrowthRate = CalculateGrowthRate(orders, "Order", searchMonth)
                 }
             };
         }
@@ -282,8 +282,8 @@ namespace TOPDER.Service.Services
                                          TotalInComes = income?.TotalInComes ?? 0  // Use 0 if no income for the month
                                      }).ToList();
 
-            var orderGrowthRateForYear = CalculateGrowthRate(filteredOrdersForYear, "Order"); // Only use filtered orders
-            var incomeGrowthRateForYear = CalculateGrowthRate(filteredIncomeForYear, "Income"); // Only use filtered income
+            var orderGrowthRateForYear = CalculateGrowthRateMarketOverview(filteredOrdersForYear, "Order", yearToFilter); // Only use filtered orders
+            var incomeGrowthRateForYear = CalculateGrowthRateMarketOverview(filteredIncomeForYear, "Income", yearToFilter); // Only use filtered income
 
 
             // Calculate total income for the year, ensuring there are incomes
@@ -416,12 +416,12 @@ namespace TOPDER.Service.Services
                 CurrentMonthIncome = new CurrentMonthIncomeDTO
                 {
                     CurrentMonthIncome = currentMonthIncome,
-                    IncomeGrowthRate = CalculateGrowthRate(orders, "Income")
+                    IncomeGrowthRate = CalculateGrowthRate(orders, "Income", DateTime.Now)
                 },
                 CurrentMonthOrder = new CurrentMonthOrderDTO
                 {
                     CurrentMonthOrder = currentMonthOrdersCount,
-                    OrderGrowthRate = CalculateGrowthRate(orders, "Order")
+                    OrderGrowthRate = CalculateGrowthRate(orders, "Order", DateTime.Now)
                 }
             };
         }
@@ -505,8 +505,8 @@ namespace TOPDER.Service.Services
                                      }).ToList();
 
             // Calculate growth rates
-            var orderGrowthRateForYear = CalculateGrowthRate(filteredOrders, "Order"); // Only use filtered orders
-            var incomeGrowthRateForYear = CalculateGrowthRate(filteredIncome, "Income"); // Only use filtered income
+            var orderGrowthRateForYear = CalculateGrowthRateMarketOverview(filteredOrders, "Order", yearToFilter); // Only use filtered orders
+            var incomeGrowthRateForYear = CalculateGrowthRateMarketOverview(filteredIncome, "Income", yearToFilter); // Only use filtered income
 
             // Calculate total income for the year, ensuring there are incomes
             double totalIncomeForYear = filteredIncome.Any() ? (double)filteredIncome.Sum(o => o.TotalAmount) : 0;
@@ -524,25 +524,72 @@ namespace TOPDER.Service.Services
             return marketOverviewDTO;
         }
 
-
-
-
-        private double CalculateGrowthRate(IQueryable<Order> orders, string type)
+        private double CalculateGrowthRateMarketOverview(IQueryable<Order> orders, string type, int filteredYear)
         {
-            var lastMonthOrders = orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == DateTime.Now.AddMonths(-1).Month);
-            var currentMonthOrders = orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == DateTime.Now.Month);
+            var lastYearOrders = orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Year == (filteredYear - 1));
+            var currentYearOrders = orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Year == filteredYear);
 
             if (type == "Order")
             {
-                if (!lastMonthOrders.Any()) return 100;
-                return ((double)currentMonthOrders.Count() - lastMonthOrders.Count()) / lastMonthOrders.Count() * 100;
+                int totalOrderLastYear = lastYearOrders.Count();
+                int totalCurrentYearOrders = currentYearOrders.Count();
+
+                if (totalOrderLastYear == 0)
+                    return totalCurrentYearOrders > 0 ? 100 : 0;
+
+                return ((double)(totalCurrentYearOrders - totalOrderLastYear) / totalOrderLastYear) * 100;
             }
             else if (type == "Income")
             {
-                var lastMonthIncome = lastMonthOrders.Sum(o => o.TotalAmount);
-                var currentMonthIncome = currentMonthOrders.Sum(o => o.TotalAmount);
-                if (lastMonthIncome == 0) return 100;
-                return (double)((currentMonthIncome - lastMonthIncome) / lastMonthIncome * 100);
+                decimal lastYearIncome = lastYearOrders.Sum(o => o.TotalAmount ?? 0);
+                decimal currentYearIncome = currentYearOrders.Sum(o => o.TotalAmount ?? 0);
+
+                if (lastYearIncome == 0)
+                    return currentYearIncome > 0 ? 100 : 0;
+
+                return ((double)(currentYearIncome - lastYearIncome) / (double)lastYearIncome) * 100;
+            }
+
+            return 0;
+        }
+
+
+        private double CalculateGrowthRate(IQueryable<Order> orders, string type, DateTime? searchMonth)
+        {
+            int checkCurrentMonthOrders = searchMonth?.Month ?? DateTime.Now.Month;
+            int checkLastMonthOrders = checkCurrentMonthOrders - 1;
+
+            if (checkLastMonthOrders == 0)
+            {
+                checkLastMonthOrders = 12;
+            }
+
+            var lastMonthOrders = orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == checkLastMonthOrders);
+            var currentMonthOrders = orders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == checkCurrentMonthOrders);
+
+            if (type == "Order")
+            {
+                int totalOrderLastMonth = lastMonthOrders.Count();
+                int totalCurrentMonthOrders = currentMonthOrders.Count();
+
+                if (totalOrderLastMonth == 0)
+                {
+                    return totalCurrentMonthOrders > 0 ? 100 : 0; 
+                }
+
+                return ((double)(totalCurrentMonthOrders - totalOrderLastMonth) / totalOrderLastMonth) * 100;
+            }
+            else if (type == "Income")
+            {
+                decimal lastMonthIncome = lastMonthOrders.Sum(o => o.TotalAmount ?? 0);
+                decimal currentMonthIncome = currentMonthOrders.Sum(o => o.TotalAmount ?? 0);
+
+                if (lastMonthIncome == 0)
+                {
+                    return currentMonthIncome > 0 ? 100 : 0; 
+                }
+
+                return ((double)(currentMonthIncome - lastMonthIncome) / (double)lastMonthIncome) * 100;
             }
 
             return 0;
