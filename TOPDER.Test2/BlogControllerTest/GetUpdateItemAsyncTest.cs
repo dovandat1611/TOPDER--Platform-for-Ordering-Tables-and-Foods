@@ -33,7 +33,7 @@ namespace TOPDER.Test2.BlogControllerTest
         public async Task GetUpdateItemAsync_WhenBlogNotFound_ReturnNotFound()
         {
             // Arrange
-            var invalidBlogId = 999999;  // Giả sử ID âm là không hợp lệ
+            var invalidBlogId = -1;  // Giả sử ID âm là không hợp lệ
 
             // Mô phỏng lỗi trong service hoặc controller khi blogId không tồn tại
             mockBlogService.Setup(x => x.GetUpdateItemAsync(invalidBlogId))

@@ -49,7 +49,7 @@ namespace TOPDER.Test2.DiscountControllerTest
         {
             // Arrange
             int restaurantId = 1;
-            int discountId = 9999; // Assuming 9999 is an invalid or non-existent discountId
+            int discountId = -1; // Assuming 9999 is an invalid or non-existent discountId
             _mockDiscountService.Setup(service => service.InvisibleAsync(discountId, restaurantId))
                 .ReturnsAsync(false);
 

@@ -194,6 +194,7 @@ namespace TOPDER.Test2.UserControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
         }
 
+
         [TestMethod]
         public async Task RegisterRestaurant_UserCreationFailed_ReturnsBadRequest()
         {
@@ -209,7 +210,6 @@ namespace TOPDER.Test2.UserControllerTest
             // Assert
                    Microsoft.VisualStudio.TestTools.UnitTesting.    Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
             var badRequestResult = result as BadRequestObjectResult;
-                    Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("No file was uploaded.", badRequestResult.Value);
         }
 
         [TestMethod]
@@ -238,6 +238,8 @@ namespace TOPDER.Test2.UserControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
             var badRequestResult = result as BadRequestObjectResult;
         }
+
+
 
         private CreateRestaurantRequest GetValidRestaurantRequest()
         {

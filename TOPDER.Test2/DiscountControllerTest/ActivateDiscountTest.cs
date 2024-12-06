@@ -68,7 +68,7 @@ namespace TOPDER.Test2.DiscountControllerTest
             // Arrange
             var activeDiscountDto = new ActiveDiscountDto
             {
-                Id = 9999, // Assuming this ID does not exist
+                Id = -1, // Assuming this ID does not exist
                 RestaurantId = 1,
                 IsActive = true
             };
@@ -92,7 +92,7 @@ namespace TOPDER.Test2.DiscountControllerTest
             var activeDiscountDto = new ActiveDiscountDto
             {
                 Id = 1,
-                RestaurantId = 9999, // Invalid restaurantId
+                RestaurantId = -1, // Invalid restaurantId
                 IsActive = true
             };
             _mockDiscountService.Setup(service => service.ActiveAsync(activeDiscountDto))

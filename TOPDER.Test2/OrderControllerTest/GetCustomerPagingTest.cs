@@ -95,7 +95,7 @@ namespace TOPDER.Test2.OrderControllerTest
             // Arrange
             int pageNumber = 1;
             int pageSize = 10;
-            int customerId = 123;
+            int customerId = 1;
             string? status = "Completed";
 
             var orders = new List<OrderCustomerDto>

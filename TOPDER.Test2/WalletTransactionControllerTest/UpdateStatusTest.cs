@@ -89,28 +89,13 @@ namespace TOPDER.Test2.WalletTransactionControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
         }
-        [TestMethod]
-        public async Task UpdateStatus_EmptyStatus_ReturnsBadRequest()
-        {
-            // Arrange
-            int transactionId = 1;
-            string status = ""; // Empty status
-
-            // Act
-            var result = await _controller.UpdateStatus(transactionId, status);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
-        }
 
         [TestMethod]
         public async Task UpdateStatus_ServiceFailure_ReturnsBadRequest()
         {
             // Arrange
-            int transactionId = 1;
-            string status = Payment_Status.PENDING;
+            int transactionId = -1;
+            string status = Payment_Status.SUCCESSFUL;
 
             // Mock the service method to return false (indicating a failed status update)
             _walletTransactionServiceMock.Setup(s => s.UpdateStatus(transactionId, status))

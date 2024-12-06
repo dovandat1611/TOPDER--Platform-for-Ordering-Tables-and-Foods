@@ -55,7 +55,7 @@ namespace TOPDER.Test2.NotificationControllerTest
         public async Task MarkAsReadAll_ReturnsNotFound_WhenNoNotificationsFoundOrAlreadyMarkedAsRead()
         {
             // Arrange
-            int userId = 9999; // Simulate a user with no notifications
+            int userId = -1; // Simulate a user with no notifications
             _notificationServiceMock
                 .Setup(service => service.IsReadAllAsync(userId))
                 .ReturnsAsync(false); // Simulate no notifications or all notifications already marked as read

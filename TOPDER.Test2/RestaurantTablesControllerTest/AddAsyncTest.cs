@@ -34,7 +34,7 @@ namespace TOPDER.Test2.RestaurantTablesControllerTest
             {
                 TableId = 1,
                 RestaurantId = 1,
-                RoomId = 2,
+                RoomId = 1,
                 TableName = "VIP Table",
                 MaxCapacity = 6,
                 Description = "Corner table with extra space",

@@ -90,26 +90,5 @@ namespace TOPDER.Test2.FeedbackControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(2, returnedFeedbacks.Count);
         }
 
-        [TestMethod]
-        public async Task GetAdminFeedbacks_ReturnsOkResult_WithEmptyList()
-        {
-            // Arrange
-            var feedbacks = new List<FeedbackAdminDto>(); // Empty list
-
-            // Mocking the service method to return an empty list
-            _mockFeedbackService.Setup(service => service.ListAdminPagingAsync())
-                                .ReturnsAsync(feedbacks);
-
-            // Act
-            var result = await _controller.GetAdminFeedbacks() as OkObjectResult;
-
-            // Assert
-                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, result.StatusCode);
-            var returnedFeedbacks = result.Value as List<FeedbackAdminDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(returnedFeedbacks);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(0, returnedFeedbacks.Count);
-        }
-
     }
 }

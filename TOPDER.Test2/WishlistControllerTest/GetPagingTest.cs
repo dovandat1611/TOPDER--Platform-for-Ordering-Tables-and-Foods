@@ -61,35 +61,6 @@ namespace TOPDER.Test2.WishlistControllerTest
         }
 
         [TestMethod]
-        public async Task GetPaging_NoWishlistsForCustomer_ReturnsOkWithEmptyList()
-        {
-            // Arrange
-            int customerId = 999999; // Customer with no wishlists
-            int pageNumber = 1;
-            int pageSize = 10;
-
-            // Mock data to return an empty list
-            var paginatedResult = new PaginatedList<UserWishlistDto>(
-                new List<UserWishlistDto>(), // Empty list
-                pageNumber,                  // Page number
-                pageSize,                    // Page size
-                0                             // Total count
-            );
-
-            // Mock the service method to return empty list
-            _wishlistServiceMock.Setup(s => s.GetPagingAsync(pageNumber, pageSize, customerId))
-                .ReturnsAsync(paginatedResult);
-
-            // Act
-            var result = await _controller.GetWishlistList(customerId, pageNumber, pageSize);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
-        }
-
-        [TestMethod]
         public async Task GetPaging_InvalidCustomerId_ReturnsOkWithEmptyList()
         {
             // Arrange

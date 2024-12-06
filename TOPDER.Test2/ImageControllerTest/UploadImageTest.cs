@@ -46,7 +46,6 @@ namespace TOPDER.Test2.ImageControllerTest
             // Assert
             var okResult = result as OkObjectResult;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult, "Expected an OkObjectResult");
-            dynamic response = okResult.Value;
         }
 
         [TestMethod]

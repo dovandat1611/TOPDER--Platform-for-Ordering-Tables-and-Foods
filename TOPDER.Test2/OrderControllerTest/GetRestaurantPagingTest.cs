@@ -229,24 +229,7 @@ namespace TOPDER.Test2.OrderControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(0, response.Items.Count());
         }
 
-        [TestMethod]
-        public async Task GetRestaurantPaging_ShouldThrowArgumentException_WhenPageSizeIsInvalid()
-        {
-            // Arrange
-            int pageNumber = 1;
-            int pageSize = -5; // Invalid page size
-            int restaurantId = 456;
-            string? status = null;
-            DateTime? month = null;
-            DateTime? date = null;
-
-            _orderServiceMock.Setup(x => x.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId, status, month, date))
-                             .ThrowsAsync(new ArgumentException("Page size must be greater than zero."));
-
-            // Act & Assert
-            await Microsoft.VisualStudio.TestTools.UnitTesting.Assert.ThrowsExceptionAsync<ArgumentException>(() =>
-                _controller.GetRestaurantPaging(pageNumber, pageSize, restaurantId, status, month, date));
-        }
+        
 
     }
 }

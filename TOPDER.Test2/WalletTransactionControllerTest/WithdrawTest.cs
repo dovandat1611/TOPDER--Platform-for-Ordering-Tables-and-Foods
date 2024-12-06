@@ -81,7 +81,7 @@ namespace TOPDER.Test2.WalletTransactionControllerTest
             var walletTransactionWithDrawDto = new WalletTransactionWithDrawDto
             {
                 Uid = 1,
-                WalletId = 101,
+                WalletId = -1,
                 TransactionAmount = 1000
             };
 
@@ -104,8 +104,8 @@ namespace TOPDER.Test2.WalletTransactionControllerTest
             // Arrange
             var walletTransactionWithDrawDto = new WalletTransactionWithDrawDto
             {
-                Uid = 1,
-                WalletId = 101,
+                Uid = -1,
+                WalletId = 1,
                 TransactionAmount = 500
             };
 
@@ -133,7 +133,7 @@ namespace TOPDER.Test2.WalletTransactionControllerTest
             var walletTransactionWithDrawDto = new WalletTransactionWithDrawDto
             {
                 Uid = 1,
-                WalletId = 101,
+                WalletId = 1,
                 TransactionAmount = 500
             };
 

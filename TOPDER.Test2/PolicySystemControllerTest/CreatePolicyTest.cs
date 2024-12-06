@@ -27,8 +27,6 @@ namespace TOPDER.Test2.PolicySystemControllerTest
             // Create an instance of the PolicySystemController with the mocked service
             _controller = new PolicySystemController(_mockPolicySystemService.Object);
         }
-
-
         [TestMethod]
         public async Task CreatePolicy_ReturnsBadRequest_WhenModelIsInvalid()
         {
@@ -38,6 +36,52 @@ namespace TOPDER.Test2.PolicySystemControllerTest
 
             // Act
             var result = await _controller.CreatePolicy(invalidPolicySystemDto);
+
+            // Assert: Verify that a BadRequest result is returned
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = (BadRequestObjectResult)result;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(badRequestResult.StatusCode, 400); // BadRequest
+        }
+
+        [TestMethod]
+        public async Task CreatePolicy_ReturnsBadRequest_WhenFeeAmountIsNegative()
+        {
+            // Arrange: Create an invalid DTO (e.g., missing required properties)
+            // Arrange: Create a valid DTO
+            var policySystemDto = new CreatePolicySystemDto
+            {
+                AdminId = 1,
+                MinOrderValue = 50.00m,
+                MaxOrderValue = 200.00m,
+                FeeAmount = -1
+            };
+            _controller.ModelState.AddModelError("FeeAmount", "FeeAmount is required.");
+
+            // Act
+            var result = await _controller.CreatePolicy(policySystemDto);
+
+            // Assert: Verify that a BadRequest result is returned
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = (BadRequestObjectResult)result;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(badRequestResult.StatusCode, 400); // BadRequest
+        }
+
+        [TestMethod]
+        public async Task CreatePolicy_ReturnsBadRequest_WhenMaxOrderValueIsNegative()
+        {
+            // Arrange: Create an invalid DTO (e.g., missing required properties)
+            // Arrange: Create a valid DTO
+            var policySystemDto = new CreatePolicySystemDto
+            {
+                AdminId = 1,
+                MinOrderValue = 50,
+                MaxOrderValue = -1,
+                FeeAmount = 10
+            };
+            _controller.ModelState.AddModelError("MaxOrderValue", "MaxOrderValue is required.");
+
+            // Act
+            var result = await _controller.CreatePolicy(policySystemDto);
 
             // Assert: Verify that a BadRequest result is returned
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
@@ -57,6 +101,7 @@ namespace TOPDER.Test2.PolicySystemControllerTest
                 FeeAmount = 10.00m
             };
 
+            // Mock the service's AddAsync method to return true, indicating success
             _mockPolicySystemService.Setup(service => service.AddAsync(policySystemDto)).ReturnsAsync(true);
 
             // Act
@@ -80,13 +125,38 @@ namespace TOPDER.Test2.PolicySystemControllerTest
                 FeeAmount = 10.00m
             };
 
+            // Mock the service's AddAsync method to return false, indicating failure
             _mockPolicySystemService.Setup(service => service.AddAsync(policySystemDto)).ReturnsAsync(false);
 
             // Act
             var result = await _controller.CreatePolicy(policySystemDto);
 
             // Assert: Verify that an InternalServerError is returned
-            Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.IsInstanceOfType(result, typeof(ObjectResult));
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(ObjectResult));
+            var objectResult = (ObjectResult)result;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(objectResult.StatusCode, 500); // Internal Server Error
+        }
+
+        [TestMethod]
+        public async Task CreatePolicy_ReturnsInternalServerError_WhenMinOrderValueThanMaxOrderValue()
+        {
+            // Arrange: Create a valid DTO
+            var policySystemDto = new CreatePolicySystemDto
+            {
+                AdminId = 1,
+                MinOrderValue = 2000.00m,
+                MaxOrderValue = 50.00m,
+                FeeAmount = 10.00m
+            };
+
+            // Mock the service's AddAsync method to return false, indicating failure
+            _mockPolicySystemService.Setup(service => service.AddAsync(policySystemDto)).ReturnsAsync(false);
+
+            // Act
+            var result = await _controller.CreatePolicy(policySystemDto);
+
+            // Assert: Verify that an InternalServerError is returned
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(ObjectResult));
             var objectResult = (ObjectResult)result;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(objectResult.StatusCode, 500); // Internal Server Error
         }

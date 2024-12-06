@@ -30,7 +30,7 @@ namespace TOPDER.Test2.WalletControllerTest
         public async Task GetWalletInfo_Success_ReturnsOk()
         {
             // Arrange
-            int uid = 101; // Example User ID
+            int uid = 1; // Example User ID
             var walletDto = new WalletDto
             {
                 WalletId = 1,
@@ -78,7 +78,7 @@ namespace TOPDER.Test2.WalletControllerTest
         public async Task GetWalletInfo_Exception_ReturnsInternalServerError()
         {
             // Arrange
-            int uid = 103; // Example User ID
+            int uid = 1; // Example User ID
             var exceptionMessage = "Database connection error";
             _walletServiceMock
                 .Setup(service => service.GetInforWalletAsync(uid))

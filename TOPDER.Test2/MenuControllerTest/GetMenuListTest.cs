@@ -113,7 +113,7 @@ namespace TOPDER.Test2.MenuControllerTest
         public async Task GetMenuList_InvalidRestaurantId_ReturnsNotFound()
         {
             // Arrange
-            int restaurantId = 99999; // Không tồn tại
+            int restaurantId = -1; // Không tồn tại
             int pageNumber = 1;
             int pageSize = 10;
             int? categoryMenuId = null;

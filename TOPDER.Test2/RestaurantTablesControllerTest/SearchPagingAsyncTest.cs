@@ -57,9 +57,9 @@ namespace TOPDER.Test2.RestaurantTablesControllerTest
             var response = okResult.Value as PaginatedResponseDto<RestaurantTableRestaurantDto>;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.Items.Count);
-            Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.AreEqual("Table1", response.Items[0].TableName);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Table1", response.Items[0].TableName);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.PageIndex);
-            Microsoft.VisualStudio.TestTools.UnitTesting.       Assert.AreEqual(1, response.TotalPages);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.TotalPages);
         }
 
         [TestMethod]

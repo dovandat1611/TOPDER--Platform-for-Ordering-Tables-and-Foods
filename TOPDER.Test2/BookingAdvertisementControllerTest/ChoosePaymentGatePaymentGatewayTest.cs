@@ -160,7 +160,7 @@ namespace TOPDER.Test2.BookingAdvertisementControllerTest
         public async Task ChoosePaymentGatePaymentGateway_BookingNotFound_ReturnsBadRequest()
         {
             // Arrange
-            int bookingId = 999;
+            int bookingId = -1;
             string paymentGateway = PaymentGateway.ISBALANCE;
 
             _mockBookingAdvertisementRepository.Setup(repo => repo.GetByIdAsync(bookingId)).ReturnsAsync((BookingAdvertisement)null);

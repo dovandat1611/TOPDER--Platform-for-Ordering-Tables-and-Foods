@@ -112,6 +112,28 @@ namespace TOPDER.Test2.OrderControllerTest
         }
 
         [TestMethod]
+        public async Task CalculateTotalAmountFreDiscountAsync_ShouldReturnBadRequest_WhenOrderMenusIsEmpty()
+        {
+            // Arrange
+            _controller.ModelState.AddModelError("OrderMenus", "Required");
+
+            var caculatorOrder = new CaculatorOrderDto
+            {
+                CustomerId = 1, // Invalid ID to trigger ModelState error
+                RestaurantId = 1,
+                OrderMenus = new List<OrderMenuModelDto>()
+            };
+
+            // Act
+            var result = await _controller.CalculateTotalAmountFreDiscountAsync(caculatorOrder);
+
+            // Assert
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode); // StatusCode should be 400
+        }
+
+        [TestMethod]
         public async Task CalculateTotalAmountFreDiscountAsync_ShouldReturnNotFound_WhenRestaurantNotFound()
         {
             // Arrange

@@ -57,7 +57,7 @@ namespace TOPDER.Test2.DiscountControllerTest
                 EndDate = DateTime.UtcNow.AddDays(10),
                 IsActive = true,
                 Quantity = 100,
-                Scope = "All Items",
+                Scope = "All",
                 discountMenuDtos = new List<CreateDiscountMenuDto>
             {
                 new CreateDiscountMenuDto { MenuId = 1, DiscountMenuPercentage = 10 }

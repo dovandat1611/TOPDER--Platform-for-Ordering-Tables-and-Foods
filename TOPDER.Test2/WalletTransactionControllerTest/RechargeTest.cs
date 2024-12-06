@@ -172,7 +172,7 @@ namespace TOPDER.Test2.WalletTransactionControllerTest
             {
                 Uid = 1,
                 WalletId = 1,
-                TransactionAmount = 30000,
+                TransactionAmount = 20000,
                 PaymentGateway = PaymentGateway.VNPAY
             };
 

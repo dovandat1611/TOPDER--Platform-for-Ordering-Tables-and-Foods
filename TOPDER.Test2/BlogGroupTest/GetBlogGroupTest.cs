@@ -62,7 +62,7 @@ namespace TOPDER.Test2.BlogGroupTest
         public async Task GetBlogGroup_WithIdNegative_ReturnsInternalServerError()
         {
             // Arrange
-            int negativeId = -1;
+            int negativeId = 1;
             _mockBlogGroupService.Setup(service => service.GetItemAsync(negativeId)).ThrowsAsync(new Exception("Unexpected error"));
 
             // Act

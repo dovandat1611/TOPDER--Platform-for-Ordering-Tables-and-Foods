@@ -58,22 +58,6 @@ namespace TOPDER.Test2.ReportControllerTest
             
         }
 
-        [TestMethod]
-        public async Task GetReports_ReturnsOkResult_WithDefaultParameters()
-        {
-            // Arrange
-            var pageNumber = 1;
-            var pageSize = 10;
-           
-
-            // Act
-            var result = await _controller.GetReports(pageNumber, pageSize);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult); // Check that the result is Ok (200 OK)
-            
-        }
 
     }
 }

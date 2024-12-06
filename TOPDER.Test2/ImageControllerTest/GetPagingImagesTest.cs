@@ -83,7 +83,7 @@ namespace TOPDER.Test2.ImageControllerTest
         public async Task GetPagingImages_NonRestaurant_ReturnsEmptyList()
         {
             // Arrange
-            var restaurantId = 9999;
+            var restaurantId = -1;
             var pageNumber = 1;
             var pageSize = 10;
 

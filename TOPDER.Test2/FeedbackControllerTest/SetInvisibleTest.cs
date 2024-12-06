@@ -90,7 +90,7 @@ namespace TOPDER.Test2.FeedbackControllerTest
         public async Task SetInvisible_WithNonExistentFeedbackId_ReturnsNotFound()
         {
             // Arrange
-            var feedbackId = 999;
+            var feedbackId = 99999;
             
             // Act
             var result = await _controller.SetInvisible(feedbackId) as NotFoundObjectResult;

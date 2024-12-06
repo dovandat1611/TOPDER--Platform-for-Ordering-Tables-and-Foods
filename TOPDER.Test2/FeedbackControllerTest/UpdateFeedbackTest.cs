@@ -83,6 +83,30 @@ namespace TOPDER.Test2.FeedbackControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, result.StatusCode);
             Microsoft.VisualStudio.TestTools.UnitTesting.   Assert.IsInstanceOfType(result.Value, typeof(SerializableError)); // ModelState errors should be in a SerializableError
         }
+        [TestMethod]
+        public async Task UpdateFeedback_WithStarThan5_ReturnsBadRequest()
+        {
+            // Arrange
+            var feedbackDto = new FeedbackDto
+            {
+                FeedbackId = -1, // Simulate non-existent feedback
+                OrderId = 1,
+                CustomerId = 1,
+                RestaurantId = 1,
+                Star = 7,
+                Content = "Updated but not found"
+            };
+            _controller.ModelState.AddModelError("Star", "The Star field is required.");
+
+            // Act
+            var result = await _controller.UpdateFeedback(feedbackDto) as BadRequestObjectResult;
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, result.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result.Value, typeof(SerializableError)); // ModelState errors should be in a SerializableError
+        }
+
 
         // Test case for feedback update failure (feedback not found)
         [TestMethod]
@@ -91,7 +115,7 @@ namespace TOPDER.Test2.FeedbackControllerTest
             // Arrange
             var feedbackDto = new FeedbackDto
             {
-                FeedbackId = 9999, // Simulate non-existent feedback
+                FeedbackId = -1, // Simulate non-existent feedback
                 OrderId = 1,
                 CustomerId = 1,
                 RestaurantId = 1,

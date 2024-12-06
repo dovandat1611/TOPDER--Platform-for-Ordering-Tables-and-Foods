@@ -32,7 +32,7 @@ namespace TOPDER.Test2.RestaurantRoomControllerTest
             var validDto = new CreateRestaurantRoomDto
             {
                 RestaurantId = 1,
-                CategoryRoomId = 0,
+                CategoryRoomId = 1,
                 RoomName = "VIP Room",
                 MaxCapacity = 10,
                 Description = "A premium room"

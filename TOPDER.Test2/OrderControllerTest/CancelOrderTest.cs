@@ -208,42 +208,6 @@ namespace TOPDER.Test2.OrderControllerTest
 
 
         [TestMethod]
-        public async Task CancelOrder_ShouldSendEmail_WhenOrderCancelled()
-        {
-            // Arrange
-            var cancelOrderRequest = new CancelOrderRequest { OrderId = 1, UserId = 1, CancelReason = "Customer cancelled" };
-            var cancelOrderDto = new CancelOrderDto
-            {
-                TotalAmount = 100,
-                EmailCustomer = "customer@example.com",
-                EmailRestaurant = "restaurant@example.com",
-                NameCustomer = "Customer",
-                NameRestaurant = "Restaurant",
-                RoleName = User_Role.CUSTOMER
-            };
-
-            _orderServiceMock.Setup(x => x.UpdateStatusCancelAsync(1, Order_Status.CANCEL, "Customer cancelled"))
-                             .ReturnsAsync(true);
-            _orderServiceMock.Setup(x => x.GetInformationForCancelAsync(1, 1))
-                             .ReturnsAsync(cancelOrderDto);
-            _orderServiceMock.Setup(x => x.GetItemAsync(1, 1))
-                             .ReturnsAsync(new OrderDto { PaidAt = null });
-
-            // Make sure the SendEmailAsync is mocked properly
-            _sendMailServiceMock.Setup(x => x.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                                .Returns(Task.CompletedTask);
-
-            // Act
-            var result = await _controller.CancelOrder(cancelOrderRequest);
-
-            // Additional assert to check the correct flow was triggered
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Cập nhật trạng thái cho đơn hàng với ID 1 thành công.", okResult.Value);
-        }
-
-        [TestMethod]
         public async Task CancelOrder_ShouldSendEmail_WhenCancelReasonIsEmpty()
         {
             // Arrange

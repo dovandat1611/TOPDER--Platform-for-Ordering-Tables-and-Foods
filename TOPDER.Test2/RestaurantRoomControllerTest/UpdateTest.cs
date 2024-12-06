@@ -57,9 +57,9 @@ namespace TOPDER.Test2.RestaurantRoomControllerTest
             // Arrange
             var updateDto = new UpdateRestaurantRoomDto
             {
-                RoomId = 999,
+                RoomId = -1,
                 CategoryRoomId = null,
-                RoomName = "Non-existent Room",
+                RoomName = "Updated Room",
                 MaxCapacity = 15,
                 Description = null
             };

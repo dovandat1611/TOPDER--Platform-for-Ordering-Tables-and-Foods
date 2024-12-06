@@ -2943,38 +2943,6 @@
         }
       }
     },
-    "/api/Notification/Update": {
-      "put": {
-        "tags": [
-          "Notification"
-        ],
-        "summary": "Cập nhật dấu thông báo là đã đọc",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NotificationDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NotificationDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/NotificationDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
     "/api/Notification/Delete/{userId}/{notificationId}": {
       "delete": {
         "tags": [

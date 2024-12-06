@@ -28,7 +28,7 @@ namespace TOPDER.Test2.RestaurantRoomControllerTest
         {
             // Arrange
             int restaurantId = 1;
-            int roomId = 101;
+            int roomId = 1;
             bool isEnabledBooking = true;
 
             _mockService.Setup(s => s.IsEnabledBookingAsync(roomId, restaurantId, isEnabledBooking))
@@ -48,7 +48,7 @@ namespace TOPDER.Test2.RestaurantRoomControllerTest
         {
             // Arrange
             int restaurantId = 1;
-            int roomId = 101;
+            int roomId = 1;
             bool isEnabledBooking = false;
 
             _mockService.Setup(s => s.IsEnabledBookingAsync(roomId, restaurantId, isEnabledBooking))
@@ -88,11 +88,11 @@ namespace TOPDER.Test2.RestaurantRoomControllerTest
         {
             // Arrange
             int restaurantId = 1;
-            int roomId = 101;
+            int roomId = 1;
             bool isEnabledBooking = true;
 
             _mockService.Setup(s => s.IsEnabledBookingAsync(roomId, restaurantId, isEnabledBooking))
-                        .ThrowsAsync(new UnauthorizedAccessException("Phòng với Id 101 không thuộc về nhà hàng với Id 1."));
+                        .ThrowsAsync(new UnauthorizedAccessException("Phòng với Id 1 không thuộc về nhà hàng với Id 1."));
 
             // Act
             var result = await _controller.IsEnabledBooking(restaurantId, roomId, isEnabledBooking);

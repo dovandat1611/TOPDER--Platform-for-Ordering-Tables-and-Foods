@@ -87,7 +87,7 @@ namespace TOPDER.Test2.UserControllerTest
         public async Task VerifyUser_UserNotFound_ReturnsNotFound()
         {
             // Arrange
-            int userId = 1;
+            int userId = -1;
             _userServiceMock.Setup(x => x.Verify(userId)).ReturnsAsync(false);
 
             // Act

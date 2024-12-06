@@ -92,11 +92,188 @@ namespace TOPDER.Test2.OrderControllerTest
 
 
         [TestMethod]
-        public async Task AddOrder_ShouldReturnBadRequest_WhenModelStateIsInvalid()
+        public async Task AddOrder_ShouldReturnBadRequest_WhenNameReceiverIdIsNull()
         {
             // Arrange
-            _controller.ModelState.AddModelError("Error", "Invalid model");
-            var orderModel = new OrderModel();
+            _controller.ModelState.AddModelError("NameReceiver", "Invalid model");
+            var orderModel = new OrderModel
+            {
+                RestaurantId = 1,
+                CustomerId = 2,
+                NameReceiver = null,
+                PhoneReceiver = "1234567890",
+                DateReservation = DateTime.Now,
+                TimeReservation = TimeSpan.FromHours(19),
+                NumberPerson = 4,
+                NumberChild = 3,
+                OrderMenus = new List<OrderMenuModelDto> { new OrderMenuModelDto { MenuId = 1, Quantity = 2 } },
+                TableIds = new List<int> { 1, 2, 3, }
+            };
+
+            // Act
+            var result = await _controller.AddOrder(orderModel);
+
+            // Assert
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task AddOrder_ShouldReturnBadRequest_WhenPhoneReceiverIsIsNull()
+        {
+            // Arrange
+            _controller.ModelState.AddModelError("PhoneReceiver", "Invalid model");
+            var orderModel = new OrderModel
+            {
+                RestaurantId = 1,
+                CustomerId = 2,
+                NameReceiver = "Đỗ Văn Đạt",
+                PhoneReceiver = null,
+                DateReservation = DateTime.Now,
+                TimeReservation = TimeSpan.FromHours(19),
+                NumberPerson = 4,
+                NumberChild = 3,
+                OrderMenus = new List<OrderMenuModelDto> { new OrderMenuModelDto { MenuId = 1, Quantity = 2 } },
+                TableIds = new List<int> { 1, 2, 3, }
+            };
+
+            // Act
+            var result = await _controller.AddOrder(orderModel);
+
+            // Assert
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task AddOrder_ShouldReturnBadRequest_WhenTimeReservationIsIsNull()
+        {
+            // Arrange
+            _controller.ModelState.AddModelError("TimeReservation", "Invalid model");
+            var orderModel = new OrderModel
+            {
+                RestaurantId = 1,
+                CustomerId = 2,
+                NameReceiver = "Đỗ Văn Đạt",
+                PhoneReceiver = "0373701816",
+                DateReservation = DateTime.Now,
+                NumberPerson = 4,
+                NumberChild = 3,
+                OrderMenus = new List<OrderMenuModelDto> { new OrderMenuModelDto { MenuId = 1, Quantity = 2 } },
+                TableIds = new List<int> { 1, 2, 3, }
+            };
+
+            // Act
+            var result = await _controller.AddOrder(orderModel);
+
+            // Assert
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task AddOrder_ShouldReturnBadRequest_WhenNumberPersonIsNegative()
+        {
+            // Arrange
+            _controller.ModelState.AddModelError("NumberPerson", "Invalid model");
+            var orderModel = new OrderModel
+            {
+                RestaurantId = 1,
+                CustomerId = 2,
+                NameReceiver = "Đỗ Văn Đạt",
+                PhoneReceiver = "0373701816",
+                DateReservation = DateTime.Now,
+                NumberPerson = -1,
+                NumberChild = 3,
+                OrderMenus = new List<OrderMenuModelDto> { new OrderMenuModelDto { MenuId = 1, Quantity = 2 } },
+                TableIds = new List<int> { 1, 2, 3, }
+            };
+
+            // Act
+            var result = await _controller.AddOrder(orderModel);
+
+            // Assert
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task AddOrder_ShouldReturnBadRequest_WhenNumberChildIsNegative()
+        {
+            // Arrange
+            _controller.ModelState.AddModelError("NumberChild", "Invalid model");
+            var orderModel = new OrderModel
+            {
+                RestaurantId = 1,
+                CustomerId = 2,
+                NameReceiver = "Đỗ Văn Đạt",
+                PhoneReceiver = "0373701816",
+                DateReservation = DateTime.Now,
+                NumberPerson = 2,
+                NumberChild = -1,
+                OrderMenus = new List<OrderMenuModelDto> { new OrderMenuModelDto { MenuId = 1, Quantity = 2 } },
+                TableIds = new List<int> { 1, 2, 3, }
+            };
+
+            // Act
+            var result = await _controller.AddOrder(orderModel);
+
+            // Assert
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task AddOrder_ShouldReturnBadRequest_WhenPhoneReceiverInValid()
+        {
+            // Arrange
+            _controller.ModelState.AddModelError("PhoneReceiver", "Invalid model");
+            var orderModel = new OrderModel
+            {
+                RestaurantId = 1,
+                CustomerId = 2,
+                NameReceiver = "Đỗ Văn Đạt",
+                PhoneReceiver = "1234",
+                DateReservation = DateTime.Now,
+                TimeReservation = TimeSpan.FromHours(19),
+                NumberPerson = 4,
+                NumberChild = 3,
+                OrderMenus = new List<OrderMenuModelDto> { new OrderMenuModelDto { MenuId = 1, Quantity = 2 } },
+                TableIds = new List<int> { 1, 2, 3, }
+            };
+
+            // Act
+            var result = await _controller.AddOrder(orderModel);
+
+            // Assert
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task AddOrder_ShouldReturnBadRequest_WhenDateReservationIsPass()
+        {
+            // Arrange
+            _controller.ModelState.AddModelError("DateReservation", "Invalid model");
+            var orderModel = new OrderModel
+            {
+                RestaurantId = 1,
+                CustomerId = 2,
+                NameReceiver = "Đỗ Văn Đạt",
+                PhoneReceiver = "1234567890",
+                 DateReservation  = new DateTime(2024, 1, 5, 10, 30, 0) ,
+                TimeReservation = TimeSpan.FromHours(19),
+                NumberPerson = 4,
+                NumberChild = 3,
+                OrderMenus = new List<OrderMenuModelDto> { new OrderMenuModelDto { MenuId = 1, Quantity = 2 } },
+                TableIds = new List<int> { 1, 2, 3, }
+            };
 
             // Act
             var result = await _controller.AddOrder(orderModel);
@@ -142,8 +319,8 @@ namespace TOPDER.Test2.OrderControllerTest
             // Arrange
             var orderModel = new OrderModel
             {
-                RestaurantId = 3,
-                CustomerId = 2,
+                RestaurantId = 1,
+                CustomerId = 1  ,
                 NameReceiver = "Đỗ Văn Đạt",
                 PhoneReceiver = "1234567890",
                 DateReservation = DateTime.Now,
@@ -243,6 +420,59 @@ namespace TOPDER.Test2.OrderControllerTest
         }
 
         [TestMethod]
+        public async Task AddOrder_ShouldCreateOrderSuccessfully_WhenNumberChildIsZero()
+        {
+            // Arrange
+            var orderModel = new OrderModel
+            {
+                RestaurantId = 3,
+                CustomerId = 2,
+                NameReceiver = "Đỗ Văn Đạt",
+                PhoneReceiver = "1234567890",
+                DateReservation = DateTime.Now,
+                TimeReservation = TimeSpan.FromHours(19),
+                NumberPerson = 4,
+                NumberChild = 0,
+                OrderMenus = new List<OrderMenuModelDto> { new OrderMenuModelDto { MenuId = 1, Quantity = 2 } },
+                TableIds = new List<int> { 1, 2, 3, }
+            };
+
+            var orderId = 1;
+            var orderEmail = new EmailForOrder
+            {
+                OrderId = "1",
+                Name = "Test Restaurant",
+                Email = "restaurant@example.com"
+            };
+            var restaurant = new Restaurant { Price = 0 };
+            var mockRestaurant = new Restaurant { Uid = 1, Price = 100, Discount = 10 };
+            // Mock các phương thức cần thiết
+            _mockRestaurantRepository.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(mockRestaurant);
+            _mockOrderService.Setup(os => os.AddAsync(It.IsAny<OrderDto>())).ReturnsAsync(new Order { OrderId = 1 });
+
+            // Mock phương thức GetEmailForOrderAsync để tránh NullReferenceException
+            _mockOrderService.Setup(os => os.GetEmailForOrderAsync(It.IsAny<int>(), It.IsAny<string>()))
+                             .ReturnsAsync(new EmailForOrder { Email = "test@example.com" });
+
+            // Mock phương thức GetOrderPaid để tránh NullReferenceException
+            _mockOrderService.Setup(os => os.GetOrderPaid(It.IsAny<int>()))
+                             .ReturnsAsync(new OrderPaidEmail { OrderId = "1", TotalAmount = 100 });
+
+            _mockOrderTableService.Setup(ots => ots.AddRangeAsync(It.IsAny<CreateRestaurantOrderTablesDto>())).ReturnsAsync(true);
+
+            // Mock phương thức SendEmailAsync
+            _mockSendMailService.Setup(sms => sms.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                                .Returns(Task.CompletedTask);
+            // Act
+            var result = await _controller.AddOrder(orderModel);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
+        }
+
+        [TestMethod]
         public async Task AddOrder_ShouldReturnBadRequest_WhenOrderCreationFails()
         {
             // Arrange
@@ -250,7 +480,7 @@ namespace TOPDER.Test2.OrderControllerTest
             {
                 RestaurantId = 1,
                 CustomerId = 1,
-                NameReceiver = "John Doe",
+                NameReceiver = "Đỗ Văn Đạt",
                 PhoneReceiver = "1234567890",
                 OrderMenus = new List<OrderMenuModelDto>
                 {
@@ -336,7 +566,7 @@ namespace TOPDER.Test2.OrderControllerTest
                 NumberPerson = 4,
                 NumberChild = 3,
                 ContentReservation = null,
-                TableIds = new List<int> { 1, 2, 3, }
+                TableIds = new List<int> { 1, 2, 3 }
             };
 
             var orderId = 1;

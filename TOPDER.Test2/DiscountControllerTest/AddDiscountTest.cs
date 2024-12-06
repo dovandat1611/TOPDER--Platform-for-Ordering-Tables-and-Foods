@@ -62,6 +62,41 @@ namespace TOPDER.Test2.DiscountControllerTest
             var okResult = result as OkObjectResult;
         }
 
+        [TestMethod]
+        public async Task AddDiscount_ScopeIsPerService_ReturnsOkResult()
+        {
+            // Arrange
+            var discountDto = new DiscountDto
+            {
+                DiscountPercentage = 10,
+                DiscountName = "Summer Sale",
+                ApplicableTo = "Food",
+                ApplyType = "Percentage",
+                MinOrderValue = 100,
+                MaxOrderValue = 500,
+                Scope = "Per Service",
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddMonths(1),
+                Description = "Discount for summer",
+                IsActive = true,
+                Quantity = 100,
+                discountMenuDtos = new List<CreateDiscountMenuDto>
+                {
+                    new CreateDiscountMenuDto { MenuId = 2, DiscountMenuPercentage = 20 }
+                }
+            };
+
+            _mockDiscountService.Setup(service => service.AddAsync(discountDto)).ReturnsAsync(true);
+
+            // Act
+            var result = await _controller.AddDiscount(discountDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            var okResult = result as OkObjectResult;
+        }
+
         // Test case for invalid model state
         [TestMethod]
         public async Task AddDiscount_InvalidModelState_ReturnsBadRequest()
@@ -148,6 +183,105 @@ namespace TOPDER.Test2.DiscountControllerTest
                 MinOrderValue = 100,
                 MaxOrderValue = 500,
                 Scope = "All",
+                StartDate = DateTime.Now.AddMonths(1), // StartDate is later
+                EndDate = DateTime.Now, // EndDate is earlier
+                Description = "Discount for summer",
+                IsActive = true,
+                Quantity = 100,
+                discountMenuDtos = new List<CreateDiscountMenuDto> { new CreateDiscountMenuDto() }
+            };
+
+            // Act
+            var result = await _controller.AddDiscount(discountDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult)); // Expected BadRequest when validation fails
+            var badRequestResult = result as BadRequestObjectResult;
+
+            // Ensure the error message is in the expected format
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult.Value);
+        }
+
+        [TestMethod]
+        public async Task AddDiscount_MinOrderValueThanMaxOrderValue_ReturnsBadRequestWithErrorMessage()
+        {
+            // Arrange
+            var discountDto = new DiscountDto
+            {
+                DiscountPercentage = 10,
+                DiscountName = "Summer Sale",
+                ApplicableTo = "Food",
+                ApplyType = "Percentage",
+                MinOrderValue = 600,
+                MaxOrderValue = 200,
+                Scope = "All",
+                StartDate = DateTime.Now.AddMonths(1), // StartDate is later
+                EndDate = DateTime.Now, // EndDate is earlier
+                Description = "Discount for summer",
+                IsActive = true,
+                Quantity = 100,
+                discountMenuDtos = new List<CreateDiscountMenuDto> { new CreateDiscountMenuDto() }
+            };
+
+            // Act
+            var result = await _controller.AddDiscount(discountDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult)); // Expected BadRequest when validation fails
+            var badRequestResult = result as BadRequestObjectResult;
+
+            // Ensure the error message is in the expected format
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult.Value);
+        }
+
+        [TestMethod]
+        public async Task AddDiscount_QuantityIsNegative_ReturnsBadRequestWithErrorMessage()
+        {
+            // Arrange
+            var discountDto = new DiscountDto
+            {
+                DiscountPercentage = 10,
+                DiscountName = "Summer Sale",
+                ApplicableTo = "Food",
+                ApplyType = "Percentage",
+                MinOrderValue = 600,
+                MaxOrderValue = 200,
+                Scope = "All",
+                StartDate = DateTime.Now.AddMonths(1), // StartDate is later
+                EndDate = DateTime.Now, // EndDate is earlier
+                Description = "Discount for summer",
+                IsActive = true,
+                Quantity = -1,
+                discountMenuDtos = new List<CreateDiscountMenuDto> { new CreateDiscountMenuDto() }
+            };
+
+            // Act
+            var result = await _controller.AddDiscount(discountDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult)); // Expected BadRequest when validation fails
+            var badRequestResult = result as BadRequestObjectResult;
+
+            // Ensure the error message is in the expected format
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult.Value);
+        }
+
+        [TestMethod]
+        public async Task AddDiscount_ScopeIsPerServiceAnddiscountMenuDtosIsEmpty_ReturnsBadRequestWithErrorMessage()
+        {
+            // Arrange
+            var discountDto = new DiscountDto
+            {
+                DiscountPercentage = 10,
+                DiscountName = "Summer Sale",
+                ApplicableTo = "Food",
+                ApplyType = "Percentage",
+                MinOrderValue = 600,
+                MaxOrderValue = 200,
+                Scope = "Per Service",
                 StartDate = DateTime.Now.AddMonths(1), // StartDate is later
                 EndDate = DateTime.Now, // EndDate is earlier
                 Description = "Discount for summer",

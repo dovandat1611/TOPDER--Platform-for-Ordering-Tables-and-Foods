@@ -155,7 +155,7 @@ namespace TOPDER.Test2.UserControllerTest
         public async Task GetProfile_ShouldReturnRestaurantProfile_WhenRoleIsRestaurant()
         {
             // Arrange
-            int uid = 3;
+            int uid = 1;
             var role = new GetRoleAndBalanceForProfileDto
             {
                 Role = User_Role.RESTAURANT,
@@ -208,7 +208,7 @@ namespace TOPDER.Test2.UserControllerTest
         public async Task GetProfile_ShouldReturnNotFound_WhenProfileNotFound()
         {
             // Arrange
-            int uid = 4;
+            int uid = -1;
             var role = new GetRoleAndBalanceForProfileDto
             {
                 Role = "CUSTOMER",

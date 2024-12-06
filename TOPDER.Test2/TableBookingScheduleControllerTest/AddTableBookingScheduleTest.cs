@@ -158,5 +158,27 @@ namespace TOPDER.Test2.TableBookingScheduleControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);  // Ensure the result is BadRequest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Thêm lịch đặt bàn thất bại.", badRequestResult.Value);
         }
+
+        [TestMethod]
+        public async Task AddTableBookingSchedule_StartTimeLateEndTime_ReturnsBadRequest()
+        {
+            // Arrange
+            var request = new CreateTableBookingScheduleDto
+            {
+                TableIds = new List<int> { 1 }, // Valid TableIds
+                RestaurantId = 1,
+                StartTime = DateTime.Now.AddHours(3),
+                EndTime = DateTime.Now.AddHours(2),
+                Notes = string.Empty // Empty Notes
+            };
+
+            // Act
+            var result = await _controller.AddTableBookingSchedule(request);
+
+            // Assert
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);  // Ensure the result is BadRequest
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Thêm lịch đặt bàn thất bại.", badRequestResult.Value);
+        }
     }
 }

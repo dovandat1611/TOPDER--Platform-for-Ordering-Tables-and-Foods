@@ -61,7 +61,7 @@ namespace TOPDER.Test2.PolicySystemControllerTest
                 MinOrderValue = 100,
                 MaxOrderValue = 500,
                 FeeAmount = 50,
-                Status = "Inactive"
+                Status = "Active"
             };
 
             _mockPolicySystemService.Setup(service => service.UpdateAsync(policyDto)).ReturnsAsync(false);
@@ -77,11 +77,114 @@ namespace TOPDER.Test2.PolicySystemControllerTest
         }
 
         [TestMethod]
-        public async Task UpdatePolicy_ReturnsBadRequest_WhenModelStateIsInvalid()
+        public async Task UpdatePolicy_ReturnsBadRequest_WhenMinOrderValueIsInvalid()
         {
             // Arrange
-            var policyDto = new UpdatePolicySystemDto(); // Invalid DTO
+            var policyDto = new UpdatePolicySystemDto
+            {
+                PolicyId = 1,
+                MinOrderValue = -1,
+                MaxOrderValue = 500,
+                FeeAmount = 50,
+                Status = "Inactive"
+            };
             _controller.ModelState.AddModelError("MinOrderValue", "MinOrderValue is required.");
+
+            // Act
+            var result = await _controller.UpdatePolicy(policyDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = (BadRequestObjectResult)result;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult.Value);
+        }
+
+        [TestMethod]
+        public async Task UpdatePolicy_ReturnsBadRequest_WhenMaxOrderValueIsInvalid()
+        {
+            // Arrange
+            var policyDto = new UpdatePolicySystemDto
+            {
+                PolicyId = 1,
+                MinOrderValue = 100,
+                MaxOrderValue = -1,
+                FeeAmount = 50,
+                Status = "Inactive"
+            };
+            _controller.ModelState.AddModelError("MaxOrderValue", "MaxOrderValue is required.");
+
+            // Act
+            var result = await _controller.UpdatePolicy(policyDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = (BadRequestObjectResult)result;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult.Value);
+        }
+
+        [TestMethod]
+        public async Task UpdatePolicy_ReturnsBadRequest_WhenFeeAmountIsInvalid()
+        {
+            // Arrange
+            var policyDto = new UpdatePolicySystemDto
+            {
+                PolicyId = 1,
+                MinOrderValue = 100,
+                MaxOrderValue = 500,
+                FeeAmount = -1,
+                Status = "Inactive"
+            };
+            _controller.ModelState.AddModelError("FeeAmount", "FeeAmount is required.");
+
+            // Act
+            var result = await _controller.UpdatePolicy(policyDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = (BadRequestObjectResult)result;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult.Value);
+        }
+
+        [TestMethod]
+        public async Task UpdatePolicy_ReturnsBadRequest_WhenStatusIsInvalid()
+        {
+            // Arrange
+            var policyDto = new UpdatePolicySystemDto
+            {
+                PolicyId = 1,
+                MinOrderValue = 100,
+                MaxOrderValue = 500,
+                FeeAmount = -1,
+                Status = "abcjsl"
+            };
+            _controller.ModelState.AddModelError("Status", "Status is required.");
+
+            // Act
+            var result = await _controller.UpdatePolicy(policyDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = (BadRequestObjectResult)result;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult.Value);
+        }
+
+        [TestMethod]
+        public async Task UpdatePolicy_ReturnsBadRequest_WhenStatusIsNull()
+        {
+            // Arrange
+            var policyDto = new UpdatePolicySystemDto
+            {
+                PolicyId = 1,
+                MinOrderValue = 100,
+                MaxOrderValue = 500,
+                FeeAmount = -1,
+                Status = null
+            };
+            _controller.ModelState.AddModelError("Status", "Status is required.");
 
             // Act
             var result = await _controller.UpdatePolicy(policyDto);

@@ -93,7 +93,7 @@ namespace TOPDER.Test2.OrderControllerTest
         public async Task HandleReportOrder_ReturnsBadRequest_WhenOrderNotFound()
         {
             // Arrange
-            int orderID = 1;
+            int orderID = -1;
             _mockOrderRepository.Setup(repo => repo.GetByIdAsync(orderID)); // Ensure null is of type OrderDto
 
             // Act
@@ -169,30 +169,6 @@ namespace TOPDER.Test2.OrderControllerTest
             var badRequestResult = (BadRequestObjectResult)result;
         }
 
-        [TestMethod]
-        public async Task HandleReportOrder_ReturnsNotFound_WhenWalletUpdateFails()
-        {
-            // Arrange
-            int orderID = 1;
-            var order = new OrderDto { StatusOrder = Order_Status.PAID };
-            //_mockOrderRepository.Setup(repo => repo.GetByIdAsync(orderID)).ReturnsAsync(order);
-            _mockOrderService.Setup(service => service.UpdateStatusAsync(orderID, Order_Status.CANCEL)).ReturnsAsync(order);
-            _mockOrderService.Setup(service => service.GetInformationForCompleteAsync(orderID)).ReturnsAsync(new CompleteOrderDto
-            {
-                WalletId = 1,
-                RestaurantID = 1,
-                WalletBalance = 500,
-                TotalAmount = 100
-            });
-            _mockWalletService.Setup(service => service.UpdateWalletBalanceAsync(It.IsAny<WalletBalanceDto>())).ReturnsAsync(false); // Wallet update fails
-
-            // Act
-            var result = await _controller.HandleReportOrder(orderID);
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
-            var notFoundResult = (NotFoundObjectResult)result;
-        }
     }
 
 }

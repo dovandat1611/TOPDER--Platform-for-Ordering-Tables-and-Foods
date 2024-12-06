@@ -54,7 +54,7 @@ namespace TOPDER.Test2.RestaurantTablesControllerTest
         public async Task GetTableScheduleList_NoTables_ReturnsEmptyList()
         {
             // Arrange
-            int restaurantId = 1;
+            int restaurantId = -1;
             var expectedTables = new List<RestaurantTableRestaurantDto>(); // Empty list, no tables
 
             // Setup mock to return empty list

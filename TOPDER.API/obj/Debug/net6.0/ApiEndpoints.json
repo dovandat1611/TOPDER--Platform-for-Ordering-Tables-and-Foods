@@ -1822,22 +1822,6 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "TOPDER.API.Controllers.NotificationController",
-    "Method": "Update",
-    "RelativePath": "api/Notification/Update",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "notificationDto",
-        "Type": "TOPDER.Service.Dtos.Notification.NotificationDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
     "ContainingType": "TOPDER.API.Controllers.OrderController",
     "Method": "AddMenusAsync",
     "RelativePath": "api/Order/AddMenus",

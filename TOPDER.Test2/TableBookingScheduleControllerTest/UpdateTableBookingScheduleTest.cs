@@ -33,8 +33,8 @@ namespace TOPDER.Test2.TableBookingScheduleControllerTest
             var validSchedule = new TableBookingScheduleDto
             {
                 ScheduleId = 1,
-                TableId = 2,
-                RestaurantId = 3,
+                TableId = 1,
+                RestaurantId = 1,
                 StartTime = DateTime.Now.AddHours(1),
                 EndTime = DateTime.Now.AddHours(2),
                 Notes = "Test Notes"
@@ -58,7 +58,7 @@ namespace TOPDER.Test2.TableBookingScheduleControllerTest
             // Arrange
             var invalidSchedule = new TableBookingScheduleDto
             {
-                ScheduleId = 9999, // Invalid ID
+                ScheduleId = -1, // Invalid ID
                 TableId = 2,
                 RestaurantId = 3,
                 StartTime = DateTime.Now.AddHours(1),

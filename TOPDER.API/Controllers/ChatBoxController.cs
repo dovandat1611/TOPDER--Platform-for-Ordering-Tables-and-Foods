@@ -64,7 +64,7 @@ namespace TOPDER.API.Controllers
         {
             var result = await _chatBoxService.GetChatListAsync(userId);
             return Ok(result);
-        }
+        }   
 
         [HttpDelete("Delete/{id}")]
         [SwaggerOperation(Summary = "Xóa ChatBox (bao gồm cả nội dung Chat): Restaurant | Customer")]

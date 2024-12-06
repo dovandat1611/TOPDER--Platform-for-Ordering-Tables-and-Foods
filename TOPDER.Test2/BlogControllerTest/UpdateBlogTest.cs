@@ -31,14 +31,15 @@ namespace TOPDER.Test2.BlogControllerTest
         }
 
         [TestMethod]
-        public async Task UpdateBlog_WhenModelStateIsInvalid_ReturnsBadRequest()
+        public async Task UpdateBlog_WhenTitleIsNull_ReturnsBadRequest()
         {
             // Arrange
             var invalidBlogModel = new UpdateBlogModel
             {
                 BlogId = 1,
-                Title = "", // Invalid title
-                Content = "Content"
+                Title = null, // Invalid title
+                Content = "Content",
+                ImageFile = new FormFile(null, 0, 0, "file", "image.jpg")
             };
             controller.ModelState.AddModelError("Title", "Title is required");
 
@@ -57,7 +58,7 @@ namespace TOPDER.Test2.BlogControllerTest
             // Arrange
             var updateBlogModel = new UpdateBlogModel
             {
-                BlogId = 999, // Nonexistent blog ID
+                BlogId = -1, // Nonexistent blog ID
                 Title = "Valid Title",
                 Content = "Content"
             };
@@ -75,7 +76,7 @@ namespace TOPDER.Test2.BlogControllerTest
         }
 
         [TestMethod]
-        public async Task UpdateBlog_WhenUpdateSuccessful_ReturnsOk()
+        public async Task UpdateBlog_WhenImageFileIsNull_ReturnsOk()
         {
             // Arrange
             var updateBlogModel = new UpdateBlogModel
@@ -98,7 +99,31 @@ namespace TOPDER.Test2.BlogControllerTest
             Assert.AreEqual($"Cập nhật Blog với ID {updateBlogModel.BlogId} thành công.", okResult.Value);
         }
 
-       
+        [TestMethod]
+        public async Task UpdateBlog_WhenUpdateSuccessful_ReturnsOk()
+        {
+            // Arrange
+            var updateBlogModel = new UpdateBlogModel
+            {
+                BlogId = 1,
+                Title = "Valid Title",
+                Content = "Content",
+                ImageFile = new FormFile(null, 0, 0, "file", "image.jpg") // No image upload
+            };
+
+            mockBlogService.Setup(x => x.UpdateAsync(updateBlogModel)).ReturnsAsync(true);
+
+            // Act
+            var result = await controller.UpdateBlog(updateBlogModel);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.AreEqual(200, okResult.StatusCode);
+            Assert.AreEqual($"Cập nhật Blog với ID {updateBlogModel.BlogId} thành công.", okResult.Value);
+        }
+
+
         [TestMethod]
         public async Task UpdateBlog_WhenBlogIdIsInvalid_ReturnsNotFound()
         {
@@ -107,7 +132,8 @@ namespace TOPDER.Test2.BlogControllerTest
             {
                 BlogId = 0, // Invalid BlogId, assumed not to exist in database
                 Title = "Valid Title",
-                Content = "Content"
+                Content = "Content",
+                ImageFile = new FormFile(null, 0, 0, "file", "image.jpg")
             };
 
             // Simulate that the update operation fails because the BlogId does not exist
@@ -131,7 +157,8 @@ namespace TOPDER.Test2.BlogControllerTest
             {
                 BlogId = 1,  // Assume a valid BlogId
                 Title = "Valid Title",
-                Content = null // Null content, should cause model state to be invalid
+                Content = null, // Null content, should cause model state to be invalid
+                ImageFile = new FormFile(null, 0, 0, "file", "image.jpg")
             };
 
             // Manually add a model state error for Content being null

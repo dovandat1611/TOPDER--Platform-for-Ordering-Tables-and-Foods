@@ -134,7 +134,7 @@ namespace TOPDER.Test2.ReportControllerTest
             // Arrange: Create a report with Description set to empty string
             var reportDto = new ReportDto
             {
-                ReportedBy = 2,
+                ReportedBy = 1,
                 ReportedOn = 0,
                 ReportType = "Customer",
                 Description = "Description",  // Empty description

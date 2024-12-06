@@ -31,7 +31,7 @@ namespace TOPDER.Test2.WishlistControllerTest
             var wishlistDto = new WishlistDto
             {
                 CustomerId = 1,
-                RestaurantId = 123
+                RestaurantId = 1
             };
 
             // Mock the service method to return true (indicating successful addition)

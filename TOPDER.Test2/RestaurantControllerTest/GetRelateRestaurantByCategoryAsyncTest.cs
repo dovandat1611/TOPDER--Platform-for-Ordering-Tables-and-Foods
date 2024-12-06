@@ -31,7 +31,7 @@ namespace TOPDER.Test2.RestaurantControllerTest
         {
             // Arrange: Tạo dữ liệu giả cho nhà hàng liên quan
             var restaurantId = 1;
-            var categoryRestaurantId = 9999;
+            var categoryRestaurantId = -1;
             var relatedRestaurants = new List<RestaurantDto>
     {
         new RestaurantDto { Uid = 2, NameRes = "Restaurant 1", CategoryRestaurantId = categoryRestaurantId },
@@ -61,7 +61,7 @@ namespace TOPDER.Test2.RestaurantControllerTest
         public async Task GetRelatedRestaurants_ReturnsOk_WhenNoRelatedRestaurantsFound()
         {
             // Arrange: Tạo dữ liệu giả cho trường hợp không có nhà hàng liên quan
-            var restaurantId = 9999;
+            var restaurantId = -1;
             var categoryRestaurantId = 1;
 
             // Giả lập service trả về danh sách trống (không có nhà hàng liên quan)

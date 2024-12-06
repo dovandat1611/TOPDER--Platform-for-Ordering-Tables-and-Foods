@@ -61,7 +61,7 @@ namespace TOPDER.Test2.RestaurantTablesControllerTest
         public async Task SetInvisible_Unauthorized_ReturnsNotFound()
         {
             // Arrange
-            int restaurantId = 5; // Not matching the table's restaurant ID
+            int restaurantId = 10; // Not matching the table's restaurant ID
             int tableId = 1;
             _mockService.Setup(s => s.InvisibleAsync(tableId, restaurantId)).ReturnsAsync(false);
 

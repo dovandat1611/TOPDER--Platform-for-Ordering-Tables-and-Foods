@@ -39,7 +39,7 @@ namespace TOPDER.Test2.ContactControllerTest
                 Email = "john@example.com",
                 Topic = Contact_Topic.RESTAURANT_REGISTER,
                 Content = "Inquiry about restaurant registration",
-                Phone = "123-456-7890"
+                Phone = "0373801816"
             };
             _mockContactService.Setup(service => service.AddAsync(contactDto)).ReturnsAsync(true);
             _mockSendMailService

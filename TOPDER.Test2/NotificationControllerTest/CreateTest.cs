@@ -156,7 +156,7 @@ namespace TOPDER.Test2.MenuControllerTest
             {
                 NotificationId = 0,
                 Uid = 1,  // UID hợp lệ
-                Content = Notification_Content.SYSTEM_SUB(15000),  // Nội dung hợp lệ
+                Content = Notification_Content.SYSTEM_SUB(100),  // Nội dung hợp lệ
                 Type = null  // Type null không hợp lệ
             };
 

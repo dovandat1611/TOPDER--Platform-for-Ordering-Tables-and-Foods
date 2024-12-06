@@ -32,9 +32,8 @@ namespace TOPDER.Test2.WalletControllerTest
             // Arrange
             var walletOtpDto = new WalletOtpDto
             {
-                WalletId = 1,
                 Uid = 101,
-                OtpCode = "123456"
+                OtpCode = "654321"
             };
 
             _walletServiceMock
@@ -57,8 +56,7 @@ namespace TOPDER.Test2.WalletControllerTest
             // Arrange
             var walletOtpDto = new WalletOtpDto
             {
-                WalletId = 2,
-                Uid = 202,
+                Uid = -1,
                 OtpCode = "654321"
             };
 

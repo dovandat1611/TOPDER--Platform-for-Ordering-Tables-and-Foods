@@ -78,7 +78,7 @@ namespace TOPDER.Test2.CategoryMenuControllerTest
             var categoryMenuDto = new CategoryMenuDto
             {
                 CategoryMenuId = 1,
-                CategoryMenuName = null // CategoryMenuName is null
+                CategoryMenuName = "" // CategoryMenuName is null
             };
 
             _mockCategoryMenuService.Setup(service => service.UpdateAsync(categoryMenuDto))

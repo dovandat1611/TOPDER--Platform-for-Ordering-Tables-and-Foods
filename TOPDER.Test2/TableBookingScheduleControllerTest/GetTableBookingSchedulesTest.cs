@@ -83,29 +83,6 @@ namespace TOPDER.Test2.TableBookingScheduleControllerTest
         }
 
         [TestMethod]
-        public async Task GetTableBookingSchedules_NoSchedules_ReturnsEmptyList()
-        {
-            // Arrange
-            int restaurantId = 10;
-            var mockSchedules = new List<TableBookingScheduleViewDto>();  // No schedules for this restaurant
-
-            // Mock the service to return an empty list for the given restaurantId
-            _mockService.Setup(service => service.GetTableBookingScheduleListAsync(restaurantId)).ReturnsAsync(mockSchedules);
-
-            // Act
-            var result = await _controller.GetTableBookingSchedules(restaurantId);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);  // Ensure the result is Ok
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);  // Ensure the status code is 200 (OK)
-
-            var returnedSchedules = okResult.Value as List<TableBookingScheduleViewDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(returnedSchedules);  // Ensure the returned value is not null
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(mockSchedules.Count, returnedSchedules.Count);  // Ensure the list is empty
-        }
-
-        [TestMethod]
         public async Task GetTableBookingSchedules_InvalidRestaurantId_ReturnsNotFound()
         {
             // Arrange

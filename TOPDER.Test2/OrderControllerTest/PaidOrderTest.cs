@@ -99,7 +99,7 @@ namespace TOPDER.Test2.OrderControllerTest
         public async Task PaidOrder_OrderNotFound_ReturnsNotFound()
         {
             // Arrange
-            int orderId = 1;
+            int orderId = -1;
             int userId = 1;
             string paymentGateway = PaymentGateway.ISBALANCE;
             string typeOrder = Paid_Type.ENTIRE_ORDER;
@@ -120,7 +120,7 @@ namespace TOPDER.Test2.OrderControllerTest
         {
             // Arrange
             int orderId = 1;
-            int userId = 1;
+            int userId = -1;
             string paymentGateway = PaymentGateway.ISBALANCE;
             string typeOrder = Paid_Type.ENTIRE_ORDER;
 
@@ -151,6 +151,7 @@ namespace TOPDER.Test2.OrderControllerTest
             var objectResult = (BadRequestObjectResult)result;
         }
 
+        
         [TestMethod]
         public async Task PaidOrder_InsufficientWalletBalance_ReturnsBadRequest()
         {
@@ -180,67 +181,67 @@ namespace TOPDER.Test2.OrderControllerTest
         }
 
         [TestMethod]
-public async Task PaidOrder_SuccessfulWalletPayment_ReturnsOk()
-{
-    // Arrange
-    int orderId = 1;
-    int userId = 1;
-    string paymentGateway = PaymentGateway.ISBALANCE;
-    string typeOrder = Paid_Type.ENTIRE_ORDER;
-    decimal totalAmount = 100;
-    decimal walletBalance = 200;
+        public async Task PaidOrder_SuccessfulWalletPayment_ReturnsOk()
+        {
+            // Arrange
+            int orderId = 1;
+            int userId = 1;
+            string paymentGateway = PaymentGateway.ISBALANCE;
+            string typeOrder = Paid_Type.ENTIRE_ORDER;
+            decimal totalAmount = 100;
+            decimal walletBalance = 200;
 
-    var orderDto = new OrderDto
-    {
-        OrderId = orderId,
-        CustomerId = userId,
-        TotalAmount = totalAmount
-    };
+            var orderDto = new OrderDto
+            {
+                OrderId = orderId,
+                CustomerId = userId,
+                TotalAmount = totalAmount
+            };
 
-    var restaurant = new Restaurant
-    {
-        Uid = 123, // Mock a valid Uid for the restaurant
-        NameRes = "Test Restaurant" // Set any other required properties
-    };
+            var restaurant = new Restaurant
+            {
+                Uid = 123, // Mock a valid Uid for the restaurant
+                NameRes = "Test Restaurant" // Set any other required properties
+            };
 
-    // Mock the order service to return a valid order
-    _orderServiceMock.Setup(s => s.GetItemAsync(orderId, userId))
-                     .ReturnsAsync(orderDto);
+            // Mock the order service to return a valid order
+            _orderServiceMock.Setup(s => s.GetItemAsync(orderId, userId))
+                             .ReturnsAsync(orderDto);
 
-    // Mock the wallet service to return a sufficient wallet balance
-    _walletServiceMock.Setup(w => w.GetBalanceOrderAsync(userId))
-                      .ReturnsAsync(walletBalance);
+            // Mock the wallet service to return a sufficient wallet balance
+            _walletServiceMock.Setup(w => w.GetBalanceOrderAsync(userId))
+                              .ReturnsAsync(walletBalance);
     
-    // Mock the wallet service to simulate a successful wallet balance update
-    _walletServiceMock.Setup(w => w.UpdateWalletBalanceOrderAsync(It.IsAny<WalletBalanceOrderDto>()))
-                      .ReturnsAsync(true);
+            // Mock the wallet service to simulate a successful wallet balance update
+            _walletServiceMock.Setup(w => w.UpdateWalletBalanceOrderAsync(It.IsAny<WalletBalanceOrderDto>()))
+                              .ReturnsAsync(true);
 
-    // Mock the update order status service to return true
-    _orderServiceMock.Setup(s => s.UpdatePaidOrderAsync(It.IsAny<OrderDto>()))
-                     .ReturnsAsync(true);
+            // Mock the update order status service to return true
+            _orderServiceMock.Setup(s => s.UpdatePaidOrderAsync(It.IsAny<OrderDto>()))
+                             .ReturnsAsync(true);
 
-    // Mock the restaurant policy service to return a valid policy
-    _restaurantPolicyServiceMock.Setup(s => s.GetActivePolicyAsync(restaurant.Uid))
-                                .ReturnsAsync(new RestaurantPolicyDto
-                                {
-                                    Status = "ACTIVE",
-                                    FirstFeePercent = 5, // Example fee percent
-                                    ReturningFeePercent = 2
-                                });
+            // Mock the restaurant policy service to return a valid policy
+            _restaurantPolicyServiceMock.Setup(s => s.GetActivePolicyAsync(restaurant.Uid))
+                                        .ReturnsAsync(new RestaurantPolicyDto
+                                        {
+                                            Status = "ACTIVE",
+                                            FirstFeePercent = 5, // Example fee percent
+                                            ReturningFeePercent = 2
+                                        });
 
-    // Mock the call to get restaurant details from a service
+            // Mock the call to get restaurant details from a service
     
 
-    // Act
-    var result = await _controller.PaidOrder(orderId, userId, paymentGateway, typeOrder);
+            // Act
+            var result = await _controller.PaidOrder(orderId, userId, paymentGateway, typeOrder);
 
-    // Assert
-    Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-    var objectResult = (OkObjectResult)result;
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            var objectResult = (OkObjectResult)result;
 
-    // Assert that the returned value is the expected success message
-    Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Thanh toán đơn hàng thành công", objectResult.Value);
-}
+            // Assert that the returned value is the expected success message
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Thanh toán đơn hàng thành công", objectResult.Value);
+        }
 
     }
 }

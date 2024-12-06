@@ -29,7 +29,7 @@ namespace TOPDER.Test2.BlogGroupTest
         public async Task UpdateBlogGroup_WithIdZero_ReturnsNotFound()
         {
             // Arrange
-            var blogGroupDto = new BlogGroupDto { BloggroupId = 0, BloggroupName = "Sample Group" };
+            var blogGroupDto = new BlogGroupDto { BloggroupId = -1, BloggroupName = "Sample Group" };
             _mockBlogGroupService.Setup(service => service.UpdateAsync(blogGroupDto)).ReturnsAsync(false);
 
             // Act
@@ -38,14 +38,14 @@ namespace TOPDER.Test2.BlogGroupTest
             // Assert
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
             var notFoundResult = result as NotFoundObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Blog Group với ID 0 không tồn tại.", notFoundResult.Value);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Blog Group với ID -1 không tồn tại.", notFoundResult.Value);
         }
 
         [TestMethod]
         public async Task UpdateBlogGroup_WithIdOne_ReturnsOk()
         {
             // Arrange
-            var blogGroupDto = new BlogGroupDto { BloggroupId = 1, BloggroupName = "Updated Group" };
+            var blogGroupDto = new BlogGroupDto { BloggroupId = 1, BloggroupName = "Sample Group" };
             _mockBlogGroupService.Setup(service => service.UpdateAsync(blogGroupDto)).ReturnsAsync(true);
 
             // Act

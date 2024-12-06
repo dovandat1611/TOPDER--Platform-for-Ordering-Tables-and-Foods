@@ -30,7 +30,7 @@ namespace TOPDER.Test2.RestaurantRoomControllerTest
         {
             // Arrange
             int restaurantId = 1;
-            int roomId = 999; // Non-existent room
+            int roomId = -1; // Non-existent room
             _restaurantRoomServiceMock.Setup(service => service.InvisibleAsync(roomId, restaurantId))
                 .ReturnsAsync(false);
 

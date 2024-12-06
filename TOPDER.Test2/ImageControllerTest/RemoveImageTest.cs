@@ -48,7 +48,7 @@ namespace TOPDER.Test2.ImageControllerTest
         {
             // Arrange
             var restaurantId = 1;
-            var imageId = 99999999;
+            var imageId = -1;
 
             _imageServiceMock.Setup(service => service.RemoveAsync(imageId, restaurantId)).ReturnsAsync(false);
 
@@ -67,7 +67,7 @@ namespace TOPDER.Test2.ImageControllerTest
         public async Task RemoveImage_KeyNotFoundException_ReturnsNotFound()
         {
             // Arrange
-            var restaurantId = 9999999;
+            var restaurantId = -1;
             var imageId = 1;
 
             _imageServiceMock.Setup(service => service.RemoveAsync(imageId, restaurantId))

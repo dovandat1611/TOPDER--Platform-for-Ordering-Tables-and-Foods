@@ -55,12 +55,120 @@ namespace TOPDER.Test2.AdvertisementPricingControllerTest
         }
 
         [TestMethod]
+        public async Task Update_ShouldReturnBadRequest_WhenDurationHoursIsNegativeOrMissing()
+        {
+            // Arrange
+            var advertisementPricingDto = new AdvertisementPricingDto
+            {
+                PricingId = 1,
+                AdminId = 1,
+                PricingName = "Test Plan",
+                Description = "This is a test plan.",
+                DurationHours = -1, // Invalid: DurationHours is negative
+                Price = 100.00M
+            };
+
+            _controller.ModelState.AddModelError("DurationHours", "The DurationHours field must be greater than 0.");
+
+            // Act
+            var result = await _controller.Update(advertisementPricingDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(badRequestResult.Value is SerializableError);
+
+            _advertisementPricingServiceMock.Verify(s => s.UpdateAsync(It.IsAny<AdvertisementPricingDto>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task Update_ShouldReturnBadRequest_WhenPriceIsNegativeOrZero()
+        {
+            // Arrange
+            var advertisementPricingDto = new AdvertisementPricingDto
+            {
+                PricingId = 1,
+                AdminId = 1,
+                PricingName = "Test Plan",
+                Description = "This is a test plan.",
+                DurationHours = 24,
+                Price = 0.00M // Invalid: Price is zero
+            };
+
+            _controller.ModelState.AddModelError("Price", "The Price must be greater than 0.");
+
+            // Act
+            var result = await _controller.Update(advertisementPricingDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(badRequestResult.Value is SerializableError);
+
+            _advertisementPricingServiceMock.Verify(s => s.UpdateAsync(It.IsAny<AdvertisementPricingDto>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task Update_ShouldReturnBadRequest_WhenDescriptionIsNull()
+        {
+            // Arrange
+            var advertisementPricingDto = new AdvertisementPricingDto
+            {
+                PricingId = 1,
+                AdminId = 1,
+                PricingName = "Test Plan",
+                Description = null, // Invalid: Description is required
+                DurationHours = 24,
+                Price = 100.00M
+            };
+
+            _controller.ModelState.AddModelError("Description", "The Description field is required.");
+
+            // Act
+            var result = await _controller.Update(advertisementPricingDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(badRequestResult.Value is SerializableError);
+
+            _advertisementPricingServiceMock.Verify(s => s.UpdateAsync(It.IsAny<AdvertisementPricingDto>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task Update_ShouldReturnBadRequest_WhenPricingNameIsNull()
+        {
+            // Arrange
+            var advertisementPricingDto = new AdvertisementPricingDto
+            {
+                PricingId = 1,
+                AdminId = 1,
+                PricingName = null, // Invalid: PricingName is required
+                Description = "This is a test plan.",
+                DurationHours = 24,
+                Price = 100.00M
+            };
+
+            _controller.ModelState.AddModelError("PricingName", "The PricingName field is required.");
+
+            // Act
+            var result = await _controller.Update(advertisementPricingDto);
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+            var badRequestResult = result as BadRequestObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(badRequestResult.Value is SerializableError);
+
+            _advertisementPricingServiceMock.Verify(s => s.UpdateAsync(It.IsAny<AdvertisementPricingDto>()), Times.Never);
+        }
+
+        [TestMethod]
         public async Task Update_ShouldReturnNotFound_WhenAdvertisementPricingNotFound()
         {
             // Arrange
             var advertisementPricingDto = new AdvertisementPricingDto
             {
-                PricingId = 999999,
+                PricingId = -1,
                 AdminId = 1,
                 PricingName = "Updated Plan",
                 Description = "Updated description.",

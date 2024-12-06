@@ -62,7 +62,7 @@ namespace TOPDER.Test2.ImageControllerTest
         {
             // Arrange
             int restaurantId = 1;
-            int imageId = 999; // Assume imageId doesn't exist
+            int imageId = -1; // Assume imageId doesn't exist
 
             _imageServiceMock
                 .Setup(service => service.GetItemAsync(imageId, restaurantId))

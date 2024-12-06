@@ -141,7 +141,7 @@ namespace TOPDER.API.Controllers
             else
             {
                 return BadRequest(new { message = "Không có thay đổi nào được thực hiện hoặc nhà hàng không tồn tại." });
-            }
+            }   
         }
 
         [HttpPut("IsEnabledBooking/{restaurantId}")]

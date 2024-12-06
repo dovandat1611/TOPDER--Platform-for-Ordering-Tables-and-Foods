@@ -55,7 +55,8 @@ namespace TOPDER.Test2.CustomerControllerTest
                 Uid = 1,
                 Name = "John Doe",
                 Phone = "1234567890",
-                Gender = "Nam"
+                Gender = "Nam",
+                Dob = new DateTime(1995, 5, 15)
             };
 
             _mockCustomerService.Setup(service => service.UpdateProfile(customerProfile)).ReturnsAsync(true);
@@ -79,7 +80,9 @@ namespace TOPDER.Test2.CustomerControllerTest
                 Uid = 1,
                 Name = "John Doe",
                 Phone = "1234567890",
-                ImageFile = fileMock.Object
+                ImageFile = fileMock.Object,
+                Gender = "Nam",
+                Dob = new DateTime(1995, 5, 15)
             };
 
             var uploadResult = new ImageUploadResult { SecureUrl = new Uri("http://imageurl.com") };
@@ -105,7 +108,7 @@ namespace TOPDER.Test2.CustomerControllerTest
             {
                 Uid = 1,
                 Name = "John Doe",
-                Phone = "1234567890"
+                Phone = "1234567890",
             };
 
             _mockCustomerService.Setup(service => service.UpdateProfile(customerProfile)).ReturnsAsync(true);

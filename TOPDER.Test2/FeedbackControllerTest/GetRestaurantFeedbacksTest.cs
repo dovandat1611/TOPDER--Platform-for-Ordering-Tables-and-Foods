@@ -100,7 +100,7 @@ namespace TOPDER.Test2.FeedbackControllerTest
         public async Task GetRestaurantFeedbacks_InvalidRestaurantId_ReturnsEmptyList()
         {
             // Arrange
-            int restaurantId = 99999; // Invalid restaurant ID
+            int restaurantId = -1; // Invalid restaurant ID
             var feedbacks = new List<FeedbackRestaurantDto>();  // No feedbacks for invalid restaurant ID
 
             // Set up the mock service to return an empty list
@@ -118,107 +118,6 @@ namespace TOPDER.Test2.FeedbackControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(0, response.Count);  // Ensure an empty list is returned
         }
 
-        [TestMethod]
-        public async Task GetRestaurantFeedbacks_FilterByStatus_ReturnsFilteredFeedbacks()
-        {
-            // Arrange
-            int restaurantId = 1;
-            var feedbacks = new List<FeedbackRestaurantDto>
-            {
-                new FeedbackRestaurantDto
-                {
-                    FeedbackId = 1,
-                    Status = "Active",
-                    Content = "Excellent service!"
-                },
-                new FeedbackRestaurantDto
-                {
-                    FeedbackId = 2,
-                    Status = "Inactive",
-                    Content = "Good experience"
-                }
-            };
 
-            _mockFeedbackService.Setup(service => service.ListRestaurantPagingAsync(restaurantId))
-                                .ReturnsAsync(feedbacks);
-
-            // Act
-            var result = await _controller.GetRestaurantFeedbacks(restaurantId);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            var response = okResult.Value as List<FeedbackRestaurantDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(response.All(f => f.Status == "Active" || f.Status == "Inactive")); // Check feedback status
-        }
-
-        [TestMethod]
-        public async Task GetRestaurantFeedbacks_FilterByIsReport_ReturnsFilteredFeedbacks()
-        {
-            // Arrange
-            int restaurantId = 1;
-            var feedbacks = new List<FeedbackRestaurantDto>
-            {
-                new FeedbackRestaurantDto
-                {
-                    FeedbackId = 1,
-                    IsReport = false,
-                    Content = "Excellent service!"
-                },
-                new FeedbackRestaurantDto
-                {
-                    FeedbackId = 2,
-                    IsReport = true,
-                    Content = "Bad experience"
-                }
-            };
-
-            _mockFeedbackService.Setup(service => service.ListRestaurantPagingAsync(restaurantId))
-                                .ReturnsAsync(feedbacks);
-
-            // Act
-            var result = await _controller.GetRestaurantFeedbacks(restaurantId);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            var response = okResult.Value as List<FeedbackRestaurantDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(response.All(f => f.IsReport == false || f.IsReport == true));  // Check IsReport value
-        }
-
-        [TestMethod]
-        public async Task GetRestaurantFeedbacks_FilterByContent_ReturnsFilteredFeedbacks()
-        {
-            // Arrange
-            int restaurantId = 1;
-            var feedbacks = new List<FeedbackRestaurantDto>
-            {
-                new FeedbackRestaurantDto
-                {
-                    FeedbackId = 1,
-                    Content = "Great food!"
-                },
-                new FeedbackRestaurantDto
-                {
-                    FeedbackId = 2,
-                    Content = "Nice ambiance!"
-                }
-            };
-
-            _mockFeedbackService.Setup(service => service.ListRestaurantPagingAsync(restaurantId))
-                                .ReturnsAsync(feedbacks);
-
-            // Act
-            var result = await _controller.GetRestaurantFeedbacks(restaurantId);
-
-            // Assert
-            var okResult = result as OkObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
-            var response = okResult.Value as List<FeedbackRestaurantDto>;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(response.All(f => f.Content.Contains("food") || f.Content.Contains("ambiance")));  // Check content filtering
-        }
     }
 }

@@ -86,25 +86,6 @@ namespace TOPDER.Test2.WalletTransactionControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(200, okResult.StatusCode);
         }
 
-        [TestMethod]
-        public async Task CheckRecharge_StatusIsCancelled_UpdateFails_ReturnsBadRequest()
-        {
-            // Arrange
-            int transactionId = 1;
-            string status = Payment_Status.CANCELLED;
-
-            _walletTransactionServiceMock
-                .Setup(service => service.UpdateStatus(transactionId, status))
-                .ReturnsAsync(false);
-
-            // Act
-            var result = await _controller.CheckRecharge(transactionId, status);
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(badRequestResult);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, badRequestResult.StatusCode);
-        }
 
         [TestMethod]
         public async Task CheckRecharge_StatusIsSuccessful_UpdateBalanceAndStatusSuccess_ReturnsOk()

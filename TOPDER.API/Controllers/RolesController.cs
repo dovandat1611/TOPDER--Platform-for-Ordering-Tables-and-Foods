@@ -25,7 +25,6 @@ namespace TOPDER.API.Controllers
         public async Task<IActionResult> GetRoles([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _roleService.GetPagingAsync(pageNumber, pageSize);
-
             var response = new PaginatedResponseDto<RoleDto>(
                 result,
                 result.PageIndex,
@@ -33,7 +32,6 @@ namespace TOPDER.API.Controllers
                 result.HasPreviousPage,
                 result.HasNextPage
             );
-
             return Ok(response);
         }
 
@@ -76,23 +74,5 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        // PUT: api/Roles/{id}
-        [HttpPut("Update")]
-        [SwaggerOperation(Summary = "Cập nhật role: Admin")]
-        public async Task<IActionResult> UpdateRole([FromBody] RoleDto roleDto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var result = await _roleService.UpdateAsync(roleDto);
-            if (!result)
-            {
-                return NotFound();
-            }
-
-            return NoContent();
-        }
     }
 }

@@ -97,7 +97,7 @@ namespace TOPDER.Test2.FeedbackControllerTest
             var feedbackDto = new FeedbackDto
             {
                 OrderId = 1,
-                CustomerId = 9999, // Invalid CustomerId (edge case)
+                CustomerId = -1, // Invalid CustomerId (edge case)
                 RestaurantId = 1,
                 Star = 5,
                 Content = "Feedback with invalid customer."
@@ -111,6 +111,29 @@ namespace TOPDER.Test2.FeedbackControllerTest
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, result.StatusCode);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Failed to create feedback.", result.Value);
         }
+
+        [TestMethod]
+        public async Task AddFeedback_WithStarThanFive_ReturnsBadRequest()
+        {
+            // Arrange
+            var feedbackDto = new FeedbackDto
+            {
+                OrderId = 1,
+                CustomerId = 9999, // Invalid CustomerId (edge case)
+                RestaurantId = 1,
+                Star = 6,
+                Content = "Feedback with invalid customer."
+            };
+
+            // Act
+            var result = await _controller.AddFeedback(feedbackDto) as BadRequestObjectResult;
+
+            // Assert
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, result.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("Failed to create feedback.", result.Value);
+        }
+
         [TestMethod]
         public async Task AddFeedback_WithNullContent_ReturnsOk()
         {

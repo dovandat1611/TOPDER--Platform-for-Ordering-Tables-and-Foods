@@ -54,7 +54,7 @@ namespace TOPDER.Test2.ChatBoxControllerTest
             var chatBoxDto = new CreateChatBoxDto
             {
                 ChatBoxId = 2,
-                CustomerId = 99999, // Non-existent customer
+                CustomerId = -1, // Non-existent customer
                 RestaurantId = 1
             };
 
@@ -77,7 +77,7 @@ namespace TOPDER.Test2.ChatBoxControllerTest
             {
                 ChatBoxId = 4,
                 CustomerId = 1,
-                RestaurantId = 9999 // Non-existent restaurant
+                RestaurantId = -1 // Non-existent restaurant
             };
 
             _mockChatBoxService.Setup(service => service.AddAsync(chatBoxDto)).ReturnsAsync(false);

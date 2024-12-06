@@ -61,7 +61,7 @@ namespace TOPDER.Test2.RestaurantControllerTest
         public async Task GetDescription_ReturnsNotFound_WhenRestaurantDoesNotExist()
         {
             // Arrange
-            var restaurantId = 999999; // Một restaurantId không tồn tại trong cơ sở dữ liệu
+            var restaurantId = -1; // Một restaurantId không tồn tại trong cơ sở dữ liệu
 
             // Giả lập service trả về null khi không tìm thấy nhà hàng
             _restaurantServiceMock

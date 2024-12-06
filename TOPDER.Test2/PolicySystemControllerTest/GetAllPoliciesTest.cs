@@ -28,67 +28,51 @@ namespace TOPDER.Test2.PolicySystemControllerTest
             _controller = new PolicySystemController(_mockPolicySystemService.Object);
         }
         [TestMethod]
-        public async Task CreatePolicy_ReturnsBadRequest_WhenModelIsInvalid()
+        public async Task GetAllPolicies_ReturnsOkResult_WithListOfPolicies()
         {
-            // Arrange: Create an invalid DTO (e.g., missing required properties)
-            var invalidPolicySystemDto = new CreatePolicySystemDto();
-            _controller.ModelState.AddModelError("MinOrderValue", "MinOrderValue is required.");
-
-            // Act
-            var result = await _controller.CreatePolicy(invalidPolicySystemDto);
-
-            // Assert: Verify that a BadRequest result is returned
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
-            var badRequestResult = (BadRequestObjectResult)result;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(badRequestResult.StatusCode, 400); // BadRequest
-        }
-
-        [TestMethod]
-        public async Task CreatePolicy_ReturnsOk_WhenPolicyCreatedSuccessfully()
+            // Arrange
+            var mockPolicies = new List<PolicySystemDto>
         {
-            // Arrange: Create a valid DTO
-            var policySystemDto = new CreatePolicySystemDto
+            new PolicySystemDto
             {
-                AdminId = 1,
-                MinOrderValue = 50.00m,
-                MaxOrderValue = 200.00m,
-                FeeAmount = 10.00m
-            };
-
-            // Mock the service's AddAsync method to return true, indicating success
-            _mockPolicySystemService.Setup(service => service.AddAsync(policySystemDto)).ReturnsAsync(true);
-
-            // Act
-            var result = await _controller.CreatePolicy(policySystemDto);
-
-            // Assert: Verify that an OkObjectResult is returned
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-            var okResult = (OkObjectResult)result;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(okResult.StatusCode, 200); // Ok response
-        }
-
-        [TestMethod]
-        public async Task CreatePolicy_ReturnsInternalServerError_WhenPolicyCreationFails()
-        {
-            // Arrange: Create a valid DTO
-            var policySystemDto = new CreatePolicySystemDto
+                PolicyId = 1,
+                AdminId = 101,
+                MinOrderValue = 50m,
+                MaxOrderValue = 200m,
+                FeeAmount = 10m,
+                Status = "Active",
+                CreateDate = DateTime.UtcNow
+            },
+            new PolicySystemDto
             {
-                AdminId = 1,
-                MinOrderValue = 50.00m,
-                MaxOrderValue = 200.00m,
-                FeeAmount = 10.00m
-            };
+                PolicyId = 2,
+                AdminId = 102,
+                MinOrderValue = 100m,
+                MaxOrderValue = 500m,
+                FeeAmount = 20m,
+                Status = "Inactive",
+                CreateDate = DateTime.UtcNow.AddDays(-5)
+            }
+        };
 
-            // Mock the service's AddAsync method to return false, indicating failure
-            _mockPolicySystemService.Setup(service => service.AddAsync(policySystemDto)).ReturnsAsync(false);
+            _mockPolicySystemService
+                .Setup(service => service.GetAllAsync())
+                .ReturnsAsync(mockPolicies);
 
             // Act
-            var result = await _controller.CreatePolicy(policySystemDto);
+            var result = await _controller.GetAllPolicies();
 
-            // Assert: Verify that an InternalServerError is returned
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsInstanceOfType(result, typeof(ObjectResult));
-            var objectResult = (ObjectResult)result;
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(objectResult.StatusCode, 500); // Internal Server Error
+            // Assert
+            var okResult = result as OkObjectResult;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(okResult);
+            Microsoft.VisualStudio.TestTools.UnitTesting.           Assert.AreEqual(200, okResult.StatusCode);
+
+            var returnedPolicies = okResult.Value as List<PolicySystemDto>;
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(returnedPolicies);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(2, returnedPolicies.Count);
+
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, returnedPolicies[0].PolicyId);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(2, returnedPolicies[1].PolicyId);
         }
     }
 }

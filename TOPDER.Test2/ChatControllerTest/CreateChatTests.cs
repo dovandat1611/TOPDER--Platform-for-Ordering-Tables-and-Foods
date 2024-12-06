@@ -109,7 +109,7 @@ namespace TOPDER.Test2.ChatControllerTest
             // Arrange
             var createChatDto = new CreateChatDto
             {
-                ChatBoxId = 9999, // Non-existing ChatBoxId
+                ChatBoxId = -1, // Non-existing ChatBoxId
                 ChatBy = 1,
                 Content = "Hello!"
             };
@@ -132,7 +132,7 @@ namespace TOPDER.Test2.ChatControllerTest
             var createChatDto = new CreateChatDto
             {
                 ChatBoxId = 1,
-                ChatBy = 99999, // Non-existing ChatBy ID
+                ChatBy = -1, // Non-existing ChatBy ID
                 Content = "Hello!"
             };
 

@@ -97,22 +97,6 @@ namespace TOPDER.API.Controllers
         }
 
 
-        [HttpPut("Update")]
-        [SwaggerOperation(Summary = "Cập nhật dấu thông báo là đã đọc")]
-        public async Task<IActionResult> Update([FromBody] NotificationDto notificationDto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var result = await _notificationService.UpdateAsync(notificationDto);
-            if (result)
-            {
-                return Ok("Cập nhật thông báo thành công.");
-            }
-            return NotFound("Không tìm thấy thông báo hoặc thông báo không thuộc về user.");
-        }
-
         [HttpDelete("Delete/{userId}/{notificationId}")]
         [SwaggerOperation(Summary = "Xóa thông báo")]
         public async Task<IActionResult> Delete(int userId,int notificationId)

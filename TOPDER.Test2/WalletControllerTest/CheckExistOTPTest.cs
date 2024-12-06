@@ -29,7 +29,7 @@ namespace TOPDER.Test2.WalletControllerTest
         public async Task CheckExistOTP_Exists_ReturnsOk()
         {
             // Arrange
-            int uid = 101; // Example User ID
+            int uid = 1; // Example User ID
             _walletServiceMock
                 .Setup(service => service.CheckExistOTP(uid))
                 .ReturnsAsync(true);
@@ -47,7 +47,7 @@ namespace TOPDER.Test2.WalletControllerTest
         public async Task CheckExistOTP_NotExists_ReturnsNotFound()
         {
             // Arrange
-            int uid = 102; // Example User ID
+            int uid = -1; // Example User ID
             _walletServiceMock
                 .Setup(service => service.CheckExistOTP(uid))
                 .ReturnsAsync(false);

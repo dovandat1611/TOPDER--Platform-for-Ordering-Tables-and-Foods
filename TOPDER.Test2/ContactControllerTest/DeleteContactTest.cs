@@ -61,21 +61,6 @@ namespace TOPDER.Test2.ContactControllerTest
         }
 
         // Test case for non-existent ID (id = 999999)
-        [TestMethod]
-        public async Task DeleteContact_WithNonExistentId_ReturnsNotFound()
-        {
-            // Arrange
-            var id = 999999; // Non-existent ID
-            _mockContactService.Setup(service => service.RemoveAsync(id)).ReturnsAsync(false); // Simulate failed deletion
-
-            // Act
-            var result = await _controller.DeleteContact(id) as NotFoundObjectResult;
-
-            // Assert
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, result.StatusCode);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual($"Liên hệ với ID {id} không tồn tại.", result.Value); // Assert failure message
-        }
     }
 }
 

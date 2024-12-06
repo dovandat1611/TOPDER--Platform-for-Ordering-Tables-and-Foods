@@ -33,7 +33,7 @@ namespace TOPDER.Test2.WalletControllerTest
             var walletBankDto = new WalletBankDto
             {
                 WalletId = 1,
-                Uid = 101,
+                Uid = 1,
                 BankCode = "VCB",
                 AccountNo = "123456789",
                 AccountName = "Nguyen Van A"
