@@ -18,7 +18,7 @@ namespace TOPDER.API.Controllers
             _chatBoxService = chatBoxService;
         }
 
-        [HttpPost]
+/*        [HttpPost]
         public async Task<IActionResult> CreateChatBox([FromBody] CreateChatBoxDto chatBoxDto)
         {
             if (!ModelState.IsValid)
@@ -31,7 +31,7 @@ namespace TOPDER.API.Controllers
             }
 
             return BadRequest("Tạo Chat Box thất bại.");
-        }
+        }*/
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetChatBox(int id)

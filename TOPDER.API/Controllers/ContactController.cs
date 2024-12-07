@@ -64,7 +64,7 @@ namespace TOPDER.API.Controllers
             return NotFound($"Liên hệ với ID {id} không tồn tại.");
         }
 
-/*        [HttpGet("search")]
+        [HttpGet("search")]
         public async Task<IActionResult> Search([FromQuery] string content, [FromQuery] string topic, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _contactService.SearchPagingAsync(pageNumber, pageSize, content, topic);
@@ -78,6 +78,6 @@ namespace TOPDER.API.Controllers
             );
 
             return Ok(response);
-        }*/
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace TOPDER.API.Controllers
             _dashboardService = dashboardService;
         }
 
-      /*  [HttpGet("admin")]
+        [HttpGet("admin")]
         public async Task<ActionResult<DashboardAdminDTO>> GetDashboardAdmin()
         {
             try
@@ -33,6 +33,6 @@ namespace TOPDER.API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-*/
+
     }
 }

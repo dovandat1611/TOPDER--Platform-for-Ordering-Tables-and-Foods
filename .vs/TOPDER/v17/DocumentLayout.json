@@ -3,6 +3,30 @@
   "WorkspaceRootPath": "C:\\Users\\dell\\Downloads\\SEP490\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\bloggroupcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\bloggroupcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\bookingadvertisementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\bookingadvertisementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\categoryroomcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\categoryroomcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\chatboxcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\chatboxcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\chatcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\chatcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\contactcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\contactcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -47,36 +71,12 @@
       "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\categorymenucontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\bookingadvertisementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\bookingadvertisementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\bloggroupcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\bloggroupcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\blogcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\blogcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\advertisementpricingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\advertisementpricingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\chatboxcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\chatboxcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\contactcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\contactcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\chatcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\chatcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\categoryroomcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|solutionrelative:topder.api\\controllers\\categoryroomcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A6F38EB2-AD0D-4599-847E-36D433ABE249}|TOPDER.API\\TOPDER.API.csproj|c:\\users\\dell\\downloads\\sep490\\topder.api\\controllers\\discountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -102,7 +102,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 74,
+          "SelectedChildIndex": 73,
           "Children": [
             {
               "$type": "Bookmark",
@@ -386,46 +386,98 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "WishlistController.cs",
-              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\WishlistController.cs",
-              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\WishlistController.cs",
-              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\WishlistController.cs",
-              "RelativeToolTip": "TOPDER.API\\Controllers\\WishlistController.cs",
-              "ViewState": "AQIAABUAAAAAAAAAAAAqwC0AAABTAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-08T07:05:57.022Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "OrderController.cs",
-              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\OrderController.cs",
-              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\OrderController.cs",
-              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\OrderController.cs",
-              "RelativeToolTip": "TOPDER.API\\Controllers\\OrderController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Title": "ChatBoxController.cs",
+              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\ChatBoxController.cs",
+              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\ChatBoxController.cs",
+              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\ChatBoxController.cs",
+              "RelativeToolTip": "TOPDER.API\\Controllers\\ChatBoxController.cs",
+              "ViewState": "AQIAAA4AAAAAAAAAAAAAwCEAAAALAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-22T00:51:00.441Z",
+              "WhenOpened": "2024-12-04T14:49:00.282Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "MenuController.cs",
-              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\MenuController.cs",
-              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\MenuController.cs",
-              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\MenuController.cs",
-              "RelativeToolTip": "TOPDER.API\\Controllers\\MenuController.cs",
-              "ViewState": "AQIAAFEAAAAAAAAAAAAAwG8AAAACAAAA",
+              "Title": "CategoryRoomController.cs",
+              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\CategoryRoomController.cs",
+              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\CategoryRoomController.cs",
+              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\CategoryRoomController.cs",
+              "RelativeToolTip": "TOPDER.API\\Controllers\\CategoryRoomController.cs",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAAACEAAAAJAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-11T13:55:13.326Z",
+              "WhenOpened": "2024-11-24T12:25:41.511Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "BookingAdvertisementController.cs",
+              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BookingAdvertisementController.cs",
+              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\BookingAdvertisementController.cs",
+              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BookingAdvertisementController.cs",
+              "RelativeToolTip": "TOPDER.API\\Controllers\\BookingAdvertisementController.cs",
+              "ViewState": "AQIAAKAAAAAAAAAAAAAQwMAAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-30T12:20:38.751Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "BlogGroupController.cs",
+              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BlogGroupController.cs",
+              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\BlogGroupController.cs",
+              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BlogGroupController.cs",
+              "RelativeToolTip": "TOPDER.API\\Controllers\\BlogGroupController.cs",
+              "ViewState": "AQIAABcAAAAAAAAAAAAuwDQAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-10T02:03:33.178Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ChatController.cs",
+              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\ChatController.cs",
+              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\ChatController.cs",
+              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\ChatController.cs",
+              "RelativeToolTip": "TOPDER.API\\Controllers\\ChatController.cs",
+              "ViewState": "AQIAADQAAAAAAAAAAAAkwE0AAAALAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-22T11:56:14.039Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ContactController.cs",
+              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\ContactController.cs",
+              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\ContactController.cs",
+              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\ContactController.cs",
+              "RelativeToolTip": "TOPDER.API\\Controllers\\ContactController.cs",
+              "ViewState": "AQIAADUAAAAAAAAAAAAgwFAAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-24T12:26:15.535Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "DashboardController.cs",
+              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\DashboardController.cs",
+              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\DashboardController.cs",
+              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\DashboardController.cs",
+              "RelativeToolTip": "TOPDER.API\\Controllers\\DashboardController.cs",
+              "ViewState": "AQIAAAcAAAAAAAAAAAAqwCMAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-22T11:56:28.849Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
               "Title": "FeedbackController.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\FeedbackController.cs",
               "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\FeedbackController.cs",
@@ -433,25 +485,47 @@
               "RelativeToolTip": "TOPDER.API\\Controllers\\FeedbackController.cs",
               "ViewState": "AQIAABYAAAAAAAAAAAAQwCgAAAACAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-12T17:32:12.746Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-12T17:32:12.746Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "DashboardController.cs",
-              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\DashboardController.cs",
-              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\DashboardController.cs",
-              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\DashboardController.cs",
-              "RelativeToolTip": "TOPDER.API\\Controllers\\DashboardController.cs",
-              "ViewState": "AQIAAAkAAAAAAAAAAAA+wB8AAAANAAAA",
+              "DocumentIndex": 8,
+              "Title": "MenuController.cs",
+              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\MenuController.cs",
+              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\MenuController.cs",
+              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\MenuController.cs",
+              "RelativeToolTip": "TOPDER.API\\Controllers\\MenuController.cs",
+              "ViewState": "AQIAAFEAAAAAAAAAAAAAwG8AAAACAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-22T11:56:28.849Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-11T13:55:13.326Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 9,
+              "Title": "OrderController.cs",
+              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\OrderController.cs",
+              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\OrderController.cs",
+              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\OrderController.cs",
+              "RelativeToolTip": "TOPDER.API\\Controllers\\OrderController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-22T00:51:00.441Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "WishlistController.cs",
+              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\WishlistController.cs",
+              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\WishlistController.cs",
+              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\WishlistController.cs",
+              "RelativeToolTip": "TOPDER.API\\Controllers\\WishlistController.cs",
+              "ViewState": "AQIAABUAAAAAAAAAAAAqwC0AAABTAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-08T07:05:57.022Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
               "Title": "UserController.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\UserController.cs",
               "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\UserController.cs",
@@ -459,12 +533,11 @@
               "RelativeToolTip": "TOPDER.API\\Controllers\\UserController.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-06T06:48:42.984Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-06T06:48:42.984Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 12,
               "Title": "RolesController.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\RolesController.cs",
               "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\RolesController.cs",
@@ -472,12 +545,11 @@
               "RelativeToolTip": "TOPDER.API\\Controllers\\RolesController.cs",
               "ViewState": "AQIAADYAAAAAAAAAAAAuwCoAAAAJAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-18T09:24:19.676Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-18T09:24:19.676Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 13,
               "Title": "OrderMenuController.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\OrderMenuController.cs",
               "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\OrderMenuController.cs",
@@ -485,12 +557,11 @@
               "RelativeToolTip": "TOPDER.API\\Controllers\\OrderMenuController.cs",
               "ViewState": "AQIAABkAAAAAAAAAAAAQwDMAAABOAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-24T00:25:29.584Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-24T00:25:29.584Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 14,
               "Title": "RestaurantController.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\RestaurantController.cs",
               "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\RestaurantController.cs",
@@ -498,12 +569,11 @@
               "RelativeToolTip": "TOPDER.API\\Controllers\\RestaurantController.cs",
               "ViewState": "AQIAABEAAAAAAAAAAAAAwC0AAAACAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-18T09:24:09.615Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-18T09:24:09.615Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 15,
               "Title": "CategoryRestaurantController.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\CategoryRestaurantController.cs",
               "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\CategoryRestaurantController.cs",
@@ -511,12 +581,11 @@
               "RelativeToolTip": "TOPDER.API\\Controllers\\CategoryRestaurantController.cs",
               "ViewState": "AQIAAB4AAAAAAAAAAAAYwD4AAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-22T11:56:17.529Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-22T11:56:17.529Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 16,
               "Title": "CategoryMenuController.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\CategoryMenuController.cs",
               "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\CategoryMenuController.cs",
@@ -528,31 +597,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "BookingAdvertisementController.cs",
-              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BookingAdvertisementController.cs",
-              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\BookingAdvertisementController.cs",
-              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BookingAdvertisementController.cs",
-              "RelativeToolTip": "TOPDER.API\\Controllers\\BookingAdvertisementController.cs",
-              "ViewState": "AQIAAKAAAAAAAAAAAAAQwMAAAAALAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-30T12:20:38.751Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "BlogGroupController.cs",
-              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BlogGroupController.cs",
-              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\BlogGroupController.cs",
-              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BlogGroupController.cs",
-              "RelativeToolTip": "TOPDER.API\\Controllers\\BlogGroupController.cs",
-              "ViewState": "AQIAABcAAAAAAAAAAAAuwDQAAAACAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-10T02:03:33.178Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 17,
               "Title": "BlogController.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\BlogController.cs",
               "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\BlogController.cs",
@@ -564,7 +609,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 18,
               "Title": "AdvertisementPricingController.cs",
               "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\AdvertisementPricingController.cs",
               "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\AdvertisementPricingController.cs",
@@ -573,54 +618,6 @@
               "ViewState": "AQIAAAkAAAAAAAAAAAAuwCAAAAAJAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-28T12:38:32.43Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "ChatBoxController.cs",
-              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\ChatBoxController.cs",
-              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\ChatBoxController.cs",
-              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\ChatBoxController.cs",
-              "RelativeToolTip": "TOPDER.API\\Controllers\\ChatBoxController.cs",
-              "ViewState": "AQIAAA4AAAAAAAAAAAAAwAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-04T14:49:00.282Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
-              "Title": "ContactController.cs",
-              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\ContactController.cs",
-              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\ContactController.cs",
-              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\ContactController.cs",
-              "RelativeToolTip": "TOPDER.API\\Controllers\\ContactController.cs",
-              "ViewState": "AQIAADUAAAAAAAAAAAAgwFAAAAALAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-24T12:26:15.535Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "ChatController.cs",
-              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\ChatController.cs",
-              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\ChatController.cs",
-              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\ChatController.cs",
-              "RelativeToolTip": "TOPDER.API\\Controllers\\ChatController.cs",
-              "ViewState": "AQIAADQAAAAAAAAAAAAkwAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-22T11:56:14.039Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 18,
-              "Title": "CategoryRoomController.cs",
-              "DocumentMoniker": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\CategoryRoomController.cs",
-              "RelativeDocumentMoniker": "TOPDER.API\\Controllers\\CategoryRoomController.cs",
-              "ToolTip": "C:\\Users\\dell\\Downloads\\SEP490\\TOPDER.API\\Controllers\\CategoryRoomController.cs",
-              "RelativeToolTip": "TOPDER.API\\Controllers\\CategoryRoomController.cs",
-              "ViewState": "AQIAAAYAAAAAAAAAAAAAACEAAAAJAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-24T12:25:41.511Z"
             },
             {
               "$type": "Document",

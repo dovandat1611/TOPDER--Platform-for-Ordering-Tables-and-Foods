@@ -63,7 +63,7 @@ namespace TOPDER.API.Controllers
             return NotFound($"Chat với ID {id} không tồn tại.");
         }
 
-        [HttpPut]
+   /*     [HttpPut]
         public async Task<IActionResult> UpdateChat([FromBody] CreateorUpdateChatDto updateChatDto)
         {
             if (!ModelState.IsValid)
@@ -75,7 +75,7 @@ namespace TOPDER.API.Controllers
                 return Ok("Cập nhật chat thành công.");
             }
             return NotFound($"Chat với ID {updateChatDto.ChatId} không tồn tại.");
-        }
+        }*/
 
     }
 }
