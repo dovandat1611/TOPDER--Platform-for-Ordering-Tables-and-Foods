@@ -445,8 +445,12 @@ namespace TOPDER.Service.Mapper
 
                 .ForMember(dest => dest.IsBookingEnabled,
                            opt => opt.MapFrom(src =>
-                               src.Restaurant != null ? src.Restaurant.IsBookingEnabled : null));
+                               src.Restaurant != null ? src.Restaurant.IsBookingEnabled : null))
                 
+                .ForMember(dest => dest.TableGapTime,
+                           opt => opt.MapFrom(src =>
+                               src.Restaurant != null ? src.Restaurant.TableGapTime : null));
+
 
 
             //ROLE
