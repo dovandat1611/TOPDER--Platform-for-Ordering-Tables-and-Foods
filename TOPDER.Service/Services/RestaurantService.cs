@@ -98,6 +98,7 @@ namespace TOPDER.Service.Services
             existingRestaurant.Price = restaurant.Price;
             existingRestaurant.Description = restaurant.Description;
             existingRestaurant.Subdescription = restaurant.Subdescription;
+            existingRestaurant.TableGapTime = restaurant.TableGapTime;
             return await _restaurantRepository.UpdateAsync(existingRestaurant);
         }
 
