@@ -35,6 +35,8 @@ namespace TOPDER.Service.Dtos.User
         public int? MaxCapacity { get; set; }
         public decimal? Price { get; set; }
         public bool? IsBookingEnabled { get; set; }
+        public int? TableGapTime { get; set; }
+
 
         // ALL 
         public string? Role { get; set; } = string.Empty;

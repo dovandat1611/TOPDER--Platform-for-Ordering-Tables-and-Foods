@@ -139,6 +139,7 @@ namespace TOPDER.API.Controllers
                         MaxCapacity = userLoginDto.MaxCapacity,
                         Price = userLoginDto.Price,
                         IsBookingEnabled = userLoginDto.IsBookingEnabled,
+                        TableGapTime = userLoginDto.TableGapTime,
                         Role = userLoginDto.Role
                     };
                     userInfo = restaurantInfo;

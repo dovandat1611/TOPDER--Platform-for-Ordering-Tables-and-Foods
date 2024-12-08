@@ -42,6 +42,7 @@ namespace TOPDER.Repository.Entities
         public int? ReputationScore { get; set; }
         public decimal Price { get; set; }
         public bool? IsBookingEnabled { get; set; }
+        public int? TableGapTime { get; set; }
 
         public virtual CategoryRestaurant? CategoryRestaurant { get; set; }
         public virtual User UidNavigation { get; set; } = null!;

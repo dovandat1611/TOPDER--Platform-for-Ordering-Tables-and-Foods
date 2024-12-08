@@ -27,5 +27,6 @@ namespace TOPDER.Service.Dtos.Restaurant
         public decimal Price { get; set; }
         public string? Description { get; set; }
         public string? Subdescription { get; set; }
+        public int? TableGapTime { get; set; }
     }
 }

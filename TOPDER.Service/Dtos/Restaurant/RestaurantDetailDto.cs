@@ -28,6 +28,7 @@ namespace TOPDER.Service.Dtos.Restaurant
         public int TotalFeedbacks { get; set; }
         public int MaxCapacity { get; set; }
         public int Star { get; set; }
+        public int? TableGapTime { get; set; }
         public List<ImageDto> Images { get; set; } = null!;
     }
 }
