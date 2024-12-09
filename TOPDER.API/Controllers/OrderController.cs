@@ -94,7 +94,7 @@ namespace TOPDER.API.Controllers
         /// </summary>
         /// <param name="orderDto">The order DTO with updated information.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains an action result indicating success or failure.</returns>
-        [HttpPut]
+      /*  [HttpPut]
         public async Task<IActionResult> UpdateOrder([FromBody] OrderDto orderDto)
         {
             if (orderDto == null)
@@ -109,7 +109,7 @@ namespace TOPDER.API.Controllers
             }
 
             return NotFound($"Order with ID {orderDto.OrderId} not found.");
-        }
+        }*/
 
         /// <summary>
         /// Deletes an order by ID.

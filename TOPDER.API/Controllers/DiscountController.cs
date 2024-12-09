@@ -66,7 +66,7 @@ namespace TOPDER.API.Controllers
             }
         }
 
-        [HttpGet("list/{restaurantId}")]
+ /*       [HttpGet("list/{restaurantId}")]
         public async Task<ActionResult> GetRestaurantPaging(int pageNumber, int pageSize, int restaurantId)
         {
             var result = await _discountService.GetRestaurantPagingAsync(pageNumber, pageSize, restaurantId);
@@ -79,9 +79,9 @@ namespace TOPDER.API.Controllers
                 result.HasNextPage
             );
             return Ok(response);
-        }
+        }*/
 
-     
+ /*    
         [HttpPut]
         public async Task<ActionResult> UpdateDiscount([FromBody] DiscountDto discountDto)
         {
@@ -94,6 +94,6 @@ namespace TOPDER.API.Controllers
                 return Ok("Cập Nhật Discount thành công."); 
             }
             return NotFound("Giảm giá không tồn tại hoặc không thuộc về nhà hàng.");
-        }
+        }*/
     }
 }
