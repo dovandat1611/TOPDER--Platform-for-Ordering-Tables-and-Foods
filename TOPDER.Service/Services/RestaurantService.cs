@@ -287,6 +287,7 @@ namespace TOPDER.Service.Services
 
             var restaurant = query
                 .Include(x => x.CategoryRestaurant)
+                .Include(x => x.UidNavigation)
                 .FirstOrDefault(x => x.Uid == uid);
 
             if (restaurant == null) return null;

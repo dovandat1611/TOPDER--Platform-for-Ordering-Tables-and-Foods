@@ -61,7 +61,9 @@ namespace TOPDER.Service.Services
 
         public async Task<CustomerProfileDto?> Profile(int uid)
         {
-            var customer = await _customerRepository.GetByIdAsync(uid);
+            var query = await _customerRepository.QueryableAsync();
+
+            var customer = await query.Include(x => x.UidNavigation).FirstOrDefaultAsync(x => x.Uid == uid);
 
             if (customer == null) return null;
 

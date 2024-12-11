@@ -9,6 +9,7 @@ namespace TOPDER.Service.Dtos.Admin
     public class AdminDto
     {
         public int Uid { get; set; }
+        public string? Email { get; set; }
         public string Name { get; set; } = null!;
         public string Phone { get; set; } = null!;
         public DateTime? Dob { get; set; }

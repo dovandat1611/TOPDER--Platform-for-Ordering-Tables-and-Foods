@@ -75,6 +75,8 @@ namespace TOPDER.Service.Mapper
                                 : 0));
 
             CreateMap<Restaurant, RestaurantProfileDto>()
+                 .ForMember(dest => dest.Email,
+                           opt => opt.MapFrom(src => src.UidNavigation != null ? src.UidNavigation.Email : Is_Null.ISNULL))
                 .ForMember(dest => dest.CategoryRestaurantName, opt => opt.MapFrom(src => src.CategoryRestaurant != null ? src.CategoryRestaurant.CategoryRestaurantName : Is_Null.ISNULL));
 
 
@@ -305,7 +307,10 @@ namespace TOPDER.Service.Mapper
                            opt => opt.MapFrom(src => src.Wallet != null ? src.Wallet.BankCode : Is_Null.ISNULL));
 
             // ADMIN 
-            CreateMap<AdminDto, Admin>().ReverseMap();
+            CreateMap<Admin, AdminDto>()
+                 .ForMember(dest => dest.Email,
+                           opt => opt.MapFrom(src => src.UidNavigation != null ? src.UidNavigation.Email : Is_Null.ISNULL))         
+                .ReverseMap();
 
             // ORDER 
             CreateMap<OrderDto, Order>().ReverseMap();
@@ -457,7 +462,10 @@ namespace TOPDER.Service.Mapper
             CreateMap<RoleDto, Role>().ReverseMap();
 
             // CUSTOMER
-            CreateMap<CustomerProfileDto, Customer>().ReverseMap();
+            CreateMap<Customer, CustomerProfileDto>()
+                   .ForMember(dest => dest.Email,
+                           opt => opt.MapFrom(src => src.UidNavigation != null ? src.UidNavigation.Email : Is_Null.ISNULL))
+                .ReverseMap();
 
             // Table Booking Schedule
             CreateMap<TableBookingScheduleDto, TableBookingSchedule>().ReverseMap();

@@ -10,6 +10,7 @@ namespace TOPDER.Service.Dtos.Restaurant
     public class RestaurantProfileDto
     {
         public int Uid { get; set; }
+        public string? Email { get; set; }
         public int? CategoryRestaurantId { get; set; }
         public string? CategoryRestaurantName { get; set; }
         public string NameOwner { get; set; } = null!;

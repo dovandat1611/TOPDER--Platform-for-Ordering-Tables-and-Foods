@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +34,8 @@ namespace TOPDER.Service.Services
 
         public async Task<AdminDto?> Profile(int uid)
         {
-            var admin = await _adminRepository.GetByIdAsync(uid);
+            var query = await _adminRepository.QueryableAsync();
+            var admin = await query.Include(x => x.UidNavigation).FirstOrDefaultAsync(x => x.Uid == uid);
 
             if (admin == null) return null;
 
