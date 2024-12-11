@@ -27,6 +27,7 @@ namespace TOPDER.Service.IServices
        //Task<bool> UpdateTotalIncomeChangeMenuAsync(int orderID, decimal totalAmount);
         Task<bool> UpdateFoodAmountChangeMenuAsync(int orderID, decimal foodAmount);
         Task<bool> UpdateAddFoodAmountChangeMenuAsync(int orderID, decimal addFoodAmount);
+        Task<bool> UpdateTotalPaymentAmountAsync(int orderID, decimal totalPaymentAmount);
         Task<bool> CheckIsFirstOrderAsync(int customerId, int restaurantId);
         Task<bool> CheckIsLoyalCustomerAsync(int customerId, int restaurantId);
         Task<CompleteOrderDto> GetInformationForCompleteAsync(int orderID);

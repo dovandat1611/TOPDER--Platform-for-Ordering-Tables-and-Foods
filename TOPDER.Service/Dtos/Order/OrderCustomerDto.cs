@@ -38,5 +38,6 @@ namespace TOPDER.Service.Dtos.Order
         public decimal? DepositAmount { get; set; }
         public decimal? FoodAmount { get; set; }
         public decimal? FoodAddAmount { get; set; }
+        public decimal? TotalPaymentAmount { get; set; }
     }
 }

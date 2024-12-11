@@ -13,6 +13,6 @@ namespace TOPDER.Service.Dtos.Order
         public string RestaurantName { get; set; } = string.Empty;
         public int WalletId { get; set; }
         public decimal WalletBalance { get; set; }
-        public decimal TotalAmount { get; set; }
+        public decimal? TotalPaymentAmount { get; set; }
     }
 }

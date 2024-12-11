@@ -31,6 +31,7 @@ namespace TOPDER.Repository.Entities
         public decimal? FoodAmount { get; set; }
         public decimal? FoodAddAmount { get; set; }
         public decimal? TotalAmount { get; set; }
+        public decimal? TotalPaymentAmount { get; set; }
         public string? ContentPayment { get; set; }
         public string? StatusPayment { get; set; }
         public string? StatusOrder { get; set; }

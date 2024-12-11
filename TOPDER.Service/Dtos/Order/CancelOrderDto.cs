@@ -21,7 +21,8 @@ namespace TOPDER.Service.Dtos.Order
         public decimal WalletBalanceCustomer { get; set; }
         public decimal WalletBalanceRestaurant { get; set; }
         public decimal? CancellationFeePercent { get; set; }
-        public decimal TotalAmount { get; set; }
+        public decimal? TotalAmount { get; set; }
+        public decimal? TotalPaymentAmount { get; set; }
         public string RoleName { get; set; } = string.Empty;
     }
 }

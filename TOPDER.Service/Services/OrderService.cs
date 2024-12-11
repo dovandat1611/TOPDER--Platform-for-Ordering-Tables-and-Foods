@@ -211,25 +211,28 @@ namespace TOPDER.Service.Services
 
             // Xác định vai trò của người dùng
             var isRestaurantUser = order.RestaurantId == userID;
-            var role = isRestaurantUser ? User_Role.RESTAURANT : User_Role.CUSTOMER;
+            var role = (isRestaurantUser == true) ? User_Role.RESTAURANT : User_Role.CUSTOMER;
 
             decimal cancellationFeePercent = 0;
 
-            if (isRestaurantUser == true)
+            if (isRestaurantUser == false)
             {
                 var restaurantPolicy = await _restaurantPolicyService.GetActivePolicyAsync(userID);
-                cancellationFeePercent = restaurantPolicy.CancellationFeePercent ?? 0;
+                if (restaurantPolicy != null)
+                {
+                    cancellationFeePercent = restaurantPolicy.CancellationFeePercent ?? 0;
+                }
             }
 
-            decimal totalAmount = 0;
-            if (order.PaidType == Paid_Type.ENTIRE_ORDER)
-            {
-                totalAmount = order.TotalAmount ?? 0;
-            }
-            if (order.PaidType == Paid_Type.DEPOSIT)
-            {
-                totalAmount = order.DepositAmount ?? 0;
-            }
+            decimal totalAmount = order.TotalPaymentAmount ?? 0;
+            //if (order.PaidType == Paid_Type.ENTIRE_ORDER)
+            //{
+            //    totalAmount = order.TotalAmount ?? 0;
+            //}
+            //if (order.PaidType == Paid_Type.DEPOSIT)
+            //{
+            //    totalAmount = order.DepositAmount ?? 0;
+            //}
 
             // Tạo đối tượng CancelOrderDto và trả về
             return new CancelOrderDto
@@ -247,7 +250,7 @@ namespace TOPDER.Service.Services
                 NameRestaurant = order.Restaurant.NameRes,
 
                 // User Cancel
-                UserCancelID = isRestaurantUser ? order.RestaurantId ?? 0 : order.CustomerId ?? 0,
+                UserCancelID = (isRestaurantUser == true) ? order.RestaurantId ?? 0 : order.CustomerId ?? 0,
 
                 //WalletRestaurant
                 WalletRestaurantId = walletRestaurant?.WalletId ?? 0,
@@ -259,9 +262,11 @@ namespace TOPDER.Service.Services
 
               
                 // CancellationFeePercent Restaurant
-                CancellationFeePercent = isRestaurantUser ? 100 : cancellationFeePercent,
+                CancellationFeePercent = (isRestaurantUser == true) ? 100 : cancellationFeePercent,
 
-                TotalAmount = totalAmount,
+                TotalAmount = order.TotalAmount,
+
+                TotalPaymentAmount = totalAmount,
 
                 RoleName = role
             };
@@ -287,15 +292,16 @@ namespace TOPDER.Service.Services
                 throw new KeyNotFoundException($"Order with ID {orderID} not found.");
             }
 
-            decimal totalAmount = 0;
-            if(order.PaidType == Paid_Type.ENTIRE_ORDER)
-            {
-                totalAmount = order.TotalAmount ?? 0;
-            }
-            if (order.PaidType == Paid_Type.DEPOSIT)
-            {
-                totalAmount = order.DepositAmount ?? 0;
-            }
+            decimal totalAmount = order.TotalPaymentAmount ?? 0;
+
+            //if(order.PaidType == Paid_Type.ENTIRE_ORDER)
+            //{
+            //    totalAmount = order.TotalAmount ?? 0;
+            //}
+            //if (order.PaidType == Paid_Type.DEPOSIT)
+            //{
+            //    totalAmount = order.DepositAmount ?? 0;
+            //}
 
             var wallet = order.Restaurant.UidNavigation.Wallets.FirstOrDefault(x => x.Uid == order.RestaurantId);
 
@@ -326,7 +332,7 @@ namespace TOPDER.Service.Services
                 WalletId = wallet.WalletId,
                 RestaurantName = order.Restaurant.NameRes,
                 WalletBalance = updatedWalletBalance ?? 0,
-                TotalAmount = totalAmount - serviceFee,
+                TotalPaymentAmount = totalAmount - serviceFee,
             };
 
         }
@@ -483,6 +489,7 @@ namespace TOPDER.Service.Services
             existingOrder.StatusPayment = orderDto.StatusPayment;
             existingOrder.ContentPayment = orderDto.ContentPayment;
             existingOrder.PaidType = orderDto.PaidType;
+            existingOrder.TotalPaymentAmount = orderDto.TotalPaymentAmount;
 
             return await _orderRepository.UpdateAsync(existingOrder);
         }
@@ -653,5 +660,15 @@ namespace TOPDER.Service.Services
             return await _orderRepository.UpdateAsync(order);
         }
 
+        public async Task<bool> UpdateTotalPaymentAmountAsync(int orderID, decimal totalPaymentAmount)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderID);
+
+            if (order == null) { return false; }
+
+            order.TotalPaymentAmount = totalPaymentAmount;
+
+            return await _orderRepository.UpdateAsync(order);
+        }
     }
 }
