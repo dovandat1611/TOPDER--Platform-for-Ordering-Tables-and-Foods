@@ -217,14 +217,13 @@ namespace TOPDER.Service.Services
 
             if (isRestaurantUser == false)
             {
-                var restaurantPolicy = await _restaurantPolicyService.GetActivePolicyAsync(userID);
+                var restaurantPolicy = await _restaurantPolicyService.GetActivePolicyAsync(order.RestaurantId ?? 0);
                 if (restaurantPolicy != null)
                 {
                     cancellationFeePercent = restaurantPolicy.CancellationFeePercent ?? 0;
                 }
             }
 
-            decimal totalAmount = order.TotalPaymentAmount ?? 0;
             //if (order.PaidType == Paid_Type.ENTIRE_ORDER)
             //{
             //    totalAmount = order.TotalAmount ?? 0;
@@ -266,7 +265,7 @@ namespace TOPDER.Service.Services
 
                 TotalAmount = order.TotalAmount,
 
-                TotalPaymentAmount = totalAmount,
+                TotalPaymentAmount = order.TotalPaymentAmount ?? 0,
 
                 RoleName = role
             };

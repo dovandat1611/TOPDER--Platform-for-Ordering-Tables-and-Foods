@@ -479,7 +479,6 @@ namespace TOPDER.API.Controllers
                     }
                 }
             }
-           
             return totalAmount;
         }
 
