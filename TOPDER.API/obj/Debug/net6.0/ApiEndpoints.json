@@ -2981,22 +2981,6 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "TOPDER.API.Controllers.RolesController",
-    "Method": "UpdateRole",
-    "RelativePath": "api/Roles/Update",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "roleDto",
-        "Type": "TOPDER.Service.Dtos.Role.RoleDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
     "ContainingType": "TOPDER.API.Controllers.TableBookingScheduleController",
     "Method": "AddTableBookingSchedule",
     "RelativePath": "api/TableBookingSchedule/Create",

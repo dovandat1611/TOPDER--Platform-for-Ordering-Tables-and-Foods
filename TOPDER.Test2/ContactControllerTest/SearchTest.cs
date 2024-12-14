@@ -65,9 +65,9 @@ namespace TOPDER.Test2.ContactControllerTest
             var response = result.Value as PaginatedResponseDto<ContactDto>;
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(response);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(1, response.Items.Count);
-                Microsoft.VisualStudio.TestTools.UnitTesting.           Assert.AreEqual("John Doe", response.Items[0].Name);
-            Microsoft.VisualStudio.TestTools.UnitTesting.       Assert.AreEqual(content, response.Items[0].Content);
-            Microsoft.VisualStudio.TestTools.UnitTesting.       Assert.AreEqual(topic, response.Items[0].Topic);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("John Doe", response.Items[0].Name);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(content, response.Items[0].Content);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(topic, response.Items[0].Topic);
         }
 
         // Test case for search with no filters, using pagination

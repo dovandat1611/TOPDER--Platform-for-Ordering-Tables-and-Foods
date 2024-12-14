@@ -4922,38 +4922,6 @@
         }
       }
     },
-    "/api/Roles/Update": {
-      "put": {
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Cập nhật role: Admin",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RoleDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RoleDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/RoleDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
     "/api/TableBookingSchedule/Create": {
       "post": {
         "tags": [

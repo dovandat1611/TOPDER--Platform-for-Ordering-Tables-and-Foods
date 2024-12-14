@@ -61,7 +61,7 @@ namespace TOPDER.Test2.CategoryRestaurantControllerTest
 
             // Assert
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(result);
-            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(404, result.StatusCode);
+            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(400, result.StatusCode);
             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual("No categories found that are associated with any restaurant.", result.Value);
         }
 
