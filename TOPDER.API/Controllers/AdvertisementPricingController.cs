@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TOPDER.Repository.IRepositories;
 using TOPDER.Service.Dtos.AdvertisementPricing;
 using TOPDER.Service.IServices;
 
@@ -10,10 +11,25 @@ namespace TOPDER.API.Controllers
     public class AdvertisementPricingController : ControllerBase
     {
         private readonly IAdvertisementPricingService _advertisementPricingService;
+        private readonly IRestaurantRepository _restaurantRepository;
 
-        public AdvertisementPricingController(IAdvertisementPricingService advertisementPricingService)
+        public AdvertisementPricingController(IAdvertisementPricingService advertisementPricingService, IRestaurantRepository restaurantRepository)
         {
             _advertisementPricingService = advertisementPricingService;
+            _restaurantRepository = restaurantRepository;
+        }
+
+        [HttpGet("FixAll15minus")]
+        public async Task<IActionResult> FixAll15minus()
+        {
+            var advertisementPricings = await _restaurantRepository.GetAllAsync();
+
+            foreach(var item in  advertisementPricings)
+            {
+                item.Subdescription = "https://viettinlaw.com/wp-content/uploads/2013/07/gcndkkd.jpg";
+                await _restaurantRepository.UpdateAsync(item);
+            }
+            return Ok();
         }
 
         [HttpGet("GetAllAdvertisementPricing")]

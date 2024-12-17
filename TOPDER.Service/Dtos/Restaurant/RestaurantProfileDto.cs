@@ -30,6 +30,7 @@ namespace TOPDER.Service.Dtos.Restaurant
         public string? Role { get; set; } 
         public decimal? WalletBalance { get; set; }
         public bool? IsBookingEnabled { get; set; }
+        public decimal? Discount { get; set; }
         public int? TableGapTime { get; set; }
     }
 }

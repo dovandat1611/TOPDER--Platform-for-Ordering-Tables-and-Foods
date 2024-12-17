@@ -58,7 +58,7 @@ builder.Services.AddSwaggerGen(c =>
 
 
 builder.Services.AddDbContext<TopderDBContext>(options =>
-  options.UseSqlServer(builder.Configuration.GetConnectionString("Dat_Connection"))
+  options.UseSqlServer(builder.Configuration.GetConnectionString("Hosting"))
 );
 
 builder.Services.AddDistributedMemoryCache();
@@ -170,19 +170,19 @@ var app = builder.Build();
 
 //// Configure the HTTP request pipeline.
 
-//app.UseSwagger();
-//app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
 
 app.UseCors(
     builder =>
     {
-        builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000", "https://topder.vercel.app")  // Thêm nhiều nguồn nếu cần
+        builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:3000", "https://topder.vercel.app", "https://www.topder.vn")  // Thêm nhiều nguồn nếu cần
        .AllowAnyHeader()
        .AllowAnyMethod()
        .AllowCredentials();

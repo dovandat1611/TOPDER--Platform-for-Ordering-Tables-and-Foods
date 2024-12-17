@@ -57,6 +57,7 @@ namespace TOPDER.Service.Dtos.Restaurant
         [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be between 6 and 100 characters.")]
         public string Password { get; set; } = null!;
 
-        public int? TableGapTime { get; set; }
+        [Required(ErrorMessage = "Business license is required.")]
+        public string? Subdescription { get; set; }
     }
 }

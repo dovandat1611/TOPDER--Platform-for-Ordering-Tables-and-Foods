@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAA9j+WlZwmnUqs3K+w20ecsgAAAAACAAAAAAAQZgAAAAEAACAAAABKLH1rQos440gpyI/kjjCj14ssjrfUVvYOtVPf0Z/hgQAAAAAOgAAAAAIAACAAAABgPQFamPQodnlhxqtoN2cVmyj7e3P3Mrp0oKVWpM8x1iAAAAClFLagiNgv/YXExYJDvb3iMX+CT4QwTNGJhs4lobNcdEAAAACpZjFs2iot2IWETAPh3X1lB6aURf36WGfSA3+NQPnXYPX2rlUJxfVIPhGcM6sZCYXtsf5tUIUK9sqXLWoeYu3U</EncryptedPassword>
+    <History>True|2024-12-14T16:49:30.9311325Z;True|2024-12-14T12:36:59.7830296+07:00;True|2024-12-14T12:31:47.8166005+07:00;True|2024-12-12T23:44:08.6824757+07:00;True|2024-12-12T23:40:18.7763064+07:00;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+  <ItemGroup>
+    <DestinationConnectionStrings Include="Hosting">
+      <Value>Data Source=SQL6030.site4now.net%3bInitial Catalog=db_ab07c9_topder%3bUser Id=db_ab07c9_topder_admin%3bPassword=Topder123%3bTrustServerCertificate=True%3bMultipleActiveResultSets=True</Value>
+    </DestinationConnectionStrings>
+  </ItemGroup>
+</Project>

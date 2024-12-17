@@ -28,5 +28,6 @@ namespace TOPDER.Service.Dtos.Restaurant
         public string? Description { get; set; }
         public string? Subdescription { get; set; }
         public int? TableGapTime { get; set; }
+        public decimal? Discount { get; set; }
     }
 }

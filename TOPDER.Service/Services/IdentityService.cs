@@ -1,6 +1,7 @@
 ﻿using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
+using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -50,7 +51,7 @@ namespace TOPDER.Service.Services
                 });
 
                 // Nếu xác thực thành công, trả về thông tin người dùng
-                UserInfoLoginGoole userInfoLogin =  new UserInfoLoginGoole()
+                UserInfoLoginGoole userInfoLogin = new UserInfoLoginGoole()
                 {
                     Id = payload.JwtId,
                     Email = payload.Email,
@@ -78,13 +79,13 @@ namespace TOPDER.Service.Services
                     }
                     var user = await _userService.GetUserByEmailToLoginGoogle(existingUser.Uid);
                     if (existingUser.Role == User_Role.CUSTOMER && user.Status == Common_Status.INACTIVE)
-                       {
-                                return new ApiResponse
-                                {
-                                    Success = false,
-                                    Message = "Tài khoản hiện không thể đăng nhập vào hệ thống!"
-                                };
-                       }
+                    {
+                        return new ApiResponse
+                        {
+                            Success = false,
+                            Message = "Tài khoản hiện không thể đăng nhập vào hệ thống!"
+                        };
+                    }
 
                     if (existingUser.Role == User_Role.CUSTOMER && user.IsVerify == false)
                     {

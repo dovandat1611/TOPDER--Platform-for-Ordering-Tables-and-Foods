@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using TOPDER.Repository.Entities;
@@ -668,6 +669,18 @@ namespace TOPDER.Service.Services
             order.TotalPaymentAmount = totalPaymentAmount;
 
             return await _orderRepository.UpdateAsync(order);
+        }
+
+        public async Task<OrderDto> GetOrderAsync(int id)
+        {
+            var order = await _orderRepository.GetByIdAsync(id);
+
+            if (order == null)
+            {
+                throw new KeyNotFoundException($"Order với id {id} không tồn tại.");
+            }
+
+            return _mapper.Map<OrderDto>(order);
         }
     }
 }

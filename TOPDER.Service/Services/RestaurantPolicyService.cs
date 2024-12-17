@@ -76,7 +76,7 @@ namespace TOPDER.Service.Services
         public async Task<List<RestaurantPolicyDto>> GetInActivePolicyAsync(int restaurantId)
         {
             var query = await _restaurantPolicyRepository.QueryableAsync();
-            var policyInActive = await query.Where(x => x.Status == Common_Status.INACTIVE)
+            var policyInActive = await query.Where(x => x.Status == Common_Status.INACTIVE && x.RestaurantId == restaurantId)
                 .OrderByDescending(x => x.PolicyId).ToListAsync();
 
             var policyInActiveDto = _mapper.Map<List<RestaurantPolicyDto>>(policyInActive);

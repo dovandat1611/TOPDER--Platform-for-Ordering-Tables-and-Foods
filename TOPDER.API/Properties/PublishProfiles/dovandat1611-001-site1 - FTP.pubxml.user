@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword />
+    <_PublishTargetUrl>ftp://win6050.site4now.net:21/topder</_PublishTargetUrl>
+    <History>False|2024-12-12T16:33:03.2721556Z;False|2024-12-12T23:18:59.6765175+07:00;False|2024-12-12T23:17:44.6386805+07:00;False|2024-12-12T23:10:04.0344003+07:00;False|2024-12-12T23:07:12.7978622+07:00;False|2024-12-12T23:06:58.5137840+07:00;False|2024-12-12T23:06:22.3259153+07:00;False|2024-12-12T23:05:48.6806008+07:00;False|2024-12-12T23:01:47.1674568+07:00;False|2024-12-12T22:56:30.4450453+07:00;False|2024-12-12T22:49:23.5997795+07:00;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+  <ItemGroup>
+    <DestinationConnectionStrings Include="Hosting">
+      <Value>Data Source=SQL6030.site4now.net%3bInitial Catalog=db_ab07c9_topder%3bUser Id=db_ab07c9_topder_admin%3bPassword=Topder123%3bTrustServerCertificate=True%3bMultipleActiveResultSets=True</Value>
+    </DestinationConnectionStrings>
+  </ItemGroup>
+</Project>

@@ -731,8 +731,8 @@ namespace TOPDER.API.Controllers
                 amount: (int)totalAmount,
                 description: Order_PaymentContent.PaymentContentVIETQR(),
                 items: items,
-                cancelUrl: _configuration["PaymentSettings:CancelUrl"]+$"&transactionId={order.OrderId}&paymentType=order",
-                returnUrl: _configuration["PaymentSettings:CancelUrl"]+$"&transactionId={order.OrderId}&paymentType=order"
+                cancelUrl: _configuration["PayOSSettings:CancelUrl"] +$"&transactionId={order.OrderId}&paymentType=order",
+                returnUrl: _configuration["PayOSSettings:CancelUrl"] +$"&transactionId={order.OrderId}&paymentType=order"
             );
 
             CreatePaymentResult createPayment = await _paymentGatewayService.CreatePaymentUrlPayOS(paymentData);
@@ -868,6 +868,34 @@ namespace TOPDER.API.Controllers
                 return Forbid($"Bạn không có quyền truy cập vào đơn hàng với ID {orderId}.");
             }
         }
+
+
+        [HttpGet("GetOrderDetailForQR/{orderId}")]
+        public async Task<IActionResult> GetOrderAsync(int orderId)
+        {
+            try
+            {
+                var orderDto = await _orderService.GetOrderAsync(orderId);
+                var orderTables = await _orderTableService.GetItemsByOrderAsync(orderDto.OrderId);
+                var orderMenus = await _orderMenuService.GetItemsOriginalByOrderAsync(orderDto.OrderId);
+                var orderMenusAdd = await _orderMenuService.GetItemsAddByOrderAsync(orderDto.OrderId);
+
+                orderDto.OrderTables = orderTables;
+                orderDto.OrderMenus = orderMenus;
+                orderDto.OrderMenusAdd = orderMenusAdd;
+
+                return Ok(orderDto);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound($"Đơn hàng với ID {orderId} không tồn tại.");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid($"Bạn không có quyền truy cập vào đơn hàng với ID {orderId}.");
+            }
+        }
+
 
         // List ra đơn hàng của customer
         [HttpGet("GetOrdeHistoryForCustomer/{customerId}")]
@@ -1645,6 +1673,8 @@ namespace TOPDER.API.Controllers
             }
             return BadRequest($"Đơn hàng đã bị thay đổi khi report! không thể xử lý.");
         }
+
+
 
 
     }

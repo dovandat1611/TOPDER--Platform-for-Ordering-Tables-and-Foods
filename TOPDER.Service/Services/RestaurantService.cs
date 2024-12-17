@@ -34,6 +34,7 @@ namespace TOPDER.Service.Services
         public async Task<Restaurant> AddAsync(CreateRestaurantRequest restaurantRequest)
         {
             var restaurant = _mapper.Map<Restaurant>(restaurantRequest);
+            restaurant.TableGapTime = 15;
             return await _restaurantRepository.CreateAndReturnAsync(restaurant);
         }
 
@@ -97,8 +98,8 @@ namespace TOPDER.Service.Services
             existingRestaurant.MaxCapacity = restaurant.MaxCapacity;
             existingRestaurant.Price = restaurant.Price;
             existingRestaurant.Description = restaurant.Description;
-            existingRestaurant.Subdescription = restaurant.Subdescription;
             existingRestaurant.TableGapTime = restaurant.TableGapTime;
+            existingRestaurant.Discount = restaurant.Discount;
             return await _restaurantRepository.UpdateAsync(existingRestaurant);
         }
 

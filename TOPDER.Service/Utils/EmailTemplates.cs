@@ -33,12 +33,12 @@ namespace TOPDER.Service.Utils
                             <p>Để xác nhận email đăng ký, bạn vui lòng click vào nút &quot;Xác thực&quot; bên dưới.</p>
                             <br><br>
                             <div style='text-align: center;'>
-                                <a href='https://topder.vercel.app/verify-account/{uid}' style='display: inline-block; background-color: #f29034; color: #ffffff; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;'>
+                                <a href='https://www.topder.vn/verify-account/{uid}' style='display: inline-block; background-color: #f29034; color: #ffffff; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;'>
                                   Xác Thực
                                 </a>
                             </div>
                             <br><br>
-                            <p>Để biết thêm thông tin, vui lòng truy cập <a href='https://topder.vercel.app' style='color: #f29034; text-decoration: none;'>website</a> của chúng tôi.</p>
+                            <p>Để biết thêm thông tin, vui lòng truy cập <a href='https://www.topder.vn' style='color: #f29034; text-decoration: none;'>website</a> của chúng tôi.</p>
                             <p>Xin chân thành cảm ơn!</p>
                             <p>Hân hạnh,</p>
                             <p style='font-weight: 700; color: #272241;'>Đội ngũ TOPDER</p>
@@ -72,7 +72,7 @@ namespace TOPDER.Service.Utils
                             <p>Cảm ơn bạn đã đăng ký tài khoản với <span style='font-weight: bold; color: #272241;'>TOPDER</span>.</p>
                             <p>Mã xác thực của bạn là: <span style='color: #272241; font-weight: bold;'>{otp}</span></p>
                             <p>Vui lòng nhập mã này để xác minh tài khoản của bạn.</p>
-                            <p>Để biết thêm thông tin, vui lòng truy cập <a href='https://topder.vercel.app' style='color: #f29034; text-decoration: none;'>website</a> của chúng tôi.</p>
+                            <p>Để biết thêm thông tin, vui lòng truy cập <a href='https://www.topder.vn' style='color: #f29034; text-decoration: none;'>website</a> của chúng tôi.</p>
                             <p>Xin chân thành cảm ơn!</p>
                             <p>Hân hạnh,</p>
                             <p style='font-weight: 700; color: #272241;'>Đội ngũ TOPDER</p>
@@ -104,7 +104,7 @@ namespace TOPDER.Service.Utils
                         <div style='background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 8px rgba(8, 120, 211, 0.1); text-align: left;'>
                             <p>Chào <span style='font-weight: bold; color: #272241;'>{name}</span>,</p>
                             <p>Cảm ơn bạn đã liên hệ với chúng tôi.</p>
-                            <p>Chúng tôi đã nhận được yêu cầu của bạn và sẽ phản hồi sớm nhất có thể. Trong thời gian chờ đợi, bạn có thể truy cập <a href='https://topder.vercel.app' style='color: #f29034; text-decoration: none;'>website</a> của chúng tôi để tìm hiểu thêm thông tin.</p>
+                            <p>Chúng tôi đã nhận được yêu cầu của bạn và sẽ phản hồi sớm nhất có thể. Trong thời gian chờ đợi, bạn có thể truy cập <a href='https://www.topder.vn' style='color: #f29034; text-decoration: none;'>website</a> của chúng tôi để tìm hiểu thêm thông tin.</p>
                             <p>Xin chân thành cảm ơn!</p>
                             <p>Trân trọng,</p>
                             <p style='font-weight: 700; color: #272241;'>Đội ngũ TOPDER</p>
@@ -136,7 +136,7 @@ namespace TOPDER.Service.Utils
                         <div style='background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 8px rgba(8, 120, 211, 0.1); text-align: left;'>
                             <p>Chào <span style='font-weight: bold; color: #272241;'>{name}</span>,</p>
                             <p>Cảm ơn bạn đã liên hệ với chúng tôi.</p>
-                            <p>Chúng tôi đã nhận được yêu cầu đăng ký nhà hàng của bạn, bạn có thể truy cập <a href='https://topder.vercel.app/restaurant-register' style='color: #f29034; text-decoration: none;'>Đăng Ký Nhà Hàng</a> của chúng tôi để tìm đăng ký nhà hàng ngay bây giờ!.</p>
+                            <p>Chúng tôi đã nhận được yêu cầu đăng ký nhà hàng của bạn, bạn có thể truy cập <a href='https://www.topder.vn/restaurant-register' style='color: #f29034; text-decoration: none;'>Đăng Ký Nhà Hàng</a> của chúng tôi để tìm đăng ký nhà hàng ngay bây giờ!.</p>
                             <p>Xin chân thành cảm ơn!</p>
                             <p>Trân trọng,</p>
                             <p style='font-weight: 700; color: #272241;'>Đội ngũ TOPDER</p>
@@ -167,7 +167,7 @@ namespace TOPDER.Service.Utils
                         <img src='https://res.cloudinary.com/do9iyczi3/image/upload/v1726643328/LOGO-TOPDER_qonl9l.png' alt='Logo TOPDER' width='150' style='display: block; margin: 0 auto;' />
                         <div style='background-color: #f9f9f9; padding: 20px; border-radius: 5px; box-shadow: 0 2px 8px rgba(8, 120, 211, 0.1); text-align: left;'>
                             <p>Bây giờ bạn có thể đăng nhập và hoàn thiện các thông tin về nhà hàng của bạn ở website chúng tôi.</p>
-                            <p>Bạn có thể truy cập <a href='https://topder.vercel.app/login' style='color: #f29034; text-decoration: none;'>Đăng Nhập</a> ngay bây giờ!.</p>
+                            <p>Bạn có thể truy cập <a href='https://www.topder.vn/login' style='color: #f29034; text-decoration: none;'>Đăng Nhập</a> ngay bây giờ!.</p>
                             <p>Xin chân thành cảm ơn!</p>
                             <p>Trân trọng,</p>
                             <p style='font-weight: 700; color: #272241;'>Đội ngũ TOPDER</p>
@@ -201,7 +201,7 @@ namespace TOPDER.Service.Utils
                             <p>Chúng tôi muốn thông báo cho bạn về việc cập nhật trạng thái đơn hàng của bạn.</p>
                             <p>Mã Đơn Hàng: <span style='font-weight: bold; color: #272241;'>#{orderId}</span></p>
                             <p>Trạng Thái Hiện Tại: <span style='font-weight: bold; color: #272241;'>{status}</span></p>
-                            <p>Để biết thêm thông tin, xin vui lòng truy cập <a href='https://topder.vercel.app' style='color: #f29034; text-decoration: none;'>website</a> của chúng tôi để tìm hiểu thêm thông tin.</p>
+                            <p>Để biết thêm thông tin, xin vui lòng truy cập <a href='https://www.topder.vn' style='color: #f29034; text-decoration: none;'>website</a> của chúng tôi để tìm hiểu thêm thông tin.</p>
                             <p>Trân trọng,</p>
                             <p style='font-weight: 700; color: #272241;'>Topder</p>
                         </div>
@@ -512,6 +512,7 @@ namespace TOPDER.Service.Utils
         {
             string formattedDate = orderConfirmationEmail.ReservationDate.ToString("dd/MM/yyyy");
             string formattedTime = orderConfirmationEmail.ReservationTime.ToString(@"hh\:mm");
+            var urlQR = $"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.topder.vn/order-detail/{orderConfirmationEmail.OrderId}";
 
             var tablesHtml = "<ul>";
 
@@ -575,7 +576,7 @@ namespace TOPDER.Service.Utils
                           <h1 style='margin: 0;'>Tổng hóa đơn</h1>
                           <div style='font-size: 1.2rem; font-weight: bold; margin-top: 10px;'>{orderConfirmationEmail.TotalAmount.ToString("N0")} đ</div>
                           <div style='margin: 20px auto; width: 120px; height: 120px;'>
-                            <img src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://topder.vercel.app/' alt='QR Code' style='width: 100%; height: 100%;' />
+                            <img src={urlQR} alt='QR Code' style='width: 100%; height: 100%;' />
                           </div>
                           <p>Vui lòng mang theo mã QR này khi đến nhà hàng.</p>
                           <p>Chúc bạn có một bữa ăn ngon miệng!</p>

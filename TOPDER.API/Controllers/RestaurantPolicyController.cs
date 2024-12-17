@@ -41,8 +41,6 @@ namespace TOPDER.API.Controllers
         public async Task<IActionResult> GetActivePolicy(int restaurantId)
         {
             var policy = await _restaurantPolicyService.GetActivePolicyAsync(restaurantId);
-            if (policy == null)
-                return NotFound("No active policy found for this restaurant.");
             return Ok(policy);
         }
 
@@ -50,8 +48,6 @@ namespace TOPDER.API.Controllers
         public async Task<IActionResult> GetInActivePolicies(int restaurantId)
         {
             var policies = await _restaurantPolicyService.GetInActivePolicyAsync(restaurantId);
-            if (policies == null || policies.Count == 0)
-                return NotFound("No inactive policies found for this restaurant.");
             return Ok(policies);
         }
 

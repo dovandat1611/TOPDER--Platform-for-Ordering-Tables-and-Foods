@@ -1,0 +1,14 @@
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.Repository\bin\Release\net6.0\TOPDER.Repository.deps.json
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.Repository\bin\Release\net6.0\TOPDER.Repository.runtimeconfig.json
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.Repository\bin\Release\net6.0\TOPDER.Repository.dll
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.Repository\bin\Release\net6.0\TOPDER.Repository.pdb
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.Repository\obj\Release\net6.0\TOPDER.Repository.csproj.AssemblyReference.cache
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.Repository\obj\Release\net6.0\TOPDER.Repository.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.Repository\obj\Release\net6.0\TOPDER.Repository.AssemblyInfoInputs.cache
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.Repository\obj\Release\net6.0\TOPDER.Repository.AssemblyInfo.cs
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.Repository\obj\Release\net6.0\TOPDER.Repository.csproj.CoreCompileInputs.cache
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.Repository\obj\Release\net6.0\TOPDER.Repository.dll
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.Repository\obj\Release\net6.0\refint\TOPDER.Repository.dll
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.Repository\obj\Release\net6.0\TOPDER.Repository.pdb
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.Repository\obj\Release\net6.0\TOPDER.Repository.genruntimeconfig.cache
+C:\Users\Lenovo\Documents\C#\CAPSTONE\TOPDER\TOPDER.Repository\obj\Release\net6.0\ref\TOPDER.Repository.dll

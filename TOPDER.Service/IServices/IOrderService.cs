@@ -20,6 +20,7 @@ namespace TOPDER.Service.IServices
         Task<OrderPaidEmail> GetOrderPaid(int orderID); 
         Task<bool> RemoveAsync(int id);
         Task<OrderDto> GetItemAsync(int id, int Uid);
+        Task<OrderDto> GetOrderAsync(int id);
         Task<EmailForOrder> GetEmailForOrderAsync(int orderId, string role);
         Task<OrderDto> UpdateStatusAsync(int orderID, string status);
         Task<bool> UpdateStatusCancelAsync(int orderID, string status, string cancelReason);

@@ -36,16 +36,16 @@ namespace TOPDER.Service.Common.ServiceDefinitions
         }
         public class VNPAY_TypePayment
         {
-            public static string WALLET = "Wallet13";
-            public static string ORDER = "Order13";
-            public static string BOOKING = "Booking13";
+            public static string WALLET = "WalletVNPAY";
+            public static string ORDER = "OrderVNPAY";
+            public static string BOOKING = "BookingVNPAY";
         }
 
         public class VIETQR_SetupId
         {
-            public static int WALLET = 100;
-            public static int ORDER = 200;
-            public static int BOOKING = 300;
+            public static int WALLET = 400;
+            public static int ORDER = 2102;
+            public static int BOOKING = 600;
         }
 
         public class Is_Null
