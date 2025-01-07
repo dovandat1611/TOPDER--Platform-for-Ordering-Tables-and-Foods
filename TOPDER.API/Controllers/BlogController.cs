@@ -25,7 +25,6 @@ namespace TOPDER.API.Controllers
             _cloudinaryService = cloudinaryService;
         }
 
-
         [HttpPost("Create")]
         [SwaggerOperation(Summary = "Tạo Blog: Admin")]
         public async Task<IActionResult> CreateBlog([FromBody] CreateBlogModel createBlogModel)
