@@ -123,4 +123,4 @@ The project is divided into three main components:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-repo/topder.git
+   git clone https://github.com/dovandat1611/TOPDER-Platform-for-Ordering-Tables-and-Foods.git
